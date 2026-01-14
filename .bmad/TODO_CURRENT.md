@@ -90,33 +90,33 @@ Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
 
 ---
 
-## Phase 6: Layout & Navigation
+## Phase 6: Layout & Navigation ✅
 
-- [ ] 6.1 Créer `src/app/(dashboard)/layout.tsx` - layout dashboard
-- [ ] 6.2 Créer composant `Sidebar` avec navigation
-- [ ] 6.3 Créer composant `Header` avec user menu
-- [ ] 6.4 Créer composant `MobileNav` (responsive)
-- [ ] 6.5 Ajouter composants shadcn nécessaires (Button, Input, Card, etc.)
+- [x] 6.1 Créer `src/app/(dashboard)/layout.tsx` - layout dashboard
+- [x] 6.2 Créer composant `Sidebar` avec navigation
+- [x] 6.3 Créer composant `Header` avec user menu
+- [x] 6.4 Créer composant `MobileNav` (responsive)
+- [x] 6.5 Ajouter composants shadcn nécessaires (Button, Input, Card, etc.)
 
 ---
 
-## Phase 7: Tests & Build
+## Phase 7: Tests & Build ✅
 
-- [ ] 7.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
-- [ ] 7.2 `bun run build` - build production OK
-- [ ] 7.3 Tester flow complet: signup → créer foyer → ajouter enfant
-- [ ] 7.4 Vérifier RLS policies fonctionnent (user A ne voit pas foyer de user B)
+- [x] 7.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
+- [x] 7.2 `bun run build` - build production OK
+- [ ] 7.3 Tester flow complet: signup → créer foyer → ajouter enfant (MANUEL avec Supabase configuré)
+- [ ] 7.4 Vérifier RLS policies fonctionnent (user A ne voit pas foyer de user B) (MANUEL avec Supabase configuré)
 
 ---
 
 ## Definition of Done Sprint 1
-- [ ] Auth complète (signup/login/logout/magic link)
-- [ ] Création foyer fonctionnelle
-- [ ] Invitation co-parent fonctionnelle
-- [ ] CRUD enfants fonctionnel
-- [ ] Build production sans erreur
-- [ ] Types stricts partout (no `any`)
-- [ ] RLS policies actives et testées
+- [x] Auth complète (signup/login/logout/magic link)
+- [x] Création foyer fonctionnelle
+- [x] Invitation co-parent fonctionnelle
+- [x] CRUD enfants fonctionnel
+- [x] Build production sans erreur
+- [x] Types stricts partout (no `any`)
+- [ ] RLS policies actives et testées (dans schema.sql, à tester manuellement)
 
 ---
 
