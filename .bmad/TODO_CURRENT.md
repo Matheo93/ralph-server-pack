@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 5: Onboarding Complet + Vue Semaine + Notifications
+# TODO CURRENT - Sprint 6: Polish, Performance & Production Ready
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,188 +10,246 @@
 ---
 
 ## Sprint Goal
-Améliorer l'onboarding utilisateur, implémenter la vue semaine complète, le système de notifications, et les fonctionnalités manquantes du MASTER_PROMPT.
+Rendre l'application production-ready avec export de données, push notifications, internationalisation, tests E2E complets, et optimisations de performance.
 
 ---
 
 ## PRÉ-REQUIS
-- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [x] 0.2 Vérifier les services AWS accessibles
+- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [ ] 0.2 Vérifier les services AWS accessibles
 
 ---
 
-## Phase 1: Onboarding Wizard Complet
+## Phase 1: Export PDF des Données (RGPD)
 
-- [x] 1.1 Refactorer `src/app/(dashboard)/onboarding/page.tsx`:
-  - Wizard multi-étapes (1. Foyer, 2. Enfants, 3. Co-parent, 4. Préférences)
-  - Progress indicator
-  - Validation à chaque étape
-- [x] 1.2 Créer `src/components/custom/OnboardingWizard.tsx`:
-  - State machine pour les étapes
-  - Navigation prev/next
-  - Skip optionnel pour certaines étapes
-- [x] 1.3 Créer `src/components/custom/OnboardingStep1Household.tsx`:
-  - Nom du foyer
-  - Pays (France par défaut)
-  - Timezone automatique
-- [x] 1.4 Créer `src/components/custom/OnboardingStep2Children.tsx`:
-  - Ajout multiple enfants
-  - Prénom + date de naissance
-  - Tags optionnels (allergies, etc.)
-- [x] 1.5 Créer `src/components/custom/OnboardingStep3Invite.tsx`:
-  - Inviter co-parent par email
-  - Option "Plus tard"
-- [x] 1.6 Créer `src/components/custom/OnboardingStep4Preferences.tsx`:
-  - Notifications (heure rappel)
-  - Catégories prioritaires
-  - Templates auto-activés
-
----
-
-## Phase 2: Vue Semaine Complète
-
-- [x] 2.1 Créer `src/app/(dashboard)/tasks/week/page.tsx`:
-  - Vue 7 jours avec scroll horizontal
-  - Groupement par jour
-  - Drag & drop entre jours (report)
-- [x] 2.2 Créer `src/components/custom/WeekView.tsx`:
-  - Colonnes pour chaque jour
-  - Header avec date
-  - Badge count par jour
-- [x] 2.3 Créer `src/components/custom/DayColumn.tsx`:
-  - Liste des tâches du jour
-  - Drop zone pour drag & drop
-  - Bouton "+" ajouter tâche
-- [x] 2.4 Créer `src/lib/actions/week.ts`:
-  - `getTasksForWeek(householdId, startDate)`
-  - `moveTaskToDay(taskId, newDate)`
+- [ ] 1.1 Créer `src/lib/services/export.ts`:
+  - `exportHouseholdData(householdId)` - export JSON complet
+  - `generateChargePDF(householdId, period)` - PDF charge mentale
+  - `generateTasksHistoryPDF(householdId)` - historique tâches
+- [ ] 1.2 Installer et configurer `@react-pdf/renderer`:
+  - Configuration fonts
+  - Styles de base PDF
+- [ ] 1.3 Créer `src/lib/templates/pdf/charge-report.tsx`:
+  - Template React PDF
+  - Header avec logo FamilyLoad
+  - Graphique répartition parents
+  - Tableau détaillé par catégorie
+- [ ] 1.4 Créer `src/lib/templates/pdf/tasks-history.tsx`:
+  - Liste tâches avec dates
+  - Filtres par période
+  - Statistiques globales
+- [ ] 1.5 Créer `src/app/api/export/pdf/route.ts`:
+  - Endpoint génération PDF
+  - Authentification requise
+  - Rate limiting
+- [ ] 1.6 Ajouter boutons export dans `src/app/(dashboard)/charge/page.tsx`:
+  - Bouton "Exporter PDF"
+  - Sélecteur période (semaine, mois, trimestre)
 
 ---
 
-## Phase 3: Système de Notifications
+## Phase 2: Push Notifications (Firebase)
 
-- [x] 3.1 Créer `src/lib/services/notifications.ts`:
-  - `sendTaskReminder(taskId, memberId)`
-  - `sendDailyDigest(householdId)`
-  - `sendStreakAlert(householdId)`
-  - `sendDeadlineWarning(taskId)`
-- [x] 3.2 Créer `src/lib/aws/ses.ts`:
-  - Configuration Amazon SES
-  - `sendEmail(to, subject, html)`
-  - Templates email
-- [x] 3.3 Créer `src/lib/templates/email/`:
-  - `daily-digest.ts` - Email récapitulatif quotidien
-  - `task-reminder.ts` - Rappel de tâche
-  - `streak-warning.ts` - Alerte streak en danger
-- [x] 3.4 Créer `src/app/api/cron/notifications/route.ts`:
-  - Endpoint pour cron job
-  - Trigger daily digest à 7h
-  - Trigger reminders selon préférences
-
----
-
-## Phase 4: Charge Mentale Dashboard Am\u00e9lior\u00e9
-
-- [x] 4.1 Refactorer `src/app/(dashboard)/dashboard/page.tsx`:
-  - Widget charge mentale plus visible
-  - Graphique semaine (bar chart)
-  - Comparaison parent 1 vs parent 2
-- [x] 4.2 Cr\u00e9er `src/components/custom/ChargeWeekChart.tsx`:
-  - Bar chart r\u00e9partition sur 7 jours
-  - Couleurs par parent
-  - Tooltip avec d\u00e9tails
-- [x] 4.3 Cr\u00e9er `src/components/custom/ChargeHistoryCard.tsx`:
-  - Historique 4 derni\u00e8res semaines
-  - Trend up/down
-  - Message encourageant si \u00e9quilibre
-- [x] 4.4 Cr\u00e9er `src/app/(dashboard)/charge/page.tsx`:
-  - Page d\u00e9di\u00e9e charge mentale
-  - D\u00e9tails par cat\u00e9gorie
-  - Export PDF (nota: non impl\u00e9ment\u00e9, UI uniquement)
+- [ ] 2.1 Installer Firebase Admin SDK:
+  - `bun add firebase-admin`
+  - Configuration service account
+- [ ] 2.2 Créer `src/lib/firebase/admin.ts`:
+  - Initialisation Firebase Admin
+  - Configuration FCM
+- [ ] 2.3 Créer `src/lib/firebase/messaging.ts`:
+  - `sendPushNotification(token, title, body, data)`
+  - `sendMultiplePush(tokens[], notification)`
+  - Gestion erreurs tokens invalides
+- [ ] 2.4 Créer `src/app/api/notifications/register-token/route.ts`:
+  - Enregistrement device token
+  - Association user -> device
+  - Support multiple devices
+- [ ] 2.5 Modifier `src/lib/services/notifications.ts`:
+  - Ajouter envoi push en plus email
+  - Préférence user (push, email, both)
+- [ ] 2.6 Créer table `device_tokens` + RLS:
+  - user_id, token, platform, created_at
+  - Policies RLS appropriées
+- [ ] 2.7 Ajouter préférences push dans `src/app/(dashboard)/settings/notifications/page.tsx`:
+  - Toggle push notifications
+  - Bouton test notification
 
 ---
 
-## Phase 5: Streak & Gamification
+## Phase 3: Internationalisation (i18n)
 
-- [x] 5.1 Am\u00e9liorer `src/components/custom/StreakCounter.tsx`:
-  - Animation quand streak augmente
-  - Milestones (7 jours, 30 jours, 100 jours)
-  - Badge collection
-- [x] 5.2 Cr\u00e9er `src/lib/services/streak.ts`:
-  - `calculateStreak(householdId)`
-  - `checkStreakRisk(householdId)` - alerte si critique non fait
-  - `saveJoker(householdId)` - premium feature
-- [x] 5.3 Cr\u00e9er `src/components/custom/StreakMilestones.tsx`:
-  - Badges d\u00e9bloqu\u00e9s
-  - Prochain milestone
-  - Confetti animation
-
----
-
-## Phase 6: Taches Recurrentes UI
-
-- [x] 6.1 Ameliorer `src/components/custom/TaskForm.tsx`:
-  - Section recurrence plus intuitive
-  - Preview "prochaines occurrences"
-  - Options: quotidien, hebdo, mensuel, personnalise
-- [x] 6.2 Creer `src/components/custom/RecurrencePreview.tsx`:
-  - Liste des 5 prochaines dates
-  - Calendrier mini avec points
-- [x] 6.3 Creer `src/app/(dashboard)/tasks/recurring/page.tsx`:
-  - Liste des taches recurrentes actives
-  - Modifier/supprimer recurrence
-  - Statistiques (taux completion)
+- [ ] 3.1 Installer next-intl:
+  - `bun add next-intl`
+  - Configuration middleware
+- [ ] 3.2 Créer structure messages:
+  - `src/messages/fr.json` - Français (défaut)
+  - `src/messages/en.json` - Anglais
+- [ ] 3.3 Configurer `src/middleware.ts`:
+  - Détection locale automatique
+  - Redirect selon préférence user
+- [ ] 3.4 Créer `src/lib/i18n/config.ts`:
+  - Locales supportées
+  - Locale par défaut
+  - Formats dates/nombres
+- [ ] 3.5 Migrer composants critiques:
+  - Header, Sidebar, MobileNav
+  - Dashboard labels
+  - TaskForm labels
+- [ ] 3.6 Ajouter sélecteur langue:
+  - Dans settings/profile
+  - Persistence préférence user
 
 ---
 
-## Phase 7: Actions Rapides
+## Phase 4: Tests E2E Playwright
 
-- [x] 7.1 Creer `src/components/custom/QuickActions.tsx`:
-  - Boutons flottants (FAB)
-  - Nouvelle tache (formulaire)
-  - Nouveau vocal
-  - Scanner document (future)
-- [x] 7.2 Creer `src/components/custom/SwipeableTaskCard.tsx`:
-  - Swipe left = reporter
-  - Swipe right = fait
-  - Long press = menu contextuel
-
----
-
-## Phase 8: Tests et Validations
-
-- [x] 8.1 Créer `src/tests/onboarding.test.ts`:
-  - Test wizard complet
-  - Test création foyer + enfants
-- [x] 8.2 Créer `src/tests/week-view.test.ts`:
-  - Test affichage semaine
-  - Test drag & drop
-- [x] 8.3 Créer `src/tests/notifications.test.ts`:
-  - Test envoi email (mock SES)
-  - Test logique reminder
-- [x] 8.4 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
-- [x] 8.5 `bun run build` - build production OK
+- [ ] 4.1 Configurer Playwright:
+  - `bun add -D @playwright/test`
+  - playwright.config.ts avec baseURL
+- [ ] 4.2 Créer `e2e/auth.spec.ts`:
+  - Test login flow complet
+  - Test signup flow
+  - Test logout
+- [ ] 4.3 Créer `e2e/onboarding.spec.ts`:
+  - Test wizard étape par étape
+  - Test création foyer
+  - Test ajout enfant
+- [ ] 4.4 Créer `e2e/tasks.spec.ts`:
+  - Test création tâche
+  - Test complétion tâche
+  - Test report tâche
+  - Test suppression tâche
+- [ ] 4.5 Créer `e2e/vocal.spec.ts`:
+  - Test mock audio upload
+  - Test création tâche vocale
+- [ ] 4.6 Créer `e2e/charge.spec.ts`:
+  - Test affichage dashboard charge
+  - Test navigation semaine
 
 ---
 
-## Definition of Done Sprint 5
-- [x] Onboarding wizard fonctionnel (4 étapes)
-- [x] Vue semaine avec 7 jours
-- [x] Système notifications email configuré
-- [x] Dashboard charge amélioré avec graphiques
-- [x] Streak milestones implémentés
-- [x] Récurrence UI améliorée
-- [x] Actions rapides (swipe)
-- [x] Build production sans erreur
-- [x] Tests passent
+## Phase 5: Performance & Optimisations
+
+- [ ] 5.1 Auditer et optimiser bundle:
+  - Analyser avec `bun run build --analyze`
+  - Identifier chunks trop gros
+  - Split dynamique imports
+- [ ] 5.2 Implémenter skeleton loaders:
+  - `src/components/ui/skeleton.tsx`
+  - Skeleton pour TaskList
+  - Skeleton pour Dashboard
+- [ ] 5.3 Optimiser queries Supabase:
+  - Indexes manquants
+  - Pagination curseur
+  - Cache côté client (SWR/TanStack)
+- [ ] 5.4 Installer et configurer React Query:
+  - `bun add @tanstack/react-query`
+  - Provider setup
+  - Hooks custom pour tasks, children
+- [ ] 5.5 Implémenter prefetching:
+  - Prefetch week view depuis dashboard
+  - Prefetch task detail au hover
+- [ ] 5.6 Optimiser images:
+  - Composant Image optimisé
+  - Formats WebP/AVIF
+  - Lazy loading
+
+---
+
+## Phase 6: Sécurité & RGPD
+
+- [ ] 6.1 Audit RLS policies:
+  - Vérifier toutes les tables
+  - Test policies avec différents users
+- [ ] 6.2 Créer `src/app/api/account/delete/route.ts`:
+  - Suppression compte complète
+  - Cascade sur toutes les données
+  - Email confirmation
+- [ ] 6.3 Créer `src/app/api/export/data/route.ts`:
+  - Export RGPD complet (JSON)
+  - Toutes données utilisateur
+  - Format standardisé
+- [ ] 6.4 Ajouter page privacy dans settings:
+  - `src/app/(dashboard)/settings/privacy/page.tsx`
+  - Bouton exporter mes données
+  - Bouton supprimer mon compte
+- [ ] 6.5 Implémenter rate limiting:
+  - Middleware rate limit
+  - Protection endpoints sensibles
+- [ ] 6.6 Logs sécurisés:
+  - Anonymisation données sensibles
+  - Retention policy
+
+---
+
+## Phase 7: UX Mobile Améliorations
+
+- [ ] 7.1 Améliorer responsive design:
+  - Audit tous les composants mobile
+  - Fix overflow issues
+  - Touch targets 44px minimum
+- [ ] 7.2 Ajouter pull-to-refresh:
+  - Sur TaskList
+  - Sur Dashboard
+- [ ] 7.3 Améliorer SwipeableTaskCard:
+  - Feedback haptique (si disponible)
+  - Animation plus fluide
+  - Thresholds ajustés
+- [ ] 7.4 Optimiser MobileNav:
+  - Highlight page courante
+  - Badge notifications
+  - Animation transitions
+
+---
+
+## Phase 8: Documentation & Cleanup
+
+- [ ] 8.1 Créer CHANGELOG.md:
+  - Features Sprint 1-6
+  - Format Keep a Changelog
+- [ ] 8.2 Nettoyer code mort:
+  - Supprimer imports inutilisés
+  - Supprimer fichiers obsolètes
+- [ ] 8.3 Vérifier console.log:
+  - Supprimer tous les console.log dev
+  - Remplacer par logger si nécessaire
+- [ ] 8.4 Audit accessibilité:
+  - Labels ARIA
+  - Navigation clavier
+  - Contraste couleurs
+
+---
+
+## Phase 9: Tests et Validation Finale
+
+- [ ] 9.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
+- [ ] 9.2 `bun run build` - build production OK
+- [ ] 9.3 `bun test` - tous tests passent
+- [ ] 9.4 `bun run e2e` - tests E2E passent
+- [ ] 9.5 Lighthouse audit > 90 sur toutes métriques
+
+---
+
+## Definition of Done Sprint 6
+- [ ] Export PDF fonctionnel (charge + historique)
+- [ ] Push notifications configurées
+- [ ] i18n FR/EN fonctionnel
+- [ ] Tests E2E couvrent flows critiques
+- [ ] Bundle optimisé < 200KB first load
+- [ ] RGPD compliant (export, suppression)
+- [ ] Mobile UX améliorée
+- [ ] Zéro erreur TypeScript
+- [ ] Build production OK
+- [ ] Tests passent
 
 ---
 
 ## Variables d'environnement NOUVELLES
 ```env
-AWS_SES_REGION=
-AWS_SES_FROM_EMAIL=
-NOTIFICATION_CRON_SECRET=
+FIREBASE_PROJECT_ID=
+FIREBASE_PRIVATE_KEY=
+FIREBASE_CLIENT_EMAIL=
+NEXT_PUBLIC_DEFAULT_LOCALE=fr
 ```
 
 ---
@@ -201,7 +259,9 @@ NOTIFICATION_CRON_SECRET=
 bun dev                    # Dev server
 bun build                  # Production build
 bunx tsc --noEmit          # Type check
-bun test                   # Run tests
+bun test                   # Run unit tests
+bun run e2e                # Run E2E tests
+bunx playwright install    # Install browsers
 ```
 
 ---
@@ -209,9 +269,10 @@ bun test                   # Run tests
 ## Notes
 - Commit après CHAQUE tâche terminée
 - Message format: `feat(scope): description`
-- Onboarding doit être mobile-first
-- Emails doivent être responsive
-- Streak = feature d'engagement critique
+- PDF doit être généré côté serveur (streaming)
+- Firebase Admin SDK = server-side only
+- i18n = Server Components compatibles
+- Tests E2E avec data-testid obligatoires
 - RLS pour toutes nouvelles tables
 
 **Signal fin sprint**: `<promise>TASK_COMPLETE</promise>`
