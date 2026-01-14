@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation"
+import { NextIntlClientProvider } from "next-intl"
+import { getMessages, getLocale } from "next-intl/server"
 import { getUser } from "@/lib/auth/actions"
 import { getHousehold } from "@/lib/actions/household"
+import { QueryProvider } from "@/lib/providers/QueryProvider"
 import { Sidebar } from "@/components/custom/sidebar"
 import { Header } from "@/components/custom/header"
 import { MobileNav } from "@/components/custom/mobile-nav"
@@ -36,35 +39,42 @@ export default async function DashboardLayout({
     subscription_status: string
   } | null
 
+  const locale = await getLocale()
+  const messages = await getMessages()
+
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <div className="lg:pl-64">
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-          <MobileNav />
-          <div className="h-6 w-px bg-border lg:hidden" />
-          <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <div className="flex items-center gap-x-4 lg:gap-x-6">
-              {household?.name && (
-                <span className="text-sm font-medium text-muted-foreground hidden sm:block">
-                  {household.name}
-                </span>
-              )}
-              {household && household.streak_current > 0 && (
-                <span className="text-sm font-medium text-orange-500">
-                  {household.streak_current} jour{household.streak_current > 1 ? "s" : ""} de suite
-                </span>
-              )}
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <QueryProvider>
+        <div className="min-h-screen bg-background">
+          <Sidebar />
+          <div className="lg:pl-64">
+            <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+              <MobileNav />
+              <div className="h-6 w-px bg-border lg:hidden" />
+              <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
+                <div className="flex items-center gap-x-4 lg:gap-x-6">
+                  {household?.name && (
+                    <span className="text-sm font-medium text-muted-foreground hidden sm:block">
+                      {household.name}
+                    </span>
+                  )}
+                  {household && household.streak_current > 0 && (
+                    <span className="text-sm font-medium text-orange-500">
+                      {household.streak_current} jour{household.streak_current > 1 ? "s" : ""} de suite
+                    </span>
+                  )}
+                </div>
+                <div className="ml-auto flex items-center">
+                  <Header email={user.email ?? ""} householdName={household?.name} />
+                </div>
+              </div>
             </div>
-            <div className="ml-auto flex items-center">
-              <Header email={user.email ?? ""} householdName={household?.name} />
-            </div>
+            <main className="py-4 pb-20 lg:pb-4">{children}</main>
           </div>
+          <BottomNav />
+          <InstallPrompt />
         </div>
-        <main className="py-4 pb-20 lg:pb-4">{children}</main>
-      </div>
-      <BottomNav />
-      <InstallPrompt />
-    </div>
+      </QueryProvider>
+    </NextIntlClientProvider>
   )
 }
