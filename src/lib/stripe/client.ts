@@ -1,8 +1,8 @@
 import Stripe from "stripe"
 
 // Server-side Stripe instance
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-  apiVersion: "2024-12-18.acacia",
+export const stripe = new Stripe(process.env["STRIPE_SECRET_KEY"] ?? "", {
+  apiVersion: "2025-12-15.clover",
   typescript: true,
 })
 
@@ -13,7 +13,6 @@ export function validateStripeConfig(): { valid: boolean; missing: string[] } {
     "STRIPE_WEBHOOK_SECRET",
     "STRIPE_PRICE_ID",
   ]
-  const optional = ["STRIPE_PUBLISHABLE_KEY"]
 
   const missing = required.filter((key) => !process.env[key])
 
@@ -71,9 +70,14 @@ export function mapStripeStatus(
   }
 }
 
+// Get config values safely
+function getEnvVar(key: string, fallback: string = ""): string {
+  return process.env[key] ?? fallback
+}
+
 // Price configuration
 export const PRICE_CONFIG = {
-  id: process.env.STRIPE_PRICE_ID ?? "",
+  id: getEnvVar("STRIPE_PRICE_ID"),
   amount: 400, // 4€ in cents
   currency: "eur",
   interval: "month" as const,
@@ -82,13 +86,13 @@ export const PRICE_CONFIG = {
 
 // Checkout session configuration
 export const CHECKOUT_CONFIG = {
-  successUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/settings/billing?success=true`,
-  cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/settings/billing?canceled=true`,
+  successUrl: `${getEnvVar("NEXT_PUBLIC_APP_URL", "http://localhost:3000")}/settings/billing?success=true`,
+  cancelUrl: `${getEnvVar("NEXT_PUBLIC_APP_URL", "http://localhost:3000")}/settings/billing?canceled=true`,
   billingAddressCollection: "required" as const,
   allowPromotionCodes: true,
 }
 
 // Portal configuration
 export const PORTAL_CONFIG = {
-  returnUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/settings/billing`,
+  returnUrl: `${getEnvVar("NEXT_PUBLIC_APP_URL", "http://localhost:3000")}/settings/billing`,
 }
