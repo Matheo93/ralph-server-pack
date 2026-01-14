@@ -52,6 +52,7 @@
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4",
+    "@types/minimatch": "^6.0.0",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",
     "@types/react": "^19",

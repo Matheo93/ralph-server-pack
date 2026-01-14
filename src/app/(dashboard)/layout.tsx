@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/custom/sidebar"
 import { Header } from "@/components/custom/header"
 import { MobileNav } from "@/components/custom/mobile-nav"
 import { BottomNav } from "@/components/custom/bottom-nav"
+import { InstallPrompt } from "@/components/custom/InstallPrompt"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -63,6 +64,7 @@ export default async function DashboardLayout({
         <main className="py-4 pb-20 lg:pb-4">{children}</main>
       </div>
       <BottomNav />
+      <InstallPrompt />
     </div>
   )
 }
