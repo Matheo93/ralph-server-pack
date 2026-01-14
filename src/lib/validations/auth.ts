@@ -32,6 +32,12 @@ export const magicLinkSchema = z.object({
   email: emailSchema,
 })
 
+export const confirmCodeSchema = z.object({
+  email: emailSchema,
+  code: z.string().min(6, "Le code doit contenir 6 caractères").max(6, "Le code doit contenir 6 caractères"),
+})
+
 export type LoginInput = z.infer<typeof loginSchema>
 export type SignupInput = z.infer<typeof signupSchema>
 export type MagicLinkInput = z.infer<typeof magicLinkSchema>
+export type ConfirmCodeInput = z.infer<typeof confirmCodeSchema>

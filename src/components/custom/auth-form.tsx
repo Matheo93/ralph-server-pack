@@ -22,11 +22,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { login, signup, sendMagicLink } from "@/lib/auth/actions"
+import { login, signup } from "@/lib/auth/actions"
 import { loginSchema, signupSchema, magicLinkSchema } from "@/lib/validations/auth"
 import type { LoginInput, SignupInput, MagicLinkInput } from "@/lib/validations/auth"
 
 type AuthMode = "login" | "signup" | "magic-link"
+
+// Note: Magic link is not directly supported by Cognito
+// This mode shows a message to use password-based login instead
 
 interface AuthFormProps {
   mode: AuthMode
@@ -85,18 +88,11 @@ export function AuthForm({ mode }: AuthFormProps) {
     })
   }
 
-  const handleMagicLink = (data: MagicLinkInput) => {
+  const handleMagicLink = (_data: MagicLinkInput) => {
     setError(null)
     setSuccess(null)
-    startTransition(async () => {
-      const result = await sendMagicLink(data)
-      if (!result.success && result.error) {
-        setError(result.error)
-      } else {
-        setSuccess("Un lien de connexion vous a été envoyé par email.")
-        magicLinkForm.reset()
-      }
-    })
+    // Magic link not supported with Cognito
+    setError("Les liens magiques ne sont pas disponibles. Veuillez utiliser la connexion classique.")
   }
 
   if (mode === "login") {

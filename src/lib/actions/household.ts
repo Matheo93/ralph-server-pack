@@ -2,15 +2,47 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
 import { householdSchema, invitationSchema } from "@/lib/validations/household"
 import type { HouseholdInput, InvitationInput } from "@/lib/validations/household"
+import { getUserId } from "@/lib/auth/actions"
+import { query, queryOne, insert, transaction, setCurrentUser } from "@/lib/aws/database"
 import crypto from "crypto"
 
 export type ActionResult<T = unknown> = {
   success: boolean
   data?: T
   error?: string
+}
+
+interface Household {
+  id: string
+  name: string
+  country: string
+  timezone: string
+  streak_current: number
+  streak_best: number
+  subscription_status: string
+  created_at: string
+}
+
+interface HouseholdMember {
+  id: string
+  household_id: string
+  user_id: string
+  role: string
+  joined_at: string
+  is_active: boolean
+}
+
+interface Invitation {
+  id: string
+  household_id: string
+  email: string
+  role: string
+  token: string
+  expires_at: string
+  accepted_at: string | null
+  created_at: string
 }
 
 export async function createHousehold(
@@ -25,114 +57,140 @@ export async function createHousehold(
     }
   }
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  const userId = await getUserId()
+  if (!userId) {
     return {
       success: false,
       error: "Utilisateur non connecté",
     }
   }
 
-  // Create household
-  const { data: household, error: householdError } = await supabase
-    .from("households")
-    .insert({
-      name: validation.data.name,
-      country: validation.data.country,
-      timezone: validation.data.timezone,
+  try {
+    await transaction(async (client) => {
+      // Create household
+      const householdResult = await client.query<Household>(
+        `INSERT INTO households (name, country, timezone)
+         VALUES ($1, $2, $3)
+         RETURNING *`,
+        [validation.data.name, validation.data.country, validation.data.timezone]
+      )
+      const household = householdResult.rows[0]
+
+      if (!household) {
+        throw new Error("Erreur lors de la création du foyer")
+      }
+
+      // Add user as parent_principal
+      await client.query(
+        `INSERT INTO household_members (household_id, user_id, role)
+         VALUES ($1, $2, $3)`,
+        [household.id, userId, "parent_principal"]
+      )
+
+      return household
     })
-    .select()
-    .single()
 
-  if (householdError) {
+    revalidatePath("/", "layout")
+    redirect("/dashboard")
+  } catch (error) {
+    const err = error as Error
     return {
       success: false,
-      error: householdError.message,
+      error: err.message || "Erreur lors de la création du foyer",
     }
   }
-
-  // Add user as parent_principal
-  const { error: memberError } = await supabase.from("household_members").insert({
-    household_id: household.id,
-    user_id: user.id,
-    role: "parent_principal",
-  })
-
-  if (memberError) {
-    // Rollback household creation
-    await supabase.from("households").delete().eq("id", household.id)
-    return {
-      success: false,
-      error: memberError.message,
-    }
-  }
-
-  revalidatePath("/", "layout")
-  redirect("/dashboard")
 }
 
 export async function getHousehold() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const userId = await getUserId()
+  if (!userId) return null
 
-  if (!user) return null
+  await setCurrentUser(userId)
 
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select(
-      `
-      household_id,
-      role,
-      households (
-        id,
-        name,
-        country,
-        timezone,
-        streak_current,
-        streak_best,
-        subscription_status
-      )
-    `
-    )
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .single()
+  interface MembershipResult {
+    household_id: string
+    role: string
+    household_name: string
+    country: string
+    timezone: string
+    streak_current: number
+    streak_best: number
+    subscription_status: string
+  }
 
-  return membership
+  const membership = await queryOne<MembershipResult>(`
+    SELECT
+      hm.household_id,
+      hm.role,
+      h.name as household_name,
+      h.country,
+      h.timezone,
+      h.streak_current,
+      h.streak_best,
+      h.subscription_status
+    FROM household_members hm
+    JOIN households h ON h.id = hm.household_id
+    WHERE hm.user_id = $1 AND hm.is_active = true
+  `, [userId])
+
+  if (!membership) return null
+
+  return {
+    household_id: membership.household_id,
+    role: membership.role,
+    households: {
+      id: membership.household_id,
+      name: membership.household_name,
+      country: membership.country,
+      timezone: membership.timezone,
+      streak_current: membership.streak_current,
+      streak_best: membership.streak_best,
+      subscription_status: membership.subscription_status,
+    },
+  }
 }
 
 export async function getHouseholdMembers(householdId: string) {
-  const supabase = await createClient()
+  const userId = await getUserId()
+  if (!userId) return []
 
-  const { data: members, error } = await supabase
-    .from("household_members")
-    .select(
-      `
-      id,
-      role,
-      joined_at,
-      is_active,
-      users (
-        id,
-        email,
-        avatar_url
-      )
-    `
-    )
-    .eq("household_id", householdId)
-    .eq("is_active", true)
+  await setCurrentUser(userId)
 
-  if (error) {
-    return []
+  interface MemberResult {
+    id: string
+    role: string
+    joined_at: string
+    is_active: boolean
+    user_id: string
+    user_email: string
+    avatar_url: string | null
   }
 
-  return members ?? []
+  const members = await query<MemberResult>(`
+    SELECT
+      hm.id,
+      hm.role,
+      hm.joined_at,
+      hm.is_active,
+      hm.user_id,
+      u.email as user_email,
+      u.avatar_url
+    FROM household_members hm
+    LEFT JOIN users u ON u.id = hm.user_id
+    WHERE hm.household_id = $1 AND hm.is_active = true
+  `, [householdId])
+
+  return members.map((m) => ({
+    id: m.id,
+    role: m.role,
+    joined_at: m.joined_at,
+    is_active: m.is_active,
+    users: {
+      id: m.user_id,
+      email: m.user_email,
+      avatar_url: m.avatar_url,
+    },
+  }))
 }
 
 export async function inviteCoParent(
@@ -147,25 +205,22 @@ export async function inviteCoParent(
     }
   }
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  const userId = await getUserId()
+  if (!userId) {
     return {
       success: false,
       error: "Utilisateur non connecté",
     }
   }
 
+  await setCurrentUser(userId)
+
   // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .single()
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
 
   if (!membership) {
     return {
@@ -175,12 +230,12 @@ export async function inviteCoParent(
   }
 
   // Check if email is already a member
-  const { data: existingMember } = await supabase
-    .from("household_members")
-    .select("id, users!inner(email)")
-    .eq("household_id", membership.household_id)
-    .eq("users.email", validation.data.email)
-    .single()
+  const existingMember = await queryOne<{ id: string }>(`
+    SELECT hm.id
+    FROM household_members hm
+    JOIN users u ON u.id = hm.user_id
+    WHERE hm.household_id = $1 AND u.email = $2
+  `, [membership.household_id, validation.data.email])
 
   if (existingMember) {
     return {
@@ -190,14 +245,14 @@ export async function inviteCoParent(
   }
 
   // Check for existing pending invitation
-  const { data: existingInvitation } = await supabase
-    .from("invitations")
-    .select("id")
-    .eq("household_id", membership.household_id)
-    .eq("email", validation.data.email)
-    .is("accepted_at", null)
-    .gt("expires_at", new Date().toISOString())
-    .single()
+  const existingInvitation = await queryOne<{ id: string }>(`
+    SELECT id
+    FROM invitations
+    WHERE household_id = $1
+      AND email = $2
+      AND accepted_at IS NULL
+      AND expires_at > NOW()
+  `, [membership.household_id, validation.data.email])
 
   if (existingInvitation) {
     return {
@@ -211,27 +266,20 @@ export async function inviteCoParent(
   const expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + 7) // 7 days expiration
 
-  const { data: invitation, error } = await supabase
-    .from("invitations")
-    .insert({
-      household_id: membership.household_id,
-      email: validation.data.email,
-      role: validation.data.role,
-      token,
-      expires_at: expiresAt.toISOString(),
-    })
-    .select()
-    .single()
+  const invitation = await insert<Invitation>("invitations", {
+    household_id: membership.household_id,
+    email: validation.data.email,
+    role: validation.data.role,
+    token,
+    expires_at: expiresAt.toISOString(),
+  })
 
-  if (error) {
+  if (!invitation) {
     return {
       success: false,
-      error: error.message,
+      error: "Erreur lors de la création de l'invitation",
     }
   }
-
-  // TODO: Send invitation email via SES or Supabase email
-  // For now, just return success - the invitation link can be shared manually
 
   revalidatePath("/dashboard/settings")
 
@@ -244,28 +292,26 @@ export async function inviteCoParent(
 export async function acceptInvitation(
   token: string
 ): Promise<ActionResult> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  const userId = await getUserId()
+  if (!userId) {
     return {
       success: false,
       error: "Vous devez être connecté pour accepter l'invitation",
     }
   }
 
-  // Find invitation
-  const { data: invitation, error: inviteError } = await supabase
-    .from("invitations")
-    .select("*")
-    .eq("token", token)
-    .is("accepted_at", null)
-    .gt("expires_at", new Date().toISOString())
-    .single()
+  await setCurrentUser(userId)
 
-  if (inviteError || !invitation) {
+  // Find invitation
+  const invitation = await queryOne<Invitation>(`
+    SELECT *
+    FROM invitations
+    WHERE token = $1
+      AND accepted_at IS NULL
+      AND expires_at > NOW()
+  `, [token])
+
+  if (!invitation) {
     return {
       success: false,
       error: "Invitation invalide ou expirée",
@@ -273,12 +319,11 @@ export async function acceptInvitation(
   }
 
   // Check if user already has a household
-  const { data: existingMembership } = await supabase
-    .from("household_members")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .single()
+  const existingMembership = await queryOne<{ id: string }>(`
+    SELECT id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
 
   if (existingMembership) {
     return {
@@ -287,65 +332,70 @@ export async function acceptInvitation(
     }
   }
 
-  // Add user to household
-  const { error: memberError } = await supabase.from("household_members").insert({
-    household_id: invitation.household_id,
-    user_id: user.id,
-    role: invitation.role,
-  })
+  try {
+    await transaction(async (client) => {
+      // Add user to household
+      await client.query(
+        `INSERT INTO household_members (household_id, user_id, role)
+         VALUES ($1, $2, $3)`,
+        [invitation.household_id, userId, invitation.role]
+      )
 
-  if (memberError) {
+      // Mark invitation as accepted
+      await client.query(
+        `UPDATE invitations SET accepted_at = NOW() WHERE id = $1`,
+        [invitation.id]
+      )
+    })
+
+    revalidatePath("/", "layout")
+    redirect("/dashboard")
+  } catch (error) {
+    const err = error as Error
     return {
       success: false,
-      error: memberError.message,
+      error: err.message || "Erreur lors de l'acceptation de l'invitation",
     }
   }
-
-  // Mark invitation as accepted
-  await supabase
-    .from("invitations")
-    .update({ accepted_at: new Date().toISOString() })
-    .eq("id", invitation.id)
-
-  revalidatePath("/", "layout")
-  redirect("/dashboard")
 }
 
 export async function getPendingInvitations(householdId: string) {
-  const supabase = await createClient()
+  const userId = await getUserId()
+  if (!userId) return []
 
-  const { data: invitations } = await supabase
-    .from("invitations")
-    .select("*")
-    .eq("household_id", householdId)
-    .is("accepted_at", null)
-    .gt("expires_at", new Date().toISOString())
-    .order("created_at", { ascending: false })
+  await setCurrentUser(userId)
 
-  return invitations ?? []
+  const invitations = await query<Invitation>(`
+    SELECT *
+    FROM invitations
+    WHERE household_id = $1
+      AND accepted_at IS NULL
+      AND expires_at > NOW()
+    ORDER BY created_at DESC
+  `, [householdId])
+
+  return invitations
 }
 
 export async function cancelInvitation(
   invitationId: string
 ): Promise<ActionResult> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  const userId = await getUserId()
+  if (!userId) {
     return {
       success: false,
       error: "Utilisateur non connecté",
     }
   }
 
+  await setCurrentUser(userId)
+
   // Verify user is member of the household
-  const { data: invitation } = await supabase
-    .from("invitations")
-    .select("household_id")
-    .eq("id", invitationId)
-    .single()
+  const invitation = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM invitations
+    WHERE id = $1
+  `, [invitationId])
 
   if (!invitation) {
     return {
@@ -354,13 +404,13 @@ export async function cancelInvitation(
     }
   }
 
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("id")
-    .eq("household_id", invitation.household_id)
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .single()
+  const membership = await queryOne<{ id: string }>(`
+    SELECT id
+    FROM household_members
+    WHERE household_id = $1
+      AND user_id = $2
+      AND is_active = true
+  `, [invitation.household_id, userId])
 
   if (!membership) {
     return {
@@ -369,17 +419,7 @@ export async function cancelInvitation(
     }
   }
 
-  const { error } = await supabase
-    .from("invitations")
-    .delete()
-    .eq("id", invitationId)
-
-  if (error) {
-    return {
-      success: false,
-      error: error.message,
-    }
-  }
+  await query(`DELETE FROM invitations WHERE id = $1`, [invitationId])
 
   revalidatePath("/dashboard/settings")
 

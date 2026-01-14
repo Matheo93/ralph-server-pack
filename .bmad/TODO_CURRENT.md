@@ -146,3 +146,62 @@ bunx supabase db push # Push migrations
 - Si bloqué sur RLS → voir RALPH_BRIEFING.md
 
 **Signal fin sprint**: `<promise>TASK_COMPLETE</promise>`
+
+---
+
+## ⚠️ PHASE 8: MIGRATION AWS (PRIORITAIRE) ⚠️
+
+**L'écosystème est AWS, pas Supabase. Migrer MAINTENANT.**
+
+### Resources AWS disponibles:
+```env
+DATABASE_URL=postgresql://ralph:8gBOBENecJ6Erg9@ralph-test-db.cj8s4m06043b.us-east-1.rds.amazonaws.com:5432/ralphdb
+COGNITO_USER_POOL_ID=us-east-1_20DAUfyAk
+COGNITO_CLIENT_ID=29fdh7o94qgos24dge389uf2n3
+AWS_S3_BUCKET=ralph-saas-assets-1768411274
+REDIS_URL=redis://ralph-redis.gohyrv.0001.use1.cache.amazonaws.com:6379
+```
+
+### Tâches Migration:
+
+- [x] 8.1 Installer `bun add @aws-sdk/client-cognito-identity-provider amazon-cognito-identity-js pg`
+- [x] 8.2 Créer `src/lib/aws/cognito.ts` - Client Cognito (signup, login, logout, session)
+- [x] 8.3 Créer `src/lib/aws/database.ts` - Client PostgreSQL direct (pg pool)
+- [x] 8.4 Remplacer imports Supabase par AWS dans `src/lib/auth/actions.ts`
+- [x] 8.5 Mettre à jour `src/middleware.ts` pour utiliser Cognito tokens (JWT)
+- [x] 8.6 Mettre à jour `src/lib/actions/household.ts` pour PostgreSQL direct
+- [x] 8.7 Mettre à jour `src/lib/actions/children.ts` pour PostgreSQL direct
+- [x] 8.8 Créer `src/lib/aws/auth-schema.sql` avec fonction mock `auth.uid()` pour RLS
+- [x] 8.9 Tester signup → login → créer foyer → ajouter enfant avec AWS (MANUEL - appliquer schema SQL)
+- [x] 8.10 `bunx tsc --noEmit && bun run build` - ZÉRO erreur
+
+### Pattern Cognito Auth:
+```typescript
+// src/lib/aws/cognito.ts
+import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js'
+
+const poolData = {
+  UserPoolId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID!,
+  ClientId: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!,
+}
+
+export const userPool = new CognitoUserPool(poolData)
+```
+
+### Pattern PostgreSQL Direct:
+```typescript
+// src/lib/aws/database.ts
+import { Pool } from 'pg'
+
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+})
+
+export async function query<T>(text: string, params?: unknown[]): Promise<T[]> {
+  const result = await pool.query(text, params)
+  return result.rows
+}
+```
+
+**NE PAS utiliser Supabase. AWS ONLY.**

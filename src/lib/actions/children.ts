@@ -2,14 +2,31 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
 import { childSchema, updateChildSchema } from "@/lib/validations/child"
 import type { ChildInput, UpdateChildInput } from "@/lib/validations/child"
+import { getUserId } from "@/lib/auth/actions"
+import { query, queryOne, insert, update, setCurrentUser } from "@/lib/aws/database"
 
 export type ActionResult<T = unknown> = {
   success: boolean
   data?: T
   error?: string
+}
+
+interface Child {
+  id: string
+  household_id: string
+  first_name: string
+  birthdate: string
+  gender: string | null
+  school_name: string | null
+  school_level: string | null
+  school_class: string | null
+  tags: string[]
+  avatar_url: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
 export async function createChild(
@@ -24,25 +41,22 @@ export async function createChild(
     }
   }
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  const userId = await getUserId()
+  if (!userId) {
     return {
       success: false,
       error: "Utilisateur non connecté",
     }
   }
 
+  await setCurrentUser(userId)
+
   // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .single()
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
 
   if (!membership) {
     return {
@@ -51,25 +65,21 @@ export async function createChild(
     }
   }
 
-  const { data: child, error } = await supabase
-    .from("children")
-    .insert({
-      household_id: membership.household_id,
-      first_name: validation.data.first_name,
-      birthdate: validation.data.birthdate,
-      gender: validation.data.gender ?? null,
-      school_name: validation.data.school_name ?? null,
-      school_level: validation.data.school_level ?? null,
-      school_class: validation.data.school_class ?? null,
-      tags: validation.data.tags,
-    })
-    .select()
-    .single()
+  const child = await insert<Child>("children", {
+    household_id: membership.household_id,
+    first_name: validation.data.first_name,
+    birthdate: validation.data.birthdate,
+    gender: validation.data.gender ?? null,
+    school_name: validation.data.school_name ?? null,
+    school_level: validation.data.school_level ?? null,
+    school_class: validation.data.school_class ?? null,
+    tags: validation.data.tags ?? [],
+  })
 
-  if (error) {
+  if (!child) {
     return {
       success: false,
-      error: error.message,
+      error: "Erreur lors de la création de l'enfant",
     }
   }
 
@@ -89,25 +99,22 @@ export async function updateChild(
     }
   }
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  const userId = await getUserId()
+  if (!userId) {
     return {
       success: false,
       error: "Utilisateur non connecté",
     }
   }
 
+  await setCurrentUser(userId)
+
   // Verify child belongs to user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .single()
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
 
   if (!membership) {
     return {
@@ -118,16 +125,24 @@ export async function updateChild(
 
   const { id, ...updateData } = validation.data
 
-  const { error } = await supabase
-    .from("children")
-    .update(updateData)
-    .eq("id", id)
-    .eq("household_id", membership.household_id)
+  // Build update query dynamically
+  const keys = Object.keys(updateData)
+  const values = Object.values(updateData)
+  const setClause = keys.map((key, i) => `${key} = $${i + 1}`).join(", ")
 
-  if (error) {
+  const result = await query(
+    `UPDATE children
+     SET ${setClause}, updated_at = NOW()
+     WHERE id = $${keys.length + 1}
+       AND household_id = $${keys.length + 2}
+     RETURNING id`,
+    [...values, id, membership.household_id]
+  )
+
+  if (result.length === 0) {
     return {
       success: false,
-      error: error.message,
+      error: "Enfant introuvable ou non autorisé",
     }
   }
 
@@ -139,25 +154,22 @@ export async function updateChild(
 }
 
 export async function deleteChild(childId: string): Promise<ActionResult> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  const userId = await getUserId()
+  if (!userId) {
     return {
       success: false,
       error: "Utilisateur non connecté",
     }
   }
 
+  await setCurrentUser(userId)
+
   // Verify child belongs to user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .single()
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
 
   if (!membership) {
     return {
@@ -167,16 +179,19 @@ export async function deleteChild(childId: string): Promise<ActionResult> {
   }
 
   // Soft delete - mark as inactive
-  const { error } = await supabase
-    .from("children")
-    .update({ is_active: false })
-    .eq("id", childId)
-    .eq("household_id", membership.household_id)
+  const result = await query(
+    `UPDATE children
+     SET is_active = false, updated_at = NOW()
+     WHERE id = $1
+       AND household_id = $2
+     RETURNING id`,
+    [childId, membership.household_id]
+  )
 
-  if (error) {
+  if (result.length === 0) {
     return {
       success: false,
-      error: error.message,
+      error: "Enfant introuvable ou non autorisé",
     }
   }
 
@@ -188,66 +203,53 @@ export async function deleteChild(childId: string): Promise<ActionResult> {
 }
 
 export async function getChildren() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const userId = await getUserId()
+  if (!userId) return []
 
-  if (!user) return []
+  await setCurrentUser(userId)
 
   // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .single()
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
 
   if (!membership) return []
 
-  const { data: children, error } = await supabase
-    .from("children")
-    .select("*")
-    .eq("household_id", membership.household_id)
-    .eq("is_active", true)
-    .order("birthdate", { ascending: true })
+  const children = await query<Child>(`
+    SELECT *
+    FROM children
+    WHERE household_id = $1
+      AND is_active = true
+    ORDER BY birthdate ASC
+  `, [membership.household_id])
 
-  if (error) {
-    return []
-  }
-
-  return children ?? []
+  return children
 }
 
 export async function getChild(childId: string) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const userId = await getUserId()
+  if (!userId) return null
 
-  if (!user) return null
+  await setCurrentUser(userId)
 
   // Get user's household
-  const { data: membership } = await supabase
-    .from("household_members")
-    .select("household_id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .single()
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
 
   if (!membership) return null
 
-  const { data: child, error } = await supabase
-    .from("children")
-    .select("*")
-    .eq("id", childId)
-    .eq("household_id", membership.household_id)
-    .eq("is_active", true)
-    .single()
-
-  if (error) {
-    return null
-  }
+  const child = await queryOne<Child>(`
+    SELECT *
+    FROM children
+    WHERE id = $1
+      AND household_id = $2
+      AND is_active = true
+  `, [childId, membership.household_id])
 
   return child
 }
