@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 4: Répartition Intelligente + Landing + Stripe
+# TODO CURRENT - Sprint 5: Onboarding Complet + Vue Semaine + Notifications
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,181 +10,188 @@
 ---
 
 ## Sprint Goal
-Implémenter le moteur de répartition équitable, la landing page marketing, et l'intégration Stripe pour les paiements.
+Améliorer l'onboarding utilisateur, implémenter la vue semaine complète, le système de notifications, et les fonctionnalités manquantes du MASTER_PROMPT.
 
 ---
 
 ## PRÉ-REQUIS
-- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [x] 0.2 Vérifier les services AWS accessibles
+- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [ ] 0.2 Vérifier les services AWS accessibles
 
 ---
 
-## Phase 1: Moteur de Répartition Intelligente ✅
+## Phase 1: Onboarding Wizard Complet
 
-- [x] 1.1 Mettre à jour `src/lib/services/charge.ts`:
-  - `assignTaskToLeastLoadedParent(taskId, householdId)` - assignation automatique
-  - `getWeeklyLoadByParent(householdId)` - charge par parent sur 7 jours
-  - `getLoadBalancePercentage(householdId)` - % répartition (60/40, etc.)
-- [x] 1.2 Créer `src/lib/services/assignment.ts`:
-  - `determineAssignment(task, householdMembers)` - règles d'assignation
-  - `rotateIfEqual(lastAssigned, members)` - rotation si égalité
-  - `checkExclusions(memberId, excludeUntil)` - exclusions temporaires
-- [x] 1.3 Créer schema `member_exclusions` pour absences temporaires:
-  - id, member_id, household_id
-  - exclude_from, exclude_until
-  - reason (voyage, maladie, etc.)
-- [x] 1.4 Créer `src/lib/validations/assignment.ts`:
-  - ExclusionSchema
-  - AssignmentRuleSchema
-
----
-
-## Phase 2: Alertes et Notifications Charge ✅
-
-- [x] 2.1 Créer `src/lib/services/alerts.ts`:
-  - `checkImbalanceAlert(householdId)` - alerte si > 60/40
-  - `checkOverloadAlert(memberId)` - surcharge hebdomadaire
-  - `checkInactivityAlert(memberId)` - inactivité d'un parent
-- [x] 2.2 Créer `src/types/alert.ts`:
-  - AlertType enum (imbalance, overload, inactivity)
-  - Alert interface
-  - AlertSeverity enum (info, warning, critical)
-- [x] 2.3 Créer `src/components/custom/AlertBanner.tsx`:
-  - Bannière non-culpabilisante
-  - Message contextuel
-  - Actions suggérées
-- [x] 2.4 Créer `src/components/custom/ChargeAlerts.tsx`:
-  - Liste des alertes actives
-  - Dismiss temporaire
+- [ ] 1.1 Refactorer `src/app/(dashboard)/onboarding/page.tsx`:
+  - Wizard multi-étapes (1. Foyer, 2. Enfants, 3. Co-parent, 4. Préférences)
+  - Progress indicator
+  - Validation à chaque étape
+- [ ] 1.2 Créer `src/components/custom/OnboardingWizard.tsx`:
+  - State machine pour les étapes
+  - Navigation prev/next
+  - Skip optionnel pour certaines étapes
+- [ ] 1.3 Créer `src/components/custom/OnboardingStep1Household.tsx`:
+  - Nom du foyer
+  - Pays (France par défaut)
+  - Timezone automatique
+- [ ] 1.4 Créer `src/components/custom/OnboardingStep2Children.tsx`:
+  - Ajout multiple enfants
+  - Prénom + date de naissance
+  - Tags optionnels (allergies, etc.)
+- [ ] 1.5 Créer `src/components/custom/OnboardingStep3Invite.tsx`:
+  - Inviter co-parent par email
+  - Option "Plus tard"
+- [ ] 1.6 Créer `src/components/custom/OnboardingStep4Preferences.tsx`:
+  - Notifications (heure rappel)
+  - Catégories prioritaires
+  - Templates auto-activés
 
 ---
 
-## Phase 3: Landing Page Marketing ✅
+## Phase 2: Vue Semaine Complète
 
-- [x] 3.1 Créer `src/app/(marketing)/layout.tsx`:
-  - Layout marketing (sans sidebar)
-  - Header avec CTA
-- [x] 3.2 Créer `src/app/(marketing)/page.tsx` (nouvelle home):
-  - Hero section (problème + solution)
-  - Features (vocal, auto, répartition)
-  - Social proof (témoignages)
-  - Pricing section
-  - CTA final
-- [x] 3.3 Créer `src/components/marketing/Hero.tsx`:
-  - Titre accrocheur
-  - Sous-titre problème/solution
-  - CTA "Essai gratuit 14 jours"
-  - Visuel app
-- [x] 3.4 Créer `src/components/marketing/Features.tsx`:
-  - 3 features principales avec icônes
-  - Descriptions courtes
-- [x] 3.5 Créer `src/components/marketing/Pricing.tsx`:
-  - Prix unique 4€/mois
-  - Liste features incluses
-  - CTA signup
-- [x] 3.6 Créer `src/components/marketing/Testimonials.tsx`:
-  - 3 témoignages parents
-  - Avatar + citation + nom
+- [ ] 2.1 Créer `src/app/(dashboard)/tasks/week/page.tsx`:
+  - Vue 7 jours avec scroll horizontal
+  - Groupement par jour
+  - Drag & drop entre jours (report)
+- [ ] 2.2 Créer `src/components/custom/WeekView.tsx`:
+  - Colonnes pour chaque jour
+  - Header avec date
+  - Badge count par jour
+- [ ] 2.3 Créer `src/components/custom/DayColumn.tsx`:
+  - Liste des tâches du jour
+  - Drop zone pour drag & drop
+  - Bouton "+" ajouter tâche
+- [ ] 2.4 Créer `src/lib/actions/week.ts`:
+  - `getTasksForWeek(householdId, startDate)`
+  - `moveTaskToDay(taskId, newDate)`
 
 ---
 
-## Phase 4: Intégration Stripe ✅
+## Phase 3: Système de Notifications
 
-- [x] 4.1 Créer `src/lib/stripe/client.ts`:
-  - Configuration Stripe
-  - Types Stripe
-- [x] 4.2 Créer `src/lib/stripe/checkout.ts`:
-  - `createCheckoutSession(householdId, priceId)` - création session
-  - `createPortalSession(customerId)` - portail client
-- [x] 4.3 Créer `src/lib/stripe/webhooks.ts`:
-  - `handleCheckoutCompleted(event)` - paiement réussi
-  - `handleSubscriptionUpdated(event)` - mise à jour abo
-  - `handleSubscriptionDeleted(event)` - annulation
-- [x] 4.4 Créer `src/app/api/stripe/checkout/route.ts`:
-  - POST: créer checkout session
-- [x] 4.5 Créer `src/app/api/stripe/webhook/route.ts`:
-  - POST: recevoir webhooks Stripe
-  - Vérification signature
-- [x] 4.6 Créer `src/app/api/stripe/portal/route.ts`:
-  - POST: créer portail session
-
----
-
-## Phase 5: Pages Billing ✅
-
-- [x] 5.1 Créer `src/app/(dashboard)/settings/billing/page.tsx`:
-  - Statut abonnement
-  - Date prochain paiement
-  - Bouton "Gérer abonnement"
-  - Historique factures
-- [x] 5.2 Créer `src/components/custom/SubscriptionStatus.tsx`:
-  - Badge trial/active/cancelled
-  - Jours restants trial
-  - Alertes expiration
-- [x] 5.3 Mettre à jour schema households:
-  - stripe_customer_id (already in schema)
-  - subscription_status (already in schema)
-  - trial_ends_at (in subscriptions table)
-  - subscription_ends_at (already in schema)
+- [ ] 3.1 Créer `src/lib/services/notifications.ts`:
+  - `sendTaskReminder(taskId, memberId)`
+  - `sendDailyDigest(householdId)`
+  - `sendStreakAlert(householdId)`
+  - `sendDeadlineWarning(taskId)`
+- [ ] 3.2 Créer `src/lib/aws/ses.ts`:
+  - Configuration Amazon SES
+  - `sendEmail(to, subject, html)`
+  - Templates email
+- [ ] 3.3 Créer `src/lib/templates/email/`:
+  - `daily-digest.tsx` - Email récapitulatif quotidien
+  - `task-reminder.tsx` - Rappel de tâche
+  - `streak-warning.tsx` - Alerte streak en danger
+- [ ] 3.4 Créer `src/app/api/cron/notifications/route.ts`:
+  - Endpoint pour cron job
+  - Trigger daily digest à 7h
+  - Trigger reminders selon préférences
 
 ---
 
-## Phase 6: Vue Enfant Timeline ✅
+## Phase 4: Charge Mentale Dashboard Amélioré
 
-- [x] 6.1 Créer `src/app/(dashboard)/children/[id]/timeline/page.tsx`:
-  - Timeline verticale par enfant
-  - Historique tâches complétées
-  - Prochaines tâches prévues
-- [x] 6.2 Créer `src/components/custom/ChildTimeline.tsx`:
-  - Timeline visuelle
-  - Filtres par période
-  - Export PDF (préparation)
-
----
-
-## Phase 7: Tests et Validations ✅
-
-- [x] 7.1 Créer `src/tests/assignment.test.ts`:
-  - Test assignation automatique
-  - Test rotation
-  - Test exclusions
-- [x] 7.2 Créer `src/tests/alerts.test.ts`:
-  - Test détection déséquilibre
-  - Test seuils alertes
-- [x] 7.3 Créer `src/tests/stripe.test.ts`:
-  - Test création session (mock)
-  - Test webhooks (mock)
+- [ ] 4.1 Refactorer `src/app/(dashboard)/dashboard/page.tsx`:
+  - Widget charge mentale plus visible
+  - Graphique semaine (bar chart)
+  - Comparaison parent 1 vs parent 2
+- [ ] 4.2 Créer `src/components/custom/ChargeWeekChart.tsx`:
+  - Bar chart répartition sur 7 jours
+  - Couleurs par parent
+  - Tooltip avec détails
+- [ ] 4.3 Créer `src/components/custom/ChargeHistoryCard.tsx`:
+  - Historique 4 dernières semaines
+  - Trend up/down
+  - Message encourageant si équilibre
+- [ ] 4.4 Créer `src/app/(dashboard)/charge/page.tsx`:
+  - Page dédiée charge mentale
+  - Détails par catégorie
+  - Export PDF
 
 ---
 
-## Phase 8: Build & Validation ✅
+## Phase 5: Streak & Gamification
 
-- [x] 8.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
-- [x] 8.2 `bun run build` - build production OK
-- [x] 8.3 Test manuel: créer tâche → vérifier assignation automatique
-- [x] 8.4 Test manuel: landing page responsive
+- [ ] 5.1 Améliorer `src/components/custom/StreakCounter.tsx`:
+  - Animation quand streak augmente
+  - Milestones (7 jours, 30 jours, 100 jours)
+  - Badge collection
+- [ ] 5.2 Créer `src/lib/services/streak.ts`:
+  - `calculateStreak(householdId)`
+  - `checkStreakRisk(householdId)` - alerte si critique non fait
+  - `saveJoker(householdId)` - premium feature
+- [ ] 5.3 Créer `src/components/custom/StreakMilestones.tsx`:
+  - Badges débloqués
+  - Prochain milestone
+  - Confetti animation
 
 ---
 
-## Definition of Done Sprint 4 ✅
-- [x] Moteur répartition fonctionnel (assignation auto)
-- [x] Alertes déséquilibre actives
-- [x] Landing page complète et responsive
-- [x] Intégration Stripe (checkout + webhooks)
-- [x] Page billing fonctionnelle
-- [x] Vue timeline enfant
-- [x] Build production sans erreur
-- [x] Types stricts partout
+## Phase 6: Tâches Récurrentes UI
+
+- [ ] 6.1 Améliorer `src/components/custom/TaskForm.tsx`:
+  - Section récurrence plus intuitive
+  - Preview "prochaines occurrences"
+  - Options: quotidien, hebdo, mensuel, personnalisé
+- [ ] 6.2 Créer `src/components/custom/RecurrencePreview.tsx`:
+  - Liste des 5 prochaines dates
+  - Calendrier mini avec points
+- [ ] 6.3 Créer `src/app/(dashboard)/tasks/recurring/page.tsx`:
+  - Liste des tâches récurrentes actives
+  - Modifier/supprimer récurrence
+  - Statistiques (taux complétion)
+
+---
+
+## Phase 7: Actions Rapides
+
+- [ ] 7.1 Créer `src/components/custom/QuickActions.tsx`:
+  - Boutons flottants (FAB)
+  - Nouvelle tâche (formulaire)
+  - Nouveau vocal
+  - Scanner document (future)
+- [ ] 7.2 Améliorer `src/components/custom/TaskCard.tsx`:
+  - Swipe left = reporter
+  - Swipe right = fait
+  - Long press = menu contextuel
+
+---
+
+## Phase 8: Tests et Validations
+
+- [ ] 8.1 Créer `src/tests/onboarding.test.ts`:
+  - Test wizard complet
+  - Test création foyer + enfants
+- [ ] 8.2 Créer `src/tests/week-view.test.ts`:
+  - Test affichage semaine
+  - Test drag & drop
+- [ ] 8.3 Créer `src/tests/notifications.test.ts`:
+  - Test envoi email (mock SES)
+  - Test logique reminder
+- [ ] 8.4 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
+- [ ] 8.5 `bun run build` - build production OK
+
+---
+
+## Definition of Done Sprint 5
+- [ ] Onboarding wizard fonctionnel (4 étapes)
+- [ ] Vue semaine avec 7 jours
+- [ ] Système notifications email configuré
+- [ ] Dashboard charge amélioré avec graphiques
+- [ ] Streak milestones implémentés
+- [ ] Récurrence UI améliorée
+- [ ] Actions rapides (swipe)
+- [ ] Build production sans erreur
+- [ ] Tests passent
 
 ---
 
 ## Variables d'environnement NOUVELLES
 ```env
-STRIPE_SECRET_KEY=
-STRIPE_PUBLISHABLE_KEY=
-STRIPE_WEBHOOK_SECRET=
-STRIPE_PRICE_ID=
+AWS_SES_REGION=
+AWS_SES_FROM_EMAIL=
+NOTIFICATION_CRON_SECRET=
 ```
 
 ---
@@ -194,7 +201,7 @@ STRIPE_PRICE_ID=
 bun dev                    # Dev server
 bun build                  # Production build
 bunx tsc --noEmit          # Type check
-stripe listen --forward-to localhost:3000/api/stripe/webhook  # Test webhooks
+bun test                   # Run tests
 ```
 
 ---
@@ -202,26 +209,12 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook  # Test webhooks
 ## Notes
 - Commit après CHAQUE tâche terminée
 - Message format: `feat(scope): description`
-- Stripe en mode test pour dev
-- Landing page mobile-first
-- Messages alertes NON culpabilisants (cf MASTER_PROMPT)
-- RLS pour member_exclusions
+- Onboarding doit être mobile-first
+- Emails doivent être responsive
+- Streak = feature d'engagement critique
+- RLS pour toutes nouvelles tables
 
 **Signal fin sprint**: `<promise>TASK_COMPLETE</promise>`
-
----
-
-## SPRINT 4 COMPLETED
-
-All phases complete:
-- Phase 1: Intelligent load distribution engine
-- Phase 2: Non-judgmental alert system
-- Phase 3: Marketing landing page
-- Phase 4: Stripe integration
-- Phase 5: Billing pages
-- Phase 6: Child timeline view
-- Phase 7: 44 tests passing
-- Phase 8: Build validation complete
 
 ---
 
