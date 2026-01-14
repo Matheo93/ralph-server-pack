@@ -238,10 +238,13 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Bouton vocal flottant */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Bouton vocal (invisible, triggered by QuickActions) */}
+      <div className="hidden">
         <VocalRecorder />
       </div>
+
+      {/* Boutons d'actions rapides flottants */}
+      <QuickActions />
     </div>
   )
 }

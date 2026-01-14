@@ -146,12 +146,12 @@ Améliorer l'onboarding utilisateur, implémenter la vue semaine complète, le s
 
 ## Phase 7: Actions Rapides
 
-- [ ] 7.1 Créer `src/components/custom/QuickActions.tsx`:
+- [x] 7.1 Creer `src/components/custom/QuickActions.tsx`:
   - Boutons flottants (FAB)
-  - Nouvelle tâche (formulaire)
+  - Nouvelle tache (formulaire)
   - Nouveau vocal
   - Scanner document (future)
-- [ ] 7.2 Améliorer `src/components/custom/TaskCard.tsx`:
+- [x] 7.2 Creer `src/components/custom/SwipeableTaskCard.tsx`:
   - Swipe left = reporter
   - Swipe right = fait
   - Long press = menu contextuel
