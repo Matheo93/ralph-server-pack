@@ -15,26 +15,26 @@ Implémenter le moteur de répartition équitable, la landing page marketing, et
 ---
 
 ## PRÉ-REQUIS
-- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [ ] 0.2 Vérifier les services AWS accessibles
+- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [x] 0.2 Vérifier les services AWS accessibles
 
 ---
 
-## Phase 1: Moteur de Répartition Intelligente
+## Phase 1: Moteur de Répartition Intelligente ✅
 
-- [ ] 1.1 Mettre à jour `src/lib/services/charge.ts`:
+- [x] 1.1 Mettre à jour `src/lib/services/charge.ts`:
   - `assignTaskToLeastLoadedParent(taskId, householdId)` - assignation automatique
   - `getWeeklyLoadByParent(householdId)` - charge par parent sur 7 jours
   - `getLoadBalancePercentage(householdId)` - % répartition (60/40, etc.)
-- [ ] 1.2 Créer `src/lib/services/assignment.ts`:
+- [x] 1.2 Créer `src/lib/services/assignment.ts`:
   - `determineAssignment(task, householdMembers)` - règles d'assignation
   - `rotateIfEqual(lastAssigned, members)` - rotation si égalité
   - `checkExclusions(memberId, excludeUntil)` - exclusions temporaires
-- [ ] 1.3 Créer schema `member_exclusions` pour absences temporaires:
+- [x] 1.3 Créer schema `member_exclusions` pour absences temporaires:
   - id, member_id, household_id
   - exclude_from, exclude_until
   - reason (voyage, maladie, etc.)
-- [ ] 1.4 Créer `src/lib/validations/assignment.ts`:
+- [x] 1.4 Créer `src/lib/validations/assignment.ts`:
   - ExclusionSchema
   - AssignmentRuleSchema
 
