@@ -54,16 +54,19 @@ Durcir l'application pour la production: sécurité, rate limiting, logging, et 
 
 ---
 
-## Phase 3: Security Headers & CSP
+## Phase 3: Security Headers & CSP ✅
 
-- [ ] 3.1 Configurer security headers dans `next.config.ts`:
+- [x] 3.1 Configurer security headers dans `next.config.ts`:
   - Content-Security-Policy
   - X-Content-Type-Options
   - X-Frame-Options
   - Strict-Transport-Security
   - Referrer-Policy
-- [ ] 3.2 Créer middleware pour security headers
-- [ ] 3.3 Vérifier avec securityheaders.com
+  - Permissions-Policy
+  - X-XSS-Protection
+  - X-DNS-Prefetch-Control
+- [x] 3.2 Créer middleware pour security headers (CSP dynamique avec nonce)
+- [x] 3.3 Build vérifié OK
 
 ---
 
@@ -90,7 +93,7 @@ Durcir l'application pour la production: sécurité, rate limiting, logging, et 
 ## Definition of Done Sprint 8
 - [x] Rate limiting fonctionnel (src/lib/rate-limit.ts)
 - [x] Input sanitization en place (src/lib/sanitize.ts)
-- [ ] Security headers configurés
+- [x] Security headers configurés (next.config.ts + middleware.ts)
 - [ ] Logging structuré
 - [ ] Build production OK
 - [ ] Tests passent
