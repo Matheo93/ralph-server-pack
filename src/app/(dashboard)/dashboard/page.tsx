@@ -1,20 +1,27 @@
 import Link from "next/link"
 import { getChildren } from "@/lib/actions/children"
 import { getHousehold } from "@/lib/actions/household"
+import { getTodayTasks, getWeekTasks, getOverdueTasks } from "@/lib/actions/tasks"
+import { getHouseholdBalance } from "@/lib/services/charge"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { DashboardToday } from "@/components/custom/DashboardToday"
+import { DashboardWeek } from "@/components/custom/DashboardWeek"
+import { StreakCounter } from "@/components/custom/StreakCounter"
+import { ChargeBalance } from "@/components/custom/ChargeBalance"
+import { VocalRecorder } from "@/components/custom/VocalRecorder"
 
 export default async function DashboardPage() {
-  const [children, membership] = await Promise.all([
-    getChildren(),
-    getHousehold(),
-  ])
+  const [children, membership, todayTasks, weekTasks, overdueTasks, balance] =
+    await Promise.all([
+      getChildren(),
+      getHousehold(),
+      getTodayTasks(),
+      getWeekTasks(),
+      getOverdueTasks(),
+      getHouseholdBalance(),
+    ])
 
   const household = membership?.households as {
     name: string
@@ -23,105 +30,181 @@ export default async function DashboardPage() {
     subscription_status: string
   } | null
 
+  const pendingTodayCount = todayTasks.filter((t) => t.status === "pending").length
+  const criticalCount = todayTasks.filter((t) => t.is_critical).length
+
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 pb-24">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Tableau de bord</h1>
+        <h1 className="text-3xl font-bold">Bonjour !</h1>
         <p className="text-muted-foreground">
-          Bienvenue sur FamilyLoad
+          {new Date().toLocaleDateString("fr-FR", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          })}
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* Stats rapides */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Enfants</CardTitle>
-            <CardDescription>Gérez votre foyer</CardDescription>
+            <CardDescription>Aujourd&apos;hui</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{children.length}</p>
-            <p className="text-sm text-muted-foreground">
-              {children.length === 0
-                ? "Aucun enfant"
-                : children.length === 1
-                  ? "1 enfant"
-                  : `${children.length} enfants`}
-            </p>
-            {children.length === 0 && (
-              <Link href="/children/new" className="mt-4 block">
-                <Button variant="outline" className="w-full">
-                  Ajouter un enfant
-                </Button>
-              </Link>
-            )}
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold">{pendingTodayCount}</span>
+              <span className="text-muted-foreground">à faire</span>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Streak</CardTitle>
-            <CardDescription>Jours consécutifs sans oubli</CardDescription>
+            <CardDescription>En retard</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-orange-500">
-              {household?.streak_current ?? 0}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Record: {household?.streak_best ?? 0} jours
-            </p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold text-red-600">
+                {overdueTasks.length}
+              </span>
+              {overdueTasks.length > 0 && (
+                <Badge variant="destructive">Urgent</Badge>
+              )}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Tâches du jour</CardTitle>
-            <CardDescription>À faire aujourd&apos;hui</CardDescription>
+            <CardDescription>Critiques</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">0</p>
-            <p className="text-sm text-muted-foreground">
-              Aucune tâche pour le moment
-            </p>
-            <Link href="/tasks" className="mt-4 block">
-              <Button variant="outline" className="w-full">
-                Voir les tâches
-              </Button>
-            </Link>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold text-orange-600">
+                {criticalCount}
+              </span>
+              <span className="text-muted-foreground">
+                casse{criticalCount > 1 ? "nt" : ""} le streak
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Enfants</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold">{children.length}</span>
+              {children.length === 0 && (
+                <Link href="/children/new">
+                  <Button variant="outline" size="sm">
+                    Ajouter
+                  </Button>
+                </Link>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {children.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Vos enfants</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {children.map((child) => {
-              const age = Math.floor(
-                (new Date().getTime() - new Date(child.birthdate).getTime()) /
-                  (365.25 * 24 * 60 * 60 * 1000)
-              )
-              return (
-                <Card key={child.id}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">{child.first_name}</CardTitle>
-                    <CardDescription>
-                      {age} an{age > 1 ? "s" : ""}
-                      {child.school_class && ` - ${child.school_class}`}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Link href={`/children/${child.id}/edit`}>
-                      <Button variant="ghost" size="sm">
-                        Voir le profil
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
+      {/* Tâches en retard */}
+      {overdueTasks.length > 0 && (
+        <Card className="mb-8 border-red-300 bg-red-50/50 dark:bg-red-950/20">
+          <CardHeader>
+            <CardTitle className="text-red-600 flex items-center gap-2">
+              <span>En retard</span>
+              <Badge variant="destructive">{overdueTasks.length}</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {overdueTasks.slice(0, 3).map((task) => (
+                <div
+                  key={task.id}
+                  className="flex items-center justify-between p-3 bg-white/50 rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium">{task.title}</p>
+                    {task.child_name && (
+                      <p className="text-sm text-muted-foreground">
+                        {task.child_name}
+                      </p>
+                    )}
+                  </div>
+                  <Badge variant="destructive">
+                    {task.deadline
+                      ? new Date(task.deadline).toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "short",
+                        })
+                      : "Pas de date"}
+                  </Badge>
+                </div>
+              ))}
+              {overdueTasks.length > 3 && (
+                <Link href="/tasks?status=pending">
+                  <Button variant="ghost" className="w-full">
+                    Voir {overdueTasks.length - 3} autres...
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       )}
+
+      {/* Layout principal */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Colonne principale - Tâches du jour */}
+        <div className="lg:col-span-2 space-y-6">
+          <DashboardToday tasks={todayTasks} />
+
+          <DashboardWeek tasks={weekTasks} />
+        </div>
+
+        {/* Colonne latérale - Streak et Charge */}
+        <div className="space-y-6">
+          <StreakCounter
+            current={household?.streak_current ?? 0}
+            best={household?.streak_best ?? 0}
+          />
+
+          {balance && <ChargeBalance balance={balance} />}
+
+          {/* Quick actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Actions rapides</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Link href="/tasks/new" className="block">
+                <Button variant="outline" className="w-full justify-start">
+                  + Nouvelle tâche
+                </Button>
+              </Link>
+              <Link href="/children" className="block">
+                <Button variant="ghost" className="w-full justify-start">
+                  Gérer les enfants
+                </Button>
+              </Link>
+              <Link href="/tasks" className="block">
+                <Button variant="ghost" className="w-full justify-start">
+                  Toutes les tâches
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Bouton vocal flottant */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <VocalRecorder />
+      </div>
     </div>
   )
 }
