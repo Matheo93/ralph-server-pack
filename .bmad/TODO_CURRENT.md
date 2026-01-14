@@ -68,14 +68,14 @@ Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
 
 ---
 
-## Phase 4: Gestion Foyer (Household)
+## Phase 4: Gestion Foyer (Household) ✅
 
-- [ ] 4.1 Créer `src/app/(dashboard)/onboarding/page.tsx` - création foyer
-- [ ] 4.2 Créer `src/lib/validations/household.ts` - schemas Zod
-- [ ] 4.3 Créer `src/lib/actions/household.ts` - Server Actions CRUD
-- [ ] 4.4 Créer composant `HouseholdForm`
-- [ ] 4.5 Logique: après signup → si pas de foyer → onboarding
-- [ ] 4.6 Créer page invitation co-parent
+- [x] 4.1 Créer `src/app/(dashboard)/onboarding/page.tsx` - création foyer
+- [x] 4.2 Créer `src/lib/validations/household.ts` - schemas Zod
+- [x] 4.3 Créer `src/lib/actions/household.ts` - Server Actions CRUD
+- [x] 4.4 Créer composant `HouseholdForm`
+- [x] 4.5 Logique: après signup → si pas de foyer → onboarding
+- [x] 4.6 Créer page invitation co-parent
 
 ---
 
