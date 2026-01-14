@@ -13,6 +13,7 @@ import { ChargeBalance } from "@/components/custom/ChargeBalance"
 import { ChargeWeekChart } from "@/components/custom/ChargeWeekChart"
 import { ChargeHistoryCard } from "@/components/custom/ChargeHistoryCard"
 import { VocalRecorder } from "@/components/custom/VocalRecorder"
+import { QuickActions } from "@/components/custom/QuickActions"
 
 export default async function DashboardPage() {
   const [children, membership, todayTasks, weekTasks, overdueTasks, balance, weekChartData, chargeHistory] =

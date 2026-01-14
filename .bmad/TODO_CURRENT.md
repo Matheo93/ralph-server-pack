@@ -128,19 +128,19 @@ Améliorer l'onboarding utilisateur, implémenter la vue semaine complète, le s
 
 ---
 
-## Phase 6: Tâches Récurrentes UI
+## Phase 6: Taches Recurrentes UI
 
-- [ ] 6.1 Améliorer `src/components/custom/TaskForm.tsx`:
-  - Section récurrence plus intuitive
+- [x] 6.1 Ameliorer `src/components/custom/TaskForm.tsx`:
+  - Section recurrence plus intuitive
   - Preview "prochaines occurrences"
-  - Options: quotidien, hebdo, mensuel, personnalisé
-- [ ] 6.2 Créer `src/components/custom/RecurrencePreview.tsx`:
+  - Options: quotidien, hebdo, mensuel, personnalise
+- [x] 6.2 Creer `src/components/custom/RecurrencePreview.tsx`:
   - Liste des 5 prochaines dates
   - Calendrier mini avec points
-- [ ] 6.3 Créer `src/app/(dashboard)/tasks/recurring/page.tsx`:
-  - Liste des tâches récurrentes actives
-  - Modifier/supprimer récurrence
-  - Statistiques (taux complétion)
+- [x] 6.3 Creer `src/app/(dashboard)/tasks/recurring/page.tsx`:
+  - Liste des taches recurrentes actives
+  - Modifier/supprimer recurrence
+  - Statistiques (taux completion)
 
 ---
 

@@ -15,6 +15,7 @@ import type {
   TaskCreate,
   TaskUpdate,
   TaskListItem,
+  RecurringTaskItem,
   TaskWithRelations,
   TaskActionResult,
 } from "@/types/task"
@@ -805,14 +806,14 @@ export async function cancelRecurringSeries(
 // GET RECURRING TASKS
 // ============================================================
 
-export async function getRecurringTasks(): Promise<TaskListItem[]> {
+export async function getRecurringTasks(): Promise<RecurringTaskItem[]> {
   const userId = await getUserId()
   if (!userId) return []
 
   const membership = await getHouseholdForUser(userId)
   if (!membership) return []
 
-  const tasks = await query<TaskListItem>(`
+  const tasks = await query<RecurringTaskItem>(`
     SELECT
       t.id,
       t.title,
@@ -830,7 +831,8 @@ export async function getRecurringTasks(): Promise<TaskListItem[]> {
       tc.name_fr as category_name,
       tc.color as category_color,
       tc.icon as category_icon,
-      t.created_at::text
+      t.created_at::text,
+      t.recurrence_rule
     FROM tasks t
     LEFT JOIN children c ON t.child_id = c.id
     LEFT JOIN task_categories tc ON t.category_id = tc.id

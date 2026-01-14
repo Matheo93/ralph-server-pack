@@ -62,6 +62,11 @@ export interface TaskListItem {
   created_at: string
 }
 
+// Recurring task for list display (includes recurrence_rule)
+export interface RecurringTaskItem extends TaskListItem {
+  recurrence_rule: RecurrenceRule | null
+}
+
 // Task creation type (for server actions)
 export interface TaskCreate {
   household_id: string

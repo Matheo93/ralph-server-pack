@@ -15,8 +15,9 @@ import {
 } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { RecurrencePreview } from "@/components/custom/RecurrencePreview"
 import { createTask, updateTask } from "@/lib/actions/tasks"
-import type { TaskWithRelations } from "@/types/task"
+import type { TaskWithRelations, RecurrenceRule } from "@/types/task"
 
 interface Child {
   id: string
@@ -43,6 +44,25 @@ const priorityOptions = [
   { value: "critical", label: "Critique" },
 ]
 
+const recurrenceOptions = [
+  { value: "none", label: "Pas de recurrence" },
+  { value: "daily", label: "Tous les jours" },
+  { value: "weekly", label: "Toutes les semaines" },
+  { value: "biweekly", label: "Toutes les 2 semaines" },
+  { value: "monthly", label: "Tous les mois" },
+  { value: "custom", label: "Personnalise..." },
+]
+
+const DAY_NAMES = [
+  { value: 0, label: "Dim" },
+  { value: 1, label: "Lun" },
+  { value: 2, label: "Mar" },
+  { value: 3, label: "Mer" },
+  { value: 4, label: "Jeu" },
+  { value: 5, label: "Ven" },
+  { value: 6, label: "Sam" },
+]
+
 export function TaskForm({
   children,
   categories,
@@ -53,6 +73,7 @@ export function TaskForm({
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [showCalendar, setShowCalendar] = useState(false)
+  const [showRecurrence, setShowRecurrence] = useState(false)
 
   const [formData, setFormData] = useState({
     title: task?.title ?? "",
@@ -65,6 +86,67 @@ export function TaskForm({
     is_critical: task?.is_critical ?? false,
     load_weight: task?.load_weight ?? 3,
   })
+
+  const [recurrenceType, setRecurrenceType] = useState<string>(
+    task?.recurrence_rule ? "custom" : "none"
+  )
+  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(
+    task?.recurrence_rule ?? null
+  )
+  const [customRecurrence, setCustomRecurrence] = useState({
+    frequency: task?.recurrence_rule?.frequency ?? "weekly" as "daily" | "weekly" | "monthly" | "yearly",
+    interval: task?.recurrence_rule?.interval ?? 1,
+    byDayOfWeek: task?.recurrence_rule?.byDayOfWeek ?? [] as number[],
+    byDayOfMonth: task?.recurrence_rule?.byDayOfMonth ?? [] as number[],
+  })
+
+  const handleRecurrenceChange = (value: string) => {
+    setRecurrenceType(value)
+
+    switch (value) {
+      case "none":
+        setRecurrenceRule(null)
+        break
+      case "daily":
+        setRecurrenceRule({ frequency: "daily", interval: 1 })
+        break
+      case "weekly":
+        setRecurrenceRule({ frequency: "weekly", interval: 1 })
+        break
+      case "biweekly":
+        setRecurrenceRule({ frequency: "weekly", interval: 2 })
+        break
+      case "monthly":
+        setRecurrenceRule({ frequency: "monthly", interval: 1 })
+        break
+      case "custom":
+        setShowRecurrence(true)
+        updateCustomRecurrence()
+        break
+    }
+  }
+
+  const updateCustomRecurrence = () => {
+    const rule: RecurrenceRule = {
+      frequency: customRecurrence.frequency,
+      interval: customRecurrence.interval,
+    }
+    if (customRecurrence.byDayOfWeek.length > 0) {
+      rule.byDayOfWeek = customRecurrence.byDayOfWeek
+    }
+    if (customRecurrence.byDayOfMonth.length > 0) {
+      rule.byDayOfMonth = customRecurrence.byDayOfMonth
+    }
+    setRecurrenceRule(rule)
+  }
+
+  const toggleDayOfWeek = (day: number) => {
+    const newDays = customRecurrence.byDayOfWeek.includes(day)
+      ? customRecurrence.byDayOfWeek.filter((d) => d !== day)
+      : [...customRecurrence.byDayOfWeek, day].sort()
+    setCustomRecurrence((prev) => ({ ...prev, byDayOfWeek: newDays }))
+    setTimeout(updateCustomRecurrence, 0)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,6 +163,7 @@ export function TaskForm({
         deadline_flexible: formData.deadline_flexible,
         is_critical: formData.is_critical,
         load_weight: formData.load_weight,
+        recurrence_rule: recurrenceRule,
       }
 
       let result
@@ -102,7 +185,7 @@ export function TaskForm({
     <Card>
       <CardHeader>
         <CardTitle>
-          {mode === "edit" ? "Modifier la tâche" : "Nouvelle tâche"}
+          {mode === "edit" ? "Modifier la tache" : "Nouvelle tache"}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -134,7 +217,7 @@ export function TaskForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, description: e.target.value }))
               }
-              placeholder="Détails supplémentaires..."
+              placeholder="Details supplementaires..."
               rows={3}
             />
           </div>
@@ -142,7 +225,7 @@ export function TaskForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {children.length > 0 && (
               <div className="space-y-2">
-                <Label>Enfant concerné</Label>
+                <Label>Enfant concerne</Label>
                 <Select
                   value={formData.child_id || "none"}
                   onValueChange={(v) =>
@@ -153,7 +236,7 @@ export function TaskForm({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un enfant" />
+                    <SelectValue placeholder="Selectionner un enfant" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Aucun enfant</SelectItem>
@@ -169,7 +252,7 @@ export function TaskForm({
 
             {categories.length > 0 && (
               <div className="space-y-2">
-                <Label>Catégorie</Label>
+                <Label>Categorie</Label>
                 <Select
                   value={formData.category_id || "none"}
                   onValueChange={(v) =>
@@ -180,10 +263,10 @@ export function TaskForm({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner une catégorie" />
+                    <SelectValue placeholder="Selectionner une categorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Aucune catégorie</SelectItem>
+                    <SelectItem value="none">Aucune categorie</SelectItem>
                     {categories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id}>
                         {cat.name_fr}
@@ -195,7 +278,7 @@ export function TaskForm({
             )}
 
             <div className="space-y-2">
-              <Label>Priorité</Label>
+              <Label>Priorite</Label>
               <Select
                 value={formData.priority}
                 onValueChange={(v) =>
@@ -282,6 +365,151 @@ export function TaskForm({
             )}
           </div>
 
+          {/* Recurrence Section */}
+          <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+            <div className="space-y-2">
+              <Label>Recurrence</Label>
+              <Select value={recurrenceType} onValueChange={handleRecurrenceChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {recurrenceOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Custom recurrence options */}
+            {recurrenceType === "custom" && (
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm">Frequence</Label>
+                    <Select
+                      value={customRecurrence.frequency}
+                      onValueChange={(v) => {
+                        setCustomRecurrence((prev) => ({
+                          ...prev,
+                          frequency: v as "daily" | "weekly" | "monthly" | "yearly",
+                        }))
+                        setTimeout(updateCustomRecurrence, 0)
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="daily">Quotidien</SelectItem>
+                        <SelectItem value="weekly">Hebdomadaire</SelectItem>
+                        <SelectItem value="monthly">Mensuel</SelectItem>
+                        <SelectItem value="yearly">Annuel</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm">Intervalle</Label>
+                    <Select
+                      value={String(customRecurrence.interval)}
+                      onValueChange={(v) => {
+                        setCustomRecurrence((prev) => ({
+                          ...prev,
+                          interval: parseInt(v, 10),
+                        }))
+                        setTimeout(updateCustomRecurrence, 0)
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 6].map((n) => (
+                          <SelectItem key={n} value={String(n)}>
+                            Tous les {n}{" "}
+                            {customRecurrence.frequency === "daily"
+                              ? "jour"
+                              : customRecurrence.frequency === "weekly"
+                                ? "semaine"
+                                : customRecurrence.frequency === "monthly"
+                                  ? "mois"
+                                  : "an"}
+                            {n > 1 && customRecurrence.frequency !== "monthly" ? "s" : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Day of week selector for weekly */}
+                {customRecurrence.frequency === "weekly" && (
+                  <div className="space-y-2">
+                    <Label className="text-sm">Jours de la semaine</Label>
+                    <div className="flex gap-1 flex-wrap">
+                      {DAY_NAMES.map((day) => (
+                        <Button
+                          key={day.value}
+                          type="button"
+                          variant={
+                            customRecurrence.byDayOfWeek.includes(day.value)
+                              ? "default"
+                              : "outline"
+                          }
+                          size="sm"
+                          className="w-10"
+                          onClick={() => toggleDayOfWeek(day.value)}
+                        >
+                          {day.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Day of month selector for monthly */}
+                {customRecurrence.frequency === "monthly" && (
+                  <div className="space-y-2">
+                    <Label className="text-sm">Jour du mois</Label>
+                    <Select
+                      value={String(customRecurrence.byDayOfMonth[0] ?? 1)}
+                      onValueChange={(v) => {
+                        setCustomRecurrence((prev) => ({
+                          ...prev,
+                          byDayOfMonth: [parseInt(v, 10)],
+                        }))
+                        setTimeout(updateCustomRecurrence, 0)
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
+                          <SelectItem key={d} value={String(d)}>
+                            Le {d}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Preview */}
+            {recurrenceRule && (
+              <RecurrencePreview
+                rule={recurrenceRule}
+                startDate={formData.deadline || new Date()}
+                className="mt-4"
+              />
+            )}
+          </div>
+
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -310,7 +538,7 @@ export function TaskForm({
                 }
                 className="rounded"
               />
-              <span className="text-sm">Tâche critique (casse le streak)</span>
+              <span className="text-sm">Tache critique (casse le streak)</span>
             </label>
           </div>
 
@@ -328,7 +556,7 @@ export function TaskForm({
                 ? "..."
                 : mode === "edit"
                   ? "Enregistrer"
-                  : "Créer la tâche"}
+                  : "Creer la tache"}
             </Button>
           </div>
         </form>
