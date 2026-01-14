@@ -55,16 +55,16 @@ Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
 
 ---
 
-## Phase 3: Authentification
+## Phase 3: Authentification ✅
 
-- [ ] 3.1 Créer `src/app/(auth)/login/page.tsx` - page login
-- [ ] 3.2 Créer `src/app/(auth)/signup/page.tsx` - page signup
-- [ ] 3.3 Créer `src/app/(auth)/callback/route.ts` - OAuth callback
-- [ ] 3.4 Créer `src/lib/auth/actions.ts` - Server Actions (login, signup, logout)
-- [ ] 3.5 Créer `src/middleware.ts` - protection routes
-- [ ] 3.6 Créer composant `AuthForm` avec validation Zod
-- [ ] 3.7 Ajouter support Magic Link
-- [ ] 3.8 Tester: signup → email confirmation → login → session
+- [x] 3.1 Créer `src/app/(auth)/login/page.tsx` - page login
+- [x] 3.2 Créer `src/app/(auth)/signup/page.tsx` - page signup
+- [x] 3.3 Créer `src/app/(auth)/callback/route.ts` - OAuth callback
+- [x] 3.4 Créer `src/lib/auth/actions.ts` - Server Actions (login, signup, logout)
+- [x] 3.5 Créer `src/middleware.ts` - protection routes
+- [x] 3.6 Créer composant `AuthForm` avec validation Zod
+- [x] 3.7 Ajouter support Magic Link
+- [ ] 3.8 Tester: signup → email confirmation → login → session (MANUEL)
 
 ---
 
