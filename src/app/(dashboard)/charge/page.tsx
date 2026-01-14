@@ -15,6 +15,7 @@ import { ChargeBalance } from "@/components/custom/ChargeBalance"
 import { ChargeWeekChart } from "@/components/custom/ChargeWeekChart"
 import { ChargeHistoryCard } from "@/components/custom/ChargeHistoryCard"
 import { ChargeCategoryBreakdown } from "@/components/custom/ChargeCategoryBreakdown"
+import { ExportButtons } from "@/components/custom/ExportButtons"
 
 export default async function ChargePage() {
   const user = await getUser()
@@ -48,6 +49,7 @@ export default async function ChargePage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <ExportButtons />
           <Link href="/dashboard">
             <Button variant="outline">Retour au dashboard</Button>
           </Link>
