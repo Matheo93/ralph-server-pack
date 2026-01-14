@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 3: Catalogue Automatique + Recurring Tasks + Settings
+# TODO CURRENT - Sprint 4: Répartition Intelligente + Landing + Stripe
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,224 +10,181 @@
 ---
 
 ## Sprint Goal
-Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récurrentes, et les pages settings/profile.
+Implémenter le moteur de répartition équitable, la landing page marketing, et l'intégration Stripe pour les paiements.
 
 ---
 
 ## PRÉ-REQUIS
-- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [x] 0.2 Vérifier les services AWS accessibles
+- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [ ] 0.2 Vérifier les services AWS accessibles
 
 ---
 
-## Phase 1: Schéma Base de Données - Task Templates
+## Phase 1: Moteur de Répartition Intelligente
 
-- [x] 1.1 Créer schema `task_templates` dans `src/lib/aws/templates-schema.sql`:
-  - id, country (pays)
-  - age_min, age_max
-  - category, subcategory
-  - title, description
-  - cron_rule (récurrence)
-  - weight (poids_charge)
-  - days_before_deadline
-  - is_active, created_at
-- [x] 1.2 Créer schema `generated_tasks` (tâches générées depuis templates):
-  - id, template_id, child_id, household_id
-  - generated_at, deadline
-  - status, acknowledged
-- [x] 1.3 RLS policies pour task_templates (lecture publique, écriture admin)
-- [x] 1.4 RLS policies pour generated_tasks (via household_members)
-
----
-
-## Phase 2: Types TypeScript Templates
-
-- [x] 2.1 Créer `src/types/template.ts`:
-  - TaskTemplate interface
-  - TaskTemplateCreate type
-  - AgeGroup enum (0-3, 3-6, 6-11, 11-15, 15-18)
-  - PeriodType enum (rentrée, vacances, etc.)
-  - GeneratedTask interface
+- [ ] 1.1 Mettre à jour `src/lib/services/charge.ts`:
+  - `assignTaskToLeastLoadedParent(taskId, householdId)` - assignation automatique
+  - `getWeeklyLoadByParent(householdId)` - charge par parent sur 7 jours
+  - `getLoadBalancePercentage(householdId)` - % répartition (60/40, etc.)
+- [ ] 1.2 Créer `src/lib/services/assignment.ts`:
+  - `determineAssignment(task, householdMembers)` - règles d'assignation
+  - `rotateIfEqual(lastAssigned, members)` - rotation si égalité
+  - `checkExclusions(memberId, excludeUntil)` - exclusions temporaires
+- [ ] 1.3 Créer schema `member_exclusions` pour absences temporaires:
+  - id, member_id, household_id
+  - exclude_from, exclude_until
+  - reason (voyage, maladie, etc.)
+- [ ] 1.4 Créer `src/lib/validations/assignment.ts`:
+  - ExclusionSchema
+  - AssignmentRuleSchema
 
 ---
 
-## Phase 3: Validations Zod Templates
+## Phase 2: Alertes et Notifications Charge
 
-- [x] 3.1 Créer `src/lib/validations/template.ts`:
-  - TaskTemplateSchema
-  - TaskTemplateFilterSchema (age, category, country)
-  - CronRuleSchema (validation cron)
-
----
-
-## Phase 4: Data Seed - French Templates
-
-- [x] 4.1 Créer `src/lib/data/templates-fr.ts` avec templates France:
-  - 0-3 ans: vaccins, PMI, mode de garde
-  - 3-6 ans: inscription maternelle, assurance, réunions
-  - 6-11 ans: fournitures, cantine, sorties
-  - 11-15 ans: orientation, brevet
-  - 15-18 ans: permis, bac, parcoursup
-- [x] 4.2 Templates par période (septembre, décembre, juin, etc.)
-- [x] 4.3 Au moins 50 templates couvrant les catégories principales (76 templates)
+- [ ] 2.1 Créer `src/lib/services/alerts.ts`:
+  - `checkImbalanceAlert(householdId)` - alerte si > 60/40
+  - `checkOverloadAlert(memberId)` - surcharge hebdomadaire
+  - `checkInactivityAlert(memberId)` - inactivité d'un parent
+- [ ] 2.2 Créer `src/types/alert.ts`:
+  - AlertType enum (imbalance, overload, inactivity)
+  - Alert interface
+  - AlertSeverity enum (info, warning, critical)
+- [ ] 2.3 Créer `src/components/custom/AlertBanner.tsx`:
+  - Bannière non-culpabilisante
+  - Message contextuel
+  - Actions suggérées
+- [ ] 2.4 Créer `src/components/custom/ChargeAlerts.tsx`:
+  - Liste des alertes actives
+  - Dismiss temporaire
 
 ---
 
-## Phase 5: Services Templates
+## Phase 3: Landing Page Marketing
 
-- [x] 5.1 Créer `src/lib/services/templates.ts`:
-  - `getTemplatesForChild(childId)` - templates applicables à un enfant (par âge)
-  - `generateTasksFromTemplates(childId)` - génération auto
-  - `getUpcomingTemplates(householdId, days)` - prochaines tâches
-- [x] 5.2 Créer `src/lib/services/scheduler.ts`:
-  - `checkAndGenerateTasks()` - vérification quotidienne
-  - `calculateNextDeadline(cronRule, baseDate)` - calcul deadline
-  - `shouldGenerateTask(template, child)` - règles de génération
-
----
-
-## Phase 6: Récurrence System
-
-- [x] 6.1 Mettre à jour `src/types/task.ts`:
-  - RecurrenceRule type (daily, weekly, monthly, yearly, custom)
-  - RecurrenceConfig interface
-- [x] 6.2 Créer `src/lib/services/recurrence.ts`:
-  - `createRecurringTask(task, rule)` - création tâche récurrente
-  - `generateNextOccurrence(task)` - génération prochaine occurrence
-  - `getRecurrenceLabel(rule)` - label lisible ("Tous les lundis")
-- [x] 6.3 Mettre à jour `src/lib/actions/tasks.ts`:
-  - Ajouter support récurrence dans createTask
-  - Hook pour générer occurrence suivante après completion
-
----
-
-## Phase 7: Composants UI Templates
-
-- [x] 7.1 Créer `src/components/custom/TemplateCard.tsx`:
-  - Affichage template
-  - Badge âge/catégorie
-  - Preview tâche générée
-- [x] 7.2 Créer `src/components/custom/TemplateList.tsx`:
-  - Liste templates par catégorie
-  - Filtres âge/catégorie
-- [x] 7.3 Créer `src/components/custom/UpcomingTasks.tsx`:
-  - Tâches automatiques à venir
-  - Option "Ignorer cette fois"
+- [ ] 3.1 Créer `src/app/(marketing)/layout.tsx`:
+  - Layout marketing (sans sidebar)
+  - Header avec CTA
+- [ ] 3.2 Créer `src/app/(marketing)/page.tsx` (nouvelle home):
+  - Hero section (problème + solution)
+  - Features (vocal, auto, répartition)
+  - Social proof (témoignages)
+  - Pricing section
+  - CTA final
+- [ ] 3.3 Créer `src/components/marketing/Hero.tsx`:
+  - Titre accrocheur
+  - Sous-titre problème/solution
+  - CTA "Essai gratuit 14 jours"
+  - Visuel app
+- [ ] 3.4 Créer `src/components/marketing/Features.tsx`:
+  - 3 features principales avec icônes
+  - Descriptions courtes
+- [ ] 3.5 Créer `src/components/marketing/Pricing.tsx`:
+  - Prix unique 4€/mois
+  - Liste features incluses
+  - CTA signup
+- [ ] 3.6 Créer `src/components/marketing/Testimonials.tsx`:
+  - 3 témoignages parents
+  - Avatar + citation + nom
 
 ---
 
-## Phase 8: Pages Settings
+## Phase 4: Intégration Stripe
 
-- [x] 8.1 Créer `src/app/(dashboard)/settings/page.tsx` - hub settings
-- [x] 8.2 Créer `src/app/(dashboard)/settings/profile/page.tsx`:
-  - Modifier nom, email (lecture seule)
-  - Langue, timezone
-  - Préférences notifications
-- [x] 8.3 Créer `src/app/(dashboard)/settings/household/page.tsx`:
-  - Nom foyer
-  - Inviter co-parent
-  - Liste membres
-  - Supprimer foyer
-- [x] 8.4 Créer `src/app/(dashboard)/settings/notifications/page.tsx`:
-  - Toggle notifications push
-  - Heure rappels quotidiens
-  - Notifications email
-- [x] 8.5 Créer `src/app/(dashboard)/settings/templates/page.tsx`:
-  - Voir templates actifs pour le foyer
-  - Désactiver templates spécifiques
-  - Preview calendrier automatique
-
----
-
-## Phase 9: Composants Settings
-
-- [x] 9.1 Créer `src/components/custom/SettingsNav.tsx` - navigation settings
-- [x] 9.2 Créer `src/components/custom/ProfileForm.tsx` - formulaire profil
-- [x] 9.3 Créer `src/components/custom/HouseholdSettings.tsx` - gestion foyer
-- [x] 9.4 Créer `src/components/custom/NotificationSettings.tsx` - préférences notifs
-- [x] 9.5 Créer `src/components/custom/TemplateSwitches.tsx` - toggle templates
+- [ ] 4.1 Créer `src/lib/stripe/client.ts`:
+  - Configuration Stripe
+  - Types Stripe
+- [ ] 4.2 Créer `src/lib/stripe/checkout.ts`:
+  - `createCheckoutSession(householdId, priceId)` - création session
+  - `createPortalSession(customerId)` - portail client
+- [ ] 4.3 Créer `src/lib/stripe/webhooks.ts`:
+  - `handleCheckoutCompleted(event)` - paiement réussi
+  - `handleSubscriptionUpdated(event)` - mise à jour abo
+  - `handleSubscriptionDeleted(event)` - annulation
+- [ ] 4.4 Créer `src/app/api/stripe/checkout/route.ts`:
+  - POST: créer checkout session
+- [ ] 4.5 Créer `src/app/api/stripe/webhook/route.ts`:
+  - POST: recevoir webhooks Stripe
+  - Vérification signature
+- [ ] 4.6 Créer `src/app/api/stripe/portal/route.ts`:
+  - POST: créer portail session
 
 ---
 
-## Phase 10: Server Actions Settings
+## Phase 5: Pages Billing
 
-- [x] 10.1 Créer `src/lib/actions/settings.ts`:
-  - `updateProfile(data)` - mise à jour profil
-  - `updateHousehold(data)` - mise à jour foyer
-  - `updateNotificationPreferences(data)` - préférences notifs
-  - `deleteAccount()` - suppression compte (RGPD)
-- [x] 10.2 Créer `src/lib/actions/templates.ts`:
-  - `getActiveTemplates(householdId)` - templates actifs
-  - `toggleTemplate(templateId, active)` - activer/désactiver
-  - `previewCalendar(householdId, months)` - preview tâches futures
-
----
-
-## Phase 11: API Routes Templates
-
-- [x] 11.1 Créer `src/app/api/templates/generate/route.ts`:
-  - Endpoint pour cron job (génération quotidienne)
-  - Auth via API key
-- [x] 11.2 Créer `src/app/api/cron/daily/route.ts`:
-  - Vérification tâches à générer
-  - Notifications rappels
+- [ ] 5.1 Créer `src/app/(dashboard)/settings/billing/page.tsx`:
+  - Statut abonnement
+  - Date prochain paiement
+  - Bouton "Gérer abonnement"
+  - Historique factures
+- [ ] 5.2 Créer `src/components/custom/SubscriptionStatus.tsx`:
+  - Badge trial/active/cancelled
+  - Jours restants trial
+  - Alertes expiration
+- [ ] 5.3 Mettre à jour schema households:
+  - stripe_customer_id
+  - subscription_status (trial, active, past_due, cancelled)
+  - trial_ends_at
+  - subscription_ends_at
 
 ---
 
-## Phase 12: Validations Settings
+## Phase 6: Vue Enfant Timeline
 
-- [x] 12.1 Créer `src/lib/validations/settings.ts`:
-  - ProfileUpdateSchema
-  - HouseholdUpdateSchema
-  - NotificationPreferencesSchema
-  - DeleteAccountSchema (confirmation)
-
----
-
-## Phase 13: Tests
-
-- [x] 13.1 Créer `src/tests/templates-test.ts`:
-  - Test génération par âge
-  - Test filtres templates
-  - Test calcul deadline
-- [x] 13.2 Créer `src/tests/recurrence-test.ts`:
-  - Test règles récurrence
-  - Test génération occurrences
-- [x] 13.3 Créer `src/tests/settings-test.ts`:
-  - Test validations settings
+- [ ] 6.1 Créer `src/app/(dashboard)/children/[id]/timeline/page.tsx`:
+  - Timeline verticale par enfant
+  - Historique tâches complétées
+  - Prochaines tâches prévues
+- [ ] 6.2 Créer `src/components/custom/ChildTimeline.tsx`:
+  - Timeline visuelle
+  - Filtres par période
+  - Export PDF (préparation)
 
 ---
 
-## Phase 14: Build & Validation
+## Phase 7: Tests et Validations
 
-- [x] 14.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
-- [x] 14.2 `bun run build` - build production OK
-- [x] 14.3 Test manuel: voir templates applicables à un enfant
-- [x] 14.4 Test manuel: créer tâche récurrente → compléter → voir nouvelle occurrence
-
----
-
-## Definition of Done Sprint 3
-- [x] Catalogue 50+ templates français par âge/période
-- [x] Service génération automatique tâches depuis templates
-- [x] Système récurrence (daily, weekly, monthly)
-- [x] Page settings complète (profil, foyer, notifications)
-- [x] Page templates avec toggle activation
-- [x] Build production sans erreur
-- [x] Types stricts partout
+- [ ] 7.1 Créer `src/tests/assignment-test.ts`:
+  - Test assignation automatique
+  - Test rotation
+  - Test exclusions
+- [ ] 7.2 Créer `src/tests/alerts-test.ts`:
+  - Test détection déséquilibre
+  - Test seuils alertes
+- [ ] 7.3 Créer `src/tests/stripe-test.ts`:
+  - Test création session (mock)
+  - Test webhooks (mock)
 
 ---
 
-## Variables d'environnement (existantes suffisantes)
+## Phase 8: Build & Validation
+
+- [ ] 8.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
+- [ ] 8.2 `bun run build` - build production OK
+- [ ] 8.3 Test manuel: créer tâche → vérifier assignation automatique
+- [ ] 8.4 Test manuel: landing page responsive
+
+---
+
+## Definition of Done Sprint 4
+- [ ] Moteur répartition fonctionnel (assignation auto)
+- [ ] Alertes déséquilibre actives
+- [ ] Landing page complète et responsive
+- [ ] Intégration Stripe (checkout + webhooks)
+- [ ] Page billing fonctionnelle
+- [ ] Vue timeline enfant
+- [ ] Build production sans erreur
+- [ ] Types stricts partout
+
+---
+
+## Variables d'environnement NOUVELLES
 ```env
-DATABASE_URL=
-COGNITO_USER_POOL_ID=
-COGNITO_CLIENT_ID=
-AWS_S3_BUCKET=
-OPENAI_API_KEY=
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_REGION=us-east-1
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRICE_ID=
 ```
 
 ---
@@ -237,9 +194,7 @@ AWS_REGION=us-east-1
 bun dev                    # Dev server
 bun build                  # Production build
 bunx tsc --noEmit          # Type check
-bun run src/tests/templates-test.ts   # Test templates
-bun run src/tests/recurrence-test.ts  # Test recurrence
-bun run src/tests/settings-test.ts    # Test settings
+stripe listen --forward-to localhost:3000/api/stripe/webhook  # Test webhooks
 ```
 
 ---
@@ -247,9 +202,10 @@ bun run src/tests/settings-test.ts    # Test settings
 ## Notes
 - Commit après CHAQUE tâche terminée
 - Message format: `feat(scope): description`
-- Templates français pour MVP, autres pays en v2
-- Cron job via Vercel cron ou AWS EventBridge
-- RLS critique pour generated_tasks
+- Stripe en mode test pour dev
+- Landing page mobile-first
+- Messages alertes NON culpabilisants (cf MASTER_PROMPT)
+- RLS pour member_exclusions
 
 **Signal fin sprint**: `<promise>TASK_COMPLETE</promise>`
 
