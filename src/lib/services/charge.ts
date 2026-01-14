@@ -191,3 +191,120 @@ export async function getWeeklyLoadByUser(
 
   return { byDay, total }
 }
+
+/**
+ * Assign a task to the parent with the least load
+ * Updates the task assignment directly in the database
+ */
+export async function assignTaskToLeastLoadedParent(
+  taskId: string,
+  householdId: string
+): Promise<{ success: boolean; assignedTo: string | null; error?: string }> {
+  const leastLoadedUserId = await assignToLeastLoaded(householdId)
+
+  if (!leastLoadedUserId) {
+    return { success: false, assignedTo: null, error: "No available member in household" }
+  }
+
+  // Update the task with the new assignment
+  await query(`
+    UPDATE tasks
+    SET assigned_to = $1, updated_at = NOW()
+    WHERE id = $2 AND household_id = $3
+  `, [leastLoadedUserId, taskId, householdId])
+
+  return { success: true, assignedTo: leastLoadedUserId }
+}
+
+interface ParentLoad {
+  userId: string
+  email: string
+  totalLoad: number
+  tasksCount: number
+}
+
+/**
+ * Get weekly load for all parents in a household
+ * Returns load breakdown by parent for the last 7 days
+ */
+export async function getWeeklyLoadByParent(
+  householdId: string
+): Promise<ParentLoad[]> {
+  const result = await query<{
+    user_id: string
+    email: string
+    total_load: string
+    tasks_count: string
+  }>(`
+    SELECT
+      hm.user_id,
+      u.email,
+      COALESCE(SUM(t.load_weight), 0)::text as total_load,
+      COUNT(t.id)::text as tasks_count
+    FROM household_members hm
+    LEFT JOIN users u ON u.id = hm.user_id
+    LEFT JOIN tasks t ON t.assigned_to = hm.user_id
+      AND t.household_id = hm.household_id
+      AND t.status IN ('done', 'pending')
+      AND (t.completed_at >= NOW() - INTERVAL '7 days'
+           OR (t.status = 'pending' AND t.deadline >= CURRENT_DATE))
+    WHERE hm.household_id = $1 AND hm.is_active = true
+    GROUP BY hm.user_id, u.email
+    ORDER BY total_load DESC
+  `, [householdId])
+
+  return result.map((r) => ({
+    userId: r.user_id,
+    email: r.email,
+    totalLoad: parseInt(r.total_load, 10),
+    tasksCount: parseInt(r.tasks_count, 10),
+  }))
+}
+
+interface LoadBalanceResult {
+  percentages: { userId: string; email: string; percentage: number }[]
+  isBalanced: boolean
+  alertLevel: "none" | "warning" | "critical"
+  imbalanceRatio: string // e.g., "60/40"
+}
+
+/**
+ * Get load balance percentage for a household
+ * Returns the percentage split between parents (e.g., 60/40)
+ */
+export async function getLoadBalancePercentage(
+  householdId: string
+): Promise<LoadBalanceResult> {
+  const parentLoads = await getWeeklyLoadByParent(householdId)
+
+  const totalLoad = parentLoads.reduce((sum, p) => sum + p.totalLoad, 0)
+
+  const percentages = parentLoads.map((p) => ({
+    userId: p.userId,
+    email: p.email,
+    percentage: totalLoad > 0 ? Math.round((p.totalLoad / totalLoad) * 100) : 0,
+  }))
+
+  // Sort by percentage descending
+  percentages.sort((a, b) => b.percentage - a.percentage)
+
+  const maxPercentage = percentages[0]?.percentage ?? 0
+  const isBalanced = maxPercentage <= BALANCE_THRESHOLDS.WARNING
+  const alertLevel: "none" | "warning" | "critical" =
+    maxPercentage > BALANCE_THRESHOLDS.CRITICAL
+      ? "critical"
+      : maxPercentage > BALANCE_THRESHOLDS.WARNING
+        ? "warning"
+        : "none"
+
+  // Create ratio string (e.g., "60/40" or "50/50")
+  const ratioValues = percentages.map((p) => p.percentage).join("/")
+  const imbalanceRatio = ratioValues || "0/0"
+
+  return {
+    percentages,
+    isBalanced,
+    alertLevel,
+    imbalanceRatio,
+  }
+}
