@@ -36,12 +36,12 @@ setInterval(() => {
 
 const eventSchema = z.object({
   type: z.enum(["identify", "pageview", "event"]),
-  timestamp: z.string().datetime(),
+  timestamp: z.string(),
   event: z.string().optional(),
   path: z.string().optional(),
-  properties: z.record(z.unknown()).optional(),
+  properties: z.record(z.string(), z.unknown()).optional(),
   userId: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.string().optional(),
   householdId: z.string().optional(),
 })
 
