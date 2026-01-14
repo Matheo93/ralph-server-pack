@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 1: Fondations Tech
+# TODO CURRENT - Sprint 2: Tasks Core + Vocal MVP + Dashboard
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,131 +10,280 @@
 ---
 
 ## Sprint Goal
-Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
+Avoir le système de tâches fonctionnel avec création vocale et dashboard de visualisation.
 
 ---
 
 ## PRÉ-REQUIS
-- [x] 0.1 Lire MASTER_PROMPT.md entièrement
-- [x] 0.2 Lire RALPH_BRIEFING.md (leçons apprises)
-- [x] 0.3 Vérifier que les variables d'env AWS sont disponibles
+- [ ] 0.1 Lire MASTER_PROMPT.md entièrement
+- [ ] 0.2 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [ ] 0.3 Vérifier que les services AWS sont accessibles (Cognito, PostgreSQL)
 
 ---
 
-## Phase 1: Setup Projet Next.js ✅
+## Phase 1: Schéma Base de Données Tasks
 
-- [x] 1.1 Initialiser Next.js 15 avec `bunx create-next-app@latest familyload-web --typescript --tailwind --eslint --app --src-dir`
-- [x] 1.2 Configurer TypeScript strict mode dans tsconfig.json
-- [x] 1.3 Installer dépendances: `bun add zod @supabase/supabase-js @supabase/ssr stripe`
-- [x] 1.4 Installer shadcn/ui: `bunx shadcn@latest init`
-- [x] 1.5 Créer structure dossiers:
+- [ ] 1.1 Créer `src/lib/aws/tasks-schema.sql` avec:
+  ```sql
+  -- Table tasks
+  CREATE TABLE tasks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    household_id UUID NOT NULL REFERENCES households(id) ON DELETE CASCADE,
+    child_id UUID REFERENCES children(id) ON DELETE SET NULL,
+    created_by UUID NOT NULL,
+    assigned_to UUID,
+    category TEXT NOT NULL,
+    subcategory TEXT,
+    title TEXT NOT NULL,
+    description TEXT,
+    deadline TIMESTAMPTZ,
+    deadline_flexible BOOLEAN DEFAULT true,
+    priority INTEGER DEFAULT 2, -- 1=haute, 2=normale, 3=basse
+    status TEXT DEFAULT 'pending', -- pending, done, postponed, cancelled
+    source TEXT DEFAULT 'manual', -- manual, vocal, auto
+    weight INTEGER DEFAULT 1, -- poids pour calcul charge
+    recurrence JSONB,
+    vocal_transcript TEXT,
+    confidence_score REAL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+  );
+
+  -- Index pour performance
+  CREATE INDEX idx_tasks_household ON tasks(household_id);
+  CREATE INDEX idx_tasks_child ON tasks(child_id);
+  CREATE INDEX idx_tasks_assigned ON tasks(assigned_to);
+  CREATE INDEX idx_tasks_status ON tasks(status);
+  CREATE INDEX idx_tasks_deadline ON tasks(deadline);
+
+  -- RLS Policies
+  ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
   ```
-  src/
-  ├── app/
-  ├── components/
-  │   ├── ui/        (shadcn)
-  │   └── custom/    (nos composants)
-  ├── lib/
-  │   ├── supabase/
-  │   ├── utils/
-  │   └── validations/
-  ├── hooks/
-  └── types/
-  ```
+- [ ] 1.2 Ajouter RLS policies pour tasks (SELECT, INSERT, UPDATE, DELETE via household_members)
+- [ ] 1.3 Exécuter le schema SQL dans PostgreSQL AWS (MANUEL)
 
 ---
 
-## Phase 2: Configuration Supabase ✅
+## Phase 2: Validations Zod Tasks
 
-- [x] 2.1 Créer `src/lib/supabase/client.ts` (client browser)
-- [x] 2.2 Créer `src/lib/supabase/server.ts` (client server)
-- [x] 2.3 Créer `src/lib/supabase/middleware.ts` (refresh session)
-- [x] 2.4 Créer fichier `.env.local` avec variables Supabase
-- [x] 2.5 Exécuter le schema.sql dans Supabase (depuis .bmad/schema.sql) - MANUEL: copier .bmad/schema.sql dans l'éditeur SQL Supabase
-- [x] 2.6 Générer types: `bunx supabase gen types typescript --project-id XXX > src/types/database.ts` - Types créés manuellement
-
----
-
-## Phase 3: Authentification ✅
-
-- [x] 3.1 Créer `src/app/(auth)/login/page.tsx` - page login
-- [x] 3.2 Créer `src/app/(auth)/signup/page.tsx` - page signup
-- [x] 3.3 Créer `src/app/(auth)/callback/route.ts` - OAuth callback
-- [x] 3.4 Créer `src/lib/auth/actions.ts` - Server Actions (login, signup, logout)
-- [x] 3.5 Créer `src/middleware.ts` - protection routes
-- [x] 3.6 Créer composant `AuthForm` avec validation Zod
-- [x] 3.7 Ajouter support Magic Link
-- [x] 3.8 Créer `src/tests/auth-test.ts` - tester signup/login Cognito programmatiquement (pas de test manuel!)
+- [ ] 2.1 Créer `src/lib/validations/task.ts`:
+  - TaskCreateSchema (title, category, deadline?, child_id?, priority?, description?)
+  - TaskUpdateSchema (partial)
+  - TaskStatusSchema (status enum)
+  - TaskCategorySchema (enum des catégories)
+  - TaskFilterSchema (pour query)
 
 ---
 
-## Phase 4: Gestion Foyer (Household) ✅
+## Phase 3: Server Actions Tasks CRUD
 
-- [x] 4.1 Créer `src/app/(dashboard)/onboarding/page.tsx` - création foyer
-- [x] 4.2 Créer `src/lib/validations/household.ts` - schemas Zod
-- [x] 4.3 Créer `src/lib/actions/household.ts` - Server Actions CRUD
-- [x] 4.4 Créer composant `HouseholdForm`
-- [x] 4.5 Logique: après signup → si pas de foyer → onboarding
-- [x] 4.6 Créer page invitation co-parent
-
----
-
-## Phase 5: Gestion Enfants ✅
-
-- [x] 5.1 Créer `src/app/(dashboard)/children/page.tsx` - liste enfants
-- [x] 5.2 Créer `src/app/(dashboard)/children/new/page.tsx` - ajout enfant
-- [x] 5.3 Créer `src/lib/validations/child.ts` - schemas Zod
-- [x] 5.4 Créer `src/lib/actions/children.ts` - Server Actions CRUD
-- [x] 5.5 Créer composant `ChildForm` avec calcul âge automatique
-- [x] 5.6 Créer composant `ChildCard` pour affichage
+- [ ] 3.1 Créer `src/lib/actions/tasks.ts` avec:
+  - `createTask(data)` - création manuelle
+  - `updateTask(id, data)` - modification
+  - `deleteTask(id)` - suppression
+  - `completeTask(id)` - marquer comme fait
+  - `postponeTask(id, newDeadline)` - reporter
+  - `getTasks(filters)` - liste avec filtres
+  - `getTasksByChild(childId)` - tâches par enfant
+  - `getTodayTasks()` - tâches du jour
+  - `getWeekTasks()` - tâches de la semaine
+  - `reassignTask(id, userId)` - changer assignation
 
 ---
 
-## Phase 6: Layout & Navigation ✅
+## Phase 4: Types TypeScript Tasks
 
-- [x] 6.1 Créer `src/app/(dashboard)/layout.tsx` - layout dashboard
-- [x] 6.2 Créer composant `Sidebar` avec navigation
-- [x] 6.3 Créer composant `Header` avec user menu
-- [x] 6.4 Créer composant `MobileNav` (responsive)
-- [x] 6.5 Ajouter composants shadcn nécessaires (Button, Input, Card, etc.)
-
----
-
-## Phase 7: Tests & Build ✅
-
-- [x] 7.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
-- [x] 7.2 `bun run build` - build production OK
-- [x] 7.3 Créer `src/tests/flow-test.ts` - tester user→foyer→enfant avec PostgreSQL AWS
-- [x] 7.4 Créer `src/tests/rls-test.ts` - vérifier isolation données entre 2 users avec pg direct
+- [ ] 4.1 Créer/mettre à jour `src/types/task.ts`:
+  - Task interface
+  - TaskCreate type
+  - TaskUpdate type
+  - TaskCategory enum
+  - TaskStatus enum
+  - TaskPriority enum
+  - TaskSource enum
+  - TaskFilter type
 
 ---
 
-## Definition of Done Sprint 1
-- [x] Auth complète (signup/login/logout/magic link)
-- [x] Création foyer fonctionnelle
-- [x] Invitation co-parent fonctionnelle
-- [x] CRUD enfants fonctionnel
-- [x] Build production sans erreur
-- [x] Types stricts partout (no `any`)
-- [x] Exécuter `bun run src/tests/rls-test.ts` et confirmer que les RLS policies fonctionnent
+## Phase 5: Composants UI Tasks
+
+- [ ] 5.1 Créer `src/components/custom/TaskForm.tsx` - formulaire création/édition
+- [ ] 5.2 Créer `src/components/custom/TaskCard.tsx` - affichage tâche avec actions
+- [ ] 5.3 Créer `src/components/custom/TaskList.tsx` - liste de tâches groupées
+- [ ] 5.4 Créer `src/components/custom/TaskFilters.tsx` - filtres (catégorie, statut, enfant)
+- [ ] 5.5 Créer `src/components/custom/TaskPriorityBadge.tsx` - badge priorité coloré
+- [ ] 5.6 Créer `src/components/custom/TaskCategoryIcon.tsx` - icône par catégorie
+- [ ] 5.7 Ajouter composants shadcn nécessaires (Select, Badge, Calendar, etc.)
 
 ---
 
-## Variables d'environnement requises
+## Phase 6: Pages Tasks
+
+- [ ] 6.1 Créer `src/app/(dashboard)/tasks/page.tsx` - liste toutes les tâches
+- [ ] 6.2 Créer `src/app/(dashboard)/tasks/new/page.tsx` - création tâche manuelle
+- [ ] 6.3 Créer `src/app/(dashboard)/tasks/[id]/page.tsx` - détail/édition tâche
+- [ ] 6.4 Créer `src/app/(dashboard)/tasks/today/page.tsx` - vue "Aujourd'hui"
+
+---
+
+## Phase 7: Vocal MVP - Infrastructure
+
+- [ ] 7.1 Installer dépendances: `bun add @aws-sdk/client-s3 @aws-sdk/s3-request-presigner openai`
+- [ ] 7.2 Créer `src/lib/aws/s3.ts`:
+  - `generateUploadUrl(filename)` - URL présignée pour upload
+  - `generateDownloadUrl(key)` - URL présignée pour download
+  - `deleteFile(key)` - suppression fichier
+- [ ] 7.3 Créer `src/lib/vocal/transcribe.ts`:
+  - `transcribeAudio(audioUrl)` - appel Whisper API
+  - Configuration OpenAI client
+
+---
+
+## Phase 8: Vocal MVP - Analyse Sémantique
+
+- [ ] 8.1 Créer `src/lib/vocal/analyze.ts`:
+  - `analyzeTranscript(text)` - extraction via LLM
+  - Prompt sémantique (action, enfant, date, catégorie, urgence)
+  - `matchChild(name, householdId)` - trouver enfant par prénom
+  - `inferDeadline(text)` - déduire deadline du contexte
+- [ ] 8.2 Créer `src/lib/validations/vocal.ts`:
+  - VocalAnalysisSchema - résultat analyse LLM
+  - VocalTaskSchema - tâche extraite
+
+---
+
+## Phase 9: Vocal MVP - Composants
+
+- [ ] 9.1 Créer `src/components/custom/VocalButton.tsx`:
+  - Bouton micro avec états (idle, recording, processing)
+  - Feedback visuel (animation pulsation)
+  - Timer max 30s
+  - Upload automatique
+- [ ] 9.2 Créer `src/components/custom/VocalConfirmation.tsx`:
+  - Affichage tâche extraite
+  - Boutons confirmer/modifier/annuler
+  - Édition rapide si besoin
+- [ ] 9.3 Créer `src/hooks/useVocalRecording.ts`:
+  - MediaRecorder API
+  - Gestion états
+  - Upload vers S3
+  - Appel transcription
+
+---
+
+## Phase 10: Vocal MVP - API Routes
+
+- [ ] 10.1 Créer `src/app/api/vocal/upload/route.ts`:
+  - Générer URL présignée S3
+  - Retourner URL et key
+- [ ] 10.2 Créer `src/app/api/vocal/transcribe/route.ts`:
+  - Récupérer audio depuis S3
+  - Appeler Whisper API
+  - Retourner transcription
+- [ ] 10.3 Créer `src/app/api/vocal/analyze/route.ts`:
+  - Analyser transcription avec LLM
+  - Extraire champs tâche
+  - Matcher enfant si mentionné
+  - Retourner TaskCreate pré-rempli
+- [ ] 10.4 Créer `src/app/api/vocal/create-task/route.ts`:
+  - Créer tâche depuis analyse vocale
+  - Stocker transcript original
+
+---
+
+## Phase 11: Dashboard Principal
+
+- [ ] 11.1 Créer `src/app/(dashboard)/page.tsx` - dashboard home:
+  - Section "Aujourd'hui" (tâches urgentes)
+  - Section "Cette semaine" (vue 7 jours)
+  - Bouton vocal flottant
+  - Streak du foyer
+- [ ] 11.2 Créer `src/components/custom/DashboardToday.tsx`:
+  - Liste tâches du jour par priorité
+  - Quick actions (fait/reporté)
+  - Compteur tâches restantes
+- [ ] 11.3 Créer `src/components/custom/DashboardWeek.tsx`:
+  - Vue semaine condensée
+  - Indicateurs par jour
+- [ ] 11.4 Créer `src/components/custom/StreakCounter.tsx`:
+  - Affichage streak actuel
+  - Animation si streak maintenu
+- [ ] 11.5 Créer `src/components/custom/ChargeBalance.tsx`:
+  - % charge par parent (barre visuelle)
+  - Alerte si déséquilibre > 60/40
+
+---
+
+## Phase 12: Calcul Charge Mentale
+
+- [ ] 12.1 Créer `src/lib/services/charge.ts`:
+  - `calculateCharge(userId, period)` - somme poids tâches
+  - `getHouseholdBalance(householdId)` - répartition par parent
+  - `assignToLeastLoaded(householdId)` - auto-assignation
+- [ ] 12.2 Créer constantes poids par catégorie dans `src/lib/constants/task-weights.ts`
+
+---
+
+## Phase 13: Tests
+
+- [ ] 13.1 Créer `src/tests/tasks-test.ts`:
+  - Test CRUD tâches
+  - Test filtres
+  - Test calcul charge
+- [ ] 13.2 Créer `src/tests/vocal-test.ts`:
+  - Test upload S3
+  - Test transcription (mock)
+  - Test analyse sémantique
+- [ ] 13.3 Vérifier RLS: un user ne peut pas voir les tâches d'un autre foyer
+
+---
+
+## Phase 14: Build & Validation
+
+- [ ] 14.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
+- [ ] 14.2 `bun run build` - build production OK
+- [ ] 14.3 Test manuel: créer tâche manuelle → voir dans dashboard
+- [ ] 14.4 Test manuel: enregistrement vocal → transcription → création tâche
+
+---
+
+## Definition of Done Sprint 2
+- [ ] CRUD tâches complet et fonctionnel
+- [ ] Enregistrement vocal fonctionnel (max 30s)
+- [ ] Transcription Whisper intégrée
+- [ ] Analyse sémantique LLM fonctionnelle
+- [ ] Dashboard avec vue "Aujourd'hui" et "Semaine"
+- [ ] Bouton vocal accessible depuis dashboard
+- [ ] Calcul charge mentale par parent
+- [ ] Build production sans erreur
+- [ ] Types stricts partout (no `any`)
+
+---
+
+## Variables d'environnement requises (ajouter)
 ```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+# Existantes
+DATABASE_URL=
+COGNITO_USER_POOL_ID=
+COGNITO_CLIENT_ID=
+AWS_S3_BUCKET=
+
+# Nouvelles Sprint 2
+OPENAI_API_KEY=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=us-east-1
 ```
 
 ---
 
 ## Commandes utiles
 ```bash
-bun dev              # Dev server
-bun build            # Production build
-bunx tsc --noEmit    # Type check
-bunx supabase db push # Push migrations
+bun dev                    # Dev server
+bun build                  # Production build
+bunx tsc --noEmit          # Type check
+bun run src/tests/tasks-test.ts    # Test tasks
+bun run src/tests/vocal-test.ts    # Test vocal
 ```
 
 ---
@@ -142,66 +291,8 @@ bunx supabase db push # Push migrations
 ## Notes
 - Commit après CHAQUE tâche terminée
 - Message format: `feat(scope): description`
-- Documenter choix dans .bmad/DECISIONS.md
-- Si bloqué sur RLS → voir RALPH_BRIEFING.md
+- Si bloqué sur S3 → vérifier credentials AWS
+- Si Whisper rate limit → implémenter retry avec backoff
+- Poids catégories: voir MASTER_PROMPT.md section "Poids par type"
 
 **Signal fin sprint**: `<promise>TASK_COMPLETE</promise>`
-
----
-
-## ⚠️ PHASE 8: MIGRATION AWS (PRIORITAIRE) ⚠️
-
-**L'écosystème est AWS, pas Supabase. Migrer MAINTENANT.**
-
-### Resources AWS disponibles:
-```env
-DATABASE_URL=postgresql://ralph:8gBOBENecJ6Erg9@ralph-test-db.cj8s4m06043b.us-east-1.rds.amazonaws.com:5432/ralphdb
-COGNITO_USER_POOL_ID=us-east-1_20DAUfyAk
-COGNITO_CLIENT_ID=29fdh7o94qgos24dge389uf2n3
-AWS_S3_BUCKET=ralph-saas-assets-1768411274
-REDIS_URL=redis://ralph-redis.gohyrv.0001.use1.cache.amazonaws.com:6379
-```
-
-### Tâches Migration:
-
-- [x] 8.1 Installer `bun add @aws-sdk/client-cognito-identity-provider amazon-cognito-identity-js pg`
-- [x] 8.2 Créer `src/lib/aws/cognito.ts` - Client Cognito (signup, login, logout, session)
-- [x] 8.3 Créer `src/lib/aws/database.ts` - Client PostgreSQL direct (pg pool)
-- [x] 8.4 Remplacer imports Supabase par AWS dans `src/lib/auth/actions.ts`
-- [x] 8.5 Mettre à jour `src/middleware.ts` pour utiliser Cognito tokens (JWT)
-- [x] 8.6 Mettre à jour `src/lib/actions/household.ts` pour PostgreSQL direct
-- [x] 8.7 Mettre à jour `src/lib/actions/children.ts` pour PostgreSQL direct
-- [x] 8.8 Créer `src/lib/aws/auth-schema.sql` avec fonction mock `auth.uid()` pour RLS
-- [x] 8.9 Tester signup → login → créer foyer → ajouter enfant avec AWS (MANUEL - appliquer schema SQL)
-- [x] 8.10 `bunx tsc --noEmit && bun run build` - ZÉRO erreur
-
-### Pattern Cognito Auth:
-```typescript
-// src/lib/aws/cognito.ts
-import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js'
-
-const poolData = {
-  UserPoolId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID!,
-  ClientId: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!,
-}
-
-export const userPool = new CognitoUserPool(poolData)
-```
-
-### Pattern PostgreSQL Direct:
-```typescript
-// src/lib/aws/database.ts
-import { Pool } from 'pg'
-
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-})
-
-export async function query<T>(text: string, params?: unknown[]): Promise<T[]> {
-  const result = await pool.query(text, params)
-  return result.rows
-}
-```
-
-**NE PAS utiliser Supabase. AWS ONLY.**
