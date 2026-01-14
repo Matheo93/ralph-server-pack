@@ -81,7 +81,7 @@ export async function sendPushNotification(
           badge: "/icons/badge-72x72.png",
         },
         fcmOptions: {
-          link: data?.link ?? "/dashboard",
+          link: data?.["link"] ?? "/dashboard",
         },
       },
       android: {
@@ -179,7 +179,7 @@ export async function sendMultiplePush(
           badge: notification.badge ?? "/icons/badge-72x72.png",
         },
         fcmOptions: {
-          link: notification.clickAction ?? data?.link ?? "/dashboard",
+          link: notification.clickAction ?? data?.["link"] ?? "/dashboard",
         },
       },
       android: {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getUserId } from "@/lib/auth/actions"
-import { query, queryOne, setCurrentUser, insert, remove } from "@/lib/aws/database"
+import { query, queryOne, setCurrentUser, insert } from "@/lib/aws/database"
 import { z } from "zod"
 
 const RegisterTokenSchema = z.object({
@@ -114,18 +114,13 @@ export async function DELETE(request: NextRequest) {
   const { token } = validation.data
 
   try {
-    const removed = await remove("device_tokens", {
-      user_id: userId,
-      token,
-    })
+    // Delete the token - query returns empty array for DELETE
+    await query(`
+      DELETE FROM device_tokens
+      WHERE user_id = $1 AND token = $2
+    `, [userId, token])
 
-    if (!removed) {
-      return NextResponse.json(
-        { error: "Token non trouvé" },
-        { status: 404 }
-      )
-    }
-
+    // Always return success - if token didn't exist, it's still "deleted"
     return NextResponse.json({
       success: true,
       message: "Token supprimé",

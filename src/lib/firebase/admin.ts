@@ -13,17 +13,21 @@ import * as admin from "firebase-admin"
 let initialized = false
 
 export function getFirebaseAdmin(): admin.app.App | null {
-  if (!process.env.FIREBASE_PROJECT_ID) {
+  const projectId = process.env["FIREBASE_PROJECT_ID"]
+  const clientEmail = process.env["FIREBASE_CLIENT_EMAIL"]
+  const privateKeyRaw = process.env["FIREBASE_PRIVATE_KEY"]
+
+  if (!projectId) {
     console.warn("Firebase Admin: FIREBASE_PROJECT_ID not configured")
     return null
   }
 
-  if (!process.env.FIREBASE_CLIENT_EMAIL) {
+  if (!clientEmail) {
     console.warn("Firebase Admin: FIREBASE_CLIENT_EMAIL not configured")
     return null
   }
 
-  if (!process.env.FIREBASE_PRIVATE_KEY) {
+  if (!privateKeyRaw) {
     console.warn("Firebase Admin: FIREBASE_PRIVATE_KEY not configured")
     return null
   }
@@ -32,13 +36,13 @@ export function getFirebaseAdmin(): admin.app.App | null {
     try {
       // Check if already initialized
       if (admin.apps.length === 0) {
-        const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+        const privateKey = privateKeyRaw.replace(/\\n/g, "\n")
 
         admin.initializeApp({
           credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: privateKey,
+            projectId,
+            clientEmail,
+            privateKey,
           }),
         })
       }
@@ -67,8 +71,8 @@ export function getMessaging(): admin.messaging.Messaging | null {
  */
 export function isFirebaseConfigured(): boolean {
   return !!(
-    process.env.FIREBASE_PROJECT_ID &&
-    process.env.FIREBASE_CLIENT_EMAIL &&
-    process.env.FIREBASE_PRIVATE_KEY
+    process.env["FIREBASE_PROJECT_ID"] &&
+    process.env["FIREBASE_CLIENT_EMAIL"] &&
+    process.env["FIREBASE_PRIVATE_KEY"]
   )
 }

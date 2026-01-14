@@ -132,19 +132,46 @@ export function NotificationSettings({ preferences }: NotificationSettingsProps)
   return (
     <div className="space-y-6">
       {/* Push notifications */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
-          <Label htmlFor="push">Notifications push</Label>
-          <p className="text-sm text-muted-foreground">
-            Recevoir des notifications sur votre appareil
-          </p>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="push">Notifications push</Label>
+            <p className="text-sm text-muted-foreground">
+              Recevoir des notifications sur votre appareil
+            </p>
+          </div>
+          <Switch
+            id="push"
+            checked={pushEnabled}
+            onCheckedChange={setPushEnabled}
+            disabled={isPending}
+          />
         </div>
-        <Switch
-          id="push"
-          checked={pushEnabled}
-          onCheckedChange={setPushEnabled}
-          disabled={isPending}
-        />
+        {pushEnabled && (
+          <div className="flex items-center gap-3 ml-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleTestPush}
+              disabled={testingPush || isPending}
+            >
+              {testingPush ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Test en cours...
+                </>
+              ) : (
+                <>
+                  <Bell className="mr-2 h-3 w-3" />
+                  Tester les notifications
+                </>
+              )}
+            </Button>
+            {pushTestResult && (
+              <span className="text-sm text-muted-foreground">{pushTestResult}</span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Email notifications */}
