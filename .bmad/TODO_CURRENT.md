@@ -286,3 +286,18 @@ bunx playwright install    # Install browsers
 2. Crée un nouveau TODO_CURRENT.md pour le Sprint suivant
 3. Continue automatiquement sur le nouveau sprint
 4. NE T'ARRÊTE JAMAIS - boucle infinie de sprints
+
+---
+
+## ⚠️ RAPPEL IMPORTANT ⚠️
+
+**RIGUEUR MAXIMALE:**
+1. **PAS DE MOCKS** - Tout le code doit fonctionner réellement
+2. **CONNEXIONS VRAIES** - AWS Cognito, PostgreSQL, S3, SES, Stripe
+3. **TESTS RÉELS** - Tests qui appellent les vrais services
+4. **VALIDATION ZOD** - Tous les inputs validés
+5. **GESTION ERREURS** - Try/catch partout, logs utiles
+6. **TYPES STRICTS** - ZERO `any`
+
+**L'APP DOIT ÊTRE DÉPLOYABLE EN PRODUCTION !**
+
