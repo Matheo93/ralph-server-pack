@@ -2,11 +2,10 @@ import { Hero, Features, Pricing, Testimonials } from "@/components/marketing"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
-import MarketingLayout from "./(marketing)/layout"
 
-export default function HomePage() {
+export default function MarketingPage() {
   return (
-    <MarketingLayout>
+    <>
       {/* Hero Section */}
       <Hero />
 
@@ -44,6 +43,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-    </MarketingLayout>
+    </>
   )
 }
