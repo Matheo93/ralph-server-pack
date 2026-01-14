@@ -25,6 +25,7 @@ export type TaskStatus = z.infer<typeof TaskStatusEnum>
 
 // Task priority enum
 export const TaskPriorityEnum = z.enum([
+  "critical",
   "high",
   "normal",
   "low",

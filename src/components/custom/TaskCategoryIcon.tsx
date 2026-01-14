@@ -73,7 +73,7 @@ function CategoryIcon({ code, className }: { code: string; className?: string })
     ),
   }
 
-  return icons[code] ?? icons.home
+  return icons[code] ?? icons["home"]
 }
 
 export function TaskCategoryIcon({

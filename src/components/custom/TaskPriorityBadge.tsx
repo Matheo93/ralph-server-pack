@@ -28,7 +28,8 @@ const priorityConfig: Record<string, { label: string; className: string }> = {
 }
 
 export function TaskPriorityBadge({ priority, className }: TaskPriorityBadgeProps) {
-  const config = priorityConfig[priority] ?? priorityConfig.normal
+  const config = priorityConfig[priority] ?? priorityConfig["normal"]
+  if (!config) return null
 
   return (
     <Badge className={cn(config.className, className)}>
