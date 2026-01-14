@@ -54,9 +54,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Disable body parsing for raw body access (required for signature verification)
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
+// Note: Body parsing is automatically disabled in App Router when using request.text()

@@ -48,7 +48,7 @@ describe("Alerts Service", () => {
       mockedGetLoadBalancePercentage.mockResolvedValue({
         isBalanced: true,
         imbalanceRatio: "50/50",
-        alertLevel: null,
+        alertLevel: "none",
         percentages: [
           { userId: "user-1", email: "parent1@test.com", percentage: 50 },
           { userId: "user-2", email: "parent2@test.com", percentage: 50 },
