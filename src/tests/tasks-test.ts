@@ -150,11 +150,11 @@ testGroup("TaskStatusEnum", () => {
 })
 
 testGroup("Category weights", () => {
-  assert(CATEGORY_WEIGHTS.sante === 5, "Santé should have weight 5")
-  assert(CATEGORY_WEIGHTS.social === 6, "Social should have weight 6")
-  assert(CATEGORY_WEIGHTS.quotidien === 1, "Quotidien should have weight 1")
-  assert(CATEGORY_WEIGHTS.administratif === 3, "Administratif should have weight 3")
-  assert(CATEGORY_WEIGHTS.ecole === 4, "École should have weight 4")
+  assert(CATEGORY_WEIGHTS["sante"] === 5, "Santé should have weight 5")
+  assert(CATEGORY_WEIGHTS["social"] === 6, "Social should have weight 6")
+  assert(CATEGORY_WEIGHTS["quotidien"] === 1, "Quotidien should have weight 1")
+  assert(CATEGORY_WEIGHTS["administratif"] === 3, "Administratif should have weight 3")
+  assert(CATEGORY_WEIGHTS["ecole"] === 4, "École should have weight 4")
 })
 
 testGroup("getDefaultWeight", () => {
