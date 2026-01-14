@@ -5,6 +5,11 @@ import {
   generateTaskReminderEmail,
   generateStreakWarningEmail,
 } from "@/lib/templates/email"
+import {
+  sendPushNotification,
+  sendMultiplePush,
+  isFirebaseConfigured,
+} from "@/lib/firebase"
 
 const APP_URL = process.env["NEXT_PUBLIC_APP_URL"] || "https://app.familyload.com"
 
@@ -98,12 +103,38 @@ export async function sendTaskReminder(
     taskId: task.id,
   })
 
-  return sendEmail({
+  // Send email
+  const emailSent = await sendEmail({
     to: member.email,
     subject: emailData.subject,
     html: emailData.html,
     text: emailData.text,
   })
+
+  // Also send push notification if configured
+  if (isFirebaseConfigured()) {
+    const tokens = await getUserDeviceTokens(memberId)
+    if (tokens.length > 0) {
+      const deadline = task.deadline
+        ? new Date(task.deadline).toLocaleDateString("fr-FR")
+        : "bientôt"
+
+      await sendMultiplePush(
+        tokens,
+        {
+          title: `Rappel: ${task.title}`,
+          body: `À faire avant le ${deadline}`,
+        },
+        {
+          type: "task_reminder",
+          taskId: task.id,
+          link: `/tasks/${task.id}`,
+        }
+      )
+    }
+  }
+
+  return emailSent
 }
 
 // ============================================================
@@ -434,4 +465,114 @@ export async function getTasksNeedingReminders(): Promise<
   `)
 
   return tasks
+}
+
+// ============================================================
+// HELPER: GET USER DEVICE TOKENS
+// ============================================================
+
+async function getUserDeviceTokens(userId: string): Promise<string[]> {
+  const tokens = await query<{ token: string }>(`
+    SELECT token
+    FROM device_tokens
+    WHERE user_id = $1
+    ORDER BY last_used DESC
+  `, [userId])
+
+  return tokens.map((t) => t.token)
+}
+
+// ============================================================
+// HELPER: GET HOUSEHOLD DEVICE TOKENS
+// ============================================================
+
+async function getHouseholdDeviceTokens(householdId: string): Promise<string[]> {
+  const tokens = await query<{ token: string }>(`
+    SELECT DISTINCT dt.token
+    FROM device_tokens dt
+    JOIN household_members hm ON hm.user_id = dt.user_id
+    WHERE hm.household_id = $1 AND hm.is_active = true
+    ORDER BY dt.last_used DESC
+  `, [householdId])
+
+  return tokens.map((t) => t.token)
+}
+
+// ============================================================
+// SEND PUSH NOTIFICATION TO USER
+// ============================================================
+
+export async function sendPushToUser(
+  userId: string,
+  title: string,
+  body: string,
+  data?: Record<string, string>
+): Promise<{ sent: number; failed: number }> {
+  if (!isFirebaseConfigured()) {
+    return { sent: 0, failed: 0 }
+  }
+
+  const tokens = await getUserDeviceTokens(userId)
+  if (tokens.length === 0) {
+    return { sent: 0, failed: 0 }
+  }
+
+  const result = await sendMultiplePush(tokens, { title, body }, data)
+
+  // Clean up invalid tokens
+  if (result.invalidTokens.length > 0) {
+    await cleanupInvalidTokens(result.invalidTokens)
+  }
+
+  return {
+    sent: result.successCount,
+    failed: result.failureCount,
+  }
+}
+
+// ============================================================
+// SEND PUSH NOTIFICATION TO HOUSEHOLD
+// ============================================================
+
+export async function sendPushToHousehold(
+  householdId: string,
+  title: string,
+  body: string,
+  data?: Record<string, string>
+): Promise<{ sent: number; failed: number }> {
+  if (!isFirebaseConfigured()) {
+    return { sent: 0, failed: 0 }
+  }
+
+  const tokens = await getHouseholdDeviceTokens(householdId)
+  if (tokens.length === 0) {
+    return { sent: 0, failed: 0 }
+  }
+
+  const result = await sendMultiplePush(tokens, { title, body }, data)
+
+  // Clean up invalid tokens
+  if (result.invalidTokens.length > 0) {
+    await cleanupInvalidTokens(result.invalidTokens)
+  }
+
+  return {
+    sent: result.successCount,
+    failed: result.failureCount,
+  }
+}
+
+// ============================================================
+// CLEANUP INVALID TOKENS
+// ============================================================
+
+async function cleanupInvalidTokens(tokens: string[]): Promise<void> {
+  if (tokens.length === 0) return
+
+  const placeholders = tokens.map((_, i) => `$${i + 1}`).join(", ")
+
+  await query(`
+    DELETE FROM device_tokens
+    WHERE token IN (${placeholders})
+  `, tokens)
 }
