@@ -70,14 +70,19 @@ Durcir l'application pour la production: sécurité, rate limiting, logging, et 
 
 ---
 
-## Phase 4: Logging & Monitoring
+## Phase 4: Logging & Monitoring ✅
 
-- [ ] 4.1 Créer `src/lib/logger.ts`:
+- [x] 4.1 Créer `src/lib/logger.ts`:
   - Structured logging (JSON)
   - Log levels (debug, info, warn, error)
   - Request ID tracking
-- [ ] 4.2 Ajouter logging aux endpoints critiques
-- [ ] 4.3 Health check endpoint amélioré
+  - Sensitive data sanitization
+  - Request timer helper
+- [x] 4.2 Ajouter logging aux endpoints critiques:
+  - `/api/health` - health checks avec latence DB
+  - `/api/vocal/transcribe` - transcription vocale
+  - `/api/stripe/webhook` - webhooks Stripe
+- [x] 4.3 Tests unitaires logger (26 tests)
 
 ---
 
@@ -94,7 +99,7 @@ Durcir l'application pour la production: sécurité, rate limiting, logging, et 
 - [x] Rate limiting fonctionnel (src/lib/rate-limit.ts)
 - [x] Input sanitization en place (src/lib/sanitize.ts)
 - [x] Security headers configurés (next.config.ts + middleware.ts)
-- [ ] Logging structuré
+- [x] Logging structuré (src/lib/logger.ts)
 - [ ] Build production OK
 - [ ] Tests passent
 
@@ -103,8 +108,10 @@ Durcir l'application pour la production: sécurité, rate limiting, logging, et 
 ## Fichiers créés dans ce sprint
 - `src/lib/rate-limit.ts`
 - `src/lib/sanitize.ts`
+- `src/lib/logger.ts`
 - `src/tests/rate-limit.test.ts`
 - `src/tests/sanitize.test.ts`
+- `src/tests/logger.test.ts`
 
 ---
 
