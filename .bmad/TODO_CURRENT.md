@@ -40,21 +40,21 @@ Implémenter le moteur de répartition équitable, la landing page marketing, et
 
 ---
 
-## Phase 2: Alertes et Notifications Charge
+## Phase 2: Alertes et Notifications Charge ✅
 
-- [ ] 2.1 Créer `src/lib/services/alerts.ts`:
+- [x] 2.1 Créer `src/lib/services/alerts.ts`:
   - `checkImbalanceAlert(householdId)` - alerte si > 60/40
   - `checkOverloadAlert(memberId)` - surcharge hebdomadaire
   - `checkInactivityAlert(memberId)` - inactivité d'un parent
-- [ ] 2.2 Créer `src/types/alert.ts`:
+- [x] 2.2 Créer `src/types/alert.ts`:
   - AlertType enum (imbalance, overload, inactivity)
   - Alert interface
   - AlertSeverity enum (info, warning, critical)
-- [ ] 2.3 Créer `src/components/custom/AlertBanner.tsx`:
+- [x] 2.3 Créer `src/components/custom/AlertBanner.tsx`:
   - Bannière non-culpabilisante
   - Message contextuel
   - Actions suggérées
-- [ ] 2.4 Créer `src/components/custom/ChargeAlerts.tsx`:
+- [x] 2.4 Créer `src/components/custom/ChargeAlerts.tsx`:
   - Liste des alertes actives
   - Dismiss temporaire
 
