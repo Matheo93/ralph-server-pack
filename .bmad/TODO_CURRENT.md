@@ -15,33 +15,33 @@ Améliorer l'onboarding utilisateur, implémenter la vue semaine complète, le s
 ---
 
 ## PRÉ-REQUIS
-- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [ ] 0.2 Vérifier les services AWS accessibles
+- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [x] 0.2 Vérifier les services AWS accessibles
 
 ---
 
 ## Phase 1: Onboarding Wizard Complet
 
-- [ ] 1.1 Refactorer `src/app/(dashboard)/onboarding/page.tsx`:
+- [x] 1.1 Refactorer `src/app/(dashboard)/onboarding/page.tsx`:
   - Wizard multi-étapes (1. Foyer, 2. Enfants, 3. Co-parent, 4. Préférences)
   - Progress indicator
   - Validation à chaque étape
-- [ ] 1.2 Créer `src/components/custom/OnboardingWizard.tsx`:
+- [x] 1.2 Créer `src/components/custom/OnboardingWizard.tsx`:
   - State machine pour les étapes
   - Navigation prev/next
   - Skip optionnel pour certaines étapes
-- [ ] 1.3 Créer `src/components/custom/OnboardingStep1Household.tsx`:
+- [x] 1.3 Créer `src/components/custom/OnboardingStep1Household.tsx`:
   - Nom du foyer
   - Pays (France par défaut)
   - Timezone automatique
-- [ ] 1.4 Créer `src/components/custom/OnboardingStep2Children.tsx`:
+- [x] 1.4 Créer `src/components/custom/OnboardingStep2Children.tsx`:
   - Ajout multiple enfants
   - Prénom + date de naissance
   - Tags optionnels (allergies, etc.)
-- [ ] 1.5 Créer `src/components/custom/OnboardingStep3Invite.tsx`:
+- [x] 1.5 Créer `src/components/custom/OnboardingStep3Invite.tsx`:
   - Inviter co-parent par email
   - Option "Plus tard"
-- [ ] 1.6 Créer `src/components/custom/OnboardingStep4Preferences.tsx`:
+- [x] 1.6 Créer `src/components/custom/OnboardingStep4Preferences.tsx`:
   - Notifications (heure rappel)
   - Catégories prioritaires
   - Templates auto-activés
@@ -50,19 +50,19 @@ Améliorer l'onboarding utilisateur, implémenter la vue semaine complète, le s
 
 ## Phase 2: Vue Semaine Complète
 
-- [ ] 2.1 Créer `src/app/(dashboard)/tasks/week/page.tsx`:
+- [x] 2.1 Créer `src/app/(dashboard)/tasks/week/page.tsx`:
   - Vue 7 jours avec scroll horizontal
   - Groupement par jour
   - Drag & drop entre jours (report)
-- [ ] 2.2 Créer `src/components/custom/WeekView.tsx`:
+- [x] 2.2 Créer `src/components/custom/WeekView.tsx`:
   - Colonnes pour chaque jour
   - Header avec date
   - Badge count par jour
-- [ ] 2.3 Créer `src/components/custom/DayColumn.tsx`:
+- [x] 2.3 Créer `src/components/custom/DayColumn.tsx`:
   - Liste des tâches du jour
   - Drop zone pour drag & drop
   - Bouton "+" ajouter tâche
-- [ ] 2.4 Créer `src/lib/actions/week.ts`:
+- [x] 2.4 Créer `src/lib/actions/week.ts`:
   - `getTasksForWeek(householdId, startDate)`
   - `moveTaskToDay(taskId, newDate)`
 
