@@ -160,30 +160,30 @@ Améliorer l'onboarding utilisateur, implémenter la vue semaine complète, le s
 
 ## Phase 8: Tests et Validations
 
-- [ ] 8.1 Créer `src/tests/onboarding.test.ts`:
+- [x] 8.1 Créer `src/tests/onboarding.test.ts`:
   - Test wizard complet
   - Test création foyer + enfants
-- [ ] 8.2 Créer `src/tests/week-view.test.ts`:
+- [x] 8.2 Créer `src/tests/week-view.test.ts`:
   - Test affichage semaine
   - Test drag & drop
-- [ ] 8.3 Créer `src/tests/notifications.test.ts`:
+- [x] 8.3 Créer `src/tests/notifications.test.ts`:
   - Test envoi email (mock SES)
   - Test logique reminder
-- [ ] 8.4 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
-- [ ] 8.5 `bun run build` - build production OK
+- [x] 8.4 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
+- [x] 8.5 `bun run build` - build production OK
 
 ---
 
 ## Definition of Done Sprint 5
-- [ ] Onboarding wizard fonctionnel (4 étapes)
-- [ ] Vue semaine avec 7 jours
-- [ ] Système notifications email configuré
-- [ ] Dashboard charge amélioré avec graphiques
-- [ ] Streak milestones implémentés
-- [ ] Récurrence UI améliorée
-- [ ] Actions rapides (swipe)
-- [ ] Build production sans erreur
-- [ ] Tests passent
+- [x] Onboarding wizard fonctionnel (4 étapes)
+- [x] Vue semaine avec 7 jours
+- [x] Système notifications email configuré
+- [x] Dashboard charge amélioré avec graphiques
+- [x] Streak milestones implémentés
+- [x] Récurrence UI améliorée
+- [x] Actions rapides (swipe)
+- [x] Build production sans erreur
+- [x] Tests passent
 
 ---
 
