@@ -47,13 +47,16 @@ export function initAnalytics(analyticsConfig: Partial<AnalyticsConfig>) {
 
   // Auto-detect provider from env variables
   if (config.provider === "none") {
-    if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+    const posthogKey = process.env["NEXT_PUBLIC_POSTHOG_KEY"]
+    const plausibleDomain = process.env["NEXT_PUBLIC_PLAUSIBLE_DOMAIN"]
+
+    if (posthogKey) {
       config.provider = "posthog"
-      config.posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
-      config.posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://app.posthog.com"
-    } else if (process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN) {
+      config.posthogKey = posthogKey
+      config.posthogHost = process.env["NEXT_PUBLIC_POSTHOG_HOST"] || "https://app.posthog.com"
+    } else if (plausibleDomain) {
       config.provider = "plausible"
-      config.plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+      config.plausibleDomain = plausibleDomain
     }
   }
 }

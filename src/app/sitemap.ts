@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next"
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://familyload.app"
+const BASE_URL = process.env["NEXT_PUBLIC_APP_URL"] || "https://familyload.app"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const currentDate = new Date()

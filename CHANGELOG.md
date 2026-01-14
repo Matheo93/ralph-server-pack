@@ -7,6 +7,49 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-01-14
+
+### Ajouté
+
+#### Phase 1: Progressive Web App (PWA)
+- Manifest JSON complet avec icons, shortcuts et screenshots
+- Icons PWA générés automatiquement (72px à 512px)
+- Service Worker avec next-pwa et stratégies de cache optimisées
+- Composant `InstallPrompt` avec détection iOS/Android
+- Meta tags PWA dans le root layout
+
+#### Phase 2: Analytics & Monitoring
+- Service analytics multi-provider (`src/lib/analytics/index.ts`)
+- Événements analytics typés (`src/lib/analytics/events.ts`)
+- Composant `AnalyticsProvider` avec consentement RGPD
+- API endpoint analytics avec rate limiting (`/api/analytics`)
+
+#### Phase 3: Performance
+- Composant `OptimizedImage` wrapper next/image
+- Composant `AvatarImage` avec fallback initiales
+
+#### Phase 4: Tests E2E Avancés
+- Tests tâches (`e2e/tasks.spec.ts`)
+- Tests vocal (`e2e/vocal.spec.ts`)
+- Tests charge mentale (`e2e/charge.spec.ts`)
+- Tests onboarding (`e2e/onboarding.spec.ts`)
+- Fixtures et helpers (`e2e/fixtures/`, `e2e/helpers/`)
+
+#### Phase 5: SEO & Accessibilité
+- Sitemap dynamique (`src/app/sitemap.ts`)
+- Robots.txt configuré (`src/app/robots.ts`)
+- Viewport et meta tags optimisés
+
+#### Phase 6: Error Handling
+- Composant `ErrorBoundary` avec fallback élégant
+- Page d'erreur globale (`src/app/error.tsx`)
+- Health check endpoint (`/api/health`) avec vérification DB/Redis
+
+### Modifié
+- Root layout avec viewport et meta tags PWA
+- Dashboard layout avec InstallPrompt
+- .gitignore avec exclusions PWA et Playwright
+
 ## [0.6.0] - 2026-01-14
 
 ### Ajouté
