@@ -1,6 +1,6 @@
 import { query, queryOne, setCurrentUser } from "@/lib/aws/database"
 import { getUserId } from "@/lib/auth/actions"
-import { BALANCE_THRESHOLDS } from "@/lib/constants/task-weights"
+import { BALANCE_THRESHOLDS, CATEGORY_WEIGHTS } from "@/lib/constants/task-weights"
 import type { HouseholdBalance, UserLoadSummary } from "@/types/task"
 
 interface TaskWeight {
@@ -306,5 +306,379 @@ export async function getLoadBalancePercentage(
     isBalanced,
     alertLevel,
     imbalanceRatio,
+  }
+}
+
+interface DayLoad {
+  date: string
+  dayName: string
+  loads: {
+    userId: string
+    userName: string
+    load: number
+  }[]
+  totalLoad: number
+}
+
+/**
+ * Get daily load breakdown for the current week
+ * Used for the ChargeWeekChart component
+ */
+export async function getWeeklyChartData(): Promise<DayLoad[]> {
+  const currentUserId = await getUserId()
+  if (!currentUserId) return []
+
+  await setCurrentUser(currentUserId)
+
+  // Get user's household
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [currentUserId])
+
+  if (!membership) return []
+
+  const householdId = membership.household_id
+
+  // Get all household members
+  const members = await query<{ user_id: string; email: string }>(`
+    SELECT hm.user_id, u.email
+    FROM household_members hm
+    LEFT JOIN users u ON u.id = hm.user_id
+    WHERE hm.household_id = $1 AND hm.is_active = true
+  `, [householdId])
+
+  // Get task weights by day and user for the current week
+  const tasksByDay = await query<{
+    day: string
+    assigned_to: string
+    daily_load: string
+  }>(`
+    SELECT
+      DATE(COALESCE(completed_at, deadline))::text as day,
+      assigned_to,
+      SUM(load_weight)::text as daily_load
+    FROM tasks
+    WHERE household_id = $1
+      AND assigned_to IS NOT NULL
+      AND status IN ('done', 'pending')
+      AND (
+        (completed_at >= DATE_TRUNC('week', CURRENT_DATE))
+        OR (status = 'pending' AND deadline >= DATE_TRUNC('week', CURRENT_DATE) AND deadline < DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '7 days')
+      )
+    GROUP BY DATE(COALESCE(completed_at, deadline)), assigned_to
+    ORDER BY day ASC
+  `, [householdId])
+
+  // Build day-by-day structure for the week
+  const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
+  const today = new Date()
+  const startOfWeek = new Date(today)
+  const dayOfWeek = today.getDay()
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek // Monday start
+  startOfWeek.setDate(today.getDate() + diff)
+  startOfWeek.setHours(0, 0, 0, 0)
+
+  const result: DayLoad[] = []
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(startOfWeek)
+    date.setDate(startOfWeek.getDate() + i)
+    const dateStr = date.toISOString().split("T")[0] as string
+
+    const dayLoads: DayLoad["loads"] = []
+    let totalLoad = 0
+
+    for (const member of members) {
+      const dayData = tasksByDay.find(
+        (t) => t.day === dateStr && t.assigned_to === member.user_id
+      )
+      const load = dayData ? parseInt(dayData.daily_load, 10) : 0
+      totalLoad += load
+
+      dayLoads.push({
+        userId: member.user_id,
+        userName: member.email?.split("@")[0] ?? "Parent",
+        load,
+      })
+    }
+
+    result.push({
+      date: dateStr,
+      dayName: dayNames[i] ?? "",
+      loads: dayLoads,
+      totalLoad,
+    })
+  }
+
+  return result
+}
+
+interface WeekHistory {
+  weekStart: string
+  weekEnd: string
+  weekLabel: string
+  members: {
+    userId: string
+    userName: string
+    load: number
+    percentage: number
+  }[]
+  totalLoad: number
+  isBalanced: boolean
+}
+
+/**
+ * Get charge history for the last 4 weeks
+ * Used for the ChargeHistoryCard component
+ */
+export async function getChargeHistory(): Promise<WeekHistory[]> {
+  const currentUserId = await getUserId()
+  if (!currentUserId) return []
+
+  await setCurrentUser(currentUserId)
+
+  // Get user's household
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [currentUserId])
+
+  if (!membership) return []
+
+  const householdId = membership.household_id
+
+  // Get all household members
+  const members = await query<{ user_id: string; email: string }>(`
+    SELECT hm.user_id, u.email
+    FROM household_members hm
+    LEFT JOIN users u ON u.id = hm.user_id
+    WHERE hm.household_id = $1 AND hm.is_active = true
+  `, [householdId])
+
+  const history: WeekHistory[] = []
+
+  // Get data for last 4 weeks
+  for (let weekOffset = 0; weekOffset < 4; weekOffset++) {
+    const today = new Date()
+    const startOfWeek = new Date(today)
+    const dayOfWeek = today.getDay()
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+    startOfWeek.setDate(today.getDate() + diff - weekOffset * 7)
+    startOfWeek.setHours(0, 0, 0, 0)
+
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+
+    const weekStartStr = startOfWeek.toISOString().split("T")[0] as string
+    const weekEndStr = endOfWeek.toISOString().split("T")[0] as string
+
+    // Get task weights for this week
+    const weekLoads = await query<{
+      assigned_to: string
+      total_load: string
+    }>(`
+      SELECT
+        assigned_to,
+        SUM(load_weight)::text as total_load
+      FROM tasks
+      WHERE household_id = $1
+        AND assigned_to IS NOT NULL
+        AND status IN ('done', 'pending')
+        AND (
+          (completed_at >= $2::date AND completed_at < $3::date + INTERVAL '1 day')
+          OR (status = 'pending' AND deadline >= $2::date AND deadline <= $3::date)
+        )
+      GROUP BY assigned_to
+    `, [householdId, weekStartStr, weekEndStr])
+
+    let totalLoad = 0
+    const memberLoads: WeekHistory["members"] = []
+
+    for (const member of members) {
+      const memberData = weekLoads.find((w) => w.assigned_to === member.user_id)
+      const load = memberData ? parseInt(memberData.total_load, 10) : 0
+      totalLoad += load
+
+      memberLoads.push({
+        userId: member.user_id,
+        userName: member.email?.split("@")[0] ?? "Parent",
+        load,
+        percentage: 0, // Will calculate after
+      })
+    }
+
+    // Calculate percentages
+    for (const member of memberLoads) {
+      member.percentage = totalLoad > 0 ? Math.round((member.load / totalLoad) * 100) : 0
+    }
+
+    // Check if balanced
+    const maxPercentage = Math.max(...memberLoads.map((m) => m.percentage), 0)
+    const isBalanced = maxPercentage <= BALANCE_THRESHOLDS.WARNING
+
+    // Week label
+    const weekLabel =
+      weekOffset === 0
+        ? "Cette semaine"
+        : weekOffset === 1
+          ? "Semaine derni\u00e8re"
+          : `Il y a ${weekOffset} semaines`
+
+    history.push({
+      weekStart: weekStartStr,
+      weekEnd: weekEndStr,
+      weekLabel,
+      members: memberLoads,
+      totalLoad,
+      isBalanced,
+    })
+  }
+
+  return history
+}
+
+interface CategoryLoad {
+  category: string
+  categoryLabel: string
+  totalLoad: number
+  tasksCount: number
+  percentage: number
+  members: {
+    userId: string
+    userName: string
+    load: number
+    percentage: number
+  }[]
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  administratif: "Administratif",
+  sante: "Sant\u00e9",
+  ecole: "\u00c9cole",
+  quotidien: "Quotidien",
+  social: "Social",
+  activites: "Activit\u00e9s",
+  logistique: "Logistique",
+}
+
+/**
+ * Get charge breakdown by category
+ * Used for the dedicated charge page
+ */
+export async function getChargeByCategory(): Promise<{
+  categories: CategoryLoad[]
+  totalLoad: number
+}> {
+  const currentUserId = await getUserId()
+  if (!currentUserId) return { categories: [], totalLoad: 0 }
+
+  await setCurrentUser(currentUserId)
+
+  // Get user's household
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [currentUserId])
+
+  if (!membership) return { categories: [], totalLoad: 0 }
+
+  const householdId = membership.household_id
+
+  // Get all household members
+  const members = await query<{ user_id: string; email: string }>(`
+    SELECT hm.user_id, u.email
+    FROM household_members hm
+    LEFT JOIN users u ON u.id = hm.user_id
+    WHERE hm.household_id = $1 AND hm.is_active = true
+  `, [householdId])
+
+  // Get task loads by category and user
+  const tasksByCategory = await query<{
+    category_code: string
+    assigned_to: string
+    total_load: string
+    tasks_count: string
+  }>(`
+    SELECT
+      c.code as category_code,
+      t.assigned_to,
+      SUM(t.load_weight)::text as total_load,
+      COUNT(t.id)::text as tasks_count
+    FROM tasks t
+    JOIN categories c ON c.id = t.category_id
+    WHERE t.household_id = $1
+      AND t.assigned_to IS NOT NULL
+      AND t.status IN ('done', 'pending')
+      AND (t.completed_at >= NOW() - INTERVAL '7 days'
+           OR (t.status = 'pending' AND t.deadline >= CURRENT_DATE))
+    GROUP BY c.code, t.assigned_to
+    ORDER BY c.code
+  `, [householdId])
+
+  // Build category breakdown
+  const categoryMap = new Map<string, CategoryLoad>()
+  let grandTotal = 0
+
+  // Initialize categories from CATEGORY_WEIGHTS
+  for (const categoryCode of Object.keys(CATEGORY_WEIGHTS)) {
+    categoryMap.set(categoryCode, {
+      category: categoryCode,
+      categoryLabel: CATEGORY_LABELS[categoryCode] ?? categoryCode,
+      totalLoad: 0,
+      tasksCount: 0,
+      percentage: 0,
+      members: members.map((m) => ({
+        userId: m.user_id,
+        userName: m.email?.split("@")[0] ?? "Parent",
+        load: 0,
+        percentage: 0,
+      })),
+    })
+  }
+
+  // Populate with actual data
+  for (const row of tasksByCategory) {
+    const category = categoryMap.get(row.category_code)
+    if (!category) continue
+
+    const load = parseInt(row.total_load, 10)
+    const count = parseInt(row.tasks_count, 10)
+
+    category.totalLoad += load
+    category.tasksCount += count
+    grandTotal += load
+
+    const memberData = category.members.find((m) => m.userId === row.assigned_to)
+    if (memberData) {
+      memberData.load += load
+    }
+  }
+
+  // Calculate percentages
+  const categories: CategoryLoad[] = []
+  for (const category of categoryMap.values()) {
+    if (category.totalLoad === 0) continue
+
+    category.percentage = grandTotal > 0 ? Math.round((category.totalLoad / grandTotal) * 100) : 0
+
+    for (const member of category.members) {
+      member.percentage = category.totalLoad > 0
+        ? Math.round((member.load / category.totalLoad) * 100)
+        : 0
+    }
+
+    categories.push(category)
+  }
+
+  // Sort by total load descending
+  categories.sort((a, b) => b.totalLoad - a.totalLoad)
+
+  return {
+    categories,
+    totalLoad: grandTotal,
   }
 }
