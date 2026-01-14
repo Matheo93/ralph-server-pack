@@ -321,3 +321,7 @@
 [2026-01-14 19:41:14] [INFO] Tasks remaining: 0
 0
 [2026-01-14 19:41:14] [INFO] Running Claude (attempt 1/5)...
+[2026-01-14 19:43:18] [INFO] 🍩 RALPH STARTING - /home/ubuntu/familyload
+[2026-01-14 19:43:18] [INFO] ━━━ Iteration 1 ━━━
+[2026-01-14 19:43:18] [INFO] Tasks remaining: 55
+[2026-01-14 19:43:18] [INFO] Running Claude (attempt 1/5)...

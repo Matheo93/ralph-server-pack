@@ -296,3 +296,14 @@ bun run src/tests/vocal-test.ts    # Test vocal
 - Poids catégories: voir MASTER_PROMPT.md section "Poids par type"
 
 **Signal fin sprint**: `<promise>TASK_COMPLETE</promise>`
+
+---
+
+## ⚠️ INSTRUCTION AUTOMATIQUE ⚠️
+
+**QUAND CE SPRINT EST TERMINÉ:**
+1. Lis MASTER_PROMPT.md pour identifier les features suivantes
+2. Crée un nouveau TODO_CURRENT.md pour le Sprint suivant
+3. Continue automatiquement sur le nouveau sprint
+4. NE T'ARRÊTE JAMAIS - boucle infinie de sprints
+
