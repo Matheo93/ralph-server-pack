@@ -88,7 +88,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
       <div className="space-y-2">
         <Label htmlFor="language">Langue</Label>
-        <Select value={language} onValueChange={setLanguage} disabled={isPending}>
+        <Select value={language} onValueChange={(value) => setLanguage(value as "fr" | "en")} disabled={isPending}>
           <SelectTrigger id="language">
             <SelectValue placeholder="Choisir une langue" />
           </SelectTrigger>

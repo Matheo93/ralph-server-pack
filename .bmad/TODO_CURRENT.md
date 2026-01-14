@@ -118,21 +118,21 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 8: Pages Settings
 
-- [ ] 8.1 Créer `src/app/(dashboard)/settings/page.tsx` - hub settings
-- [ ] 8.2 Créer `src/app/(dashboard)/settings/profile/page.tsx`:
+- [x] 8.1 Créer `src/app/(dashboard)/settings/page.tsx` - hub settings
+- [x] 8.2 Créer `src/app/(dashboard)/settings/profile/page.tsx`:
   - Modifier nom, email (lecture seule)
   - Langue, timezone
   - Préférences notifications
-- [ ] 8.3 Créer `src/app/(dashboard)/settings/household/page.tsx`:
+- [x] 8.3 Créer `src/app/(dashboard)/settings/household/page.tsx`:
   - Nom foyer
   - Inviter co-parent
   - Liste membres
   - Supprimer foyer
-- [ ] 8.4 Créer `src/app/(dashboard)/settings/notifications/page.tsx`:
+- [x] 8.4 Créer `src/app/(dashboard)/settings/notifications/page.tsx`:
   - Toggle notifications push
   - Heure rappels quotidiens
   - Notifications email
-- [ ] 8.5 Créer `src/app/(dashboard)/settings/templates/page.tsx`:
+- [x] 8.5 Créer `src/app/(dashboard)/settings/templates/page.tsx`:
   - Voir templates actifs pour le foyer
   - Désactiver templates spécifiques
   - Preview calendrier automatique
@@ -141,22 +141,22 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 9: Composants Settings
 
-- [ ] 9.1 Créer `src/components/custom/SettingsNav.tsx` - navigation settings
-- [ ] 9.2 Créer `src/components/custom/ProfileForm.tsx` - formulaire profil
-- [ ] 9.3 Créer `src/components/custom/HouseholdSettings.tsx` - gestion foyer
-- [ ] 9.4 Créer `src/components/custom/NotificationSettings.tsx` - préférences notifs
-- [ ] 9.5 Créer `src/components/custom/TemplateSwitches.tsx` - toggle templates
+- [x] 9.1 Créer `src/components/custom/SettingsNav.tsx` - navigation settings
+- [x] 9.2 Créer `src/components/custom/ProfileForm.tsx` - formulaire profil
+- [x] 9.3 Créer `src/components/custom/HouseholdSettings.tsx` - gestion foyer
+- [x] 9.4 Créer `src/components/custom/NotificationSettings.tsx` - préférences notifs
+- [x] 9.5 Créer `src/components/custom/TemplateSwitches.tsx` - toggle templates
 
 ---
 
 ## Phase 10: Server Actions Settings
 
-- [ ] 10.1 Créer `src/lib/actions/settings.ts`:
+- [x] 10.1 Créer `src/lib/actions/settings.ts`:
   - `updateProfile(data)` - mise à jour profil
   - `updateHousehold(data)` - mise à jour foyer
   - `updateNotificationPreferences(data)` - préférences notifs
   - `deleteAccount()` - suppression compte (RGPD)
-- [ ] 10.2 Créer `src/lib/actions/templates.ts`:
+- [x] 10.2 Créer `src/lib/actions/templates.ts`:
   - `getActiveTemplates(householdId)` - templates actifs
   - `toggleTemplate(templateId, active)` - activer/désactiver
   - `previewCalendar(householdId, months)` - preview tâches futures

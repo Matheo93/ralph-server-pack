@@ -47,7 +47,9 @@ export function HouseholdSettings({ household, isAdmin }: HouseholdSettingsProps
   const [success, setSuccess] = useState(false)
 
   const [name, setName] = useState(household.name)
-  const [country, setCountry] = useState(household.country || "FR")
+  const [country, setCountry] = useState<"FR" | "BE" | "CH" | "CA" | "LU">(
+    (household.country as "FR" | "BE" | "CH" | "CA" | "LU") || "FR"
+  )
   const [timezone, setTimezone] = useState(household.timezone || "Europe/Paris")
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -95,7 +97,7 @@ export function HouseholdSettings({ household, isAdmin }: HouseholdSettingsProps
         <Label htmlFor="country">Pays</Label>
         <Select
           value={country}
-          onValueChange={setCountry}
+          onValueChange={(value) => setCountry(value as "FR" | "BE" | "CH" | "CA" | "LU")}
           disabled={isPending || !isAdmin}
         >
           <SelectTrigger id="country">

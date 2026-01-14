@@ -56,10 +56,11 @@ export function TemplateSwitches({ templates, onToggle }: TemplateSwitchesProps)
   // Group templates by category
   const grouped: Record<string, TemplateWithSettings[]> = {}
   for (const template of templates) {
-    if (!grouped[template.category]) {
-      grouped[template.category] = []
+    const category = template.category
+    if (!grouped[category]) {
+      grouped[category] = []
     }
-    grouped[template.category].push(template)
+    grouped[category]!.push(template)
   }
 
   if (templates.length === 0) {
@@ -101,7 +102,7 @@ export function TemplateSwitches({ templates, onToggle }: TemplateSwitchesProps)
                 </div>
                 <Switch
                   checked={template.isEnabledForHousehold}
-                  onCheckedChange={(checked) => handleToggle(template.id, checked)}
+                  onCheckedChange={(checked: boolean) => handleToggle(template.id, checked)}
                   disabled={pendingIds.has(template.id) || !onToggle}
                 />
               </div>
