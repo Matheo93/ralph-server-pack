@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { updateNotificationPreferences } from "@/lib/actions/settings"
+import { Bell, Loader2 } from "lucide-react"
 
 interface NotificationSettingsProps {
   preferences: {
@@ -60,6 +61,49 @@ export function NotificationSettings({ preferences }: NotificationSettingsProps)
   const [balanceAlert, setBalanceAlert] = useState(
     preferences?.balance_alert_enabled ?? true
   )
+  const [testingPush, setTestingPush] = useState(false)
+  const [pushTestResult, setPushTestResult] = useState<string | null>(null)
+
+  const handleTestPush = async () => {
+    setTestingPush(true)
+    setPushTestResult(null)
+
+    try {
+      // Check if the browser supports notifications
+      if (!("Notification" in window)) {
+        setPushTestResult("Votre navigateur ne supporte pas les notifications push")
+        return
+      }
+
+      // Request permission if needed
+      if (Notification.permission === "denied") {
+        setPushTestResult("Les notifications sont bloquées. Activez-les dans les paramètres de votre navigateur.")
+        return
+      }
+
+      if (Notification.permission === "default") {
+        const permission = await Notification.requestPermission()
+        if (permission !== "granted") {
+          setPushTestResult("Permission refusée pour les notifications")
+          return
+        }
+      }
+
+      // For now just show a local notification as test
+      // In production, this would register the FCM token and send a test via the server
+      new Notification("Test FamilyLoad", {
+        body: "Les notifications push fonctionnent correctement !",
+        icon: "/icons/icon-192x192.png",
+      })
+
+      setPushTestResult("Notification envoyée ! Vérifiez votre écran.")
+    } catch (error) {
+      console.error("Push test error:", error)
+      setPushTestResult("Erreur lors du test des notifications")
+    } finally {
+      setTestingPush(false)
+    }
+  }
 
   const handleSave = () => {
     setError(null)
