@@ -1,0 +1,114 @@
+"use client"
+
+import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
+import { TaskCategoryIcon } from "./TaskCategoryIcon"
+import type { TemplateWithSettings } from "@/types/template"
+
+interface TemplateSwitchesProps {
+  templates: TemplateWithSettings[]
+  onToggle?: (templateId: string, enabled: boolean) => Promise<void>
+}
+
+function getCategoryLabel(category: string): string {
+  const labels: Record<string, string> = {
+    ecole: "École",
+    sante: "Santé",
+    administratif: "Administratif",
+    quotidien: "Quotidien",
+    social: "Social",
+    activites: "Activités",
+    logistique: "Logistique",
+  }
+  return labels[category] ?? category
+}
+
+function getAgeLabel(ageMin: number, ageMax: number): string {
+  if (ageMin === ageMax) return `${ageMin} ans`
+  if (ageMin === 0 && ageMax === 18) return "Tous âges"
+  return `${ageMin}-${ageMax} ans`
+}
+
+export function TemplateSwitches({ templates, onToggle }: TemplateSwitchesProps) {
+  const router = useRouter()
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
+
+  const handleToggle = async (templateId: string, enabled: boolean) => {
+    if (!onToggle) return
+
+    setPendingIds((prev) => new Set(prev).add(templateId))
+
+    try {
+      await onToggle(templateId, enabled)
+      router.refresh()
+    } finally {
+      setPendingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(templateId)
+        return next
+      })
+    }
+  }
+
+  // Group templates by category
+  const grouped: Record<string, TemplateWithSettings[]> = {}
+  for (const template of templates) {
+    if (!grouped[template.category]) {
+      grouped[template.category] = []
+    }
+    grouped[template.category].push(template)
+  }
+
+  if (templates.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground text-center py-4">
+        Aucun template disponible
+      </p>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {Object.entries(grouped).map(([category, categoryTemplates]) => (
+        <div key={category}>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wide">
+            {getCategoryLabel(category)}
+          </h3>
+          <div className="space-y-2">
+            {categoryTemplates.map((template) => (
+              <div
+                key={template.id}
+                className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <TaskCategoryIcon code={template.category} color={null} />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{template.title}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <Badge variant="outline" className="text-xs">
+                        {getAgeLabel(template.age_min, template.age_max)}
+                      </Badge>
+                      {template.cron_rule && (
+                        <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-950/30">
+                          Récurrent
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <Switch
+                  checked={template.isEnabledForHousehold}
+                  onCheckedChange={(checked) => handleToggle(template.id, checked)}
+                  disabled={pendingIds.has(template.id) || !onToggle}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
