@@ -161,6 +161,8 @@ export interface TaskTemplateFilter {
   period?: PeriodType
   is_active?: boolean
   search?: string // Recherche texte dans title/description
+  limit?: number
+  offset?: number
 }
 
 // =============================================
