@@ -326,18 +326,20 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
 
           <CardContent className="pt-0">
             {!isDone && !isCancelled ? (
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Actions de la tâche">
                 <Button
                   size="sm"
                   onClick={handleComplete}
                   disabled={isPending}
                   className="bg-green-600 hover:bg-green-700 active:scale-95 transition-transform"
+                  data-testid="task-complete-btn"
+                  aria-label="Marquer comme fait"
                 >
                   {isPending ? (
-                    <span className="animate-pulse">...</span>
+                    <span className="animate-pulse" aria-hidden="true">...</span>
                   ) : (
                     <>
-                      <Check className="h-4 w-4 mr-1" />
+                      <Check className="h-4 w-4 mr-1" aria-hidden="true" />
                       Fait
                     </>
                   )}
@@ -349,8 +351,10 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
                     onClick={handlePostpone}
                     disabled={isPending}
                     className="active:scale-95 transition-transform"
+                    data-testid="task-postpone-btn"
+                    aria-label="Reporter la tâche"
                   >
-                    <Clock className="h-4 w-4 mr-1" />
+                    <Clock className="h-4 w-4 mr-1" aria-hidden="true" />
                     Reporter
                   </Button>
                 )}
@@ -360,8 +364,10 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
                   onClick={() => setShowActions(!showActions)}
                   disabled={isPending}
                   className="active:scale-95 transition-transform"
+                  aria-expanded={showActions}
+                  aria-label="Plus d'actions"
                 >
-                  <MoreHorizontal className="h-4 w-4" />
+                  <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                 </Button>
                 {showActions && (
                   <>

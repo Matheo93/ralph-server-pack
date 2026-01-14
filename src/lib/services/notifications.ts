@@ -86,7 +86,7 @@ export async function sendTaskReminder(
   `, [memberId])
 
   if (!member || !member.email_enabled) {
-    console.log(`Member ${memberId} email disabled or not found`)
+    // Member email disabled or not found - skip silently
     return false
   }
 

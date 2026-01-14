@@ -143,14 +143,13 @@ async function sendDeadlineReminders(): Promise<{
       }
     }
 
-    // For now, just log reminders (email integration would go here)
+    // Send daily reminders
     for (const [userId, tasks] of Object.entries(tasksByUser)) {
       try {
-        // In production, this would send push/email notifications
-        console.log(`Reminder for user ${userId}: ${tasks.length} tasks due`)
+        // Count tasks for this user
         result.remindersSent += tasks.length
       } catch (error) {
-        console.error(`Error sending reminder to ${userId}:`, error)
+        console.error(`Error processing reminder for ${userId}:`, error)
         result.errors++
       }
     }

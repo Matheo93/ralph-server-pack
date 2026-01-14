@@ -339,8 +339,7 @@ export async function routeWebhookEvent(
       return handleInvoicePaymentFailed(event as Stripe.InvoicePaymentFailedEvent)
 
     default:
-      // Unhandled event type
-      console.log(`Unhandled webhook event type: ${event.type}`)
+      // Unhandled event type - ignore silently
       return { success: true }
   }
 }

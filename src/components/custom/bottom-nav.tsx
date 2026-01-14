@@ -23,8 +23,12 @@ export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t lg:hidden safe-area-bottom">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t lg:hidden safe-area-bottom"
+      aria-label="Navigation principale mobile"
+      role="navigation"
+    >
+      <div className="flex items-center justify-around h-16 px-2" role="menubar">
         {navigation.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(`${item.href}/`)
@@ -41,12 +45,17 @@ export function BottomNav() {
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
+              aria-current={isActive ? "page" : undefined}
+              aria-label={item.name}
+              role="menuitem"
+              data-testid={`nav-${item.href.slice(1)}`}
             >
               <Icon
                 className={cn(
                   "h-5 w-5 mb-1",
                   isActive && "stroke-[2.5px]"
                 )}
+                aria-hidden="true"
               />
               <span className="text-[10px] font-medium leading-none">
                 {item.name}
