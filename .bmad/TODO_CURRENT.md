@@ -70,20 +70,20 @@ Améliorer l'onboarding utilisateur, implémenter la vue semaine complète, le s
 
 ## Phase 3: Système de Notifications
 
-- [ ] 3.1 Créer `src/lib/services/notifications.ts`:
+- [x] 3.1 Créer `src/lib/services/notifications.ts`:
   - `sendTaskReminder(taskId, memberId)`
   - `sendDailyDigest(householdId)`
   - `sendStreakAlert(householdId)`
   - `sendDeadlineWarning(taskId)`
-- [ ] 3.2 Créer `src/lib/aws/ses.ts`:
+- [x] 3.2 Créer `src/lib/aws/ses.ts`:
   - Configuration Amazon SES
   - `sendEmail(to, subject, html)`
   - Templates email
-- [ ] 3.3 Créer `src/lib/templates/email/`:
-  - `daily-digest.tsx` - Email récapitulatif quotidien
-  - `task-reminder.tsx` - Rappel de tâche
-  - `streak-warning.tsx` - Alerte streak en danger
-- [ ] 3.4 Créer `src/app/api/cron/notifications/route.ts`:
+- [x] 3.3 Créer `src/lib/templates/email/`:
+  - `daily-digest.ts` - Email récapitulatif quotidien
+  - `task-reminder.ts` - Rappel de tâche
+  - `streak-warning.ts` - Alerte streak en danger
+- [x] 3.4 Créer `src/app/api/cron/notifications/route.ts`:
   - Endpoint pour cron job
   - Trigger daily digest à 7h
   - Trigger reminders selon préférences

@@ -2,11 +2,12 @@ import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses"
 
 // SES client configuration
 const sesClient = new SESClient({
-  region: process.env.AWS_SES_REGION || process.env.AWS_REGION || "eu-west-1",
+  region: process.env["AWS_SES_REGION"] || process.env["AWS_REGION"] || "eu-west-1",
 })
 
-const FROM_EMAIL = process.env.AWS_SES_FROM_EMAIL || "noreply@familyload.app"
+const FROM_EMAIL = process.env["AWS_SES_FROM_EMAIL"] || "noreply@familyload.app"
 const APP_NAME = "FamilyLoad"
+const APP_URL = process.env["NEXT_PUBLIC_APP_URL"] || "https://app.familyload.com"
 
 interface SendEmailOptions {
   to: string | string[]
@@ -193,7 +194,7 @@ export function wrapEmailTemplate(
       <div class="footer">
         <p>Cet email a été envoyé par FamilyLoad.</p>
         <p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/settings/notifications" style="color: #3b82f6;">
+          <a href="${APP_URL}/settings/notifications" style="color: #3b82f6;">
             Gérer mes notifications
           </a>
         </p>
