@@ -79,14 +79,14 @@ Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
 
 ---
 
-## Phase 5: Gestion Enfants
+## Phase 5: Gestion Enfants ✅
 
-- [ ] 5.1 Créer `src/app/(dashboard)/children/page.tsx` - liste enfants
-- [ ] 5.2 Créer `src/app/(dashboard)/children/new/page.tsx` - ajout enfant
-- [ ] 5.3 Créer `src/lib/validations/child.ts` - schemas Zod
-- [ ] 5.4 Créer `src/lib/actions/children.ts` - Server Actions CRUD
-- [ ] 5.5 Créer composant `ChildForm` avec calcul âge automatique
-- [ ] 5.6 Créer composant `ChildCard` pour affichage
+- [x] 5.1 Créer `src/app/(dashboard)/children/page.tsx` - liste enfants
+- [x] 5.2 Créer `src/app/(dashboard)/children/new/page.tsx` - ajout enfant
+- [x] 5.3 Créer `src/lib/validations/child.ts` - schemas Zod
+- [x] 5.4 Créer `src/lib/actions/children.ts` - Server Actions CRUD
+- [x] 5.5 Créer composant `ChildForm` avec calcul âge automatique
+- [x] 5.6 Créer composant `ChildCard` pour affichage
 
 ---
 
