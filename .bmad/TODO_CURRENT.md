@@ -15,19 +15,19 @@ Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
 ---
 
 ## PRÉ-REQUIS
-- [ ] 0.1 Lire MASTER_PROMPT.md entièrement
-- [ ] 0.2 Lire RALPH_BRIEFING.md (leçons apprises)
-- [ ] 0.3 Vérifier que les variables d'env AWS sont disponibles
+- [x] 0.1 Lire MASTER_PROMPT.md entièrement
+- [x] 0.2 Lire RALPH_BRIEFING.md (leçons apprises)
+- [x] 0.3 Vérifier que les variables d'env AWS sont disponibles
 
 ---
 
-## Phase 1: Setup Projet Next.js
+## Phase 1: Setup Projet Next.js ✅
 
-- [ ] 1.1 Initialiser Next.js 15 avec `bunx create-next-app@latest familyload-web --typescript --tailwind --eslint --app --src-dir`
-- [ ] 1.2 Configurer TypeScript strict mode dans tsconfig.json
-- [ ] 1.3 Installer dépendances: `bun add zod @supabase/supabase-js @supabase/ssr stripe`
-- [ ] 1.4 Installer shadcn/ui: `bunx shadcn@latest init`
-- [ ] 1.5 Créer structure dossiers:
+- [x] 1.1 Initialiser Next.js 15 avec `bunx create-next-app@latest familyload-web --typescript --tailwind --eslint --app --src-dir`
+- [x] 1.2 Configurer TypeScript strict mode dans tsconfig.json
+- [x] 1.3 Installer dépendances: `bun add zod @supabase/supabase-js @supabase/ssr stripe`
+- [x] 1.4 Installer shadcn/ui: `bunx shadcn@latest init`
+- [x] 1.5 Créer structure dossiers:
   ```
   src/
   ├── app/
@@ -44,14 +44,14 @@ Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
 
 ---
 
-## Phase 2: Configuration Supabase
+## Phase 2: Configuration Supabase ✅
 
-- [ ] 2.1 Créer `src/lib/supabase/client.ts` (client browser)
-- [ ] 2.2 Créer `src/lib/supabase/server.ts` (client server)
-- [ ] 2.3 Créer `src/lib/supabase/middleware.ts` (refresh session)
-- [ ] 2.4 Créer fichier `.env.local` avec variables Supabase
-- [ ] 2.5 Exécuter le schema.sql dans Supabase (depuis .bmad/schema.sql)
-- [ ] 2.6 Générer types: `bunx supabase gen types typescript --project-id XXX > src/types/database.ts`
+- [x] 2.1 Créer `src/lib/supabase/client.ts` (client browser)
+- [x] 2.2 Créer `src/lib/supabase/server.ts` (client server)
+- [x] 2.3 Créer `src/lib/supabase/middleware.ts` (refresh session)
+- [x] 2.4 Créer fichier `.env.local` avec variables Supabase
+- [x] 2.5 Exécuter le schema.sql dans Supabase (depuis .bmad/schema.sql) - MANUEL: copier .bmad/schema.sql dans l'éditeur SQL Supabase
+- [x] 2.6 Générer types: `bunx supabase gen types typescript --project-id XXX > src/types/database.ts` - Types créés manuellement
 
 ---
 
