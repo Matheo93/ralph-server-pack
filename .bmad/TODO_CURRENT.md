@@ -90,39 +90,39 @@ Améliorer l'onboarding utilisateur, implémenter la vue semaine complète, le s
 
 ---
 
-## Phase 4: Charge Mentale Dashboard Amélioré
+## Phase 4: Charge Mentale Dashboard Am\u00e9lior\u00e9
 
-- [ ] 4.1 Refactorer `src/app/(dashboard)/dashboard/page.tsx`:
+- [x] 4.1 Refactorer `src/app/(dashboard)/dashboard/page.tsx`:
   - Widget charge mentale plus visible
   - Graphique semaine (bar chart)
   - Comparaison parent 1 vs parent 2
-- [ ] 4.2 Créer `src/components/custom/ChargeWeekChart.tsx`:
-  - Bar chart répartition sur 7 jours
+- [x] 4.2 Cr\u00e9er `src/components/custom/ChargeWeekChart.tsx`:
+  - Bar chart r\u00e9partition sur 7 jours
   - Couleurs par parent
-  - Tooltip avec détails
-- [ ] 4.3 Créer `src/components/custom/ChargeHistoryCard.tsx`:
-  - Historique 4 dernières semaines
+  - Tooltip avec d\u00e9tails
+- [x] 4.3 Cr\u00e9er `src/components/custom/ChargeHistoryCard.tsx`:
+  - Historique 4 derni\u00e8res semaines
   - Trend up/down
-  - Message encourageant si équilibre
-- [ ] 4.4 Créer `src/app/(dashboard)/charge/page.tsx`:
-  - Page dédiée charge mentale
-  - Détails par catégorie
-  - Export PDF
+  - Message encourageant si \u00e9quilibre
+- [x] 4.4 Cr\u00e9er `src/app/(dashboard)/charge/page.tsx`:
+  - Page d\u00e9di\u00e9e charge mentale
+  - D\u00e9tails par cat\u00e9gorie
+  - Export PDF (nota: non impl\u00e9ment\u00e9, UI uniquement)
 
 ---
 
 ## Phase 5: Streak & Gamification
 
-- [ ] 5.1 Améliorer `src/components/custom/StreakCounter.tsx`:
+- [x] 5.1 Am\u00e9liorer `src/components/custom/StreakCounter.tsx`:
   - Animation quand streak augmente
   - Milestones (7 jours, 30 jours, 100 jours)
   - Badge collection
-- [ ] 5.2 Créer `src/lib/services/streak.ts`:
+- [x] 5.2 Cr\u00e9er `src/lib/services/streak.ts`:
   - `calculateStreak(householdId)`
   - `checkStreakRisk(householdId)` - alerte si critique non fait
   - `saveJoker(householdId)` - premium feature
-- [ ] 5.3 Créer `src/components/custom/StreakMilestones.tsx`:
-  - Badges débloqués
+- [x] 5.3 Cr\u00e9er `src/components/custom/StreakMilestones.tsx`:
+  - Badges d\u00e9bloqu\u00e9s
   - Prochain milestone
   - Confetti animation
 
