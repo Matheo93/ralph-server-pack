@@ -2,9 +2,11 @@ import OpenAI from "openai"
 import { z } from "zod"
 import { query, queryOne } from "@/lib/aws/database"
 
-const openai = new OpenAI({
-  apiKey: process.env["OPENAI_API_KEY"],
-})
+function getOpenAI() {
+  return new OpenAI({
+    apiKey: process.env["OPENAI_API_KEY"],
+  })
+}
 
 export const VocalAnalysisSchema = z.object({
   action: z.string().min(1),
@@ -61,6 +63,7 @@ Règles:
 Réponds UNIQUEMENT avec le JSON, sans commentaire.`
 
 export async function analyzeTranscript(text: string): Promise<VocalAnalysis> {
+  const openai = getOpenAI()
   const completion = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [

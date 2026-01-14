@@ -1,9 +1,11 @@
 import OpenAI from "openai"
 import { getObjectAsBuffer } from "@/lib/aws/s3"
 
-const openai = new OpenAI({
-  apiKey: process.env["OPENAI_API_KEY"],
-})
+function getOpenAI() {
+  return new OpenAI({
+    apiKey: process.env["OPENAI_API_KEY"],
+  })
+}
 
 export interface TranscriptionResult {
   text: string
@@ -14,9 +16,10 @@ export interface TranscriptionResult {
 export async function transcribeAudioFromS3(
   s3Key: string
 ): Promise<TranscriptionResult> {
+  const openai = getOpenAI()
   const audioBuffer = await getObjectAsBuffer(s3Key)
 
-  const file = new File([audioBuffer], "audio.webm", { type: "audio/webm" })
+  const file = new File([new Uint8Array(audioBuffer)], "audio.webm", { type: "audio/webm" })
 
   const transcription = await openai.audio.transcriptions.create({
     file: file,
@@ -37,7 +40,8 @@ export async function transcribeAudioBuffer(
   filename: string = "audio.webm",
   mimeType: string = "audio/webm"
 ): Promise<TranscriptionResult> {
-  const file = new File([audioBuffer], filename, { type: mimeType })
+  const openai = getOpenAI()
+  const file = new File([new Uint8Array(audioBuffer)], filename, { type: mimeType })
 
   const transcription = await openai.audio.transcriptions.create({
     file: file,
