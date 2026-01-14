@@ -130,13 +130,13 @@ Implémenter le moteur de répartition équitable, la landing page marketing, et
 
 ---
 
-## Phase 6: Vue Enfant Timeline
+## Phase 6: Vue Enfant Timeline ✅
 
-- [ ] 6.1 Créer `src/app/(dashboard)/children/[id]/timeline/page.tsx`:
+- [x] 6.1 Créer `src/app/(dashboard)/children/[id]/timeline/page.tsx`:
   - Timeline verticale par enfant
   - Historique tâches complétées
   - Prochaines tâches prévues
-- [ ] 6.2 Créer `src/components/custom/ChildTimeline.tsx`:
+- [x] 6.2 Créer `src/components/custom/ChildTimeline.tsx`:
   - Timeline visuelle
   - Filtres par période
   - Export PDF (préparation)
