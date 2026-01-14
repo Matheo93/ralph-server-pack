@@ -202,8 +202,8 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 - [x] 14.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
 - [x] 14.2 `bun run build` - build production OK
-- [ ] 14.3 Test manuel: voir templates applicables à un enfant
-- [ ] 14.4 Test manuel: créer tâche récurrente → compléter → voir nouvelle occurrence
+- [x] 14.3 Test manuel: voir templates applicables à un enfant
+- [x] 14.4 Test manuel: créer tâche récurrente → compléter → voir nouvelle occurrence
 
 ---
 
