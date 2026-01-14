@@ -717,6 +717,54 @@ export type Database = {
           }
         ]
       }
+      member_exclusions: {
+        Row: {
+          id: string
+          member_id: string
+          household_id: string
+          exclude_from: string
+          exclude_until: string
+          reason: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          member_id: string
+          household_id: string
+          exclude_from: string
+          exclude_until: string
+          reason: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          member_id?: string
+          household_id?: string
+          exclude_from?: string
+          exclude_until?: string
+          reason?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_exclusions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_exclusions_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -757,3 +805,4 @@ export type TaskTemplate = Tables<"task_templates">
 export type Notification = Tables<"notifications">
 export type Subscription = Tables<"subscriptions">
 export type Invitation = Tables<"invitations">
+export type MemberExclusion = Tables<"member_exclusions">
