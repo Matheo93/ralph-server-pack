@@ -4,6 +4,7 @@ import { getHousehold } from "@/lib/actions/household"
 import { Sidebar } from "@/components/custom/sidebar"
 import { Header } from "@/components/custom/header"
 import { MobileNav } from "@/components/custom/mobile-nav"
+import { BottomNav } from "@/components/custom/bottom-nav"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -59,8 +60,9 @@ export default async function DashboardLayout({
             </div>
           </div>
         </div>
-        <main className="py-4">{children}</main>
+        <main className="py-4 pb-20 lg:pb-4">{children}</main>
       </div>
+      <BottomNav />
     </div>
   )
 }

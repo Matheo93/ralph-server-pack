@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useTransition } from "react"
+import { useState, useRef, useTransition, useCallback } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { TaskCategoryIcon } from "./TaskCategoryIcon"
 import { completeTask, cancelTask, deleteTask, restoreTask } from "@/lib/actions/tasks"
 import type { TaskListItem } from "@/types/task"
 import { cn } from "@/lib/utils/index"
+import { Check, Clock, MoreHorizontal, Trash2, RotateCcw, X } from "lucide-react"
 
 interface SwipeableTaskCardProps {
   task: TaskListItem
@@ -56,6 +57,7 @@ function isOverdue(deadline: string | null): boolean {
 }
 
 const SWIPE_THRESHOLD = 80
+const MAX_SWIPE = 150
 
 export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) {
   const [isPending, startTransition] = useTransition()
@@ -63,36 +65,62 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
   const [swipeX, setSwipeX] = useState(0)
   const [isSwiping, setIsSwiping] = useState(false)
   const [longPressActive, setLongPressActive] = useState(false)
+  const [actionTriggered, setActionTriggered] = useState<"complete" | "postpone" | null>(null)
   const startX = useRef(0)
+  const startY = useRef(0)
+  const isHorizontalSwipe = useRef(false)
   const longPressTimer = useRef<NodeJS.Timeout | null>(null)
 
-  const handleComplete = () => {
+  const handleComplete = useCallback(() => {
+    setActionTriggered("complete")
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate([10, 50, 10])
+    }
     startTransition(async () => {
       await completeTask(task.id)
+      setActionTriggered(null)
     })
-  }
+  }, [task.id])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     startTransition(async () => {
       await cancelTask(task.id)
     })
-  }
+  }, [task.id])
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     startTransition(async () => {
       await deleteTask(task.id)
     })
-  }
+  }, [task.id])
 
-  const handleRestore = () => {
+  const handleRestore = useCallback(() => {
     startTransition(async () => {
       await restoreTask(task.id)
     })
-  }
+  }, [task.id])
+
+  const handlePostpone = useCallback(() => {
+    if (onPostpone) {
+      setActionTriggered("postpone")
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(10)
+      }
+      onPostpone(task.id)
+      setTimeout(() => setActionTriggered(null), 300)
+    }
+  }, [onPostpone, task.id])
 
   // Touch handlers for swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startX.current = e.touches[0]?.clientX ?? 0
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    if (!touch) return
+
+    startX.current = touch.clientX
+    startY.current = touch.clientY
+    isHorizontalSwipe.current = false
     setIsSwiping(true)
 
     // Long press detection
@@ -104,10 +132,13 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
         navigator.vibrate(50)
       }
     }, 500)
-  }
+  }, [])
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isSwiping) return
+
+    const touch = e.touches[0]
+    if (!touch) return
 
     // Cancel long press if moving
     if (longPressTimer.current) {
@@ -115,15 +146,39 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
       longPressTimer.current = null
     }
 
-    const currentX = e.touches[0]?.clientX ?? 0
-    const diff = currentX - startX.current
+    const diffX = touch.clientX - startX.current
+    const diffY = touch.clientY - startY.current
 
-    // Limit swipe distance
-    const limitedDiff = Math.max(-150, Math.min(150, diff))
+    // Determine swipe direction on first move
+    if (!isHorizontalSwipe.current && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
+      isHorizontalSwipe.current = Math.abs(diffX) > Math.abs(diffY)
+    }
+
+    // Only handle horizontal swipes
+    if (!isHorizontalSwipe.current) {
+      setSwipeX(0)
+      return
+    }
+
+    // Apply resistance at the edges
+    let limitedDiff = diffX
+    if (Math.abs(diffX) > MAX_SWIPE) {
+      const overflow = Math.abs(diffX) - MAX_SWIPE
+      const resistance = 0.3
+      limitedDiff = (diffX > 0 ? 1 : -1) * (MAX_SWIPE + overflow * resistance)
+    }
+
     setSwipeX(limitedDiff)
-  }
 
-  const handleTouchEnd = () => {
+    // Haptic feedback when crossing threshold
+    if (Math.abs(swipeX) < SWIPE_THRESHOLD && Math.abs(limitedDiff) >= SWIPE_THRESHOLD) {
+      if (navigator.vibrate) {
+        navigator.vibrate(5)
+      }
+    }
+  }, [isSwiping, swipeX])
+
+  const handleTouchEnd = useCallback(() => {
     setIsSwiping(false)
 
     if (longPressTimer.current) {
@@ -137,42 +192,68 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
       handleComplete()
     } else if (swipeX < -SWIPE_THRESHOLD && onPostpone) {
       // Swipe left = postpone
-      onPostpone(task.id)
+      handlePostpone()
     }
 
-    // Reset swipe
+    // Reset swipe with animation
     setSwipeX(0)
     setLongPressActive(false)
-  }
+    isHorizontalSwipe.current = false
+  }, [swipeX, handleComplete, handlePostpone, onPostpone])
 
   const overdue = isOverdue(task.deadline)
   const isDone = task.status === "done"
   const isCancelled = task.status === "cancelled"
 
   // Calculate background colors based on swipe
-  const showCompleteAction = swipeX > SWIPE_THRESHOLD / 2
-  const showPostponeAction = swipeX < -SWIPE_THRESHOLD / 2
+  const completeProgress = Math.min(Math.max(swipeX / SWIPE_THRESHOLD, 0), 1)
+  const postponeProgress = Math.min(Math.max(-swipeX / SWIPE_THRESHOLD, 0), 1)
+  const showCompleteAction = swipeX > SWIPE_THRESHOLD / 3
+  const showPostponeAction = swipeX < -SWIPE_THRESHOLD / 3
 
   return (
-    <div className="relative overflow-hidden rounded-lg">
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-lg",
+        actionTriggered === "complete" && "animate-pulse"
+      )}
+    >
       {/* Swipe action backgrounds */}
       <div
         className={cn(
-          "absolute inset-0 flex items-center justify-start px-4 transition-opacity",
-          showCompleteAction ? "opacity-100" : "opacity-0",
-          "bg-green-500"
+          "absolute inset-0 flex items-center justify-start px-6 transition-all duration-150",
+          "bg-gradient-to-r from-green-500 to-green-600"
         )}
+        style={{ opacity: completeProgress }}
       >
-        <span className="text-white font-medium">Fait</span>
+        <div className={cn(
+          "flex items-center gap-2 text-white font-medium transition-transform",
+          completeProgress >= 1 && "scale-110"
+        )}>
+          <Check className={cn(
+            "h-5 w-5 transition-transform",
+            completeProgress >= 1 && "scale-125"
+          )} />
+          <span>Fait</span>
+        </div>
       </div>
       <div
         className={cn(
-          "absolute inset-0 flex items-center justify-end px-4 transition-opacity",
-          showPostponeAction ? "opacity-100" : "opacity-0",
-          "bg-orange-500"
+          "absolute inset-0 flex items-center justify-end px-6 transition-all duration-150",
+          "bg-gradient-to-l from-orange-500 to-orange-600"
         )}
+        style={{ opacity: postponeProgress }}
       >
-        <span className="text-white font-medium">Reporter</span>
+        <div className={cn(
+          "flex items-center gap-2 text-white font-medium transition-transform",
+          postponeProgress >= 1 && "scale-110"
+        )}>
+          <span>Reporter</span>
+          <Clock className={cn(
+            "h-5 w-5 transition-transform",
+            postponeProgress >= 1 && "scale-125"
+          )} />
+        </div>
       </div>
 
       {/* Card with swipe transform */}
@@ -250,17 +331,26 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
                   size="sm"
                   onClick={handleComplete}
                   disabled={isPending}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 active:scale-95 transition-transform"
                 >
-                  {isPending ? "..." : "Fait"}
+                  {isPending ? (
+                    <span className="animate-pulse">...</span>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-1" />
+                      Fait
+                    </>
+                  )}
                 </Button>
                 {onPostpone && (
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => onPostpone(task.id)}
+                    onClick={handlePostpone}
                     disabled={isPending}
+                    className="active:scale-95 transition-transform"
                   >
+                    <Clock className="h-4 w-4 mr-1" />
                     Reporter
                   </Button>
                 )}
@@ -269,27 +359,30 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
                   variant="ghost"
                   onClick={() => setShowActions(!showActions)}
                   disabled={isPending}
+                  className="active:scale-95 transition-transform"
                 >
-                  Plus
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
                 {showActions && (
                   <>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-destructive hover:text-destructive"
+                      className="text-muted-foreground hover:text-foreground active:scale-95 transition-transform"
                       onClick={handleCancel}
                       disabled={isPending}
                     >
+                      <X className="h-4 w-4 mr-1" />
                       Annuler
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-destructive hover:text-destructive"
+                      className="text-destructive hover:text-destructive active:scale-95 transition-transform"
                       onClick={handleDelete}
                       disabled={isPending}
                     >
+                      <Trash2 className="h-4 w-4 mr-1" />
                       Supprimer
                     </Button>
                   </>
@@ -298,31 +391,34 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
             ) : (
               <div className="flex items-center gap-2">
                 <Badge variant={isDone ? "secondary" : "outline"}>
-                  {isDone ? "Termine" : "Annule"}
+                  {isDone ? "Terminé" : "Annulé"}
                 </Badge>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={handleRestore}
                   disabled={isPending}
+                  className="active:scale-95 transition-transform"
                 >
+                  <RotateCcw className="h-4 w-4 mr-1" />
                   Restaurer
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive hover:text-destructive active:scale-95 transition-transform"
                   onClick={handleDelete}
                   disabled={isPending}
                 >
+                  <Trash2 className="h-4 w-4 mr-1" />
                   Supprimer
                 </Button>
               </div>
             )}
 
-            {/* Swipe hint for mobile */}
-            <p className="text-xs text-muted-foreground mt-2 md:hidden">
-              Glissez pour actions rapides
+            {/* Swipe hint for mobile - only show first time */}
+            <p className="text-[11px] text-muted-foreground/70 mt-2 md:hidden select-none">
+              ← Glissez pour actions rapides →
             </p>
           </CardContent>
         </Card>
