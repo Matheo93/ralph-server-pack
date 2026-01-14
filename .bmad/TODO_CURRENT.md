@@ -103,14 +103,14 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 7: Composants UI Templates
 
-- [ ] 7.1 Créer `src/components/custom/TemplateCard.tsx`:
+- [x] 7.1 Créer `src/components/custom/TemplateCard.tsx`:
   - Affichage template
   - Badge âge/catégorie
   - Preview tâche générée
-- [ ] 7.2 Créer `src/components/custom/TemplateList.tsx`:
+- [x] 7.2 Créer `src/components/custom/TemplateList.tsx`:
   - Liste templates par catégorie
   - Filtres âge/catégorie
-- [ ] 7.3 Créer `src/components/custom/UpcomingTasks.tsx`:
+- [x] 7.3 Créer `src/components/custom/UpcomingTasks.tsx`:
   - Tâches automatiques à venir
   - Option "Ignorer cette fois"
 
