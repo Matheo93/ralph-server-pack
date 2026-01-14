@@ -2,6 +2,7 @@
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -21,7 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  onboardingStep1Schema,
   countryTimezones,
   countryLabels,
 } from "@/lib/validations/onboarding"
@@ -33,14 +33,30 @@ interface OnboardingStep1HouseholdProps {
   onNext: () => void
 }
 
+// Form schema defined locally for better type inference
+const step1FormSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Le nom du foyer doit contenir au moins 2 caractères")
+    .max(50, "Le nom du foyer ne peut pas dépasser 50 caractères"),
+  country: z.string().min(1, "Veuillez sélectionner un pays"),
+  timezone: z.string().min(1, "Fuseau horaire requis"),
+})
+
+type Step1FormData = z.infer<typeof step1FormSchema>
+
 export function OnboardingStep1Household({
   data,
   onUpdate,
   onNext,
 }: OnboardingStep1HouseholdProps) {
-  const form = useForm<OnboardingStep1Input>({
-    resolver: zodResolver(onboardingStep1Schema),
-    defaultValues: data,
+  const form = useForm<Step1FormData>({
+    resolver: zodResolver(step1FormSchema),
+    defaultValues: {
+      name: data.name,
+      country: data.country,
+      timezone: data.timezone,
+    },
   })
 
   const selectedCountry = form.watch("country")
@@ -50,12 +66,16 @@ export function OnboardingStep1Household({
   const handleCountryChange = (country: string) => {
     const tzOptions = countryTimezones[country] || []
     const firstTz = tzOptions[0]?.value || "Europe/Paris"
-    form.setValue("country", country as "FR" | "BE" | "CH" | "CA" | "LU")
+    form.setValue("country", country)
     form.setValue("timezone", firstTz)
   }
 
-  const onSubmit = (formData: OnboardingStep1Input) => {
-    onUpdate(formData)
+  const onSubmit = (formData: Step1FormData) => {
+    onUpdate({
+      name: formData.name,
+      country: formData.country as "FR" | "BE" | "CH" | "CA" | "LU",
+      timezone: formData.timezone,
+    })
     onNext()
   }
 

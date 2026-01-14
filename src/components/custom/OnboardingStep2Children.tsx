@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -14,10 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import {
-  onboardingChildSchema,
-  commonChildTags,
-} from "@/lib/validations/onboarding"
+import { commonChildTags } from "@/lib/validations/onboarding"
 import type { OnboardingStep2Input, OnboardingChildInput } from "@/lib/validations/onboarding"
 
 interface OnboardingStep2ChildrenProps {
@@ -29,11 +27,9 @@ interface OnboardingStep2ChildrenProps {
 
 function ChildCard({
   child,
-  index,
   onRemove,
 }: {
   child: OnboardingChildInput
-  index: number
   onRemove: () => void
 }) {
   const birthDate = new Date(child.birthdate)
@@ -89,6 +85,19 @@ function ChildCard({
   )
 }
 
+// Simple schema for the add form
+const addChildFormSchema = z.object({
+  first_name: z
+    .string()
+    .min(1, "Le prénom est requis")
+    .max(50, "Le prénom ne peut pas dépasser 50 caractères"),
+  birthdate: z
+    .string()
+    .min(1, "La date de naissance est requise"),
+})
+
+type AddChildFormData = z.infer<typeof addChildFormSchema>
+
 function AddChildForm({
   onAdd,
   onCancel,
@@ -98,12 +107,11 @@ function AddChildForm({
 }) {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
 
-  const form = useForm<OnboardingChildInput>({
-    resolver: zodResolver(onboardingChildSchema),
+  const form = useForm<AddChildFormData>({
+    resolver: zodResolver(addChildFormSchema),
     defaultValues: {
       first_name: "",
       birthdate: "",
-      tags: [],
     },
   })
 
@@ -113,8 +121,22 @@ function AddChildForm({
     )
   }
 
-  const onSubmit = (data: OnboardingChildInput) => {
-    onAdd({ ...data, tags: selectedTags })
+  const onSubmit = (data: AddChildFormData) => {
+    // Validate birthdate is in the past
+    const parsed = new Date(data.birthdate)
+    if (isNaN(parsed.getTime()) || parsed >= new Date()) {
+      form.setError("birthdate", {
+        type: "manual",
+        message: "La date de naissance doit être dans le passé",
+      })
+      return
+    }
+
+    onAdd({
+      first_name: data.first_name,
+      birthdate: data.birthdate,
+      tags: selectedTags,
+    })
     form.reset()
     setSelectedTags([])
   }
@@ -216,7 +238,6 @@ export function OnboardingStep2Children({
             <ChildCard
               key={`${child.first_name}-${index}`}
               child={child}
-              index={index}
               onRemove={() => removeChild(index)}
             />
           ))}

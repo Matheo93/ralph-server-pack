@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { getHousehold } from "@/lib/actions/household"
 import { getUser } from "@/lib/auth/actions"
-import { HouseholdForm } from "@/components/custom/household-form"
+import { OnboardingWizard } from "@/components/custom/OnboardingWizard"
 
 export default async function OnboardingPage() {
   const user = await getUser()
@@ -22,10 +22,10 @@ export default async function OnboardingPage() {
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">Bienvenue sur FamilyLoad</h1>
           <p className="text-muted-foreground">
-            Commençons par créer votre foyer
+            Configurons votre foyer en quelques étapes
           </p>
         </div>
-        <HouseholdForm />
+        <OnboardingWizard />
       </div>
     </div>
   )

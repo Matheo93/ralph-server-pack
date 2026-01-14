@@ -6,9 +6,7 @@ export const onboardingStep1Schema = z.object({
     .string()
     .min(2, "Le nom du foyer doit contenir au moins 2 caractères")
     .max(50, "Le nom du foyer ne peut pas dépasser 50 caractères"),
-  country: z.enum(["FR", "BE", "CH", "CA", "LU"], {
-    required_error: "Veuillez sélectionner un pays",
-  }),
+  country: z.enum(["FR", "BE", "CH", "CA", "LU"]),
   timezone: z.string().min(1, "Fuseau horaire requis"),
 })
 
@@ -20,12 +18,13 @@ export const onboardingChildSchema = z.object({
     .max(50, "Le prénom ne peut pas dépasser 50 caractères"),
   birthdate: z
     .string()
+    .min(1, "La date de naissance est requise")
     .refine((date) => {
       if (!date) return false
       const parsed = new Date(date)
       return !isNaN(parsed.getTime()) && parsed < new Date()
     }, "La date de naissance doit être dans le passé"),
-  tags: z.array(z.string()).default([]),
+  tags: z.array(z.string()),
 })
 
 export const onboardingStep2Schema = z.object({
