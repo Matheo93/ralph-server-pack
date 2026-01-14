@@ -111,22 +111,22 @@ Implémenter le moteur de répartition équitable, la landing page marketing, et
 
 ---
 
-## Phase 5: Pages Billing
+## Phase 5: Pages Billing ✅
 
-- [ ] 5.1 Créer `src/app/(dashboard)/settings/billing/page.tsx`:
+- [x] 5.1 Créer `src/app/(dashboard)/settings/billing/page.tsx`:
   - Statut abonnement
   - Date prochain paiement
   - Bouton "Gérer abonnement"
   - Historique factures
-- [ ] 5.2 Créer `src/components/custom/SubscriptionStatus.tsx`:
+- [x] 5.2 Créer `src/components/custom/SubscriptionStatus.tsx`:
   - Badge trial/active/cancelled
   - Jours restants trial
   - Alertes expiration
-- [ ] 5.3 Mettre à jour schema households:
-  - stripe_customer_id
-  - subscription_status (trial, active, past_due, cancelled)
-  - trial_ends_at
-  - subscription_ends_at
+- [x] 5.3 Mettre à jour schema households:
+  - stripe_customer_id (already in schema)
+  - subscription_status (already in schema)
+  - trial_ends_at (in subscriptions table)
+  - subscription_ends_at (already in schema)
 
 ---
 
