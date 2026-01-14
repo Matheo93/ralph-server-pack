@@ -130,10 +130,22 @@ export const TaskTemplateCreateSchema = z.object({
 export type TaskTemplateCreateInput = z.infer<typeof TaskTemplateCreateSchema>
 
 /**
- * Schema pour mise à jour de template
+ * Schema pour mise à jour de template (sans .partial() car refine() ne le supporte pas)
  */
-export const TaskTemplateUpdateSchema = TaskTemplateCreateSchema.partial().extend({
+export const TaskTemplateUpdateSchema = z.object({
   id: z.string().uuid(),
+  country: z.string().length(2).optional(),
+  age_min: z.number().int().min(0).max(25).optional(),
+  age_max: z.number().int().min(0).max(25).optional(),
+  category: z.string().min(1).optional(),
+  subcategory: z.string().nullable().optional(),
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(1000).nullable().optional(),
+  cron_rule: CronRuleSchema.optional(),
+  weight: z.number().int().min(1).max(10).optional(),
+  days_before_deadline: z.number().int().min(0).max(90).optional(),
+  period: PeriodTypeEnum.nullable().optional(),
+  is_active: z.boolean().optional(),
 })
 
 export type TaskTemplateUpdateInput = z.infer<typeof TaskTemplateUpdateSchema>

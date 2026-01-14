@@ -21,8 +21,20 @@ export const childSchema = z.object({
   tags: z.array(z.string()),
 })
 
-export const updateChildSchema = childSchema.partial().extend({
+// Update schema defined manually (can't use .partial() on refined schemas)
+export const updateChildSchema = z.object({
   id: z.string().uuid("ID invalide"),
+  first_name: z.string().min(1).max(50).optional(),
+  birthdate: z.string().refine((date) => {
+    if (!date) return true
+    const parsed = new Date(date)
+    return !isNaN(parsed.getTime()) && parsed < new Date()
+  }, "La date de naissance doit être dans le passé").optional(),
+  gender: z.enum(["M", "F"]).nullable().optional(),
+  school_name: z.string().max(100).nullable().optional(),
+  school_level: z.enum(["maternelle", "primaire", "college", "lycee"]).nullable().optional(),
+  school_class: z.string().max(20).nullable().optional(),
+  tags: z.array(z.string()).optional(),
 })
 
 export type ChildInput = z.infer<typeof childSchema>

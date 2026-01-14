@@ -10,7 +10,7 @@
  */
 
 import {
-  TaskTemplateSchema,
+  TaskTemplateCreateSchema,
   TaskTemplateFilterSchema,
   parseCronRule,
   ageGroupToRange,
@@ -112,7 +112,7 @@ testGroup("generateYearlyKey", () => {
   )
 })
 
-testGroup("TaskTemplateSchema validation", () => {
+testGroup("TaskTemplateCreateSchema validation", () => {
   // Valid template
   const validTemplate = {
     country: "FR",
@@ -128,22 +128,22 @@ testGroup("TaskTemplateSchema validation", () => {
     is_active: true,
   }
 
-  const result = TaskTemplateSchema.safeParse(validTemplate)
+  const result = TaskTemplateCreateSchema.safeParse(validTemplate)
   assert(result.success === true, "Valid template passes validation")
 
   // Invalid age range
   const invalidAge = { ...validTemplate, age_min: 15, age_max: 10 }
-  const ageResult = TaskTemplateSchema.safeParse(invalidAge)
+  const ageResult = TaskTemplateCreateSchema.safeParse(invalidAge)
   assert(ageResult.success === false, "Invalid age range fails validation")
 
   // Missing title
   const missingTitle = { ...validTemplate, title: "" }
-  const titleResult = TaskTemplateSchema.safeParse(missingTitle)
+  const titleResult = TaskTemplateCreateSchema.safeParse(missingTitle)
   assert(titleResult.success === false, "Empty title fails validation")
 
   // Invalid weight
   const invalidWeight = { ...validTemplate, weight: 15 }
-  const weightResult = TaskTemplateSchema.safeParse(invalidWeight)
+  const weightResult = TaskTemplateCreateSchema.safeParse(invalidWeight)
   assert(weightResult.success === false, "Weight > 10 fails validation")
 })
 

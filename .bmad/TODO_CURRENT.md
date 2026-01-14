@@ -186,35 +186,35 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 13: Tests
 
-- [ ] 13.1 Créer `src/tests/templates-test.ts`:
+- [x] 13.1 Créer `src/tests/templates-test.ts`:
   - Test génération par âge
   - Test filtres templates
   - Test calcul deadline
-- [ ] 13.2 Créer `src/tests/recurrence-test.ts`:
+- [x] 13.2 Créer `src/tests/recurrence-test.ts`:
   - Test règles récurrence
   - Test génération occurrences
-- [ ] 13.3 Créer `src/tests/settings-test.ts`:
+- [x] 13.3 Créer `src/tests/settings-test.ts`:
   - Test validations settings
 
 ---
 
 ## Phase 14: Build & Validation
 
-- [ ] 14.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
-- [ ] 14.2 `bun run build` - build production OK
+- [x] 14.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
+- [x] 14.2 `bun run build` - build production OK
 - [ ] 14.3 Test manuel: voir templates applicables à un enfant
 - [ ] 14.4 Test manuel: créer tâche récurrente → compléter → voir nouvelle occurrence
 
 ---
 
 ## Definition of Done Sprint 3
-- [ ] Catalogue 50+ templates français par âge/période
-- [ ] Service génération automatique tâches depuis templates
-- [ ] Système récurrence (daily, weekly, monthly)
-- [ ] Page settings complète (profil, foyer, notifications)
-- [ ] Page templates avec toggle activation
-- [ ] Build production sans erreur
-- [ ] Types stricts partout
+- [x] Catalogue 50+ templates français par âge/période
+- [x] Service génération automatique tâches depuis templates
+- [x] Système récurrence (daily, weekly, monthly)
+- [x] Page settings complète (profil, foyer, notifications)
+- [x] Page templates avec toggle activation
+- [x] Build production sans erreur
+- [x] Types stricts partout
 
 ---
 
