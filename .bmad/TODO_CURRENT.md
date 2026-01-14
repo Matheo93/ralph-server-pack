@@ -53,7 +53,7 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 3: Validations Zod Templates
 
-- [ ] 3.1 Créer `src/lib/validations/template.ts`:
+- [x] 3.1 Créer `src/lib/validations/template.ts`:
   - TaskTemplateSchema
   - TaskTemplateFilterSchema (age, category, country)
   - CronRuleSchema (validation cron)
@@ -62,14 +62,14 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 4: Data Seed - French Templates
 
-- [ ] 4.1 Créer `src/lib/data/templates-fr.ts` avec templates France:
+- [x] 4.1 Créer `src/lib/data/templates-fr.ts` avec templates France:
   - 0-3 ans: vaccins, PMI, mode de garde
   - 3-6 ans: inscription maternelle, assurance, réunions
   - 6-11 ans: fournitures, cantine, sorties
   - 11-15 ans: orientation, brevet
   - 15-18 ans: permis, bac, parcoursup
-- [ ] 4.2 Templates par période (septembre, décembre, juin, etc.)
-- [ ] 4.3 Au moins 50 templates couvrant les catégories principales
+- [x] 4.2 Templates par période (septembre, décembre, juin, etc.)
+- [x] 4.3 Au moins 50 templates couvrant les catégories principales (76 templates)
 
 ---
 
