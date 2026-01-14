@@ -7,7 +7,9 @@ import {
   TaskFilterSchema,
   TaskPostponeSchema,
   TaskReassignSchema,
+  RecurrenceRuleSchema,
   type TaskFilter,
+  type RecurrenceRule,
 } from "@/lib/validations/task"
 import type {
   TaskCreate,
@@ -18,6 +20,7 @@ import type {
 } from "@/types/task"
 import { getUserId } from "@/lib/auth/actions"
 import { query, queryOne, insert, setCurrentUser } from "@/lib/aws/database"
+import { generateNextOccurrence } from "@/lib/services/recurrence"
 
 interface HouseholdMembership {
   household_id: string
@@ -166,7 +169,9 @@ export async function deleteTask(taskId: string): Promise<TaskActionResult> {
 // COMPLETE TASK
 // ============================================================
 
-export async function completeTask(taskId: string): Promise<TaskActionResult> {
+export async function completeTask(
+  taskId: string
+): Promise<TaskActionResult<{ nextTaskId?: string }>> {
   const userId = await getUserId()
   if (!userId) {
     return { success: false, error: "Utilisateur non connecté" }
@@ -177,11 +182,12 @@ export async function completeTask(taskId: string): Promise<TaskActionResult> {
     return { success: false, error: "Vous n'avez pas de foyer" }
   }
 
-  const result = await query(
+  // Complete the task
+  const result = await query<{ id: string; recurrence_rule: string | null }>(
     `UPDATE tasks
      SET status = 'done', completed_at = NOW(), updated_at = NOW()
      WHERE id = $1 AND household_id = $2
-     RETURNING id`,
+     RETURNING id, recurrence_rule`,
     [taskId, membership.household_id]
   )
 
@@ -189,11 +195,24 @@ export async function completeTask(taskId: string): Promise<TaskActionResult> {
     return { success: false, error: "Tâche introuvable ou non autorisée" }
   }
 
+  let nextTaskId: string | undefined
+
+  // If the task has a recurrence rule, generate the next occurrence
+  const completedTask = result[0]
+  if (completedTask?.recurrence_rule) {
+    try {
+      nextTaskId = (await generateNextOccurrence(taskId)) ?? undefined
+    } catch (error) {
+      console.error("Error generating next occurrence:", error)
+      // Don't fail the completion if recurring generation fails
+    }
+  }
+
   revalidatePath("/tasks")
   revalidatePath("/dashboard")
   revalidatePath("/tasks/today")
 
-  return { success: true }
+  return { success: true, data: { nextTaskId } }
 }
 
 // ============================================================
@@ -689,4 +708,137 @@ export async function restoreTask(taskId: string): Promise<TaskActionResult> {
   revalidatePath("/dashboard")
 
   return { success: true }
+}
+
+// ============================================================
+// CREATE RECURRING TASK
+// ============================================================
+
+export async function createRecurringTask(
+  data: Omit<TaskCreate, "household_id" | "created_by">,
+  recurrenceRule: RecurrenceRule
+): Promise<TaskActionResult<{ taskId: string; seriesId: string }>> {
+  const userId = await getUserId()
+  if (!userId) {
+    return { success: false, error: "Utilisateur non connecté" }
+  }
+
+  const membership = await getHouseholdForUser(userId)
+  if (!membership) {
+    return { success: false, error: "Vous n'avez pas de foyer" }
+  }
+
+  // Validate task data
+  const taskValidation = TaskCreateSchema.safeParse(data)
+  if (!taskValidation.success) {
+    return {
+      success: false,
+      error: taskValidation.error.issues[0]?.message ?? "Données de tâche invalides",
+    }
+  }
+
+  // Validate recurrence rule
+  const ruleValidation = RecurrenceRuleSchema.safeParse(recurrenceRule)
+  if (!ruleValidation.success) {
+    return {
+      success: false,
+      error: ruleValidation.error.issues[0]?.message ?? "Règle de récurrence invalide",
+    }
+  }
+
+  // Generate series ID
+  const seriesId = crypto.randomUUID()
+
+  const taskData = {
+    ...taskValidation.data,
+    household_id: membership.household_id,
+    created_by: userId,
+    assigned_to: taskValidation.data.assigned_to ?? userId,
+    recurrence_rule: JSON.stringify(ruleValidation.data),
+    series_id: seriesId,
+    source: "manual" as const,
+  }
+
+  const task = await insert<{ id: string }>("tasks", taskData)
+  if (!task) {
+    return { success: false, error: "Erreur lors de la création de la tâche récurrente" }
+  }
+
+  revalidatePath("/tasks")
+  revalidatePath("/dashboard")
+
+  return { success: true, data: { taskId: task.id, seriesId } }
+}
+
+// ============================================================
+// CANCEL RECURRING SERIES
+// ============================================================
+
+export async function cancelRecurringSeries(
+  seriesId: string
+): Promise<TaskActionResult<{ cancelledCount: number }>> {
+  const userId = await getUserId()
+  if (!userId) {
+    return { success: false, error: "Utilisateur non connecté" }
+  }
+
+  const membership = await getHouseholdForUser(userId)
+  if (!membership) {
+    return { success: false, error: "Vous n'avez pas de foyer" }
+  }
+
+  const result = await query(
+    `UPDATE tasks
+     SET status = 'cancelled', updated_at = NOW()
+     WHERE series_id = $1 AND household_id = $2 AND status = 'pending'
+     RETURNING id`,
+    [seriesId, membership.household_id]
+  )
+
+  revalidatePath("/tasks")
+  revalidatePath("/dashboard")
+
+  return { success: true, data: { cancelledCount: result.length } }
+}
+
+// ============================================================
+// GET RECURRING TASKS
+// ============================================================
+
+export async function getRecurringTasks(): Promise<TaskListItem[]> {
+  const userId = await getUserId()
+  if (!userId) return []
+
+  const membership = await getHouseholdForUser(userId)
+  if (!membership) return []
+
+  const tasks = await query<TaskListItem>(`
+    SELECT
+      t.id,
+      t.title,
+      t.status,
+      t.priority,
+      t.deadline::text,
+      t.deadline_flexible,
+      t.is_critical,
+      t.load_weight,
+      t.child_id,
+      c.first_name as child_name,
+      t.assigned_to,
+      NULL as assigned_name,
+      tc.code as category_code,
+      tc.name_fr as category_name,
+      tc.color as category_color,
+      tc.icon as category_icon,
+      t.created_at::text
+    FROM tasks t
+    LEFT JOIN children c ON t.child_id = c.id
+    LEFT JOIN task_categories tc ON t.category_id = tc.id
+    WHERE t.household_id = $1
+      AND t.recurrence_rule IS NOT NULL
+      AND t.status = 'pending'
+    ORDER BY t.deadline ASC
+  `, [membership.household_id])
+
+  return tasks
 }

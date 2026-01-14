@@ -75,11 +75,11 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 5: Services Templates
 
-- [ ] 5.1 Créer `src/lib/services/templates.ts`:
+- [x] 5.1 Créer `src/lib/services/templates.ts`:
   - `getTemplatesForChild(childId)` - templates applicables à un enfant (par âge)
   - `generateTasksFromTemplates(childId)` - génération auto
   - `getUpcomingTemplates(householdId, days)` - prochaines tâches
-- [ ] 5.2 Créer `src/lib/services/scheduler.ts`:
+- [x] 5.2 Créer `src/lib/services/scheduler.ts`:
   - `checkAndGenerateTasks()` - vérification quotidienne
   - `calculateNextDeadline(cronRule, baseDate)` - calcul deadline
   - `shouldGenerateTask(template, child)` - règles de génération
@@ -88,14 +88,14 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 6: Récurrence System
 
-- [ ] 6.1 Mettre à jour `src/types/task.ts`:
+- [x] 6.1 Mettre à jour `src/types/task.ts`:
   - RecurrenceRule type (daily, weekly, monthly, yearly, custom)
   - RecurrenceConfig interface
-- [ ] 6.2 Créer `src/lib/services/recurrence.ts`:
+- [x] 6.2 Créer `src/lib/services/recurrence.ts`:
   - `createRecurringTask(task, rule)` - création tâche récurrente
   - `generateNextOccurrence(task)` - génération prochaine occurrence
   - `getRecurrenceLabel(rule)` - label lisible ("Tous les lundis")
-- [ ] 6.3 Mettre à jour `src/lib/actions/tasks.ts`:
+- [x] 6.3 Mettre à jour `src/lib/actions/tasks.ts`:
   - Ajouter support récurrence dans createTask
   - Hook pour générer occurrence suivante après completion
 
