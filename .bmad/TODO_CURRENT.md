@@ -89,24 +89,24 @@ Implémenter le moteur de répartition équitable, la landing page marketing, et
 
 ---
 
-## Phase 4: Intégration Stripe
+## Phase 4: Intégration Stripe ✅
 
-- [ ] 4.1 Créer `src/lib/stripe/client.ts`:
+- [x] 4.1 Créer `src/lib/stripe/client.ts`:
   - Configuration Stripe
   - Types Stripe
-- [ ] 4.2 Créer `src/lib/stripe/checkout.ts`:
+- [x] 4.2 Créer `src/lib/stripe/checkout.ts`:
   - `createCheckoutSession(householdId, priceId)` - création session
   - `createPortalSession(customerId)` - portail client
-- [ ] 4.3 Créer `src/lib/stripe/webhooks.ts`:
+- [x] 4.3 Créer `src/lib/stripe/webhooks.ts`:
   - `handleCheckoutCompleted(event)` - paiement réussi
   - `handleSubscriptionUpdated(event)` - mise à jour abo
   - `handleSubscriptionDeleted(event)` - annulation
-- [ ] 4.4 Créer `src/app/api/stripe/checkout/route.ts`:
+- [x] 4.4 Créer `src/app/api/stripe/checkout/route.ts`:
   - POST: créer checkout session
-- [ ] 4.5 Créer `src/app/api/stripe/webhook/route.ts`:
+- [x] 4.5 Créer `src/app/api/stripe/webhook/route.ts`:
   - POST: recevoir webhooks Stripe
   - Vérification signature
-- [ ] 4.6 Créer `src/app/api/stripe/portal/route.ts`:
+- [x] 4.6 Créer `src/app/api/stripe/portal/route.ts`:
   - POST: créer portail session
 
 ---
