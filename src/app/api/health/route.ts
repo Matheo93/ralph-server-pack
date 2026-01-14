@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { query } from "@/lib/aws/database"
+import { createApiLogger, createRequestTimer } from "@/lib/logger"
 
 interface HealthStatus {
   status: "healthy" | "degraded" | "unhealthy"
@@ -105,6 +106,9 @@ function calculateOverallStatus(checks: HealthStatus["checks"]): HealthStatus["s
 }
 
 export async function GET() {
+  const logger = createApiLogger()
+  const getElapsed = createRequestTimer()
+
   const [database, redis] = await Promise.all([
     checkDatabase(),
     checkRedis(),
@@ -124,6 +128,12 @@ export async function GET() {
   }
 
   const httpStatus = status === "healthy" ? 200 : status === "degraded" ? 200 : 503
+
+  logger.request("GET", "/api/health", httpStatus, getElapsed(), {
+    healthStatus: status,
+    dbLatency: database.latency,
+    memoryStatus: memory.status,
+  })
 
   return NextResponse.json(health, { status: httpStatus })
 }
