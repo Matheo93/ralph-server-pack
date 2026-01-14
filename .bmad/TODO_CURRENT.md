@@ -64,7 +64,7 @@ Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
 - [x] 3.5 Créer `src/middleware.ts` - protection routes
 - [x] 3.6 Créer composant `AuthForm` avec validation Zod
 - [x] 3.7 Ajouter support Magic Link
-- [ ] 3.8 Tester: signup → email confirmation → login → session (MANUEL)
+- [ ] 3.8 Créer `src/tests/auth-test.ts` - tester signup/login Cognito programmatiquement (pas de test manuel!)
 
 ---
 
@@ -104,8 +104,8 @@ Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
 
 - [x] 7.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
 - [x] 7.2 `bun run build` - build production OK
-- [ ] 7.3 Tester flow complet: signup → créer foyer → ajouter enfant (MANUEL avec Supabase configuré)
-- [ ] 7.4 Vérifier RLS policies fonctionnent (user A ne voit pas foyer de user B) (MANUEL avec Supabase configuré)
+- [ ] 7.3 Créer `src/tests/flow-test.ts` - tester user→foyer→enfant avec PostgreSQL AWS
+- [ ] 7.4 Créer `src/tests/rls-test.ts` - vérifier isolation données entre 2 users avec pg direct
 
 ---
 
@@ -116,7 +116,7 @@ Avoir l'authentification, la gestion du foyer et des enfants fonctionnels.
 - [x] CRUD enfants fonctionnel
 - [x] Build production sans erreur
 - [x] Types stricts partout (no `any`)
-- [ ] RLS policies actives et testées (dans schema.sql, à tester manuellement)
+- [ ] Exécuter `bun run src/tests/rls-test.ts` et confirmer que les RLS policies fonctionnent
 
 ---
 
