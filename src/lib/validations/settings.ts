@@ -8,9 +8,7 @@ export const ProfileUpdateSchema = z.object({
     .string()
     .max(100, "Le nom ne peut pas dépasser 100 caractères")
     .nullable(),
-  language: z.enum(["fr", "en"], {
-    errorMap: () => ({ message: "Langue invalide" }),
-  }),
+  language: z.enum(["fr", "en"]),
   timezone: z.string().min(1, "Fuseau horaire requis"),
 })
 
@@ -24,9 +22,7 @@ export const HouseholdUpdateSchema = z.object({
     .string()
     .min(1, "Le nom du foyer est requis")
     .max(100, "Le nom ne peut pas dépasser 100 caractères"),
-  country: z.enum(["FR", "BE", "CH", "CA", "LU"], {
-    errorMap: () => ({ message: "Pays invalide" }),
-  }),
+  country: z.enum(["FR", "BE", "CH", "CA", "LU"]),
   timezone: z.string().min(1, "Fuseau horaire requis"),
 })
 
@@ -57,11 +53,7 @@ export type NotificationPreferencesInput = z.infer<typeof NotificationPreference
  * Delete Account Schema (RGPD)
  */
 export const DeleteAccountSchema = z.object({
-  confirmation: z.literal("SUPPRIMER", {
-    errorMap: () => ({
-      message: "Veuillez taper SUPPRIMER pour confirmer la suppression",
-    }),
-  }),
+  confirmation: z.literal("SUPPRIMER"),
 })
 
 export type DeleteAccountInput = z.infer<typeof DeleteAccountSchema>
@@ -81,9 +73,7 @@ export type TemplateToggleInput = z.infer<typeof TemplateToggleSchema>
  */
 export const InviteMemberSchema = z.object({
   email: z.string().email("Adresse email invalide"),
-  role: z.enum(["admin", "member"], {
-    errorMap: () => ({ message: "Rôle invalide" }),
-  }).default("member"),
+  role: z.enum(["admin", "member"]).default("member"),
 })
 
 export type InviteMemberInput = z.infer<typeof InviteMemberSchema>
@@ -93,11 +83,7 @@ export type InviteMemberInput = z.infer<typeof InviteMemberSchema>
  */
 export const TransferAdminSchema = z.object({
   new_admin_user_id: z.string().uuid("ID utilisateur invalide"),
-  confirmation: z.literal("TRANSFERER", {
-    errorMap: () => ({
-      message: "Veuillez taper TRANSFERER pour confirmer le transfert",
-    }),
-  }),
+  confirmation: z.literal("TRANSFERER"),
 })
 
 export type TransferAdminInput = z.infer<typeof TransferAdminSchema>
