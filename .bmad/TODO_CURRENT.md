@@ -60,30 +60,30 @@ Implémenter le moteur de répartition équitable, la landing page marketing, et
 
 ---
 
-## Phase 3: Landing Page Marketing
+## Phase 3: Landing Page Marketing ✅
 
-- [ ] 3.1 Créer `src/app/(marketing)/layout.tsx`:
+- [x] 3.1 Créer `src/app/(marketing)/layout.tsx`:
   - Layout marketing (sans sidebar)
   - Header avec CTA
-- [ ] 3.2 Créer `src/app/(marketing)/page.tsx` (nouvelle home):
+- [x] 3.2 Créer `src/app/(marketing)/page.tsx` (nouvelle home):
   - Hero section (problème + solution)
   - Features (vocal, auto, répartition)
   - Social proof (témoignages)
   - Pricing section
   - CTA final
-- [ ] 3.3 Créer `src/components/marketing/Hero.tsx`:
+- [x] 3.3 Créer `src/components/marketing/Hero.tsx`:
   - Titre accrocheur
   - Sous-titre problème/solution
   - CTA "Essai gratuit 14 jours"
   - Visuel app
-- [ ] 3.4 Créer `src/components/marketing/Features.tsx`:
+- [x] 3.4 Créer `src/components/marketing/Features.tsx`:
   - 3 features principales avec icônes
   - Descriptions courtes
-- [ ] 3.5 Créer `src/components/marketing/Pricing.tsx`:
+- [x] 3.5 Créer `src/components/marketing/Pricing.tsx`:
   - Prix unique 4€/mois
   - Liste features incluses
   - CTA signup
-- [ ] 3.6 Créer `src/components/marketing/Testimonials.tsx`:
+- [x] 3.6 Créer `src/components/marketing/Testimonials.tsx`:
   - 3 témoignages parents
   - Avatar + citation + nom
 
