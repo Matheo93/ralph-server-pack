@@ -165,10 +165,10 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 11: API Routes Templates
 
-- [ ] 11.1 Créer `src/app/api/templates/generate/route.ts`:
+- [x] 11.1 Créer `src/app/api/templates/generate/route.ts`:
   - Endpoint pour cron job (génération quotidienne)
   - Auth via API key
-- [ ] 11.2 Créer `src/app/api/cron/daily/route.ts`:
+- [x] 11.2 Créer `src/app/api/cron/daily/route.ts`:
   - Vérification tâches à générer
   - Notifications rappels
 
@@ -176,7 +176,7 @@ Implémenter le catalogue de tâches automatiques (OR MASSIF), les tâches récu
 
 ## Phase 12: Validations Settings
 
-- [ ] 12.1 Créer `src/lib/validations/settings.ts`:
+- [x] 12.1 Créer `src/lib/validations/settings.ts`:
   - ProfileUpdateSchema
   - HouseholdUpdateSchema
   - NotificationPreferencesSchema
