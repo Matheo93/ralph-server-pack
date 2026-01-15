@@ -85,27 +85,27 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
 
 ## Phase 3: Tests E2E Critiques
 
-- [ ] 3.1 Creer `e2e/full-user-journey.spec.ts`:
+- [x] 3.1 Creer `e2e/full-user-journey.spec.ts`:
   - Signup -> Onboarding -> First task -> Streak
   - Test complet 10+ etapes
   - Screenshots automatiques
 
-- [ ] 3.2 Creer `e2e/payment-flow.spec.ts`:
+- [x] 3.2 Creer `e2e/payment-flow.spec.ts`:
   - Stripe checkout simulation
   - Subscription upgrade/downgrade
   - Billing portal access
 
-- [ ] 3.3 Creer `e2e/co-parent-invite.spec.ts`:
+- [x] 3.3 Creer `e2e/co-parent-invite.spec.ts`:
   - Invitation envoyee
   - Token valide
   - Acceptation et acces foyer
 
-- [ ] 3.4 Creer `e2e/vocal-task-creation.spec.ts`:
+- [x] 3.4 Creer `e2e/vocal-task-creation.spec.ts`:
   - Enregistrement audio mock
   - Transcription et analyse
   - Creation tache automatique
 
-- [ ] 3.5 Creer `e2e/offline-sync.spec.ts`:
+- [x] 3.5 Creer `e2e/offline-sync.spec.ts`:
   - Creation offline
   - Synchronisation au retour online
   - Conflit resolution
