@@ -101,7 +101,8 @@ export function getAgeGroup(age: number): AgeGroup {
   if (age < 6) return "3-6"
   if (age < 11) return "6-11"
   if (age < 15) return "11-15"
-  return "15-18"
+  if (age < 18) return "15-18"
+  return "18-25"
 }
 
 /**
@@ -114,6 +115,7 @@ export function getAgeGroupLabel(ageGroup: AgeGroup): string {
     "6-11": "Primaire (6-11 ans)",
     "11-15": "Collège (11-15 ans)",
     "15-18": "Lycée (15-18 ans)",
+    "18-25": "Études supérieures (18-25 ans)",
   }
   return labels[ageGroup]
 }
@@ -544,6 +546,7 @@ export function getTemplateCountsByAgeGroup(): Record<AgeGroup, number> {
     "6-11": 0,
     "11-15": 0,
     "15-18": 0,
+    "18-25": 0,
   }
 
   for (const template of allTemplatesFR) {
