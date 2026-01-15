@@ -21,6 +21,12 @@ vi.mock("@/lib/services/charge", () => ({
   getWeeklyLoadByParent: vi.fn(),
 }))
 
+// Mock the notifications service (to prevent firebase import issues)
+vi.mock("@/lib/services/notifications", () => ({
+  sendPushToHousehold: vi.fn(),
+  sendPushToUser: vi.fn(),
+}))
+
 // Import mocked modules
 import { query, queryOne } from "@/lib/aws/database"
 import { getLoadBalancePercentage, getWeeklyLoadByParent } from "@/lib/services/charge"
