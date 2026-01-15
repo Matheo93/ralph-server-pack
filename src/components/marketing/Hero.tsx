@@ -48,15 +48,15 @@ export function Hero() {
               parentales grâce à l&apos;IA vocale.
             </p>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - More prominent */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
-              <Button size="lg" asChild className="text-base bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25">
+              <Button size="lg" asChild className="text-base h-14 px-8 bg-primary hover:bg-primary/90 shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:scale-105">
                 <Link href="/signup">
                   Commencer gratuitement
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="text-base border-2">
+              <Button size="lg" variant="outline" asChild className="text-base h-14 px-8 border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
                 <Link href="#features">Découvrir les fonctionnalités</Link>
               </Button>
             </div>
@@ -151,6 +151,31 @@ export function Hero() {
                 </span>
               </div>
               <div className="text-sm text-muted-foreground">familles heureuses</div>
+            </div>
+          </div>
+
+          {/* Social proof - Press mentions */}
+          <div className="mt-12 pt-8 border-t border-border/30">
+            <p className="text-center text-xs uppercase tracking-wider text-muted-foreground mb-6">
+              Ils parlent de nous
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-60">
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-foreground">Le Monde</span>
+                <span className="text-xs text-muted-foreground">Famille</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-foreground">Parents</span>
+                <span className="text-xs text-muted-foreground">Magazine</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-foreground">Magicmaman</span>
+                <span className="text-xs text-muted-foreground">Digital</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-foreground">Femme Actuelle</span>
+                <span className="text-xs text-muted-foreground">Lifestyle</span>
+              </div>
             </div>
           </div>
         </div>

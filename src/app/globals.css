@@ -48,7 +48,8 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.995 0.002 80);
+  /* Background: Warm cream instead of cold white - #FFF9F5 equivalent */
+  --background: oklch(0.985 0.015 70);
   --foreground: oklch(0.2 0.02 50);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.02 50);
