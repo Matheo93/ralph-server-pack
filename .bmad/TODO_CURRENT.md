@@ -96,12 +96,12 @@ Sprint 19 se concentre sur:
   - Household notifications
   - Presence indicators
 
-- [ ] 3.3 Creer `src/lib/realtime/sync-coordinator.ts`:
+- [x] 3.3 Creer `src/lib/realtime/sync-coordinator.ts`:
   - Multi-device sync
   - Conflict prevention
   - Optimistic updates
 
-- [ ] 3.4 Creer `src/lib/realtime/notification-center.ts`:
+- [x] 3.4 Creer `src/lib/realtime/notification-center.ts`:
   - Real-time notifications
   - Priority queuing
   - Delivery confirmation
