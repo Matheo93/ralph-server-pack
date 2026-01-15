@@ -11,7 +11,7 @@ const SendNotificationSchema = z.object({
   body: z.string().max(500).optional(),
   target: z.enum(["user", "household"]),
   targetId: z.string().uuid().optional(),
-  data: z.record(z.string()).optional(),
+  data: z.record(z.string(), z.string()).optional(),
 })
 
 /**

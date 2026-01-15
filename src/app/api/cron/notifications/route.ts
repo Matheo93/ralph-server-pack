@@ -6,6 +6,11 @@ import {
   getHouseholdsForDailyDigest,
   getTasksNeedingReminders,
 } from "@/lib/services/notifications"
+import {
+  processScheduledNotifications,
+  scheduleStreakRiskNotifications,
+  scheduleChargeAlertNotifications,
+} from "@/lib/services/notification-scheduler"
 import { query } from "@/lib/aws/database"
 
 // Cron secret to verify requests are legitimate
@@ -142,6 +147,69 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Process scheduled notifications (new scheduler system)
+    if (type === "scheduled" || type === "all") {
+      try {
+        const result = await processScheduledNotifications()
+        results.push({
+          type: "scheduled",
+          success: true,
+          details: {
+            processed: result.processed,
+            sent: result.sent,
+            failed: result.failed,
+            aggregated: result.aggregated,
+          },
+        })
+      } catch (error) {
+        results.push({
+          type: "scheduled",
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        })
+      }
+    }
+
+    // Schedule streak risk notifications (run in evening)
+    if (type === "streak_risk" || type === "all") {
+      try {
+        const result = await scheduleStreakRiskNotifications()
+        results.push({
+          type: "streak_risk",
+          success: true,
+          details: {
+            scheduled: result.scheduled,
+          },
+        })
+      } catch (error) {
+        results.push({
+          type: "streak_risk",
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        })
+      }
+    }
+
+    // Schedule charge alert notifications (run weekly)
+    if (type === "charge_alert") {
+      try {
+        const result = await scheduleChargeAlertNotifications()
+        results.push({
+          type: "charge_alert",
+          success: true,
+          details: {
+            scheduled: result.scheduled,
+          },
+        })
+      } catch (error) {
+        results.push({
+          type: "charge_alert",
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        })
+      }
+    }
+
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
@@ -175,6 +243,14 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-    types: ["daily_digest", "streak_alert", "deadline_reminders", "all"],
+    types: [
+      "daily_digest",
+      "streak_alert",
+      "deadline_reminders",
+      "scheduled",
+      "streak_risk",
+      "charge_alert",
+      "all",
+    ],
   })
 }
