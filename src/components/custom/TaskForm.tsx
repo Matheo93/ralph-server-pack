@@ -16,7 +16,9 @@ import {
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RecurrencePreview } from "@/components/custom/RecurrencePreview"
+import { FormError } from "@/components/custom/FormError"
 import { createTask, updateTask } from "@/lib/actions/tasks"
+import { reportError } from "@/lib/error-reporting"
 import type { TaskWithRelations, RecurrenceRule } from "@/types/task"
 
 interface Child {
@@ -176,7 +178,12 @@ export function TaskForm({
       if (result.success) {
         router.push("/tasks")
       } else {
-        setError(result.error ?? "Une erreur est survenue")
+        const errorMessage = result.error ?? "Une erreur est survenue"
+        setError(errorMessage)
+        reportError(new Error(errorMessage), {
+          componentName: "TaskForm",
+          action: mode === "edit" ? "updateTask" : "createTask",
+        })
       }
     })
   }
@@ -190,11 +197,11 @@ export function TaskForm({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
-              {error}
-            </div>
-          )}
+          <FormError
+            error={error}
+            variant="banner"
+            onDismiss={() => setError(null)}
+          />
 
           <div className="space-y-2">
             <Label htmlFor="title">Titre *</Label>

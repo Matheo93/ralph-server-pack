@@ -2,6 +2,10 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useState } from "react"
+import {
+  ToastProvider,
+  ToastHandlerSync,
+} from "@/components/custom/toast-notifications"
 
 interface QueryProviderProps {
   children: React.ReactNode
@@ -29,7 +33,10 @@ export function QueryProvider({ children }: QueryProviderProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <ToastProvider position="bottom-right" maxToasts={5}>
+        <ToastHandlerSync />
+        {children}
+      </ToastProvider>
     </QueryClientProvider>
   )
 }

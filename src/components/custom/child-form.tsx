@@ -21,7 +21,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { FormError } from "@/components/custom/FormError"
 import { createChild, updateChild } from "@/lib/actions/children"
+import { reportError } from "@/lib/error-reporting"
 import {
   childSchema,
   calculateAge,
@@ -92,11 +94,19 @@ export function ChildForm({ child, mode = "create" }: ChildFormProps) {
         const result = await updateChild({ id: child.id, ...data })
         if (!result.success && result.error) {
           setError(result.error)
+          reportError(new Error(result.error), {
+            componentName: "ChildForm",
+            action: "updateChild",
+          })
         }
       } else {
         const result = await createChild(data)
         if (!result.success && result.error) {
           setError(result.error)
+          reportError(new Error(result.error), {
+            componentName: "ChildForm",
+            action: "createChild",
+          })
         }
       }
     })
@@ -240,7 +250,11 @@ export function ChildForm({ child, mode = "create" }: ChildFormProps) {
               />
             </div>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            <FormError
+              error={error}
+              variant="inline"
+              onDismiss={() => setError(null)}
+            />
 
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending
