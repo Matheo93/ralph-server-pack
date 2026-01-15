@@ -72,7 +72,7 @@ Sprint 19 se concentre sur:
   - Auto-balancing triggers
   - Recovery period suggestions
 
-- [ ] 2.4 Creer `src/lib/distribution/delegation-engine.ts`:
+- [x] 2.4 Creer `src/lib/distribution/delegation-engine.ts`:
   - Smart delegation suggestions
   - Skill-based assignment
   - Availability awareness
