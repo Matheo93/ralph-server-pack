@@ -66,11 +66,11 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
   - Traductions espagnoles completes
   - Adaptations culturelles (dates, nombres)
 
-- [ ] 2.3 Creer `src/i18n/messages/de.ts`:
+- [x] 2.3 Creer `src/i18n/messages/de.ts`:
   - Traductions allemandes completes
   - Gestion des cas grammaticaux
 
-- [ ] 2.4 Creer `src/lib/i18n/date-formatter.ts`:
+- [x] 2.4 Creer `src/lib/i18n/date-formatter.ts`:
   - Formatage dates par locale
   - Jours de la semaine localises
   - Periodes relatives ("il y a 2 jours")
