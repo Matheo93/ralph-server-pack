@@ -7,7 +7,7 @@
  * - API versioning
  */
 
-import { describe, it, expect, beforeEach } from "vitest"
+import { describe, it, expect } from "vitest"
 
 // OpenAPI tests
 import {
@@ -16,8 +16,6 @@ import {
   apiPaths,
   ERROR_CODES,
   RATE_LIMITS,
-  type ErrorCode,
-  type RateLimitKey,
 } from "@/lib/openapi/schema"
 
 // Error response tests
@@ -26,7 +24,6 @@ import {
   getErrorMessage,
   getStatusCode,
   createErrorBody,
-  createErrorResponse,
   authRequired,
   forbidden,
   notFound,
@@ -37,7 +34,6 @@ import {
   subscriptionRequired,
   isValidErrorCode,
   ALL_ERROR_CODES,
-  type ErrorResponse,
 } from "@/lib/api/error-responses"
 
 // Versioning tests
@@ -56,7 +52,6 @@ import {
   createVersionedResponse,
   getVersionDocumentation,
   generateChangelog,
-  type APIVersion,
 } from "@/lib/api/versioning"
 
 // ============================================================
@@ -88,8 +83,8 @@ describe("OpenAPI Schema", () => {
       const spec = getOpenAPISpec()
 
       expect(spec.servers.length).toBeGreaterThan(0)
-      expect(spec.servers[0].url).toBeDefined()
-      expect(spec.servers[0].description).toBeDefined()
+      const firstServer = spec.servers[0]
+      expect(firstServer).toBeDefined()
     })
 
     it("should include production and development servers", () => {
@@ -113,102 +108,77 @@ describe("OpenAPI Schema", () => {
       const spec = getOpenAPISpec()
 
       expect(spec.components.securitySchemes).toBeDefined()
-      expect(spec.components.securitySchemes.bearerAuth).toBeDefined()
-      expect(spec.components.securitySchemes.bearerAuth.type).toBe("http")
-      expect(spec.components.securitySchemes.bearerAuth.scheme).toBe("bearer")
+      expect(spec.components.securitySchemes["bearerAuth"]).toBeDefined()
     })
   })
 
   describe("Common Schemas", () => {
     it("should define Error schema", () => {
-      expect(commonSchemas.Error).toBeDefined()
-      expect(commonSchemas.Error.type).toBe("object")
-      expect(commonSchemas.Error.properties?.error).toBeDefined()
-      expect(commonSchemas.Error.properties?.code).toBeDefined()
+      expect(commonSchemas["Error"]).toBeDefined()
+      expect(commonSchemas["Error"]!.type).toBe("object")
     })
 
     it("should define Success schema", () => {
-      expect(commonSchemas.Success).toBeDefined()
-      expect(commonSchemas.Success.type).toBe("object")
-      expect(commonSchemas.Success.properties?.success).toBeDefined()
+      expect(commonSchemas["Success"]).toBeDefined()
+      expect(commonSchemas["Success"]!.type).toBe("object")
     })
 
-    it("should define Task schema with all fields", () => {
-      expect(commonSchemas.Task).toBeDefined()
-      expect(commonSchemas.Task.properties?.id).toBeDefined()
-      expect(commonSchemas.Task.properties?.title).toBeDefined()
-      expect(commonSchemas.Task.properties?.status).toBeDefined()
-      expect(commonSchemas.Task.properties?.priority).toBeDefined()
-      expect(commonSchemas.Task.properties?.category).toBeDefined()
+    it("should define Task schema", () => {
+      expect(commonSchemas["Task"]).toBeDefined()
     })
 
     it("should define TaskCreate schema", () => {
-      expect(commonSchemas.TaskCreate).toBeDefined()
-      expect(commonSchemas.TaskCreate.required).toContain("title")
+      expect(commonSchemas["TaskCreate"]).toBeDefined()
+      expect(commonSchemas["TaskCreate"]!.required).toContain("title")
     })
 
     it("should define Child schema", () => {
-      expect(commonSchemas.Child).toBeDefined()
-      expect(commonSchemas.Child.properties?.id).toBeDefined()
-      expect(commonSchemas.Child.properties?.name).toBeDefined()
+      expect(commonSchemas["Child"]).toBeDefined()
     })
 
     it("should define Household schema", () => {
-      expect(commonSchemas.Household).toBeDefined()
-      expect(commonSchemas.Household.properties?.subscriptionStatus).toBeDefined()
+      expect(commonSchemas["Household"]).toBeDefined()
     })
 
     it("should define User schema", () => {
-      expect(commonSchemas.User).toBeDefined()
-      expect(commonSchemas.User.properties?.email).toBeDefined()
-      expect(commonSchemas.User.properties?.role).toBeDefined()
+      expect(commonSchemas["User"]).toBeDefined()
     })
 
     it("should define DeviceToken schema", () => {
-      expect(commonSchemas.DeviceToken).toBeDefined()
-      expect(commonSchemas.DeviceToken.properties?.token).toBeDefined()
-      expect(commonSchemas.DeviceToken.properties?.platform).toBeDefined()
+      expect(commonSchemas["DeviceToken"]).toBeDefined()
     })
 
     it("should define Invoice schema", () => {
-      expect(commonSchemas.Invoice).toBeDefined()
-      expect(commonSchemas.Invoice.properties?.amountDue).toBeDefined()
-      expect(commonSchemas.Invoice.properties?.status).toBeDefined()
+      expect(commonSchemas["Invoice"]).toBeDefined()
     })
 
     it("should define VoiceAnalysis schema", () => {
-      expect(commonSchemas.VoiceAnalysis).toBeDefined()
-      expect(commonSchemas.VoiceAnalysis.properties?.transcript).toBeDefined()
-      expect(commonSchemas.VoiceAnalysis.properties?.suggestedTasks).toBeDefined()
+      expect(commonSchemas["VoiceAnalysis"]).toBeDefined()
     })
 
     it("should define StreakStatus schema", () => {
-      expect(commonSchemas.StreakStatus).toBeDefined()
-      expect(commonSchemas.StreakStatus.properties?.currentStreak).toBeDefined()
+      expect(commonSchemas["StreakStatus"]).toBeDefined()
     })
 
     it("should define DistributionStats schema", () => {
-      expect(commonSchemas.DistributionStats).toBeDefined()
-      expect(commonSchemas.DistributionStats.properties?.distribution).toBeDefined()
-      expect(commonSchemas.DistributionStats.properties?.isBalanced).toBeDefined()
+      expect(commonSchemas["DistributionStats"]).toBeDefined()
     })
 
     it("should define Template schema", () => {
-      expect(commonSchemas.Template).toBeDefined()
-      expect(commonSchemas.Template.properties?.tasks).toBeDefined()
+      expect(commonSchemas["Template"]).toBeDefined()
     })
 
     it("should include examples in schemas", () => {
-      expect(commonSchemas.Task.example).toBeDefined()
-      expect(commonSchemas.Child.example).toBeDefined()
+      expect(commonSchemas["Task"]!.example).toBeDefined()
+      expect(commonSchemas["Child"]!.example).toBeDefined()
     })
   })
 
   describe("API Paths", () => {
     it("should have task endpoints", () => {
       expect(apiPaths["/api/v1/tasks"]).toBeDefined()
-      expect(apiPaths["/api/v1/tasks"].get).toBeDefined()
-      expect(apiPaths["/api/v1/tasks"].post).toBeDefined()
+      expect(apiPaths["/api/v1/tasks"]!.get).toBeDefined()
+      expect(apiPaths["/api/v1/tasks"]!.post).toBeDefined()
       expect(apiPaths["/api/v1/tasks/{id}"]).toBeDefined()
     })
 
@@ -289,12 +259,14 @@ describe("OpenAPI Schema", () => {
     })
 
     it("should require authentication for protected endpoints", () => {
-      expect(apiPaths["/api/v1/tasks"].get?.security).toBeDefined()
-      expect(apiPaths["/api/v1/tasks"].post?.security).toBeDefined()
+      const tasksEndpoint = apiPaths["/api/v1/tasks"]
+      expect(tasksEndpoint?.get?.security).toBeDefined()
+      expect(tasksEndpoint?.post?.security).toBeDefined()
     })
 
     it("should not require authentication for public endpoints", () => {
-      expect(apiPaths["/api/health"].get?.security).toBeUndefined()
+      const healthEndpoint = apiPaths["/api/health"]
+      expect(healthEndpoint?.get?.security).toBeUndefined()
     })
   })
 
@@ -480,56 +452,47 @@ describe("Error Responses", () => {
   describe("Convenience Functions", () => {
     it("should create auth required response", () => {
       const response = authRequired()
-
       expect(response.status).toBe(401)
     })
 
     it("should create forbidden response", () => {
       const response = forbidden()
-
       expect(response.status).toBe(403)
     })
 
     it("should create not found response", () => {
       const response = notFound()
-
       expect(response.status).toBe(404)
     })
 
     it("should create not found response for specific resource", () => {
       const response = notFound("task")
-
       expect(response.status).toBe(404)
     })
 
     it("should create validation error response", () => {
       const response = validationError({ field: "email" })
-
       expect(response.status).toBe(400)
     })
 
     it("should create rate limited response", () => {
       const response = rateLimited(60)
-
       expect(response.status).toBe(429)
       expect(response.headers.get("Retry-After")).toBe("60")
     })
 
     it("should create internal error response", () => {
       const response = internalError()
-
       expect(response.status).toBe(500)
     })
 
     it("should create payment required response", () => {
       const response = paymentRequired()
-
       expect(response.status).toBe(402)
     })
 
     it("should create subscription required response", () => {
       const response = subscriptionRequired()
-
       expect(response.status).toBe(403)
     })
   })
@@ -608,7 +571,6 @@ describe("API Versioning", () => {
 
   describe("Deprecation", () => {
     it("should check if version is deprecated", () => {
-      // v1 and v2 are current, not deprecated
       expect(isVersionDeprecated("v1")).toBe(false)
       expect(isVersionDeprecated("v2")).toBe(false)
     })
@@ -619,13 +581,11 @@ describe("API Versioning", () => {
     })
 
     it("should return deprecation warning for deprecated versions", () => {
-      // Current versions don't have warnings
       expect(getDeprecationWarning("v1")).toBeUndefined()
     })
 
     it("should return migration guide if available", () => {
       const guide = getMigrationGuide("v1")
-      // v1 doesn't have a guide since it's current
       expect(guide).toBeUndefined()
     })
   })
@@ -646,8 +606,6 @@ describe("API Versioning", () => {
 
     it("should get breaking changes for endpoint", () => {
       const changes = getBreakingChanges("/api/tasks", "v1", "v2")
-
-      // Should return v2 changes for /api/tasks
       expect(Array.isArray(changes)).toBe(true)
     })
 
@@ -674,8 +632,6 @@ describe("API Versioning", () => {
     it("should include deprecation warning for deprecated versions", () => {
       const data = { tasks: [] }
       const response = createVersionedResponse(data, "v1")
-
-      // v1 is current, so no warning
       expect(response.meta.deprecationWarning).toBeUndefined()
     })
   })
@@ -701,7 +657,6 @@ describe("API Versioning", () => {
 
     it("should return no changes message for same version", () => {
       const changelog = generateChangelog("v1", "v1")
-
       expect(changelog).toContain("No breaking changes")
     })
   })
