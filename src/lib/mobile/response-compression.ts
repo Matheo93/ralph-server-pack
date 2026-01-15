@@ -200,7 +200,9 @@ export function createCompressedResponse<T>(
     headers["Vary"] = "Accept-Encoding"
   }
 
-  return new NextResponse(result.body, { headers })
+  // Convert Buffer to Uint8Array for NextResponse
+  const body = new Uint8Array(result.body)
+  return new NextResponse(body, { headers })
 }
 
 // =============================================================================

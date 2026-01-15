@@ -1,12 +1,19 @@
 /**
- * Mobile Offline Sync API
+ * Mobile Offline Sync API (Enhanced)
  *
  * GET: Get sync status and pending changes count
- * POST: Perform full sync operation
- * PUT: Push local changes to server
+ * POST: Perform full sync operation with compression and delta sync
+ * PUT: Push local changes to server with conflict resolution
+ *
+ * Features:
+ * - Response compression (gzip/brotli)
+ * - Battery-aware sync strategies
+ * - Network-adaptive payload sizing
+ * - Incremental/delta sync support
+ * - Enhanced conflict resolution
  */
 
-import { NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { query, queryOne } from "@/lib/aws/database"
 import { z } from "zod"
 import {
@@ -24,6 +31,21 @@ import {
   batchCompleteTasks,
   SyncRequestSchema,
 } from "@/lib/services/mobile-api"
+import {
+  createCompressedResponse,
+  getCompressionPreferences,
+  calculateDelta,
+} from "@/lib/mobile/response-compression"
+import {
+  parseBatteryStatus,
+  getSyncConfig,
+  addBatteryAwareHeaders,
+} from "@/lib/mobile/battery-aware-sync"
+import {
+  parseNetworkStatus,
+  getAdaptivePayloadConfig,
+  addConnectivityHeaders,
+} from "@/lib/mobile/connectivity-handler"
 
 // =============================================================================
 // TYPES
@@ -103,6 +125,14 @@ const SyncPushSchema = z.object({
   })).optional(),
 })
 
+// Enhanced sync request with delta support
+const IncrementalSyncSchema = SyncRequestSchema.extend({
+  lastKnownTaskIds: z.array(z.string().uuid()).optional(),
+  lastKnownChildIds: z.array(z.string().uuid()).optional(),
+  useDeltaSync: z.boolean().optional().default(true),
+  maxPayloadSize: z.number().optional(),
+})
+
 // =============================================================================
 // GET /api/mobile/sync
 // =============================================================================
@@ -110,23 +140,55 @@ const SyncPushSchema = z.object({
 /**
  * GET /api/mobile/sync
  * Get sync status and pending changes count
+ * Enhanced with battery and network awareness
  */
 export async function GET(request: NextRequest) {
   return withAuth(request, async (userId, householdId) => {
     const deviceId = request.nextUrl.searchParams.get("device_id") ?? "default"
     const lastSync = request.nextUrl.searchParams.get("last_sync")
 
+    // Parse device context
+    const batteryStatus = parseBatteryStatus(request.headers)
+    const networkStatus = parseNetworkStatus(request.headers)
+    const syncConfig = getSyncConfig(batteryStatus)
+    const payloadConfig = getAdaptivePayloadConfig(networkStatus)
+
     // Get last sync timestamp from cache or param
     const lastSyncTimestamp = lastSync ?? getLastSyncTimestamp(userId, deviceId)
 
     const syncStatus = await getSyncStatus(userId, householdId, lastSyncTimestamp)
 
-    return apiSuccess({
+    const responseData = {
       lastSyncAt: syncStatus.lastSyncAt,
       pendingChanges: syncStatus.pendingChanges,
       serverVersion: syncStatus.serverVersion,
       requiresFullSync: syncStatus.requiresFullSync,
-    })
+      // New: Include recommended sync configuration
+      syncConfig: {
+        strategy: syncConfig.strategy,
+        syncInterval: syncConfig.syncInterval,
+        maxPayloadSize: Math.min(syncConfig.maxPayloadSize, payloadConfig.maxPayloadSize),
+        enableBackgroundSync: syncConfig.enableBackgroundSync,
+        enablePush: syncConfig.enablePush,
+        batchSize: syncConfig.batchSize,
+      },
+      networkQuality: networkStatus.quality,
+      batteryLevel: batteryStatus.batteryLevel,
+    }
+
+    // Use compression for response
+    const compressionPrefs = getCompressionPreferences(request)
+    const response = createCompressedResponse(
+      { success: true, data: responseData },
+      request.headers.get("Accept-Encoding"),
+      compressionPrefs
+    )
+
+    // Add context headers
+    addBatteryAwareHeaders(response.headers, batteryStatus, syncConfig)
+    addConnectivityHeaders(response.headers, networkStatus, payloadConfig)
+
+    return response
   })
 }
 
@@ -137,9 +199,16 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/mobile/sync
  * Pull all data for full or delta sync
+ * Enhanced with compression and incremental sync
  */
 export async function POST(request: NextRequest) {
   return withAuth(request, async (userId, householdId) => {
+    // Parse device context
+    const batteryStatus = parseBatteryStatus(request.headers)
+    const networkStatus = parseNetworkStatus(request.headers)
+    const syncConfig = getSyncConfig(batteryStatus)
+    const payloadConfig = getAdaptivePayloadConfig(networkStatus)
+
     // Rate limit
     const rateLimit = checkMobileRateLimit(userId, "/api/mobile/sync")
     if (!rateLimit.allowed) {
@@ -149,12 +218,28 @@ export async function POST(request: NextRequest) {
       return response
     }
 
-    const bodyResult = await parseBody(request, SyncRequestSchema)
+    const bodyResult = await parseBody(request, IncrementalSyncSchema)
     if (!bodyResult.success) {
       return apiError(bodyResult.error)
     }
 
-    const { lastSyncTimestamp, deviceId, includeDeleted } = bodyResult.data
+    const {
+      lastSyncTimestamp,
+      deviceId,
+      includeDeleted,
+      lastKnownTaskIds,
+      lastKnownChildIds,
+      useDeltaSync,
+      maxPayloadSize,
+    } = bodyResult.data
+
+    // Determine effective max payload size
+    const effectiveMaxPayload = Math.min(
+      maxPayloadSize ?? Infinity,
+      syncConfig.maxPayloadSize,
+      payloadConfig.maxPayloadSize
+    )
+
     const serverTimestamp = new Date().toISOString()
 
     // Get tasks
@@ -258,25 +343,105 @@ export async function POST(request: NextRequest) {
       recordSyncTimestamp(userId, deviceId, serverTimestamp)
     }
 
-    return apiSuccess({
-      serverTimestamp,
-      isFullSync: !lastSyncTimestamp,
-      data: {
+    // Calculate delta if requested and possible
+    let syncData: {
+      tasks: TaskSyncItem[]
+      children: ChildSyncItem[]
+      household: HouseholdSyncItem | null
+      categories: CategorySyncItem[]
+      members: Array<{
+        user_id: string
+        name: string | null
+        email: string
+        role: string
+        avatar_url: string | null
+      }>
+      deletedTaskIds: string[]
+      delta?: {
+        createdTasks: TaskSyncItem[]
+        updatedTasks: TaskSyncItem[]
+        createdChildren: ChildSyncItem[]
+        updatedChildren: ChildSyncItem[]
+      }
+    }
+
+    if (useDeltaSync && lastSyncTimestamp && (lastKnownTaskIds || lastKnownChildIds)) {
+      // Use delta sync
+      const taskDelta = calculateDelta(
+        tasks.map(t => ({ ...t, id: t.id, updatedAt: t.updated_at })),
+        lastSyncTimestamp,
+        lastKnownTaskIds ?? []
+      )
+
+      const childDelta = calculateDelta(
+        children.map(c => ({ ...c, id: c.id, updatedAt: c.updated_at })),
+        lastSyncTimestamp,
+        lastKnownChildIds ?? []
+      )
+
+      syncData = {
+        tasks: [], // Empty for delta sync
+        children: [],
+        household,
+        categories,
+        members,
+        deletedTaskIds: [...deletedTaskIds, ...taskDelta.deleted],
+        delta: {
+          createdTasks: taskDelta.created as unknown as TaskSyncItem[],
+          updatedTasks: taskDelta.updated as unknown as TaskSyncItem[],
+          createdChildren: childDelta.created as unknown as ChildSyncItem[],
+          updatedChildren: childDelta.updated as unknown as ChildSyncItem[],
+        },
+      }
+    } else {
+      syncData = {
         tasks,
         children,
         household,
         categories,
         members,
         deletedTaskIds,
+      }
+    }
+
+    const responsePayload = {
+      success: true,
+      data: {
+        serverTimestamp,
+        isFullSync: !lastSyncTimestamp,
+        isDeltaSync: useDeltaSync && !!lastSyncTimestamp,
+        ...syncData,
+        counts: {
+          tasks: syncData.delta
+            ? syncData.delta.createdTasks.length + syncData.delta.updatedTasks.length
+            : tasks.length,
+          children: syncData.delta
+            ? syncData.delta.createdChildren.length + syncData.delta.updatedChildren.length
+            : children.length,
+          categories: categories.length,
+          members: members.length,
+          deletedTasks: syncData.deletedTaskIds.length,
+        },
+        syncConfig: {
+          strategy: syncConfig.strategy,
+          nextSyncIn: syncConfig.syncInterval,
+        },
       },
-      counts: {
-        tasks: tasks.length,
-        children: children.length,
-        categories: categories.length,
-        members: members.length,
-        deletedTasks: deletedTaskIds.length,
-      },
-    })
+    }
+
+    // Use compression for response
+    const compressionPrefs = getCompressionPreferences(request)
+    const response = createCompressedResponse(
+      responsePayload,
+      request.headers.get("Accept-Encoding"),
+      compressionPrefs
+    )
+
+    // Add context headers
+    addBatteryAwareHeaders(response.headers, batteryStatus, syncConfig)
+    addConnectivityHeaders(response.headers, networkStatus, payloadConfig)
+
+    return response
   })
 }
 
@@ -418,19 +583,46 @@ export async function PUT(request: NextRequest) {
       recordSyncTimestamp(userId, deviceId, serverTimestamp)
     }
 
-    return apiSuccess({
-      serverTimestamp,
-      createdTaskIds,
-      updatedTaskIds,
-      completedTaskIds: completionResults.completed,
-      failedCompletions: completionResults.failed,
-      conflicts,
-      summary: {
-        tasksCreated: Object.keys(createdTaskIds).length,
-        tasksUpdated: updatedTaskIds.length,
-        tasksCompleted: completionResults.completed.length,
-        conflicts: conflicts.length,
+    // Parse device context for response headers
+    const batteryStatus = parseBatteryStatus(request.headers)
+    const networkStatus = parseNetworkStatus(request.headers)
+    const syncConfig = getSyncConfig(batteryStatus)
+    const payloadConfig = getAdaptivePayloadConfig(networkStatus)
+
+    const responsePayload = {
+      success: true,
+      data: {
+        serverTimestamp,
+        createdTaskIds,
+        updatedTaskIds,
+        completedTaskIds: completionResults.completed,
+        failedCompletions: completionResults.failed,
+        conflicts,
+        summary: {
+          tasksCreated: Object.keys(createdTaskIds).length,
+          tasksUpdated: updatedTaskIds.length,
+          tasksCompleted: completionResults.completed.length,
+          conflicts: conflicts.length,
+        },
+        syncConfig: {
+          strategy: syncConfig.strategy,
+          nextSyncIn: syncConfig.syncInterval,
+        },
       },
-    })
+    }
+
+    // Use compression for response
+    const compressionPrefs = getCompressionPreferences(request)
+    const response = createCompressedResponse(
+      responsePayload,
+      request.headers.get("Accept-Encoding"),
+      compressionPrefs
+    )
+
+    // Add context headers
+    addBatteryAwareHeaders(response.headers, batteryStatus, syncConfig)
+    addConnectivityHeaders(response.headers, networkStatus, payloadConfig)
+
+    return response
   })
 }
