@@ -20,32 +20,32 @@ Implémenter la fonctionnalité vocale (dictée → tâche automatique) et le ca
 
 ---
 
-## Phase 1: Voice Input Pipeline
+## Phase 1: Voice Input Pipeline ✅
 
-- [ ] 1.1 Créer `src/lib/voice/transcription.ts`:
+- [x] 1.1 Créer `src/lib/voice/transcription.ts`:
   - Intégration Whisper API (OpenAI)
   - Fallback Deepgram (si configuré)
   - Normalisation du texte
   - Gestion des langues (fr, en)
 
-- [ ] 1.2 Créer `src/lib/voice/semantic-analysis.ts`:
+- [x] 1.2 Créer `src/lib/voice/semantic-analysis.ts`:
   - Analyse sémantique LLM (GPT-4/Claude)
   - Extraction des champs: action, enfant, date, catégorie, urgence
   - Scoring de confiance
   - Prompt optimisé pour tâches parentales
 
-- [ ] 1.3 Créer API endpoints vocaux:
+- [x] 1.3 Créer API endpoints vocaux:
   - `src/app/api/voice/transcribe/route.ts` - STT
   - `src/app/api/voice/analyze/route.ts` - Analyse sémantique
   - `src/app/api/voice/create-task/route.ts` - Pipeline complet
 
-- [ ] 1.4 Créer composant VoiceButton:
+- [x] 1.4 Créer composant VoiceButton:
   - `src/components/voice/VoiceButton.tsx`
   - `src/components/voice/VoiceRecorder.tsx`
   - Feedback visuel (recording, processing)
   - Hook `useVoiceRecording`
 
-- [ ] 1.5 Tests voice pipeline (≥15 tests)
+- [x] 1.5 Tests voice pipeline (30 tests)
 
 ---
 
