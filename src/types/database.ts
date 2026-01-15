@@ -606,6 +606,7 @@ export type Database = {
           id: string
           user_id: string
           task_id: string | null
+          household_id: string | null
           type: string
           title: string
           body: string | null
@@ -613,12 +614,15 @@ export type Database = {
           is_sent: boolean
           scheduled_for: string | null
           sent_at: string | null
+          is_aggregated: boolean
+          aggregation_key: string | null
           created_at: string
         }
         Insert: {
           id?: string
           user_id: string
           task_id?: string | null
+          household_id?: string | null
           type: string
           title: string
           body?: string | null
@@ -626,12 +630,15 @@ export type Database = {
           is_sent?: boolean
           scheduled_for?: string | null
           sent_at?: string | null
+          is_aggregated?: boolean
+          aggregation_key?: string | null
           created_at?: string
         }
         Update: {
           id?: string
           user_id?: string
           task_id?: string | null
+          household_id?: string | null
           type?: string
           title?: string
           body?: string | null
@@ -639,6 +646,8 @@ export type Database = {
           is_sent?: boolean
           scheduled_for?: string | null
           sent_at?: string | null
+          is_aggregated?: boolean
+          aggregation_key?: string | null
           created_at?: string
         }
         Relationships: [
@@ -651,6 +660,48 @@ export type Database = {
           },
           {
             foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      device_tokens: {
+        Row: {
+          id: string
+          user_id: string
+          token: string
+          platform: string
+          last_used: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          token: string
+          platform?: string
+          last_used?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          token?: string
+          platform?: string
+          last_used?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_tokens_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"

@@ -313,9 +313,142 @@ export async function sendImbalanceAlertPush(
     title,
     body,
     {
-      type: "imbalance_alert",
+      type: "charge_alert",
       alertLevel,
       link: "/charge",
     }
   )
+}
+
+/**
+ * Send push notification for streak at risk
+ */
+export async function sendStreakRiskPush(
+  token: string,
+  currentStreak: number,
+  uncompletedTaskTitle: string,
+  taskId: string
+): Promise<PushResult> {
+  const title = currentStreak >= 7
+    ? `🔥 Série de ${currentStreak} jours en danger !`
+    : `Attention: série de ${currentStreak} jours`
+
+  const body = `Complétez "${uncompletedTaskTitle}" avant minuit pour maintenir votre série !`
+
+  return sendPushNotification(
+    token,
+    title,
+    body,
+    {
+      type: "streak_risk",
+      currentStreak: String(currentStreak),
+      taskId,
+      link: `/tasks/${taskId}`,
+    }
+  )
+}
+
+/**
+ * Notification type enum for type-safe notification handling
+ */
+export type NotificationType =
+  | "task_reminder"
+  | "task_assignment"
+  | "charge_alert"
+  | "streak_risk"
+  | "daily_digest"
+  | "deadline_warning"
+  | "task_completed"
+  | "milestone"
+
+/**
+ * Send push notification for task completion (visible to partner)
+ */
+export async function sendTaskCompletedPush(
+  token: string,
+  taskTitle: string,
+  completedBy: string,
+  taskId: string
+): Promise<PushResult> {
+  return sendPushNotification(
+    token,
+    "Tâche terminée ✓",
+    `${completedBy} a complété: ${taskTitle}`,
+    {
+      type: "task_completed",
+      taskId,
+      link: `/tasks/${taskId}`,
+    }
+  )
+}
+
+/**
+ * Send push notification for milestone/celebration
+ */
+export async function sendMilestonePush(
+  token: string,
+  childName: string,
+  milestoneTitle: string,
+  milestonId: string
+): Promise<PushResult> {
+  return sendPushNotification(
+    token,
+    `🎉 ${childName}`,
+    milestoneTitle,
+    {
+      type: "milestone",
+      milestonId,
+      link: "/children",
+    }
+  )
+}
+
+/**
+ * Send deadline warning push (H-3 or H-1)
+ */
+export async function sendDeadlineWarningPush(
+  token: string,
+  taskTitle: string,
+  taskId: string,
+  hoursLeft: number
+): Promise<PushResult> {
+  const title = hoursLeft <= 1
+    ? "⚠️ Dernière heure !"
+    : `⏰ Plus que ${hoursLeft}h`
+
+  const body = `"${taskTitle}" arrive à échéance`
+
+  return sendPushNotification(
+    token,
+    title,
+    body,
+    {
+      type: "deadline_warning",
+      taskId,
+      hoursLeft: String(hoursLeft),
+      link: `/tasks/${taskId}`,
+    }
+  )
+}
+
+/**
+ * Send batch notifications to multiple tokens efficiently
+ * Groups by notification type for better analytics
+ */
+export async function sendBatchNotifications(
+  notifications: Array<{
+    tokens: string[]
+    notification: NotificationPayload
+    data?: DataPayload
+  }>
+): Promise<MultiplePushResult[]> {
+  const results: MultiplePushResult[] = []
+
+  for (const { tokens, notification, data } of notifications) {
+    if (tokens.length === 0) continue
+    const result = await sendMultiplePush(tokens, notification, data)
+    results.push(result)
+  }
+
+  return results
 }
