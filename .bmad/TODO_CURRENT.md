@@ -15,8 +15,8 @@ Implémenter la fonctionnalité vocale (dictée → tâche automatique) et le ca
 ---
 
 ## PRÉ-REQUIS
-- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [ ] 0.2 Vérifier que les tests passent: `bun test src/tests/`
+- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [x] 0.2 Vérifier que les tests passent: `bun test src/tests/`
 
 ---
 
@@ -77,58 +77,74 @@ Implémenter la fonctionnalité vocale (dictée → tâche automatique) et le ca
 
 ---
 
-## Phase 3: Load Distribution Engine
+## Phase 3: Load Distribution Engine ✅
 
-- [ ] 3.1 Créer `src/lib/distribution/calculator.ts`:
+- [x] 3.1 Créer `src/lib/distribution/calculator.ts`:
   - Calcul charge par parent
   - Poids par type de tâche
   - Score hebdomadaire
 
-- [ ] 3.2 Créer `src/lib/distribution/assigner.ts`:
+- [x] 3.2 Créer `src/lib/distribution/assigner.ts`:
   - Assignation automatique au parent le moins chargé
   - Rotation si égalité
   - Gestion des exclusions temporaires
 
-- [ ] 3.3 Créer API endpoints distribution:
+- [x] 3.3 Créer API endpoints distribution:
   - `src/app/api/distribution/stats/route.ts`
   - `src/app/api/distribution/balance/route.ts`
 
-- [ ] 3.4 Créer composants distribution:
+- [x] 3.4 Créer composants distribution:
   - `src/components/distribution/LoadChart.tsx`
   - `src/components/distribution/BalanceAlert.tsx`
   - `src/components/distribution/WeeklyStats.tsx`
 
-- [ ] 3.5 Tests distribution (≥10 tests)
+- [x] 3.5 Tests distribution (34 tests)
 
 ---
 
-## Phase 4: Streak System
+## Phase 4: Streak System ✅
 
-- [ ] 4.1 Créer `src/lib/streak/calculator.ts`:
+- [x] 4.1 Créer `src/lib/streak/calculator.ts`:
   - Calcul streak quotidien
   - Règles de rupture
   - Joker premium
 
-- [ ] 4.2 Créer API endpoints streak:
+- [x] 4.2 Créer API endpoints streak:
   - `src/app/api/streak/status/route.ts`
   - `src/app/api/streak/validate/route.ts`
 
-- [ ] 4.3 Créer composants streak:
+- [x] 4.3 Créer composants streak:
   - `src/components/streak/StreakCounter.tsx`
   - `src/components/streak/StreakAnimation.tsx`
 
-- [ ] 4.4 Tests streak (≥5 tests)
+- [x] 4.4 Tests streak (27 tests)
 
 ---
 
-## Definition of Done Sprint 16
-- [ ] Voice pipeline fonctionnel (dictée → tâche)
-- [ ] Catalogue tâches par âge/période
-- [ ] Moteur de répartition opérationnel
-- [ ] Streak system implémenté
-- [ ] Build production OK: `bunx tsc --noEmit && bun run build`
-- [ ] Tous les tests passent: `bun test src/tests/`
-- [ ] ≥45 nouveaux tests
+## Definition of Done Sprint 16 ✅
+- [x] Voice pipeline fonctionnel (dictée → tâche)
+- [x] Catalogue tâches par âge/période
+- [x] Moteur de répartition opérationnel
+- [x] Streak system implémenté
+- [x] Build production OK: `bunx tsc --noEmit && bun run build`
+- [x] Tous les tests passent: `bun test src/tests/`
+- [x] ≥45 nouveaux tests (129+ tests: 30 voice + 38 catalog + 34 distribution + 27 streak)
+
+---
+
+## Sprint 16 COMPLETED ✅
+
+**Résumé:**
+- 4 phases complétées
+- 129+ nouveaux tests ajoutés
+- Build production OK
+- 1435 tests totaux passent
+
+**Files créés:**
+- Voice: useVoiceRecording hook, VoiceRecorder, VoiceButton, API endpoints
+- Catalog: 50+ task templates, generator, browser components
+- Distribution: calculator, assigner, LoadChart, BalanceAlert, WeeklyStats
+- Streak: calculator with milestones/joker, StreakCounter, StreakAnimation
 
 ---
 
