@@ -232,6 +232,7 @@ describe("Speech-to-Text", () => {
         audioUrl: "https://example.com/audio/123.webm",
         language: "fr",
         enableWordTimings: true,
+        enableSegments: true,
       }
       const updated = startTranscription(store, request)
       expect(updated.pendingRequests.has("audio_123")).toBe(true)
@@ -243,6 +244,7 @@ describe("Speech-to-Text", () => {
         audioUrl: "https://example.com/audio/123.webm",
         language: "fr",
         enableWordTimings: true,
+        enableSegments: true,
       }
       let updated = startTranscription(store, request)
 
@@ -254,7 +256,7 @@ describe("Speech-to-Text", () => {
         confidence: 0.95,
         duration: 3.5,
         segments: [
-          { id: "seg_1", text: "Emmener Marie à la danse demain", start: 0, end: 3.5, confidence: 0.95 },
+          { id: 1, text: "Emmener Marie à la danse demain", start: 0, end: 3.5, confidence: 0.95 },
         ],
         provider: "whisper",
         processedAt: new Date(),
@@ -347,7 +349,7 @@ describe("Speech-to-Text", () => {
         language: "fr",
         confidence: 0.92,
         duration: 5.0,
-        segments: [{ id: "seg_1", text: "Test transcription with enough words for assessment", start: 0, end: 5, confidence: 0.92 }],
+        segments: [{ id: 1, text: "Test transcription with enough words for assessment", start: 0, end: 5, confidence: 0.92 }],
         provider: "whisper",
         processedAt: new Date(),
         processingTimeMs: 500,
@@ -365,7 +367,7 @@ describe("Speech-to-Text", () => {
         language: "fr",
         confidence: 0.92,
         duration: 2.0,
-        segments: [{ id: "seg_1", text: "Clear transcription with good content", start: 0, end: 2, confidence: 0.92 }],
+        segments: [{ id: 1, text: "Clear transcription with good content", start: 0, end: 2, confidence: 0.92 }],
         provider: "whisper",
         processedAt: new Date(),
         processingTimeMs: 300,
