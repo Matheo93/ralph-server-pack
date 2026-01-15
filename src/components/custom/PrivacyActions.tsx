@@ -32,7 +32,7 @@ export function PrivacyActions({ action }: PrivacyActionsProps) {
     setError(null)
 
     try {
-      const response = await fetch("/api/export/data", {
+      const response = await fetch("/api/gdpr/export", {
         method: "GET",
       })
 
@@ -73,12 +73,15 @@ export function PrivacyActions({ action }: PrivacyActionsProps) {
     setError(null)
 
     try {
-      const response = await fetch("/api/account/delete", {
-        method: "DELETE",
+      const response = await fetch("/api/gdpr/delete", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ confirmation: confirmationText }),
+        body: JSON.stringify({
+          confirmation: "DELETE_MY_DATA",
+          understand_irreversible: true,
+        }),
       })
 
       if (!response.ok) {
