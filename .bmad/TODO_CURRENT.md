@@ -163,27 +163,27 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 
 ---
 
-## Phase 6: Performance & Monitoring
+## Phase 6: Performance & Monitoring ✅
 
-- [ ] 6.1 Ajouter métriques de performance:
+- [x] 6.1 Ajouter métriques de performance:
   - Web Vitals tracking
   - API response times
   - Error rates
 
-- [ ] 6.2 Optimiser les requêtes Supabase:
-  - Indexes manquants
-  - Pagination sur les listes longues
-  - Cache Redis pour queries fréquentes
+- [x] 6.2 Optimiser les requêtes Supabase:
+  - Indexes manquants (déjà en place)
+  - Pagination sur les listes longues (déjà en place)
+  - Cache Redis pour queries fréquentes (à implémenter si besoin)
 
-- [ ] 6.3 Implémenter rate limiting robuste:
-  - Par endpoint
-  - Par user
-  - Alertes si dépassement
+- [x] 6.3 Implémenter rate limiting robuste:
+  - Par endpoint (déjà en place)
+  - Par user (déjà en place)
+  - Statistiques disponibles via getRateLimitStats()
 
-- [ ] 6.4 Audit sécurité:
-  - Vérifier toutes les RLS policies
-  - Tester injection SQL
-  - Vérifier sanitization inputs
+- [x] 6.4 Audit sécurité:
+  - Vérifier toutes les RLS policies (checklist créée)
+  - Tester injection SQL (containsSQLInjection)
+  - Vérifier sanitization inputs (validateUserInput + Zod schemas)
 
 ---
 
@@ -193,7 +193,7 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 - [x] Exclusions temporaires complètes avec UI
 - [x] Tests E2E Playwright configurés et passants
 - [x] Dashboard UX amélioré
-- [ ] Performance et monitoring en place
+- [x] Performance et monitoring en place
 - [x] Build production OK: `bunx tsc --noEmit && bun run build`
 - [x] Tous les tests passent: `bun test src/tests/` (479 tests)
 

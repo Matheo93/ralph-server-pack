@@ -55,7 +55,7 @@ describe("DashboardToday Component Logic", () => {
         return 0
       })
 
-      expect(sorted[0].id).toBe("2")
+      expect(sorted[0]!.id).toBe("2")
     })
 
     it("sorts by priority within non-critical tasks", () => {
@@ -71,9 +71,9 @@ describe("DashboardToday Component Logic", () => {
         return priorityA - priorityB
       })
 
-      expect(sorted[0].id).toBe("2") // high
-      expect(sorted[1].id).toBe("3") // medium
-      expect(sorted[2].id).toBe("1") // low
+      expect(sorted[0]!.id).toBe("2") // high
+      expect(sorted[1]!.id).toBe("3") // medium
+      expect(sorted[2]!.id).toBe("1") // low
     })
 
     it("sorts by deadline (closest first)", () => {
@@ -100,9 +100,9 @@ describe("DashboardToday Component Logic", () => {
         return 0
       })
 
-      expect(sorted[0].id).toBe("2")
-      expect(sorted[1].id).toBe("3")
-      expect(sorted[2].id).toBe("1")
+      expect(sorted[0]!.id).toBe("2")
+      expect(sorted[1]!.id).toBe("3")
+      expect(sorted[2]!.id).toBe("1")
     })
 
     it("puts tasks without deadline last", () => {
@@ -121,8 +121,8 @@ describe("DashboardToday Component Logic", () => {
         return 0
       })
 
-      expect(sorted[0].id).toBe("2")
-      expect(sorted[1].id).toBe("1")
+      expect(sorted[0]!.id).toBe("2")
+      expect(sorted[1]!.id).toBe("1")
     })
   })
 
@@ -182,9 +182,9 @@ describe("DashboardToday Component Logic", () => {
         return 0
       })
 
-      expect(sorted[0].childName).toBe("Alice")
-      expect(sorted[1].childName).toBe("Bob")
-      expect(sorted[2].childId).toBeNull()
+      expect(sorted[0]!.childName).toBe("Alice")
+      expect(sorted[1]!.childName).toBe("Bob")
+      expect(sorted[2]!.childId).toBeNull()
     })
   })
 
@@ -209,7 +209,7 @@ describe("DashboardToday Component Logic", () => {
       })
 
       expect(overdue.length).toBe(1)
-      expect(overdue[0].id).toBe("1")
+      expect(overdue[0]!.id).toBe("1")
     })
   })
 })
@@ -337,8 +337,8 @@ describe("FirstTimeGuide Component Logic", () => {
     ]
 
     expect(GUIDE_STEPS.length).toBe(5)
-    expect(GUIDE_STEPS[0].id).toBe("welcome")
-    expect(GUIDE_STEPS[4].id).toBe("settings")
+    expect(GUIDE_STEPS[0]!.id).toBe("welcome")
+    expect(GUIDE_STEPS[4]!.id).toBe("settings")
   })
 
   it("navigates through steps correctly", () => {
