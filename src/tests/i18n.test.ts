@@ -12,7 +12,9 @@ import enMessages from "@/messages/en.json"
 // TYPE DEFINITIONS
 // =============================================================================
 
-type MessageRecord = Record<string, string | MessageRecord>
+interface MessageRecord {
+  [key: string]: string | MessageRecord
+}
 
 // =============================================================================
 // HELPER FUNCTIONS
