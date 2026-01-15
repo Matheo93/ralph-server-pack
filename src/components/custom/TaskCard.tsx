@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useCallback, memo } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { TaskPriorityBadge } from "./TaskPriorityBadge"
 import { TaskCategoryIcon } from "./TaskCategoryIcon"
 import { completeTask, cancelTask, deleteTask, restoreTask } from "@/lib/actions/tasks"
-import { scaleIn, fadeIn, durations, easings } from "@/lib/animations"
+import { scaleIn, durations } from "@/lib/animations"
 import type { TaskListItem } from "@/types/task"
 import { cn } from "@/lib/utils/index"
 
@@ -57,35 +57,47 @@ function isOverdue(deadline: string | null): boolean {
   return date < today
 }
 
-export function TaskCard({ task, onPostpone }: TaskCardProps) {
+function TaskCardInner({ task, onPostpone }: TaskCardProps) {
   const [isPending, startTransition] = useTransition()
   const [showActions, setShowActions] = useState(false)
   const [justCompleted, setJustCompleted] = useState(false)
 
-  const handleComplete = () => {
+  const handleComplete = useCallback(() => {
     setJustCompleted(true)
     startTransition(async () => {
       await completeTask(task.id)
     })
-  }
+  }, [task.id])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     startTransition(async () => {
       await cancelTask(task.id)
     })
-  }
+  }, [task.id])
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     startTransition(async () => {
       await deleteTask(task.id)
     })
-  }
+  }, [task.id])
 
-  const handleRestore = () => {
+  const handleRestore = useCallback(() => {
     startTransition(async () => {
       await restoreTask(task.id)
     })
-  }
+  }, [task.id])
+
+  const handlePostpone = useCallback(() => {
+    onPostpone?.(task.id)
+  }, [onPostpone, task.id])
+
+  const handleToggleActions = useCallback(() => {
+    setShowActions((prev) => !prev)
+  }, [])
+
+  const handleAnimationComplete = useCallback(() => {
+    setJustCompleted(false)
+  }, [])
 
   const overdue = isOverdue(task.deadline)
   const isDone = task.status === "done"
@@ -97,7 +109,7 @@ export function TaskCard({ task, onPostpone }: TaskCardProps) {
         scale: [1, 1.02, 0.98, 1],
         transition: { duration: durations.slow }
       } : {}}
-      onAnimationComplete={() => setJustCompleted(false)}
+      onAnimationComplete={handleAnimationComplete}
     >
       <Card
         className={cn(
@@ -172,7 +184,7 @@ export function TaskCard({ task, onPostpone }: TaskCardProps) {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onPostpone(task.id)}
+                onClick={handlePostpone}
                 disabled={isPending}
               >
                 Reporter
@@ -181,7 +193,7 @@ export function TaskCard({ task, onPostpone }: TaskCardProps) {
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => setShowActions(!showActions)}
+              onClick={handleToggleActions}
               disabled={isPending}
             >
               Plus
@@ -246,3 +258,17 @@ export function TaskCard({ task, onPostpone }: TaskCardProps) {
     </motion.div>
   )
 }
+
+// Memoize TaskCard to prevent re-renders when parent updates but task hasn't changed
+export const TaskCard = memo(TaskCardInner, (prevProps, nextProps) => {
+  // Custom comparison: only re-render if task data or onPostpone reference changed
+  return (
+    prevProps.task.id === nextProps.task.id &&
+    prevProps.task.status === nextProps.task.status &&
+    prevProps.task.title === nextProps.task.title &&
+    prevProps.task.deadline === nextProps.task.deadline &&
+    prevProps.task.priority === nextProps.task.priority &&
+    prevProps.task.is_critical === nextProps.task.is_critical &&
+    prevProps.onPostpone === nextProps.onPostpone
+  )
+})

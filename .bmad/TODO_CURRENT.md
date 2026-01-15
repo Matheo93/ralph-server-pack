@@ -86,22 +86,22 @@ Polir l'application pour une expérience utilisateur de niveau production: anima
 
 ## Phase 4: Accessibilité (a11y)
 
-- [ ] 4.1 Audit et fix focus management:
+- [x] 4.1 Audit et fix focus management:
   - Focus visible sur tous les éléments interactifs
   - Focus trap dans les modals
   - Skip links pour navigation clavier
-- [ ] 4.2 Améliorer les labels ARIA:
+- [x] 4.2 Améliorer les labels ARIA:
   - aria-label sur les boutons icônes
   - aria-describedby pour les champs de formulaire
   - aria-live pour les notifications
-- [ ] 4.3 Améliorer le contraste couleurs:
+- [x] 4.3 Améliorer le contraste couleurs:
   - Vérifier ratio WCAG AA (4.5:1)
   - Mode high contrast
-- [ ] 4.4 Support clavier complet:
+- [x] 4.4 Support clavier complet:
   - Navigation dans TaskList avec flèches
   - Raccourcis clavier (n = nouvelle tâche, etc.)
   - Escape ferme les modals
-- [ ] 4.5 Tests a11y avec axe-core
+- [x] 4.5 Tests a11y avec axe-core
 
 ---
 

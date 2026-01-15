@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo, memo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils/index"
 
@@ -21,19 +22,34 @@ interface ChargeWeekChartProps {
 
 const COLORS = ["#3b82f6", "#ec4899", "#10b981", "#f59e0b"]
 
-export function ChargeWeekChart({ data, className }: ChargeWeekChartProps) {
-  const maxDayLoad = Math.max(...data.map((d) => d.totalLoad), 1)
+function ChargeWeekChartInner({ data, className }: ChargeWeekChartProps) {
+  // Memoize expensive calculations
+  const maxDayLoad = useMemo(
+    () => Math.max(...data.map((d) => d.totalLoad), 1),
+    [data]
+  )
 
-  // Get unique users from the data
-  const users = new Map<string, string>()
-  for (const day of data) {
-    for (const load of day.loads) {
-      if (!users.has(load.userId)) {
-        users.set(load.userId, load.userName)
+  // Memoize unique users extraction
+  const userList = useMemo(() => {
+    const users = new Map<string, string>()
+    for (const day of data) {
+      for (const load of day.loads) {
+        if (!users.has(load.userId)) {
+          users.set(load.userId, load.userName)
+        }
       }
     }
-  }
-  const userList = Array.from(users.entries())
+    return Array.from(users.entries())
+  }, [data])
+
+  // Memoize total week load
+  const totalWeekLoad = useMemo(
+    () => data.reduce((sum, d) => sum + d.totalLoad, 0),
+    [data]
+  )
+
+  // Memoize today's date string for comparison
+  const todayStr = useMemo(() => new Date().toDateString(), [])
 
   return (
     <Card className={cn(className)}>
@@ -58,8 +74,7 @@ export function ChargeWeekChart({ data, className }: ChargeWeekChartProps) {
         <div className="flex items-end gap-2 h-48">
           {data.map((day) => {
             const heightPercent = (day.totalLoad / maxDayLoad) * 100
-            const isToday =
-              new Date(day.date).toDateString() === new Date().toDateString()
+            const isToday = new Date(day.date).toDateString() === todayStr
 
             return (
               <div
@@ -124,7 +139,7 @@ export function ChargeWeekChart({ data, className }: ChargeWeekChartProps) {
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Total semaine</span>
             <span className="font-medium">
-              {data.reduce((sum, d) => sum + d.totalLoad, 0)} points
+              {totalWeekLoad} points
             </span>
           </div>
         </div>
@@ -132,3 +147,6 @@ export function ChargeWeekChart({ data, className }: ChargeWeekChartProps) {
     </Card>
   )
 }
+
+// Memoize to prevent re-renders when parent updates but data hasn't changed
+export const ChargeWeekChart = memo(ChargeWeekChartInner)

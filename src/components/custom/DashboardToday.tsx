@@ -1,8 +1,9 @@
 "use client"
 
+import { useMemo, memo } from "react"
 import { TaskCard } from "./TaskCard"
 import type { TaskListItem } from "@/types/task"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
 interface DashboardTodayProps {
@@ -10,10 +11,16 @@ interface DashboardTodayProps {
   onPostpone?: (taskId: string) => void
 }
 
-export function DashboardToday({ tasks, onPostpone }: DashboardTodayProps) {
-  const pendingTasks = tasks.filter((t) => t.status === "pending")
-  const criticalTasks = pendingTasks.filter((t) => t.is_critical)
-  const regularTasks = pendingTasks.filter((t) => !t.is_critical)
+function DashboardTodayInner({ tasks, onPostpone }: DashboardTodayProps) {
+  // Memoize filtered task lists to prevent recalculation on every render
+  const { pendingTasks, criticalTasks, regularTasks } = useMemo(() => {
+    const pending = tasks.filter((t) => t.status === "pending")
+    return {
+      pendingTasks: pending,
+      criticalTasks: pending.filter((t) => t.is_critical),
+      regularTasks: pending.filter((t) => !t.is_critical),
+    }
+  }, [tasks])
 
   if (pendingTasks.length === 0) {
     return (
@@ -73,3 +80,6 @@ export function DashboardToday({ tasks, onPostpone }: DashboardTodayProps) {
     </div>
   )
 }
+
+// Memoize to prevent re-renders when parent updates but tasks haven't changed
+export const DashboardToday = memo(DashboardTodayInner)

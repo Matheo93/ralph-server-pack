@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { TaskCard } from "./TaskCard"
 import { PostponeDialog } from "./PostponeDialog"
@@ -77,6 +77,21 @@ function formatGroupDate(dateStr: string): string {
 export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListProps) {
   const [postponeTaskId, setPostponeTaskId] = useState<string | null>(null)
 
+  // Memoize postpone handler to prevent TaskCard re-renders
+  const handlePostpone = useCallback((taskId: string) => {
+    setPostponeTaskId(taskId)
+  }, [])
+
+  // Memoize close handler
+  const handleClosePostpone = useCallback(() => {
+    setPostponeTaskId(null)
+  }, [])
+
+  // Memoize grouping calculation - only recalculate when tasks array changes
+  const groups = useMemo(() => {
+    return groupByDate ? groupTasksByDate(tasks) : null
+  }, [tasks, groupByDate])
+
   if (tasks.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -85,12 +100,7 @@ export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListP
     )
   }
 
-  const handlePostpone = (taskId: string) => {
-    setPostponeTaskId(taskId)
-  }
-
-  if (groupByDate) {
-    const groups = groupTasksByDate(tasks)
+  if (groupByDate && groups) {
 
     return (
       <div className="space-y-6">
@@ -132,7 +142,7 @@ export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListP
         ))}
         <PostponeDialog
           taskId={postponeTaskId}
-          onClose={() => setPostponeTaskId(null)}
+          onClose={handleClosePostpone}
         />
       </div>
     )
@@ -164,7 +174,7 @@ export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListP
       </AnimatePresence>
       <PostponeDialog
         taskId={postponeTaskId}
-        onClose={() => setPostponeTaskId(null)}
+        onClose={handleClosePostpone}
       />
     </motion.div>
   )
