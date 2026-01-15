@@ -446,11 +446,3 @@ export async function handleCsrfTokenRequest(
   return response
 }
 
-// ============================================================
-// TYPES EXPORT
-// ============================================================
-
-export type {
-  CsrfCookieOptions,
-  CsrfMiddlewareConfig,
-}
