@@ -14,11 +14,11 @@ import {
   type MemberLoad,
   type FairnessTrend,
   type CategoryFairness,
-  calculateFairnessScore,
   CATEGORY_NAMES,
 } from "./fairness-calculator"
 import {
   type WeeklySummary,
+  WeeklySummarySchema,
   generateWeeklySummary,
   generateNotificationMessage,
   generateEmailSubject,
@@ -67,7 +67,7 @@ export const WeeklyReportSchema = z.object({
       categoryName: z.string(),
       fairnessScore: z.number(),
       dominantUser: z.string().nullable(),
-      taskCount: z.number(),
+      totalWeight: z.number(),
     })
   ),
   highlights: z.array(z.string()),
@@ -136,9 +136,6 @@ export const ReportDeliverySchema = z.object({
   error: z.string().nullable(),
 })
 
-// Import WeeklySummarySchema for the report
-import { WeeklySummarySchema } from "./messaging-engine"
-
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -148,6 +145,14 @@ export type ReportFormat = z.infer<typeof ReportFormatSchema>
 export type WeeklyReport = z.infer<typeof WeeklyReportSchema>
 export type MonthlyReport = z.infer<typeof MonthlyReportSchema>
 export type ReportDelivery = z.infer<typeof ReportDeliverySchema>
+
+export interface WeeklyScoreData {
+  weekNumber: number
+  score: number
+  status: string
+  memberLoads: MemberLoad[]
+  categoryFairness: CategoryFairness[]
+}
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -324,47 +329,26 @@ export function generateWeeklyReport(
     )
   }
 
-  // Build member details with category breakdown
-  const members = fairnessScore.memberLoads.map((load) => {
-    const categoryBreakdown: Record<string, number> = {}
-
-    for (const cat of categoryAnalyses) {
-      const memberContrib = cat.memberContributions.find(
-        (c) => c.userId === load.userId
-      )
-      if (memberContrib) {
-        categoryBreakdown[cat.category] = memberContrib.taskCount
-      }
-    }
-
-    return {
-      userId: load.userId,
-      userName: load.userName,
-      tasksCompleted: load.tasksCompleted,
-      totalWeight: load.totalWeight,
-      percentage: load.percentage,
-      adjustedPercentage: load.adjustedPercentage,
-      exclusionDays: load.exclusionDays,
-      categoryBreakdown,
-    }
-  })
+  // Build member details
+  const members = fairnessScore.memberLoads.map((load) => ({
+    userId: load.userId,
+    userName: load.userName,
+    tasksCompleted: load.tasksCompleted,
+    totalWeight: load.totalWeight,
+    percentage: load.percentage,
+    adjustedPercentage: load.adjustedPercentage,
+    exclusionDays: load.exclusionDays,
+    categoryBreakdown: load.categoryBreakdown,
+  }))
 
   // Build category details
-  const categories = categoryAnalyses.map((cat) => {
-    const dominant = cat.memberContributions.reduce(
-      (max, c) => (c.percentage > (max?.percentage ?? 0) ? c : max),
-      null as (typeof cat.memberContributions)[0] | null
-    )
-
-    return {
-      category: cat.category,
-      categoryName: CATEGORY_NAMES[cat.category] ?? cat.category,
-      fairnessScore: cat.fairnessScore,
-      dominantUser:
-        dominant && dominant.percentage > 50 ? dominant.userName : null,
-      taskCount: cat.totalTasks,
-    }
-  })
+  const categories = categoryAnalyses.map((cat) => ({
+    category: cat.category,
+    categoryName: CATEGORY_NAMES[cat.category] ?? cat.category,
+    fairnessScore: cat.fairnessScore,
+    dominantUser: cat.dominantMember,
+    totalWeight: cat.totalWeight,
+  }))
 
   return {
     id: generateReportId(householdId, "week", reportWeek, reportYear),
@@ -395,14 +379,6 @@ export function generateWeeklyReport(
 // =============================================================================
 // MONTHLY REPORT GENERATION
 // =============================================================================
-
-export interface WeeklyScoreData {
-  weekNumber: number
-  score: number
-  status: string
-  memberLoads: MemberLoad[]
-  categoryFairness: CategoryFairness[]
-}
 
 /**
  * Generate monthly family report
@@ -818,19 +794,26 @@ export function generateWeeklyReportEmail(
 export function generateWeeklyReportPush(
   report: WeeklyReport
 ): { title: string; body: string } {
-  const notification = generateNotificationMessage({
+  // Create a simplified FairnessScore for the notification function
+  const simplifiedScore = {
+    householdId: report.householdId,
+    period: {
+      startDate: new Date(report.period.startDate),
+      endDate: new Date(report.period.endDate),
+      type: "week" as const,
+    },
     overallScore: report.fairness.score,
     status: report.fairness.status as "excellent" | "good" | "fair" | "poor" | "critical",
     giniCoefficient: report.fairness.giniCoefficient,
     memberLoads: report.members,
     categoryFairness: {},
     imbalanceDetails: {
-      hasImbalance: false,
+      mostLoaded: null,
+      leastLoaded: null,
       gap: 0,
-      overloadedMembers: [],
-      underloadedMembers: [],
+      gapPercentage: 0,
     },
-  })
+  }
 
-  return notification
+  return generateNotificationMessage(simplifiedScore)
 }
