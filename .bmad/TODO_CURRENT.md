@@ -43,21 +43,21 @@ Polir l'application pour une expérience utilisateur de niveau production: anima
 
 ## Phase 2: Loading States & Skeleton UI
 
-- [ ] 2.1 Créer composant `TaskCardSkeleton.tsx`:
+- [x] 2.1 Créer composant `TaskCardSkeleton.tsx`:
   - Skeleton pour les cartes de tâches
   - Animation shimmer
-- [ ] 2.2 Créer composant `DashboardSkeleton.tsx`:
+- [x] 2.2 Créer composant `DashboardSkeleton.tsx`:
   - Skeleton pour le dashboard complet
   - Layout matching
-- [ ] 2.3 Créer composant `ChargeSkeleton.tsx`:
+- [x] 2.3 Créer composant `ChargeSkeleton.tsx`:
   - Skeleton pour les graphiques de charge
   - Animated bars
-- [ ] 2.4 Ajouter Suspense boundaries aux pages:
+- [x] 2.4 Ajouter Suspense boundaries aux pages:
   - /dashboard
   - /tasks
   - /charge
   - /children
-- [ ] 2.5 Tests unitaires skeletons
+- [x] 2.5 Tests unitaires skeletons
 
 ---
 
