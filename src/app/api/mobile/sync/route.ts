@@ -117,16 +117,15 @@ export async function GET(request: NextRequest) {
     const lastSync = request.nextUrl.searchParams.get("last_sync")
 
     // Get last sync timestamp from cache or param
-    const lastSyncTimestamp = lastSync ?? await getLastSyncTimestamp(userId, deviceId)
+    const lastSyncTimestamp = lastSync ?? getLastSyncTimestamp(userId, deviceId)
 
-    const status = await getSyncStatus(userId, householdId, lastSyncTimestamp)
+    const syncStatus = await getSyncStatus(userId, householdId, lastSyncTimestamp)
 
     return apiSuccess({
-      status: status.status,
-      lastSyncAt: status.lastSyncAt,
-      pendingChanges: status.pendingChanges,
-      serverVersion: status.serverVersion,
-      requiresFullSync: status.requiresFullSync,
+      lastSyncAt: syncStatus.lastSyncAt,
+      pendingChanges: syncStatus.pendingChanges,
+      serverVersion: syncStatus.serverVersion,
+      requiresFullSync: syncStatus.requiresFullSync,
     })
   })
 }
@@ -142,7 +141,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   return withAuth(request, async (userId, householdId) => {
     // Rate limit
-    const rateLimit = await checkMobileRateLimit(userId, "/api/mobile/sync")
+    const rateLimit = checkMobileRateLimit(userId, "/api/mobile/sync")
     if (!rateLimit.allowed) {
       const response = apiError("Trop de requêtes. Réessayez plus tard.", 429)
       response.headers.set("X-RateLimit-Remaining", "0")
@@ -256,7 +255,7 @@ export async function POST(request: NextRequest) {
 
     // Record sync timestamp
     if (deviceId) {
-      await recordSyncTimestamp(userId, deviceId, serverTimestamp)
+      recordSyncTimestamp(userId, deviceId, serverTimestamp)
     }
 
     return apiSuccess({
@@ -292,7 +291,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   return withAuth(request, async (userId, householdId) => {
     // Rate limit
-    const rateLimit = await checkMobileRateLimit(userId, "/api/mobile/sync")
+    const rateLimit = checkMobileRateLimit(userId, "/api/mobile/sync")
     if (!rateLimit.allowed) {
       const response = apiError("Trop de requêtes. Réessayez plus tard.", 429)
       response.headers.set("X-RateLimit-Remaining", "0")
@@ -416,7 +415,7 @@ export async function PUT(request: NextRequest) {
 
     // Record sync timestamp
     if (deviceId) {
-      await recordSyncTimestamp(userId, deviceId, serverTimestamp)
+      recordSyncTimestamp(userId, deviceId, serverTimestamp)
     }
 
     return apiSuccess({

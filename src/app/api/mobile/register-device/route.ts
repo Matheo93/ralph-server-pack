@@ -30,7 +30,7 @@ import {
 export async function POST(request: NextRequest) {
   return withAuth(request, async (userId, householdId) => {
     // Check rate limit
-    const rateLimit = await checkMobileRateLimit(userId, "/api/mobile/register-device")
+    const rateLimit = checkMobileRateLimit(userId, "/api/mobile/register-device")
     if (!rateLimit.allowed) {
       const response = apiError("Trop de requêtes. Réessayez plus tard.", 429)
       response.headers.set("X-RateLimit-Remaining", "0")

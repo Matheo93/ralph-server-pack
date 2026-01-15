@@ -11,7 +11,40 @@
 
 import { query, queryOne } from "@/lib/aws/database"
 import { z } from "zod"
-import { Redis } from "@/lib/aws/redis"
+
+// =============================================================================
+// IN-MEMORY CACHE (for rate limiting and sync timestamps)
+// In production, this should be replaced with Redis for multi-instance support
+// =============================================================================
+
+const memoryCache = new Map<string, { value: string; expiresAt: number }>()
+
+function cacheGet(key: string): string | null {
+  const entry = memoryCache.get(key)
+  if (!entry) return null
+  if (entry.expiresAt < Date.now()) {
+    memoryCache.delete(key)
+    return null
+  }
+  return entry.value
+}
+
+function cacheSet(key: string, value: string, ttlSeconds: number): void {
+  memoryCache.set(key, {
+    value,
+    expiresAt: Date.now() + ttlSeconds * 1000,
+  })
+}
+
+// Cleanup expired entries periodically
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of memoryCache) {
+    if (entry.expiresAt < now) {
+      memoryCache.delete(key)
+    }
+  }
+}, 60 * 1000) // Every minute
 
 // =============================================================================
 // TYPES
@@ -396,84 +429,71 @@ const endpointRateLimits: Record<string, RateLimitConfig> = {
 /**
  * Check rate limit for a user on a specific endpoint
  */
-export async function checkMobileRateLimit(
+export function checkMobileRateLimit(
   userId: string,
   endpoint: string
-): Promise<{
+): {
   allowed: boolean
   remaining: number
   resetIn: number
   limit: number
-}> {
+} {
   const config = endpointRateLimits[endpoint] ?? defaultRateLimitConfig
   const key = `mobile:rate:${userId}:${endpoint}`
   const now = Date.now()
 
-  try {
-    // Try Redis first for distributed rate limiting
-    const redis = Redis.getInstance()
-    const stored = await redis.get(key)
+  const stored = cacheGet(key)
 
-    if (!stored) {
-      // New window
-      await redis.setEx(key, Math.ceil(config.windowMs / 1000), JSON.stringify({
-        count: 1,
-        resetAt: now + config.windowMs,
-      }))
-
-      return {
-        allowed: true,
-        remaining: config.maxRequests - 1,
-        resetIn: config.windowMs,
-        limit: config.maxRequests,
-      }
-    }
-
-    const data = JSON.parse(stored) as { count: number; resetAt: number }
-
-    if (data.resetAt < now) {
-      // Window expired, start new
-      await redis.setEx(key, Math.ceil(config.windowMs / 1000), JSON.stringify({
-        count: 1,
-        resetAt: now + config.windowMs,
-      }))
-
-      return {
-        allowed: true,
-        remaining: config.maxRequests - 1,
-        resetIn: config.windowMs,
-        limit: config.maxRequests,
-      }
-    }
-
-    if (data.count >= config.maxRequests) {
-      return {
-        allowed: false,
-        remaining: 0,
-        resetIn: data.resetAt - now,
-        limit: config.maxRequests,
-      }
-    }
-
-    // Increment counter
-    data.count++
-    await redis.setEx(key, Math.ceil((data.resetAt - now) / 1000), JSON.stringify(data))
+  if (!stored) {
+    // New window
+    cacheSet(key, JSON.stringify({
+      count: 1,
+      resetAt: now + config.windowMs,
+    }), Math.ceil(config.windowMs / 1000))
 
     return {
       allowed: true,
-      remaining: config.maxRequests - data.count,
-      resetIn: data.resetAt - now,
-      limit: config.maxRequests,
-    }
-  } catch {
-    // Redis unavailable - fall back to allowing request
-    // In production, this should use an in-memory fallback
-    return {
-      allowed: true,
-      remaining: config.maxRequests,
+      remaining: config.maxRequests - 1,
       resetIn: config.windowMs,
       limit: config.maxRequests,
     }
+  }
+
+  const data = JSON.parse(stored) as { count: number; resetAt: number }
+
+  if (data.resetAt < now) {
+    // Window expired, start new
+    cacheSet(key, JSON.stringify({
+      count: 1,
+      resetAt: now + config.windowMs,
+    }), Math.ceil(config.windowMs / 1000))
+
+    return {
+      allowed: true,
+      remaining: config.maxRequests - 1,
+      resetIn: config.windowMs,
+      limit: config.maxRequests,
+    }
+  }
+
+  if (data.count >= config.maxRequests) {
+    return {
+      allowed: false,
+      remaining: 0,
+      resetIn: data.resetAt - now,
+      limit: config.maxRequests,
+    }
+  }
+
+  // Increment counter
+  data.count++
+  cacheSet(key, JSON.stringify(data), Math.ceil((data.resetAt - now) / 1000))
+
+  return {
+    allowed: true,
+    remaining: config.maxRequests - data.count,
+    resetIn: data.resetAt - now,
+    limit: config.maxRequests,
   }
 }
 
@@ -522,37 +542,24 @@ export async function getSyncStatus(
 /**
  * Record last sync timestamp for a device
  */
-export async function recordSyncTimestamp(
+export function recordSyncTimestamp(
   userId: string,
   deviceId: string,
   timestamp: string
-): Promise<void> {
-  // Use Redis for fast access
+): void {
   const key = `sync:last:${userId}:${deviceId}`
-
-  try {
-    const redis = Redis.getInstance()
-    await redis.setEx(key, 86400 * 7, timestamp) // Keep for 7 days
-  } catch {
-    // Redis unavailable - skip caching
-  }
+  cacheSet(key, timestamp, 86400 * 7) // Keep for 7 days
 }
 
 /**
  * Get last sync timestamp for a device
  */
-export async function getLastSyncTimestamp(
+export function getLastSyncTimestamp(
   userId: string,
   deviceId: string
-): Promise<string | null> {
+): string | null {
   const key = `sync:last:${userId}:${deviceId}`
-
-  try {
-    const redis = Redis.getInstance()
-    return await redis.get(key)
-  } catch {
-    return null
-  }
+  return cacheGet(key)
 }
 
 // =============================================================================
@@ -578,10 +585,9 @@ export interface HealthStatus {
  * Check health of all dependent services
  */
 export async function checkHealth(): Promise<HealthStatus> {
-  const startTime = Date.now()
   const services = {
     database: false,
-    redis: false,
+    redis: true, // Using in-memory cache, always available
     firebase: false,
   }
   const latency: { database: number; redis: number } = {
@@ -599,16 +605,8 @@ export async function checkHealth(): Promise<HealthStatus> {
     latency.database = Date.now() - dbStart
   }
 
-  // Check Redis
-  const redisStart = Date.now()
-  try {
-    const redis = Redis.getInstance()
-    await redis.ping()
-    services.redis = true
-    latency.redis = Date.now() - redisStart
-  } catch {
-    latency.redis = Date.now() - redisStart
-  }
+  // In-memory cache is always available
+  latency.redis = 0
 
   // Check Firebase (just check if configured)
   try {
@@ -622,8 +620,6 @@ export async function checkHealth(): Promise<HealthStatus> {
   let status: HealthStatus["status"] = "healthy"
   if (!services.database) {
     status = "unhealthy"
-  } else if (!services.redis) {
-    status = "degraded"
   }
 
   return {
