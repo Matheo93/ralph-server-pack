@@ -115,6 +115,25 @@ export async function closePool(): Promise<void> {
   await pool.end()
 }
 
+// Execute raw SQL and return affected row count
+export async function execute(
+  text: string,
+  params?: unknown[]
+): Promise<{ rowCount: number }> {
+  const start = Date.now()
+  try {
+    const result = await pool.query(text, params)
+    const duration = Date.now() - start
+    if (process.env['NODE_ENV'] === 'development') {
+      console.log('Executed statement', { text: text.substring(0, 100), duration, rows: result.rowCount })
+    }
+    return { rowCount: result.rowCount ?? 0 }
+  } catch (error) {
+    console.error('Database execute error:', error)
+    throw error
+  }
+}
+
 // Health check
 export async function healthCheck(): Promise<boolean> {
   try {

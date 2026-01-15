@@ -321,26 +321,48 @@ export function getWeeklyHistory(
 // =============================================================================
 
 export type AlertLevel = "none" | "low" | "medium" | "high"
+export type AlertStatus = "balanced" | "warning" | "critical"
+
+export interface ReassignmentSuggestion {
+  taskId: string
+  taskTitle: string
+  fromUserId: string
+  fromUserName: string
+  toUserId: string
+  toUserName: string
+  reason: string
+}
 
 export interface BalanceAlert {
   level: AlertLevel
+  status: AlertStatus
   message: string
+  balanceScore: number
   mostLoaded?: ParentLoad
   leastLoaded?: ParentLoad
   imbalancePercentage: number
+  issues: string[]
+  suggestions: ReassignmentSuggestion[]
 }
 
 /**
  * Generate balance alert based on distribution
  */
-export function generateBalanceAlert(distribution: LoadDistribution): BalanceAlert {
+export function generateBalanceAlert(
+  distribution: LoadDistribution,
+  tasks?: TaskLoad[]
+): BalanceAlert {
   const { balanceScore, mostLoaded, leastLoaded, parents } = distribution
 
   if (parents.length <= 1) {
     return {
       level: "none",
+      status: "balanced",
       message: "Répartition équilibrée",
+      balanceScore,
       imbalancePercentage: 0,
+      issues: [],
+      suggestions: [],
     }
   }
 
@@ -348,42 +370,97 @@ export function generateBalanceAlert(distribution: LoadDistribution): BalanceAle
     ? mostLoaded.percentage - leastLoaded.percentage
     : 0
 
+  const issues: string[] = []
+  const suggestions: ReassignmentSuggestion[] = []
+
+  // Generate issues based on imbalance
+  if (mostLoaded && leastLoaded && imbalance > 20) {
+    issues.push(`${mostLoaded.userName} a ${imbalance}% de charge en plus que ${leastLoaded.userName}`)
+  }
+
+  if (mostLoaded && mostLoaded.percentage > 60) {
+    issues.push(`${mostLoaded.userName} assume plus de 60% de la charge totale`)
+  }
+
+  if (mostLoaded && mostLoaded.pendingCount > mostLoaded.completedCount) {
+    issues.push(`${mostLoaded.userName} a plus de tâches en attente que terminées`)
+  }
+
+  // Generate suggestions if tasks are provided
+  if (tasks && mostLoaded && leastLoaded && imbalance > 15) {
+    const mostLoadedTasks = tasks
+      .filter((t) => t.assignedTo === mostLoaded.userId && !t.completedAt)
+      .sort((a, b) => a.weight - b.weight) // Start with lighter tasks
+
+    // Suggest reassigning up to 2 tasks
+    for (let i = 0; i < Math.min(2, mostLoadedTasks.length); i++) {
+      const task = mostLoadedTasks[i]
+      if (task) {
+        suggestions.push({
+          taskId: task.taskId,
+          taskTitle: task.title,
+          fromUserId: mostLoaded.userId,
+          fromUserName: mostLoaded.userName,
+          toUserId: leastLoaded.userId,
+          toUserName: leastLoaded.userName,
+          reason: `Rééquilibrer la charge (${task.weight} points)`,
+        })
+      }
+    }
+  }
+
   if (balanceScore >= 80) {
     return {
       level: "none",
+      status: "balanced",
       message: "La répartition est équilibrée",
+      balanceScore,
       mostLoaded: mostLoaded ?? undefined,
       leastLoaded: leastLoaded ?? undefined,
       imbalancePercentage: imbalance,
+      issues: [],
+      suggestions: [],
     }
   }
 
   if (balanceScore >= 60) {
     return {
       level: "low",
+      status: "warning",
       message: `Léger déséquilibre : ${mostLoaded?.userName} a ${imbalance}% de charge en plus`,
+      balanceScore,
       mostLoaded: mostLoaded ?? undefined,
       leastLoaded: leastLoaded ?? undefined,
       imbalancePercentage: imbalance,
+      issues,
+      suggestions,
     }
   }
 
   if (balanceScore >= 40) {
     return {
       level: "medium",
+      status: "warning",
       message: `Déséquilibre modéré : ${mostLoaded?.userName} a ${imbalance}% de charge en plus que ${leastLoaded?.userName}`,
+      balanceScore,
       mostLoaded: mostLoaded ?? undefined,
       leastLoaded: leastLoaded ?? undefined,
       imbalancePercentage: imbalance,
+      issues,
+      suggestions,
     }
   }
 
   return {
     level: "high",
+    status: "critical",
     message: `Déséquilibre important : ${mostLoaded?.userName} assume ${mostLoaded?.percentage}% de la charge mentale`,
+    balanceScore,
     mostLoaded: mostLoaded ?? undefined,
     leastLoaded: leastLoaded ?? undefined,
     imbalancePercentage: imbalance,
+    issues,
+    suggestions,
   }
 }
 
