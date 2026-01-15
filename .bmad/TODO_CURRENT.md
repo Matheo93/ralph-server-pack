@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 10: Automatic Task Generation & Robustness
+# TODO CURRENT - Sprint 11: Enhanced Notifications & Child Timeline
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,192 +10,143 @@
 ---
 
 ## Sprint Goal
-Implémenter la génération automatique de tâches basée sur l'âge des enfants (le "catalogue automatique" du MASTER_PROMPT), améliorer la robustesse avec les tests E2E, et ajouter les features premium manquantes.
+Améliorer le système de notifications push (Firebase), compléter la timeline enfants, et ajouter les fonctionnalités manquantes du MASTER_PROMPT pour préparer l'app mobile Flutter.
 
 ---
 
 ## PRÉ-REQUIS
-- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [x] 0.2 Vérifier que les tests passent: `bun test src/tests/`
+- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [ ] 0.2 Vérifier que les tests passent: `bun test src/tests/`
 
 ---
 
-## Phase 1: Catalogue Automatique par Âge (Feature Core) ✅
+## Phase 1: Notifications Push Firebase
 
-- [x] 1.1 Créer `src/lib/services/age-based-tasks.ts`:
-  - Calculer l'âge de chaque enfant à partir de birth_date
-  - Mapper l'âge aux règles du MASTER_PROMPT (0-3, 3-6, 6-11, 11-15, 15-18, 18-25)
-  - Récupérer les templates applicables pour l'âge
-  - Générer les tâches automatiques
+- [ ] 1.1 Améliorer `src/lib/firebase/notifications.ts`:
+  - Intégrer Firebase Admin SDK pour push
+  - Types de notifications: task_reminder, streak_risk, charge_alert
+  - Multi-device support (tokens par user)
 
-- [x] 1.2 Créer `src/lib/data/age-based-templates.ts`:
-  - Templates 0-3 ans: vaccins, visites PMI, mode de garde
-  - Templates 3-6 ans: inscription école, assurance scolaire, réunions
-  - Templates 6-11 ans: fournitures, cantine, études, sorties
-  - Templates 11-15 ans: orientation, brevet, activités ados
-  - Templates 15-18 ans: permis, bac, parcoursup
+- [ ] 1.2 Créer `src/lib/services/notification-scheduler.ts`:
+  - Planifier les rappels selon deadline
+  - Rappel J-1, J-0, H-3 pour tâches critiques
+  - Agrégation des notifications (pas de spam)
 
-- [x] 1.3 Créer `src/lib/services/period-tasks.ts`:
-  - Règles par période (rentree, toussaint, noel, hiver, printemps, ete)
-  - Détecter la période actuelle
-  - Générer les tâches saisonnières
+- [ ] 1.3 Améliorer API `src/app/api/notifications/`:
+  - /send endpoint pour push manuel
+  - /schedule pour planification
+  - /preferences pour paramétrage user
 
-- [x] 1.4 Créer API `src/app/api/cron/generate-tasks/route.ts`:
-  - Endpoint pour génération quotidienne (GET cron + POST manual)
-  - Parcourir tous les foyers actifs
-  - Générer les tâches pour chaque enfant
-  - Éviter les duplicatas
-
-- [x] 1.5 Tests unitaires génération automatique (85 tests passants)
+- [ ] 1.4 Tests notifications push (≥20 tests)
 
 ---
 
-## Phase 2: Joker Streak (Feature Premium) ✅
+## Phase 2: Timeline Enfant Avancée
 
-- [x] 2.1 Créer migration `src/lib/aws/joker-schema.sql`:
-  - Table `streak_jokers` (household_id, used_at, month, year, streak_value_saved)
-  - 1 joker/mois pour abonnés premium
-  - Helper functions: can_use_joker(), use_joker()
+- [ ] 2.1 Améliorer `src/app/(dashboard)/children/[id]/timeline/page.tsx`:
+  - Vue chronologique complète
+  - Filtres par catégorie
+  - Événements importants highlight
 
-- [x] 2.2 Ajouter action `src/lib/actions/streak.ts`:
-  - `useJoker()` - utiliser le joker pour sauver le streak
-  - `getJokerStatus()` - vérifier si joker disponible
-  - `getStreakInfo()` - info complète du streak
-  - `getJokerHistory()` - historique des jokers utilisés
-  - `updateStreakOnTaskComplete()` - mise à jour du streak
+- [ ] 2.2 Créer `src/components/custom/ChildMilestones.tsx`:
+  - Jalons automatiques par âge (premiers pas, école, etc.)
+  - Célébration des anniversaires
+  - Rappels proactifs
 
-- [x] 2.3 Créer composant `src/components/custom/JokerButton.tsx`:
-  - Bouton pour utiliser le joker
-  - État disabled si non premium ou déjà utilisé
-  - Animation de confirmation avec dialog
-  - Hook useJoker() pour état
+- [ ] 2.3 Ajouter historique médical/vaccins:
+  - `src/lib/data/vaccination-calendar.ts` (FR)
+  - Rappels vaccins selon âge
+  - Export carnet de santé
 
-- [x] 2.4 Intégrer dans `StreakCounter.tsx`:
-  - Afficher le bouton joker quand streak à risque
-  - Message d'avertissement avant rupture
-  - Joker status dans le compteur
-
-- [x] 2.5 Tests joker streak (27 tests passants)
+- [ ] 2.4 Tests timeline enfant (≥15 tests)
 
 ---
 
-## Phase 3: Exclusions Temporaires (Compléter) ✅
+## Phase 3: Amélioration Assignation
 
-- [x] 3.1 Améliorer `src/lib/actions/settings.ts`:
-  - `createExclusion(memberId, startDate, endDate, reason)`
-  - `getActiveExclusions()` + `getAllExclusions()`
-  - `deleteExclusion(exclusionId)`
-  - `isUserExcluded(userId, householdId)`
+- [ ] 3.1 Améliorer `src/lib/services/assignment.ts`:
+  - Prise en compte préférences parent (catégories préférées)
+  - Historique d'assignation pour équilibrage long terme
+  - Rotation intelligente
 
-- [x] 3.2 Créer composant `src/components/custom/ExclusionForm.tsx`:
-  - Formulaire de création d'exclusion avec dialog
-  - Raisons prédéfinies: voyage, maladie, surcharge_travail, garde_alternee, autre
-  - ExclusionCard pour affichage
+- [ ] 3.2 Créer `src/components/custom/AssignmentPreferences.tsx`:
+  - Interface pour définir préférences
+  - "Je préfère" / "Je n'aime pas" par catégorie
+  - Prise en compte compétences
 
-- [x] 3.3 Créer page `src/app/(dashboard)/settings/exclusions/page.tsx`:
-  - Liste des exclusions actives, futures et passées
-  - Bouton créer nouvelle exclusion
-  - Suppression d'exclusion
-  - Info card explicatif
+- [ ] 3.3 Améliorer alertes charge:
+  - Notification si déséquilibre > 60/40
+  - Suggestion de rééquilibrage
+  - Message non culpabilisant
 
-- [x] 3.4 Intégrer dans le moteur d'assignation:
-  - `src/lib/services/assignment.ts` déjà intégré
-  - filterExcludedMembers() filtre les membres exclus
-  - determineAssignment() retourne "excluded" si tous exclus
-
-- [x] 3.5 Tests exclusions (27 tests passants)
+- [ ] 3.4 Tests assignation (≥20 tests)
 
 ---
 
-## Phase 4: Tests E2E Playwright ✅
+## Phase 4: API Mobile Ready
 
-- [x] 4.1 Setup Playwright:
-  - `bun add -D @playwright/test`
-  - Créer `playwright.config.ts`
-  - Créer `e2e/` directory
+- [ ] 4.1 Créer API REST complète pour mobile:
+  - `src/app/api/v1/tasks/route.ts` - CRUD tâches
+  - `src/app/api/v1/children/route.ts` - CRUD enfants
+  - `src/app/api/v1/household/route.ts` - Foyer
+  - `src/app/api/v1/sync/route.ts` - Sync offline
 
-- [x] 4.2 Tests authentification:
-  - `e2e/auth.spec.ts`
-  - Login, signup, logout flows
-  - Protection des routes
+- [ ] 4.2 Ajouter authentification API:
+  - Bearer token validation
+  - Refresh token flow
+  - Rate limiting per user
 
-- [x] 4.3 Tests onboarding:
-  - `e2e/onboarding.spec.ts`
-  - Flow complet onboarding
-  - Création foyer et enfants
+- [ ] 4.3 Documentation API:
+  - OpenAPI spec (swagger)
+  - Exemples requêtes/réponses
 
-- [x] 4.4 Tests tâches:
-  - `e2e/tasks.spec.ts`
-  - CRUD tâches
-  - Completion et suppression
-  - Vue semaine
-
-- [x] 4.5 Tests charge mentale:
-  - `e2e/charge.spec.ts`
-  - Affichage balance
-  - Graphique semaine
+- [ ] 4.4 Tests API REST (≥25 tests)
 
 ---
 
-## Phase 5: Amélioration UX Dashboard ✅
+## Phase 5: Amélioration Vocal
 
-- [x] 5.1 Améliorer `DashboardToday.tsx`:
-  - Grouper les tâches par enfant
-  - Tri par priorité + deadline
-  - Quick actions plus visibles
+- [ ] 5.1 Améliorer analyse sémantique:
+  - Meilleure extraction de dates implicites
+  - Support expressions françaises ("la semaine prochaine", "après les vacances")
+  - Confidence score visible
 
-- [x] 5.2 Créer `src/components/custom/TaskSummaryCard.tsx`:
-  - Card récapitulatif du jour
-  - Nombre de tâches par statut
-  - Tâches en retard highlight
+- [ ] 5.2 Ajouter feedback vocal:
+  - Toast de confirmation avec résumé
+  - Option de correction rapide
+  - Historique des commandes vocales
 
-- [x] 5.3 Améliorer notifications in-app:
-  - Badge notification dans header
-  - Liste des notifications non lues
-  - Mark as read
-
-- [x] 5.4 Ajouter tutoriel first-time user:
-  - Overlay d'aide au premier login
-  - Highlights des fonctionnalités clés
-  - Skip option
-
-- [x] 5.5 Tests UX dashboard (16 tests passants)
+- [ ] 5.3 Tests vocal amélioré (≥15 tests)
 
 ---
 
-## Phase 6: Performance & Monitoring ✅
+## Phase 6: Polish & Documentation
 
-- [x] 6.1 Ajouter métriques de performance:
-  - Web Vitals tracking
-  - API response times
-  - Error rates
+- [ ] 6.1 Améliorer messages UX:
+  - Tous les messages en français
+  - Ton encourageant, jamais culpabilisant
+  - Cohérence visuelle
 
-- [x] 6.2 Optimiser les requêtes Supabase:
-  - Indexes manquants (déjà en place)
-  - Pagination sur les listes longues (déjà en place)
-  - Cache Redis pour queries fréquentes (à implémenter si besoin)
+- [ ] 6.2 Optimiser performance:
+  - Lazy loading composants lourds
+  - Prefetch données critiques
+  - Image optimization
 
-- [x] 6.3 Implémenter rate limiting robuste:
-  - Par endpoint (déjà en place)
-  - Par user (déjà en place)
-  - Statistiques disponibles via getRateLimitStats()
-
-- [x] 6.4 Audit sécurité:
-  - Vérifier toutes les RLS policies (checklist créée)
-  - Tester injection SQL (containsSQLInjection)
-  - Vérifier sanitization inputs (validateUserInput + Zod schemas)
+- [ ] 6.3 Documentation technique:
+  - Architecture README
+  - Setup guide pour nouveaux devs
+  - API documentation
 
 ---
 
-## Definition of Done Sprint 10
-- [x] Génération automatique de tâches basée sur l'âge fonctionnelle
-- [x] Joker streak implémenté pour premium users
-- [x] Exclusions temporaires complètes avec UI
-- [x] Tests E2E Playwright configurés et passants
-- [x] Dashboard UX amélioré
-- [x] Performance et monitoring en place
-- [x] Build production OK: `bunx tsc --noEmit && bun run build`
-- [x] Tous les tests passent: `bun test src/tests/` (532 tests)
+## Definition of Done Sprint 11
+- [ ] Notifications push Firebase fonctionnelles
+- [ ] Timeline enfant avec jalons et historique
+- [ ] Assignation avec préférences parent
+- [ ] API REST prête pour mobile Flutter
+- [ ] Vocal amélioré avec meilleure extraction
+- [ ] Build production OK: `bunx tsc --noEmit && bun run build`
+- [ ] Tous les tests passent: `bun test src/tests/`
 
 ---
 
