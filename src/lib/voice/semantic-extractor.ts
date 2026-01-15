@@ -1024,7 +1024,7 @@ export function extractActionBasic(text: string): ExtractedAction {
 
   // Try to identify verb (first word or after common prefixes)
   const words = cleaned.split(/\s+/);
-  const verb = words.length > 0 ? words[0] : null;
+  const verb = words.length > 0 ? (words[0] ?? null) : null;
   const object = words.length > 1 ? words.slice(1).join(' ') : null;
 
   return {
