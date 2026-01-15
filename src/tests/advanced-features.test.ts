@@ -328,7 +328,7 @@ describe("Smart Scheduler", () => {
       const suggestions = scheduleMultipleTasks(tasks, pattern)
 
       // Urgent task with deadline should be first
-      expect(suggestions[0].taskId).toBe("task-urgent")
+      expect(suggestions[0]!.taskId).toBe("task-urgent")
     })
 
     it("should avoid scheduling conflicts", () => {
@@ -340,8 +340,8 @@ describe("Smart Scheduler", () => {
       const suggestions = scheduleMultipleTasks(tasks, pattern)
 
       // Times should be different
-      const time1 = suggestions[0].suggestedTime.getTime()
-      const time2 = suggestions[1].suggestedTime.getTime()
+      const time1 = suggestions[0]!.suggestedTime.getTime()
+      const time2 = suggestions[1]!.suggestedTime.getTime()
 
       expect(time1).not.toBe(time2)
     })
@@ -470,7 +470,7 @@ describe("Family Insights", () => {
       ]
 
       const stats = calculateMemberStats(tasks, [testMember1])
-      const user1Stats = stats[0]
+      const user1Stats = stats[0]!
 
       expect(user1Stats.completionRate).toBeCloseTo(0.67, 1)
     })
@@ -817,10 +817,10 @@ describe("Task Prioritization", () => {
     })
 
     it("should boost importance for critical tasks", () => {
-      const criticalTask: PrioritizationTask = createTestTask({
+      const criticalTask = createPriorityTask({
         priority: "normal",
         isCritical: true,
-      }) as PrioritizationTask
+      })
 
       const result = calculateImportance(criticalTask)
 
@@ -888,11 +888,11 @@ describe("Task Prioritization", () => {
 
   describe("Priority Score", () => {
     it("should calculate comprehensive priority score", () => {
-      const task: PrioritizationTask = createTestTask({
+      const task = createPriorityTask({
         priority: "high",
         isCritical: true,
         category: "sante",
-      }) as PrioritizationTask
+      })
 
       const score = calculatePriorityScore(task)
 
@@ -905,9 +905,9 @@ describe("Task Prioritization", () => {
     })
 
     it("should include all factors", () => {
-      const task: PrioritizationTask = createTestTask({
+      const task = createPriorityTask({
         priority: "urgent",
-      }) as PrioritizationTask
+      })
 
       const score = calculatePriorityScore(task)
 
@@ -975,7 +975,7 @@ describe("Task Prioritization", () => {
       const result = prioritizeTasks(tasks)
 
       expect(result.tasks.length).toBe(3)
-      expect(result.tasks[0].taskId).toBe("2") // Urgent should be first
+      expect(result.tasks[0]!.taskId).toBe("2") // Urgent should be first
     })
 
     it("should provide quadrant summary", () => {
@@ -1003,7 +1003,7 @@ describe("Task Prioritization", () => {
       const top = getTopPriorityTasks(tasks, 2)
 
       expect(top.length).toBe(2)
-      expect(top[0].id).toBe("2")
+      expect(top[0]!.id).toBe("2")
     })
 
     it("should generate warnings", () => {
@@ -1022,10 +1022,10 @@ describe("Task Prioritization", () => {
 
   describe("Recommendations", () => {
     it("should generate recommendations for do_first", () => {
-      const task: PrioritizationTask = createTestTask({
+      const task = createPriorityTask({
         priority: "urgent",
         isCritical: true,
-      }) as PrioritizationTask
+      })
 
       const score = calculatePriorityScore(task)
       const recommendations = generateRecommendations(task, score)
@@ -1035,11 +1035,11 @@ describe("Task Prioritization", () => {
     })
 
     it("should suggest delegation for urgent but not important", () => {
-      const task: PrioritizationTask = createTestTask({
+      const task = createPriorityTask({
         priority: "low",
         title: "Urgent mais pas important",
         description: "ASAP",
-      }) as PrioritizationTask
+      })
 
       const score: ReturnType<typeof calculatePriorityScore> = {
         taskId: task.id,
