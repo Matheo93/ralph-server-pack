@@ -130,7 +130,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const bodyResult = await parseBody(request, UpdateHouseholdSchema)
-    if (bodyResult.error) {
+    if (!bodyResult.success) {
       return apiError(bodyResult.error)
     }
 

@@ -58,7 +58,7 @@ interface AuthResponse {
  */
 export async function POST(request: NextRequest) {
   const bodyResult = await parseBody(request, LoginSchema)
-  if (bodyResult.error) {
+  if (!bodyResult.success) {
     return apiError(bodyResult.error)
   }
 
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   const bodyResult = await parseBody(request, RefreshSchema)
-  if (bodyResult.error) {
+  if (!bodyResult.success) {
     return apiError(bodyResult.error)
   }
 
@@ -215,7 +215,7 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   const authResult = await validateBearerToken(request)
-  if (authResult.error) {
+  if (!authResult.success) {
     return apiError(authResult.error, 401)
   }
 

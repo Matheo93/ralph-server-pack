@@ -62,21 +62,28 @@ export function apiError(
 }
 
 /**
+ * Auth result type
+ */
+export type AuthResult =
+  | { success: true; userId: string }
+  | { success: false; error: string }
+
+/**
  * Validate Bearer token and get user ID
  */
 export async function validateBearerToken(
   request: NextRequest
-): Promise<{ userId: string; error?: never } | { userId?: never; error: string }> {
+): Promise<AuthResult> {
   const authHeader = request.headers.get("authorization")
 
   if (!authHeader?.startsWith("Bearer ")) {
-    return { error: "Token manquant ou invalide" }
+    return { success: false, error: "Token manquant ou invalide" }
   }
 
   const token = authHeader.slice(7)
 
   if (!token || token.length < 10) {
-    return { error: "Token invalide" }
+    return { success: false, error: "Token invalide" }
   }
 
   // Validate token against database
@@ -87,7 +94,7 @@ export async function validateBearerToken(
   `, [token])
 
   if (!session) {
-    return { error: "Session invalide ou expirée" }
+    return { success: false, error: "Session invalide ou expirée" }
   }
 
   // Check expiration
@@ -96,7 +103,7 @@ export async function validateBearerToken(
     await query(`
       UPDATE user_sessions SET is_active = false WHERE token = $1
     `, [token])
-    return { error: "Session expirée" }
+    return { success: false, error: "Session expirée" }
   }
 
   // Update last used timestamp
@@ -104,7 +111,7 @@ export async function validateBearerToken(
     UPDATE user_sessions SET last_used_at = NOW() WHERE token = $1
   `, [token])
 
-  return { userId: session.user_id }
+  return { success: true, userId: session.user_id }
 }
 
 /**
@@ -152,7 +159,7 @@ export async function withAuth(
 ): Promise<NextResponse> {
   // Validate token
   const authResult = await validateBearerToken(request)
-  if (authResult.error) {
+  if (!authResult.success) {
     return apiError(authResult.error, 401)
   }
 
@@ -193,25 +200,32 @@ export async function withAuth(
 }
 
 /**
+ * Parse result type
+ */
+export type ParseResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string }
+
+/**
  * Parse and validate JSON body
  */
 export async function parseBody<T>(
   request: NextRequest,
   schema: z.ZodSchema<T>
-): Promise<{ data: T; error?: never } | { data?: never; error: string }> {
+): Promise<ParseResult<T>> {
   let body: unknown
   try {
     body = await request.json()
   } catch {
-    return { error: "JSON invalide" }
+    return { success: false, error: "JSON invalide" }
   }
 
   const result = schema.safeParse(body)
   if (!result.success) {
-    return { error: result.error.issues[0]?.message ?? "Données invalides" }
+    return { success: false, error: result.error.issues[0]?.message ?? "Données invalides" }
   }
 
-  return { data: result.data }
+  return { success: true, data: result.data }
 }
 
 /**

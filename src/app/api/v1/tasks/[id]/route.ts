@@ -113,7 +113,7 @@ export async function PUT(request: NextRequest, { params }: PageProps) {
     }
 
     const bodyResult = await parseBody(request, UpdateTaskSchema)
-    if (bodyResult.error) {
+    if (!bodyResult.success) {
       return apiError(bodyResult.error)
     }
 
@@ -258,7 +258,7 @@ export async function PATCH(request: NextRequest, { params }: PageProps) {
     })
 
     const bodyResult = await parseBody(request, StatusSchema)
-    if (bodyResult.error) {
+    if (!bodyResult.success) {
       return apiError(bodyResult.error)
     }
 

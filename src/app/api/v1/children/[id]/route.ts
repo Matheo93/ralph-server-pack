@@ -105,7 +105,7 @@ export async function PUT(request: NextRequest, { params }: PageProps) {
     }
 
     const bodyResult = await parseBody(request, UpdateChildSchema)
-    if (bodyResult.error) {
+    if (!bodyResult.success) {
       return apiError(bodyResult.error)
     }
 

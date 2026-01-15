@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   return withAuth(request, async (userId, householdId) => {
     const bodyResult = await parseBody(request, CreateChildSchema)
-    if (bodyResult.error) {
+    if (!bodyResult.success) {
       return apiError(bodyResult.error)
     }
 
