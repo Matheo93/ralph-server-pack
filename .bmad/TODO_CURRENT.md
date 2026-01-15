@@ -15,25 +15,25 @@ Préparer l'intégration mobile Flutter, améliorer les notifications push, et r
 ---
 
 ## PRÉ-REQUIS
-- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [ ] 0.2 Vérifier que les tests passent: `bun test src/tests/`
+- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [x] 0.2 Vérifier que les tests passent: `bun test src/tests/`
 
 ---
 
 ## Phase 1: Mobile API Preparation
 
-- [ ] 1.1 Créer `src/lib/services/mobile-api.ts`:
+- [x] 1.1 Créer `src/lib/services/mobile-api.ts`:
   - Device token registration
   - Mobile session management
   - API response formatting for mobile
   - Rate limiting helpers
 
-- [ ] 1.2 Créer API endpoints mobiles:
+- [x] 1.2 Créer API endpoints mobiles:
   - `src/app/api/mobile/register-device/route.ts`
   - `src/app/api/mobile/sync/route.ts` - Offline sync
   - `src/app/api/mobile/health/route.ts` - Health check
 
-- [ ] 1.3 Tests mobile API (≥10 tests)
+- [x] 1.3 Tests mobile API (≥10 tests) - 32 tests created
 
 ---
 
