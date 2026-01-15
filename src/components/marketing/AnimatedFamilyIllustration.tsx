@@ -111,7 +111,7 @@ export function AnimatedFamilyIllustration() {
 
   return (
     <svg
-      viewBox="0 0 400 320"
+      viewBox="0 -20 400 340"
       className="w-full h-auto"
       onMouseLeave={() => setIsHovered(null)}
     >
