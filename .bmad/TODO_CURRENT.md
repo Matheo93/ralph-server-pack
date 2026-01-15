@@ -62,7 +62,7 @@ Sprint 19 se concentre sur:
   - Historical load balancing
   - Preference-based assignment
 
-- [ ] 2.2 Creer `src/lib/distribution/workload-predictor.ts`:
+- [x] 2.2 Creer `src/lib/distribution/workload-predictor.ts`:
   - ML-based workload prediction
   - Pattern recognition par période
   - Proactive task distribution
