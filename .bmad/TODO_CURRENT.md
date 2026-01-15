@@ -114,27 +114,27 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
 
 ## Phase 4: Features Avancees
 
-- [ ] 4.1 Creer `src/lib/services/smart-scheduler.ts`:
+- [x] 4.1 Creer `src/lib/services/smart-scheduler.ts`:
   - Prediction meilleur moment pour taches
   - Learning sur patterns utilisateur
   - Suggestions horaires
 
-- [ ] 4.2 Creer `src/lib/services/family-insights.ts`:
+- [x] 4.2 Creer `src/lib/services/family-insights.ts`:
   - Statistiques mensuelles
   - Trends charge mentale
   - Comparaison semaine precedente
 
-- [ ] 4.3 Creer `src/components/custom/WeeklyReport.tsx`:
+- [x] 4.3 Creer `src/components/custom/WeeklyReport.tsx`:
   - Recap hebdomadaire
   - Graphiques completion
   - Points amelioration
 
-- [ ] 4.4 Creer `src/lib/services/task-prioritization.ts`:
+- [x] 4.4 Creer `src/lib/services/task-prioritization.ts`:
   - Algorithme scoring avance
   - Urgence vs importance
   - Deadlines implicites
 
-- [ ] 4.5 Tests features avancees (30+ tests):
+- [x] 4.5 Tests features avancees (30+ tests):
   - Smart scheduler tests
   - Family insights tests
   - Task prioritization tests
