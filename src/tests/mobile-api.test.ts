@@ -300,7 +300,7 @@ describe("Mobile API Service", () => {
       expect(response.success).toBe(false)
       expect(response.error?.code).toBe("UNAUTHORIZED")
       expect(response.error?.message).toBe("Token expired")
-      expect(response.error?.details?.tokenAge).toBe(3600)
+      expect(response.error?.details?.["tokenAge"]).toBe(3600)
       expect(response.meta?.requestId).toBe("req-456")
     })
 
