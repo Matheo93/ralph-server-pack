@@ -10,14 +10,16 @@ import { z } from 'zod';
 
 // Import voice pipeline modules
 import {
-  createAudioStore,
+  createAudioProcessorStore,
   validateAudio,
   initializeUpload,
   addChunk,
   assembleChunks,
   getUploadStatus,
-  type AudioStore,
-  type AudioMetadata
+  generateUploadId,
+  getAudioProcessorStats,
+  type AudioProcessorStore,
+  type AudioChunk
 } from '@/lib/voice/audio-processor';
 
 import {
@@ -26,8 +28,9 @@ import {
   completeTranscription,
   getTranscription,
   createMockTranscription,
+  getSTTStats,
   type STTStore,
-  type TranscriptionResult
+  type TranscriptionRequest
 } from '@/lib/voice/speech-to-text';
 
 import {
@@ -36,9 +39,7 @@ import {
   completeExtraction,
   extractWithLLM,
   getExtraction,
-  getExtractionByTranscription,
   type ExtractionStore,
-  type ExtractionResult,
   type HouseholdContext,
   type SupportedLanguage
 } from '@/lib/voice/semantic-extractor';
@@ -55,9 +56,6 @@ import {
   getConfirmedTasks,
   createMockWorkloads,
   type TaskGeneratorStore,
-  type TaskPreview,
-  type GeneratedTask,
-  type ParentWorkload,
   type TaskPriority
 } from '@/lib/voice/task-generator';
 
@@ -65,7 +63,7 @@ import {
 // IN-MEMORY STORES (replace with database in production)
 // =============================================================================
 
-let audioStore: AudioStore = createAudioStore();
+let audioStore: AudioProcessorStore = createAudioProcessorStore();
 let sttStore: STTStore = createSTTStore();
 let extractionStore: ExtractionStore = createExtractionStore();
 let taskStore: TaskGeneratorStore = createTaskGeneratorStore();
@@ -96,7 +94,7 @@ const UploadInitRequestSchema = z.object({
   filename: z.string().min(1),
   mimeType: z.string().min(1),
   totalSize: z.number().positive(),
-  totalChunks: z.number().positive().optional(),
+  userId: z.string().min(1),
   language: z.enum(['fr', 'en', 'es', 'de', 'it', 'pt']).optional()
 });
 
@@ -104,6 +102,7 @@ const UploadChunkRequestSchema = z.object({
   action: z.literal('upload_chunk'),
   uploadId: z.string().min(1),
   chunkIndex: z.number().min(0),
+  totalChunks: z.number().min(1),
   chunkData: z.string().min(1) // Base64 encoded
 });
 
@@ -115,7 +114,7 @@ const AssembleUploadRequestSchema = z.object({
 const TranscribeRequestSchema = z.object({
   action: z.literal('transcribe'),
   uploadId: z.string().min(1),
-  language: z.enum(['fr', 'en', 'es', 'de', 'it', 'pt']).optional(),
+  language: z.enum(['fr', 'en', 'es', 'de', 'it', 'pt', 'nl', 'auto']).optional(),
   provider: z.enum(['whisper', 'deepgram']).optional()
 });
 
@@ -234,30 +233,26 @@ function errorResponse(message: string, status = 400): NextResponse {
 async function handleInitUpload(
   request: z.infer<typeof UploadInitRequestSchema>
 ): Promise<NextResponse> {
-  // Create metadata from request
-  const metadata: AudioMetadata = {
-    filename: request.filename,
-    mimeType: request.mimeType,
-    size: request.totalSize,
-    duration: 0, // Will be calculated after assembly
-    sampleRate: 0,
-    channels: 0,
-    bitDepth: 0
-  };
-
-  // Validate audio metadata
-  const validation = validateAudio(metadata);
-  if (!validation.isValid) {
+  // Validate audio metadata (use estimated duration of 10s as placeholder)
+  const validation = validateAudio(request.filename, request.totalSize, 10, request.mimeType);
+  if (!validation.valid) {
     return errorResponse(`Invalid audio: ${validation.errors.join(', ')}`);
   }
 
+  // Generate upload ID
+  const uploadId = generateUploadId();
+
   // Initialize upload
-  const result = initializeUpload(audioStore, metadata, request.totalChunks || 1);
-  audioStore = result.store;
+  audioStore = initializeUpload(
+    audioStore,
+    uploadId,
+    request.userId,
+    request.filename,
+    request.totalSize
+  );
 
   return successResponse({
-    uploadId: result.uploadId,
-    expectedChunks: request.totalChunks || 1,
+    uploadId,
     maxDuration: 30,
     supportedFormats: ['audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/m4a', 'audio/webm', 'audio/ogg']
   });
@@ -281,23 +276,34 @@ async function handleUploadChunk(
     return errorResponse('Invalid base64 chunk data');
   }
 
-  // Add chunk to store
-  const result = addChunk(audioStore, request.uploadId, request.chunkIndex, chunkBuffer);
-  audioStore = result.store;
+  // Create chunk object
+  const chunk: Omit<AudioChunk, 'uploadedAt'> = {
+    id: `chunk_${request.uploadId}_${request.chunkIndex}`,
+    index: request.chunkIndex,
+    totalChunks: request.totalChunks,
+    data: chunkBuffer,
+    size: chunkBuffer.length
+  };
 
-  if (!result.success) {
-    return errorResponse('Failed to add chunk - upload not found or invalid index');
-  }
+  // Add chunk to store
+  audioStore = addChunk(audioStore, request.uploadId, chunk);
 
   // Get upload status
   const status = getUploadStatus(audioStore, request.uploadId);
 
+  if (!status) {
+    return errorResponse('Upload not found');
+  }
+
+  const receivedChunks = status.chunks.length;
+  const isComplete = status.status === 'complete';
+
   return successResponse({
     uploadId: request.uploadId,
     chunkIndex: request.chunkIndex,
-    receivedChunks: status?.receivedChunks || 0,
-    totalChunks: status?.totalChunks || 0,
-    isComplete: status?.isComplete || false
+    receivedChunks,
+    totalChunks: request.totalChunks,
+    isComplete
   });
 }
 
@@ -307,16 +313,25 @@ async function handleUploadChunk(
 async function handleAssembleUpload(
   request: z.infer<typeof AssembleUploadRequestSchema>
 ): Promise<NextResponse> {
-  const result = assembleChunks(audioStore, request.uploadId);
-  audioStore = result.store;
+  const status = getUploadStatus(audioStore, request.uploadId);
 
-  if (!result.success || !result.audio) {
-    return errorResponse('Failed to assemble audio - missing chunks or upload not found');
+  if (!status) {
+    return errorResponse('Upload not found');
+  }
+
+  if (status.status !== 'complete') {
+    return errorResponse('Upload not complete - missing chunks');
+  }
+
+  const assembledAudio = assembleChunks(audioStore, request.uploadId);
+
+  if (!assembledAudio) {
+    return errorResponse('Failed to assemble audio');
   }
 
   return successResponse({
     uploadId: request.uploadId,
-    audioSize: result.audio.data.length,
+    audioSize: assembledAudio.length,
     isReady: true
   });
 }
@@ -329,36 +344,40 @@ async function handleTranscribe(
 ): Promise<NextResponse> {
   // Get upload status to verify audio is ready
   const uploadStatus = getUploadStatus(audioStore, request.uploadId);
-  if (!uploadStatus || !uploadStatus.isComplete) {
+  if (!uploadStatus || uploadStatus.status !== 'complete') {
     return errorResponse('Audio upload not complete or not found');
   }
 
-  // Start transcription
-  const transcriptionId = `trans_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  const language = (request.language || 'fr') as SupportedLanguage;
+  // Create transcription request
+  const transcriptionRequest: TranscriptionRequest = {
+    audioId: request.uploadId,
+    audioUrl: `internal://${request.uploadId}`, // Placeholder URL
+    language: request.language || 'auto',
+    enableWordTimings: false,
+    enableSegments: true,
+    provider: request.provider
+  };
 
-  sttStore = startTranscription(sttStore, transcriptionId, {
-    provider: request.provider === 'deepgram' ? 'deepgram' : 'whisper',
-    language,
-    enablePunctuation: true,
-    enableDiarization: false
-  });
+  // Start transcription
+  sttStore = startTranscription(sttStore, transcriptionRequest);
 
   // In production, this would call the actual STT API
-  // For now, simulate with mock transcription based on upload ID
+  // For now, simulate with mock transcription
+  const language = (request.language || 'fr') as SupportedLanguage;
   const mockText = getMockTranscriptionText(language);
 
-  // Complete transcription with mock result
+  // Create mock transcription result
   const transcriptionResult = createMockTranscription(
-    transcriptionId,
+    request.uploadId,
     mockText,
-    language
+    language,
+    request.provider || 'whisper'
   );
 
   sttStore = completeTranscription(sttStore, transcriptionResult);
 
   return successResponse({
-    transcriptionId,
+    transcriptionId: transcriptionResult.id,
     text: transcriptionResult.text,
     language: transcriptionResult.language,
     confidence: transcriptionResult.confidence,
@@ -401,7 +420,11 @@ async function handleExtract(
     originalText: extraction.originalText,
     action: extraction.action,
     child: extraction.child,
-    date: extraction.date,
+    date: {
+      raw: extraction.date.raw,
+      parsed: extraction.date.parsed?.toISOString() || null,
+      type: extraction.date.type
+    },
     category: extraction.category,
     urgency: extraction.urgency,
     overallConfidence: extraction.overallConfidence,
@@ -562,7 +585,13 @@ async function handleGetStatus(
 
   if (request.uploadId) {
     const uploadStatus = getUploadStatus(audioStore, request.uploadId);
-    status['upload'] = uploadStatus || { error: 'Not found' };
+    status['upload'] = uploadStatus ? {
+      uploadId: uploadStatus.uploadId,
+      status: uploadStatus.status,
+      uploadedSize: uploadStatus.uploadedSize,
+      totalSize: uploadStatus.totalSize,
+      chunksReceived: uploadStatus.chunks.length
+    } : { error: 'Not found' };
   }
 
   if (request.transcriptionId) {
@@ -661,18 +690,22 @@ async function handleFullPipeline(
 
   try {
     // Step 1: Create mock transcription (in production, would process real audio)
-    const transcriptionId = `trans_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const audioId = generateUploadId();
     const mockText = getMockTranscriptionText(language);
 
-    sttStore = startTranscription(sttStore, transcriptionId, {
-      provider: 'whisper',
+    const transcriptionRequest: TranscriptionRequest = {
+      audioId,
+      audioUrl: `internal://${audioId}`,
       language,
-      enablePunctuation: true,
-      enableDiarization: false
-    });
+      enableWordTimings: false,
+      enableSegments: true,
+      provider: 'whisper'
+    };
+
+    sttStore = startTranscription(sttStore, transcriptionRequest);
 
     const transcriptionResult = createMockTranscription(
-      transcriptionId,
+      audioId,
       mockText,
       language
     );
@@ -680,10 +713,10 @@ async function handleFullPipeline(
     sttStore = completeTranscription(sttStore, transcriptionResult);
 
     // Step 2: Extract semantic information
-    extractionStore = startExtraction(extractionStore, transcriptionId);
+    extractionStore = startExtraction(extractionStore, transcriptionResult.id);
 
     const extraction = await extractWithLLM(
-      transcriptionId,
+      transcriptionResult.id,
       transcriptionResult.text,
       language,
       household
@@ -706,7 +739,11 @@ async function handleFullPipeline(
         id: extraction.id,
         action: extraction.action,
         child: extraction.child,
-        date: extraction.date,
+        date: {
+          raw: extraction.date.raw,
+          parsed: extraction.date.parsed?.toISOString() || null,
+          type: extraction.date.type
+        },
         category: extraction.category,
         urgency: extraction.urgency,
         confidence: extraction.overallConfidence
@@ -782,6 +819,16 @@ function getMockTranscriptionText(language: SupportedLanguage): string {
       'Reunião de pais na sexta à noite não esquecer',
       'Inscrever o Hugo no futebol antes do fim do mês',
       'Consulta no dentista para as crianças na próxima semana'
+    ],
+    nl: [
+      'Lucas moet morgen naar de dokter voor zijn vaccinatie',
+      'Schoolspullen kopen voor Emma deze week',
+      'Ouderavond vrijdagavond niet vergeten',
+      'Hugo inschrijven voor voetbal voor eind van de maand',
+      'Tandarts afspraak voor de kinderen volgende week'
+    ],
+    auto: [
+      'Il faut emmener Lucas chez le médecin demain pour son vaccin'
     ]
   };
 
@@ -862,16 +909,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     switch (action) {
       case 'stats':
         return successResponse({
-          audio: {
-            pendingUploads: audioStore.pendingUploads.size,
-            completedUploads: audioStore.completedAudios.size,
-            stats: audioStore.stats
-          },
-          stt: {
-            pendingTranscriptions: sttStore.pendingTranscriptions.size,
-            completedTranscriptions: sttStore.transcriptions.size,
-            stats: sttStore.stats
-          },
+          audio: getAudioProcessorStats(audioStore),
+          stt: getSTTStats(sttStore),
           extraction: {
             pendingExtractions: extractionStore.pendingExtractions.size,
             completedExtractions: extractionStore.extractions.size,
