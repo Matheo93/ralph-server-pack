@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils/index"
+import { JokerButton } from "./JokerButton"
 
 interface StreakMilestone {
   days: number
@@ -149,15 +150,27 @@ export function StreakCounter({
           </div>
         </div>
 
-        {/* Risk warning */}
+        {/* Risk warning with Joker button */}
         {isAtRisk && riskReason && (
           <div className="mt-3 p-2 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-900">
-            <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-              Streak en danger !
-            </p>
-            <p className="text-xs text-red-500 dark:text-red-500">
-              {riskReason}
-            </p>
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+                  Streak en danger !
+                </p>
+                <p className="text-xs text-red-500 dark:text-red-500">
+                  {riskReason}
+                </p>
+              </div>
+              <JokerButton compact />
+            </div>
+          </div>
+        )}
+
+        {/* Joker status when not at risk */}
+        {!isAtRisk && current > 0 && (
+          <div className="mt-3">
+            <JokerButton showLabel={false} compact />
           </div>
         )}
 
