@@ -122,7 +122,7 @@ describe("Error Reporting", () => {
         componentName: "TestComponent",
       })
 
-      expect(report.context.additionalData?.componentStack).toBe(componentStack)
+      expect(report.context.additionalData?.["componentStack"]).toBe(componentStack)
     })
   })
 

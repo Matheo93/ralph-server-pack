@@ -122,6 +122,48 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Accessibility: Focus visible styles */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  /* Accessibility: Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Accessibility: High contrast mode support */
+  @media (prefers-contrast: high) {
+    :root {
+      --border: oklch(0.5 0 0);
+      --muted-foreground: oklch(0.3 0 0);
+      --ring: oklch(0.2 0 0);
+    }
+    .dark {
+      --border: oklch(0.7 0 0);
+      --muted-foreground: oklch(0.8 0 0);
+      --ring: oklch(0.9 0 0);
+    }
+  }
+}
+
+/* Skip links for keyboard navigation */
+.skip-link {
+  @apply absolute z-[9999] -translate-y-full px-4 py-2 bg-primary text-primary-foreground font-medium rounded-md shadow-lg transition-transform focus:translate-y-0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+}
+
+.skip-link:focus {
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Shimmer animation for skeleton loading */

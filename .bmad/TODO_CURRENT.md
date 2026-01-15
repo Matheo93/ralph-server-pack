@@ -63,24 +63,24 @@ Polir l'application pour une expérience utilisateur de niveau production: anima
 
 ## Phase 3: Error Handling & Recovery
 
-- [ ] 3.1 Améliorer `ErrorBoundary.tsx`:
+- [x] 3.1 Améliorer `ErrorBoundary.tsx`:
   - Capture des erreurs par composant
   - UI de récupération élégante
   - Bouton "Réessayer"
   - Logging automatique des erreurs
-- [ ] 3.2 Créer `src/lib/error-reporting.ts`:
+- [x] 3.2 Créer `src/lib/error-reporting.ts`:
   - Centraliser la gestion d'erreurs
   - Format d'erreur standardisé
   - Queue d'erreurs pour batch reporting
-- [ ] 3.3 Ajouter error states aux formulaires:
+- [x] 3.3 Ajouter error states aux formulaires:
   - TaskForm error recovery
   - ChildForm error recovery
   - VocalRecorder error handling
-- [ ] 3.4 Créer `toast-notifications.tsx`:
+- [x] 3.4 Créer `toast-notifications.tsx`:
   - Notifications toast pour feedback utilisateur
   - Success, error, warning, info variants
   - Auto-dismiss avec timer
-- [ ] 3.5 Tests error handling
+- [x] 3.5 Tests error handling
 
 ---
 
