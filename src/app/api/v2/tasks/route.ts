@@ -661,7 +661,7 @@ export async function PATCH(request: NextRequest) {
     `, [ids, householdId])
 
     if (tasksCheck.length !== ids.length) {
-      return createErrorResponse("resource_not_found", "en", {
+      return createErrorResponse("not_found", "en", {
         message: "Some tasks not found or not accessible",
       })
     }
@@ -726,7 +726,7 @@ export async function PATCH(request: NextRequest) {
     updates.push("updated_at = NOW()")
 
     if (updates.length === 1) {
-      return validationError("No updates provided")
+      return validationError({ message: "No updates provided" })
     }
 
     await query(`

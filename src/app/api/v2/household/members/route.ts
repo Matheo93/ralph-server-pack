@@ -360,6 +360,6 @@ export async function DELETE(request: NextRequest) {
       return addVersionHeaders(response, API_VERSION)
     }
 
-    return validationError("Invalid request")
+    return validationError({ message: "Invalid request" })
   })
 }
