@@ -77,7 +77,7 @@ Sprint 19 se concentre sur:
   - Skill-based assignment
   - Availability awareness
 
-- [ ] 2.5 Tests distribution engine (25+ tests):
+- [x] 2.5 Tests distribution engine (25+ tests):
   - Fairness algorithm tests
   - Workload prediction tests
   - Burnout prevention tests
