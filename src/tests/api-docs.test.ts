@@ -174,50 +174,50 @@ describe("Common Schemas", () => {
   it("should define all required schemas", async () => {
     const { commonSchemas } = await import("@/lib/openapi/schema")
 
-    expect(commonSchemas.Error).toBeDefined()
-    expect(commonSchemas.Success).toBeDefined()
-    expect(commonSchemas.Task).toBeDefined()
-    expect(commonSchemas.Child).toBeDefined()
-    expect(commonSchemas.Household).toBeDefined()
-    expect(commonSchemas.User).toBeDefined()
-    expect(commonSchemas.DeviceToken).toBeDefined()
-    expect(commonSchemas.Invoice).toBeDefined()
+    expect(commonSchemas["Error"]).toBeDefined()
+    expect(commonSchemas["Success"]).toBeDefined()
+    expect(commonSchemas["Task"]).toBeDefined()
+    expect(commonSchemas["Child"]).toBeDefined()
+    expect(commonSchemas["Household"]).toBeDefined()
+    expect(commonSchemas["User"]).toBeDefined()
+    expect(commonSchemas["DeviceToken"]).toBeDefined()
+    expect(commonSchemas["Invoice"]).toBeDefined()
   })
 
   it("should have valid Error schema", async () => {
     const { commonSchemas } = await import("@/lib/openapi/schema")
 
-    const errorSchema = commonSchemas.Error
-    expect(errorSchema.type).toBe("object")
-    expect(errorSchema.properties?.error).toBeDefined()
-    expect(errorSchema.required).toContain("error")
+    const errorSchema = commonSchemas["Error"]
+    expect(errorSchema?.type).toBe("object")
+    expect(errorSchema?.properties?.["error"]).toBeDefined()
+    expect(errorSchema?.required).toContain("error")
   })
 
   it("should have valid Task schema with all fields", async () => {
     const { commonSchemas } = await import("@/lib/openapi/schema")
 
-    const taskSchema = commonSchemas.Task
-    expect(taskSchema.type).toBe("object")
-    expect(taskSchema.properties?.id).toBeDefined()
-    expect(taskSchema.properties?.title).toBeDefined()
-    expect(taskSchema.properties?.status).toBeDefined()
-    expect(taskSchema.properties?.status.enum).toContain("pending")
-    expect(taskSchema.properties?.status.enum).toContain("completed")
-    expect(taskSchema.required).toContain("id")
-    expect(taskSchema.required).toContain("title")
-    expect(taskSchema.required).toContain("status")
+    const taskSchema = commonSchemas["Task"]
+    expect(taskSchema?.type).toBe("object")
+    expect(taskSchema?.properties?.["id"]).toBeDefined()
+    expect(taskSchema?.properties?.["title"]).toBeDefined()
+    expect(taskSchema?.properties?.["status"]).toBeDefined()
+    expect(taskSchema?.properties?.["status"]?.enum).toContain("pending")
+    expect(taskSchema?.properties?.["status"]?.enum).toContain("completed")
+    expect(taskSchema?.required).toContain("id")
+    expect(taskSchema?.required).toContain("title")
+    expect(taskSchema?.required).toContain("status")
   })
 
   it("should have valid Invoice schema", async () => {
     const { commonSchemas } = await import("@/lib/openapi/schema")
 
-    const invoiceSchema = commonSchemas.Invoice
-    expect(invoiceSchema.type).toBe("object")
-    expect(invoiceSchema.properties?.id).toBeDefined()
-    expect(invoiceSchema.properties?.amountDue).toBeDefined()
-    expect(invoiceSchema.properties?.amountDue.description).toContain("cents")
-    expect(invoiceSchema.properties?.status.enum).toContain("paid")
-    expect(invoiceSchema.properties?.status.enum).toContain("open")
+    const invoiceSchema = commonSchemas["Invoice"]
+    expect(invoiceSchema?.type).toBe("object")
+    expect(invoiceSchema?.properties?.["id"]).toBeDefined()
+    expect(invoiceSchema?.properties?.["amountDue"]).toBeDefined()
+    expect(invoiceSchema?.properties?.["amountDue"]?.description).toContain("cents")
+    expect(invoiceSchema?.properties?.["status"]?.enum).toContain("paid")
+    expect(invoiceSchema?.properties?.["status"]?.enum).toContain("open")
   })
 })
 
