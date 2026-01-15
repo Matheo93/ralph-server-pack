@@ -12,6 +12,7 @@ import { InstallPrompt } from "@/components/custom/InstallPrompt"
 import { SkipLinks } from "@/components/custom/SkipLinks"
 import { KeyboardShortcutsHelp } from "@/components/custom/KeyboardShortcutsHelp"
 import { OfflineIndicator } from "@/components/custom/OfflineIndicator"
+import { PageTransitionProvider, PageWrapper } from "@/components/custom/PageTransition"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -48,43 +49,47 @@ export default async function DashboardLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <QueryProvider>
-        <SkipLinks />
-        <div className="min-h-screen bg-background">
-          <Sidebar />
-          <div className="lg:pl-64">
-            <header
-              id="navigation"
-              className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
-            >
-              <MobileNav />
-              <div className="h-6 w-px bg-border lg:hidden" aria-hidden="true" />
-              <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-                <div className="flex items-center gap-x-4 lg:gap-x-6">
-                  {household?.name && (
-                    <span className="text-sm font-medium text-muted-foreground hidden sm:block">
-                      {household.name}
-                    </span>
-                  )}
-                  {household && household.streak_current > 0 && (
-                    <span className="text-sm font-medium text-orange-500" aria-label={`Streak de ${household.streak_current} jours`}>
-                      {household.streak_current} jour{household.streak_current > 1 ? "s" : ""} de suite
-                    </span>
-                  )}
+        <PageTransitionProvider>
+          <SkipLinks />
+          <div className="min-h-screen bg-background">
+            <Sidebar />
+            <div className="lg:pl-64">
+              <header
+                id="navigation"
+                className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
+              >
+                <MobileNav />
+                <div className="h-6 w-px bg-border lg:hidden" aria-hidden="true" />
+                <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
+                  <div className="flex items-center gap-x-4 lg:gap-x-6">
+                    {household?.name && (
+                      <span className="text-sm font-medium text-muted-foreground hidden sm:block">
+                        {household.name}
+                      </span>
+                    )}
+                    {household && household.streak_current > 0 && (
+                      <span className="text-sm font-medium text-orange-500" aria-label={`Streak de ${household.streak_current} jours`}>
+                        {household.streak_current} jour{household.streak_current > 1 ? "s" : ""} de suite
+                      </span>
+                    )}
+                  </div>
+                  <div className="ml-auto flex items-center">
+                    <Header email={user.email ?? ""} householdName={household?.name} />
+                  </div>
                 </div>
-                <div className="ml-auto flex items-center">
-                  <Header email={user.email ?? ""} householdName={household?.name} />
-                </div>
-              </div>
-            </header>
-            <main id="main-content" className="py-4 pb-20 lg:pb-4" role="main">
-              {children}
-            </main>
+              </header>
+              <main id="main-content" className="py-4 pb-20 lg:pb-4" role="main">
+                <PageWrapper>
+                  {children}
+                </PageWrapper>
+              </main>
+            </div>
+            <BottomNav />
+            <InstallPrompt />
+            <KeyboardShortcutsHelp />
+            <OfflineIndicator showOnlineStatus />
           </div>
-          <BottomNav />
-          <InstallPrompt />
-          <KeyboardShortcutsHelp />
-          <OfflineIndicator showOnlineStatus />
-        </div>
+        </PageTransitionProvider>
       </QueryProvider>
     </NextIntlClientProvider>
   )
