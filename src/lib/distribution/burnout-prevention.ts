@@ -204,7 +204,7 @@ export function detectStressIndicators(
   // Check consecutive overload
   let consecutiveOverload = 0
   for (let i = recentWorkload.length - 1; i >= 0; i--) {
-    if (recentWorkload[i].wasOverloaded) {
+    if (recentWorkload[i]!.wasOverloaded) {
       consecutiveOverload++
     } else {
       break
@@ -283,7 +283,7 @@ export function buildMemberWorkloadState(
   // Count consecutive high load days
   let consecutiveHighLoadDays = 0
   for (let i = recentWorkload.length - 1; i >= 0; i--) {
-    if (recentWorkload[i].loadPercentage >= config.thresholds.warningLoadPercent) {
+    if (recentWorkload[i]!.loadPercentage >= config.thresholds.warningLoadPercent) {
       consecutiveHighLoadDays++
     } else {
       break
@@ -503,7 +503,7 @@ export function createRecoveryPlan(
           action: "reassign",
           taskId: task.id,
           taskName: task.name,
-          newAssignee: reassignCandidates[0].id,
+          newAssignee: reassignCandidates[0]!.id,
         })
       } else if (task.canDelay) {
         tasks.push({

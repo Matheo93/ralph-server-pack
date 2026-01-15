@@ -382,7 +382,7 @@ export function calculateAvailabilityScore(
  */
 function parseTimeToMinutes(time: string): number {
   const [hours, minutes] = time.split(":").map(Number)
-  return hours * 60 + minutes
+  return (hours ?? 0) * 60 + (minutes ?? 0)
 }
 
 /**
@@ -719,11 +719,11 @@ export function generateSmartAssignment(
 
   return {
     taskId: task.id,
-    recommendedMember: best.member.id,
+    recommendedMember: best!.member.id,
     alternativeMembers: alternatives,
-    reasoning: best.reasoning,
-    score: best.score,
-    autoAssignable: best.score >= policy.autoAssignThreshold,
+    reasoning: best!.reasoning,
+    score: best!.score,
+    autoAssignable: best!.score >= policy.autoAssignThreshold,
   }
 }
 
@@ -782,8 +782,9 @@ export function completeDelegation(
     status: "completed",
     completedAt: new Date(),
     feedback: {
-      ...request.feedback,
       accepted: true,
+      wouldAcceptAgain: true,
+      ...request.feedback,
       ...feedback,
     },
   }

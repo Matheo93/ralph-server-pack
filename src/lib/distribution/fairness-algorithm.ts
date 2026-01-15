@@ -263,8 +263,8 @@ export function calculatePreferenceScore(
   if (task.deadline && preferences.preferredTimeSlots.length > 0) {
     const taskHour = task.deadline.getHours()
     const hasMatchingSlot = preferences.preferredTimeSlots.some(slot => {
-      const startHour = parseInt(slot.start.split(":")[0], 10)
-      const endHour = parseInt(slot.end.split(":")[0], 10)
+      const startHour = parseInt(slot.start.split(":")[0] ?? "0", 10)
+      const endHour = parseInt(slot.end.split(":")[0] ?? "0", 10)
       return taskHour >= startHour && taskHour <= endHour
     })
 
@@ -485,8 +485,8 @@ export function findBestAssignment(
 
   return {
     taskId: task.id,
-    assignedTo: best.member.id,
-    score: best.score,
+    assignedTo: best!.member.id,
+    score: best!.score,
     alternativeCandidates: alternatives,
   }
 }
@@ -525,7 +525,7 @@ export function assignTasksBatch(
       // Update simulated state
       const memberIndex = mutableMembers.findIndex(m => m.id === result.assignedTo)
       if (memberIndex >= 0) {
-        mutableMembers[memberIndex].currentLoad++
+        mutableMembers[memberIndex]!.currentLoad++
       }
 
       const history = mutableHistories.get(result.assignedTo)
@@ -702,7 +702,7 @@ export function calculateGiniCoefficient(values: number[]): number {
   let sumOfDifferences = 0
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      sumOfDifferences += Math.abs(sorted[i] - sorted[j])
+      sumOfDifferences += Math.abs(sorted[i]! - sorted[j]!)
     }
   }
 

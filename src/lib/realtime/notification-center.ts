@@ -460,12 +460,15 @@ export function updateTypePreferences(
   type: NotificationType,
   settings: Partial<TypePreferences[string]>
 ): NotificationPreferences {
+  const existing = prefs.types[type] ?? { enabled: true, channels: ["in_app"] }
   return {
     ...prefs,
     types: {
       ...prefs.types,
       [type]: {
-        ...prefs.types[type],
+        enabled: existing.enabled,
+        channels: existing.channels,
+        priority: existing.priority,
         ...settings,
       },
     },
@@ -514,8 +517,8 @@ export function isInQuietHours(prefs: NotificationPreferences, now: Date = new D
   const [startHours, startMinutes] = prefs.quietHours.start.split(":").map(Number)
   const [endHours, endMinutes] = prefs.quietHours.end.split(":").map(Number)
 
-  const startTime = startHours * 60 + startMinutes
-  const endTime = endHours * 60 + endMinutes
+  const startTime = (startHours ?? 0) * 60 + (startMinutes ?? 0)
+  const endTime = (endHours ?? 0) * 60 + (endMinutes ?? 0)
 
   if (startTime < endTime) {
     // Normal range (e.g., 22:00 to 08:00 next day = false for this branch)
@@ -631,11 +634,11 @@ export function getNextFromQueue(
   const [next, ...rest] = queue.pending
 
   return {
-    notification: next.notification,
+    notification: next!.notification,
     queue: {
       ...queue,
       pending: rest,
-      processing: [...queue.processing, next.notification.id],
+      processing: [...queue.processing, next!.notification.id],
     },
   }
 }

@@ -362,9 +362,9 @@ export function isValidMessage(message: unknown): message is WebSocketMessage {
 
   const msg = message as Record<string, unknown>
   return (
-    typeof msg.type === "string" &&
-    typeof msg.id === "string" &&
-    typeof msg.timestamp === "number"
+    typeof msg["type"] === "string" &&
+    typeof msg["id"] === "string" &&
+    typeof msg["timestamp"] === "number"
   )
 }
 
@@ -418,7 +418,7 @@ export function dequeueMessage(
   const [message, ...rest] = queue.pending
 
   return {
-    message,
+    message: message ?? null,
     queue: {
       ...queue,
       pending: rest,

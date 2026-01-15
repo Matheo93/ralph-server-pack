@@ -747,5 +747,5 @@ export function createMemberRoomId(memberId: string): string {
 export function parseRoomId(roomId: string): { type: string; id: string } | null {
   const parts = roomId.split(":")
   if (parts.length !== 2) return null
-  return { type: parts[0], id: parts[1] }
+  return { type: parts[0]!, id: parts[1]! }
 }

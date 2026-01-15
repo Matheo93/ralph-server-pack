@@ -216,7 +216,7 @@ function detectDailyPattern(dataPoints: WorkloadDataPoint[]): WorkloadPattern {
   const byDay: number[][] = [[], [], [], [], [], [], []]
 
   dataPoints.forEach(dp => {
-    byDay[dp.dayOfWeek].push(dp.taskCount)
+    byDay[dp.dayOfWeek]!.push(dp.taskCount)
   })
 
   const dayAverages = byDay.map(day => mean(day))
@@ -359,7 +359,7 @@ export function analyzeWorkloadTrend(
   // Find when trend started
   let trendStartIndex = 0
   for (let i = weeklyTotals.length - 2; i >= 0; i--) {
-    const recentSlope = weeklyTotals[weeklyTotals.length - 1].total - weeklyTotals[i].total
+    const recentSlope = weeklyTotals[weeklyTotals.length - 1]!.total - weeklyTotals[i]!.total
     if ((direction === "increasing" && recentSlope <= 0) ||
         (direction === "decreasing" && recentSlope >= 0)) {
       trendStartIndex = i + 1
@@ -541,7 +541,7 @@ export function detectAnomalies(
 
   // Check for anomalies
   for (let i = windowSize - 1; i < sorted.length; i++) {
-    const actual = sorted[i].taskCount
+    const actual = sorted[i]!.taskCount
     const expected = rollingMean[i - windowSize + 1] ?? mean(taskCounts)
     const std = rollingStd[i - windowSize + 1] ?? standardDeviation(taskCounts)
 
@@ -552,10 +552,10 @@ export function detectAnomalies(
       const severity = Math.min(10, Math.round(zScore * 2))
 
       const possibleCauses: string[] = []
-      if (sorted[i].isHoliday) {
+      if (sorted[i]!.isHoliday) {
         possibleCauses.push("Holiday period")
       }
-      if (sorted[i].dayOfWeek === 0 || sorted[i].dayOfWeek === 6) {
+      if (sorted[i]!.dayOfWeek === 0 || sorted[i]!.dayOfWeek === 6) {
         possibleCauses.push("Weekend effect")
       }
       if (type === "spike") {
@@ -565,7 +565,7 @@ export function detectAnomalies(
       }
 
       anomalies.push({
-        timestamp: sorted[i].timestamp,
+        timestamp: sorted[i]!.timestamp,
         type,
         severity,
         expectedValue: Math.round(expected),
@@ -661,12 +661,12 @@ export function buildSeasonalProfile(dataPoints: WorkloadDataPoint[]): SeasonalP
 
     points.forEach(p => {
       const day = p.timestamp.getDate() - 1
-      dayTotals[day] += p.taskCount
-      dayCounts[day]++
+      dayTotals[day]! += p.taskCount
+      dayCounts[day]!++
     })
 
     const dayAverages = dayTotals.map((total, i) =>
-      dayCounts[i] > 0 ? total / dayCounts[i] : 0
+      dayCounts[i]! > 0 ? total / dayCounts[i]! : 0
     )
 
     const threshold = mean(dayAverages) * 1.2
