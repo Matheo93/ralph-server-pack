@@ -8,13 +8,16 @@ import { NextRequest, NextResponse } from "next/server"
 import { getUserId } from "@/lib/auth/actions"
 import { queryOne, setCurrentUser } from "@/lib/aws/database"
 import {
-  createPeriodRuleStore,
+  initializeFrenchPeriodRules,
   getCurrentMonthRules,
   getRulesForMonth,
+  getUpcomingRules,
   shouldTriggerRule,
+  type PeriodRule,
 } from "@/lib/catalog/period-rules"
 
-const periodRuleStore = createPeriodRuleStore()
+// Initialize store with French period rules
+const periodRuleStore = initializeFrenchPeriodRules()
 
 /**
  * GET /api/catalog/periods
@@ -32,6 +35,7 @@ export async function GET(request: NextRequest) {
   const month = searchParams.get("month")
   const includeNext = searchParams.get("includeNext") !== "false"
   const triggeredOnly = searchParams.get("triggeredOnly") === "true"
+  const daysAhead = Math.min(parseInt(searchParams.get("days") ?? "30"), 90)
 
   // Get user's household
   const membership = await queryOne<{ household_id: string }>(`
@@ -49,24 +53,26 @@ export async function GET(request: NextRequest) {
 
   // Get current month rules
   let currentRules = month
-    ? getRulesForMonth(periodRuleStore, currentMonth)
-    : getCurrentMonthRules(periodRuleStore)
+    ? getRulesForMonth(periodRuleStore, currentMonth, 'FR')
+    : getCurrentMonthRules(periodRuleStore, 'FR')
 
   if (triggeredOnly) {
     currentRules = currentRules.filter(rule => shouldTriggerRule(rule, now))
   }
 
-  const formatRule = (rule: ReturnType<typeof getCurrentMonthRules>[number]) => ({
+  const formatRule = (rule: PeriodRule) => ({
     id: rule.id,
-    title: rule.title['fr'] ?? rule.title['en'] ?? Object.values(rule.title)[0] ?? '',
-    description: rule.description?.['fr'] ?? rule.description?.['en'] ?? '',
+    title: rule.name['fr'] ?? rule.name['en'] ?? Object.values(rule.name)[0] ?? '',
+    description: rule.description['fr'] ?? rule.description['en'] ?? Object.values(rule.description)[0] ?? '',
     category: rule.category,
     priority: rule.priority,
+    periodType: rule.periodType,
     months: rule.months,
-    dayRange: rule.dayRange,
+    leadDays: rule.leadDays,
     isTriggered: shouldTriggerRule(rule, now),
     ageRanges: rule.ageRanges,
-    country: rule.country,
+    countries: rule.countries,
+    tags: rule.tags,
   })
 
   const response: {
@@ -80,24 +86,31 @@ export async function GET(request: NextRequest) {
       monthName: string
       rules: ReturnType<typeof formatRule>[]
     }
+    upcoming?: ReturnType<typeof formatRule>[]
   } = {
     currentMonth: {
       month: currentMonth,
       monthName: getMonthName(currentMonth),
-      rules: currentRules.map(formatRule),
+      rules: [...currentRules].map(formatRule),
     },
   }
 
   // Include next month if requested
   if (includeNext) {
     const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1
-    const nextMonthRules = getRulesForMonth(periodRuleStore, nextMonth)
+    const nextMonthRules = getRulesForMonth(periodRuleStore, nextMonth, 'FR')
 
     response.nextMonth = {
       month: nextMonth,
       monthName: getMonthName(nextMonth),
-      rules: nextMonthRules.map(formatRule),
+      rules: [...nextMonthRules].map(formatRule),
     }
+  }
+
+  // Include upcoming rules within days ahead
+  if (daysAhead > 0) {
+    const upcomingRules = getUpcomingRules(periodRuleStore, daysAhead, 'FR')
+    response.upcoming = [...upcomingRules].map(formatRule)
   }
 
   return NextResponse.json(response)
