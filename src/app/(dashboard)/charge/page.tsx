@@ -45,7 +45,7 @@ export default async function ChargePage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Charge mentale</h1>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Analyse de la r\u00e9partition des t\u00e2ches dans {householdData?.name || "votre foyer"}
+            Analyse de la répartition des tâches dans {householdData?.name || "votre foyer"}
           </p>
         </div>
         <div className="flex gap-2">
@@ -73,7 +73,7 @@ export default async function ChargePage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              R\u00e9partition
+              Répartition
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -89,7 +89,7 @@ export default async function ChargePage() {
                 variant={balance.alertLevel === "none" ? "secondary" : "destructive"}
                 className={balance.alertLevel === "warning" ? "bg-orange-500" : ""}
               >
-                {balance.isBalanced ? "\u00c9quilibr\u00e9" : "D\u00e9s\u00e9quilibr\u00e9"}
+                {balance.isBalanced ? "Équilibré" : "Déséquilibré"}
               </Badge>
             )}
           </CardContent>
@@ -98,12 +98,12 @@ export default async function ChargePage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Cat\u00e9gories actives
+              Catégories actives
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{categoryData.categories.length}</div>
-            <p className="text-sm text-muted-foreground">types de t\u00e2ches</p>
+            <p className="text-sm text-muted-foreground">types de tâches</p>
           </CardContent>
         </Card>
       </div>
@@ -119,7 +119,7 @@ export default async function ChargePage() {
 
       {/* Category breakdown */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">R\u00e9partition par cat\u00e9gorie</h2>
+        <h2 className="text-xl font-semibold mb-4">Répartition par catégorie</h2>
         <ChargeCategoryBreakdown
           categories={categoryData.categories}
           totalLoad={categoryData.totalLoad}
@@ -133,7 +133,7 @@ export default async function ChargePage() {
         {/* Tips card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Conseils pour mieux r\u00e9partir</CardTitle>
+            <CardTitle className="text-lg">Conseils pour mieux répartir</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-start gap-3">
@@ -141,9 +141,9 @@ export default async function ChargePage() {
                 1
               </div>
               <div>
-                <p className="font-medium">Identifiez les d\u00e9s\u00e9quilibres</p>
+                <p className="font-medium">Identifiez les déséquilibres</p>
                 <p className="text-sm text-muted-foreground">
-                  Rep\u00e9rez les cat\u00e9gories o\u00f9 un parent g\u00e8re plus de 60% des t\u00e2ches
+                  Repérez les catégories où un parent gère plus de 60% des tâches
                 </p>
               </div>
             </div>
@@ -155,7 +155,7 @@ export default async function ChargePage() {
               <div>
                 <p className="font-medium">Redistribuez progressivement</p>
                 <p className="text-sm text-muted-foreground">
-                  Commencez par les t\u00e2ches les plus simples \u00e0 d\u00e9l\u00e9guer
+                  Commencez par les tâches les plus simples à déléguer
                 </p>
               </div>
             </div>
@@ -167,7 +167,7 @@ export default async function ChargePage() {
               <div>
                 <p className="font-medium">Utilisez l&apos;assignation automatique</p>
                 <p className="text-sm text-muted-foreground">
-                  L&apos;app peut assigner les nouvelles t\u00e2ches au parent le moins charg\u00e9
+                  L&apos;app peut assigner les nouvelles tâches au parent le moins chargé
                 </p>
               </div>
             </div>

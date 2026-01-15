@@ -56,11 +56,11 @@ export function ChargeHistoryCard({ history, className }: ChargeHistoryCardProps
   const balanceRatio = balanceTrend / history.length
   let message = ""
   if (balanceRatio >= 0.75) {
-    message = "Excellent ! Vous maintenez un bon \u00e9quilibre."
+    message = "Excellent ! Vous maintenez un bon équilibre."
   } else if (balanceRatio >= 0.5) {
-    message = "Pas mal ! La charge est souvent bien r\u00e9partie."
+    message = "Pas mal ! La charge est souvent bien répartie."
   } else {
-    message = "Pensez \u00e0 r\u00e9\u00e9quilibrer les t\u00e2ches entre vous."
+    message = "Pensez à rééquilibrer les tâches entre vous."
   }
 
   return (
@@ -104,9 +104,9 @@ export function ChargeHistoryCard({ history, className }: ChargeHistoryCardProps
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium">{week.totalLoad} pts</span>
                 {week.isBalanced ? (
-                  <span className="text-green-600 text-xs">Equilibr\u00e9</span>
+                  <span className="text-green-600 text-xs">Équilibré</span>
                 ) : (
-                  <span className="text-orange-600 text-xs">D\u00e9s\u00e9quilibr\u00e9</span>
+                  <span className="text-orange-600 text-xs">Déséquilibré</span>
                 )}
               </div>
             </div>
@@ -142,7 +142,7 @@ export function ChargeHistoryCard({ history, className }: ChargeHistoryCardProps
           </div>
 
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Semaines \u00e9quilibr\u00e9es</span>
+            <span className="text-muted-foreground">Semaines équilibrées</span>
             <span className="font-medium">
               {balanceTrend}/{history.length}
             </span>

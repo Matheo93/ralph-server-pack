@@ -169,7 +169,7 @@ export default async function DashboardPage() {
             <h2 className="text-xl font-semibold">Charge mentale</h2>
             <Link href="/charge">
               <Button variant="ghost" size="sm">
-                Voir les d\u00e9tails
+                Voir les détails
               </Button>
             </Link>
           </div>
@@ -184,14 +184,14 @@ export default async function DashboardPage() {
 
       {/* Layout principal */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Colonne principale - T\u00e2ches du jour */}
+        {/* Colonne principale - Tâches du jour */}
         <div className="lg:col-span-2 space-y-6">
           <DashboardToday tasks={todayTasks} />
 
           <DashboardWeek tasks={weekTasks} />
         </div>
 
-        {/* Colonne lat\u00e9rale - Streak et Historique */}
+        {/* Colonne latérale - Streak et Historique */}
         <div className="space-y-6">
           <StreakCounter
             current={household?.streak_current ?? 0}
@@ -215,17 +215,17 @@ export default async function DashboardPage() {
             <CardContent className="space-y-2">
               <Link href="/tasks/new" className="block">
                 <Button variant="outline" className="w-full justify-start">
-                  + Nouvelle t\u00e2che
+                  + Nouvelle tâche
                 </Button>
               </Link>
               <Link href="/children" className="block">
                 <Button variant="ghost" className="w-full justify-start">
-                  G\u00e9rer les enfants
+                  Gérer les enfants
                 </Button>
               </Link>
               <Link href="/tasks" className="block">
                 <Button variant="ghost" className="w-full justify-start">
-                  Toutes les t\u00e2ches
+                  Toutes les tâches
                 </Button>
               </Link>
               <Link href="/charge" className="block">

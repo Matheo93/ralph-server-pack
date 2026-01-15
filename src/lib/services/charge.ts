@@ -524,7 +524,7 @@ export async function getChargeHistory(): Promise<WeekHistory[]> {
       weekOffset === 0
         ? "Cette semaine"
         : weekOffset === 1
-          ? "Semaine derni\u00e8re"
+          ? "Semaine dernière"
           : `Il y a ${weekOffset} semaines`
 
     history.push({
@@ -556,11 +556,11 @@ interface CategoryLoad {
 
 const CATEGORY_LABELS: Record<string, string> = {
   administratif: "Administratif",
-  sante: "Sant\u00e9",
-  ecole: "\u00c9cole",
+  sante: "Santé",
+  ecole: "École",
   quotidien: "Quotidien",
   social: "Social",
-  activites: "Activit\u00e9s",
+  activites: "Activités",
   logistique: "Logistique",
 }
 

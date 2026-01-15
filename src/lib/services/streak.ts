@@ -19,13 +19,13 @@ export interface StreakMilestone {
 }
 
 export const MILESTONES: StreakMilestone[] = [
-  { days: 3, label: "D\u00e9but prometteur", badge: "\ud83c\udf31", description: "3 jours cons\u00e9cutifs" },
-  { days: 7, label: "Une semaine", badge: "\u2b50", description: "7 jours cons\u00e9cutifs" },
-  { days: 14, label: "Deux semaines", badge: "\ud83c\udf1f", description: "14 jours cons\u00e9cutifs" },
-  { days: 30, label: "Un mois", badge: "\ud83d\udd25", description: "30 jours cons\u00e9cutifs" },
-  { days: 60, label: "Deux mois", badge: "\ud83d\udcaa", description: "60 jours cons\u00e9cutifs" },
-  { days: 100, label: "Centenaire", badge: "\ud83c\udfc6", description: "100 jours cons\u00e9cutifs" },
-  { days: 365, label: "L\u00e9gendaire", badge: "\ud83d\udc51", description: "Une ann\u00e9e compl\u00e8te" },
+  { days: 3, label: "Début prometteur", badge: "🌱", description: "3 jours consécutifs" },
+  { days: 7, label: "Une semaine", badge: "⭐", description: "7 jours consécutifs" },
+  { days: 14, label: "Deux semaines", badge: "🌟", description: "14 jours consécutifs" },
+  { days: 30, label: "Un mois", badge: "🔥", description: "30 jours consécutifs" },
+  { days: 60, label: "Deux mois", badge: "💪", description: "60 jours consécutifs" },
+  { days: 100, label: "Centenaire", badge: "🏆", description: "100 jours consécutifs" },
+  { days: 365, label: "Légendaire", badge: "👑", description: "Une année complète" },
 ]
 
 /**
@@ -179,7 +179,7 @@ export async function checkStreakRisk(
   if (pendingCount > 0 && completedCount === 0) {
     return {
       isAtRisk: true,
-      riskReason: `${pendingCount} t\u00e2che${pendingCount > 1 ? "s" : ""} critique${pendingCount > 1 ? "s" : ""} \u00e0 faire aujourd'hui`,
+      riskReason: `${pendingCount} tâche${pendingCount > 1 ? "s" : ""} critique${pendingCount > 1 ? "s" : ""} à faire aujourd'hui`,
     }
   }
 
@@ -188,7 +188,7 @@ export async function checkStreakRisk(
   if (now.getHours() >= 18 && pendingCount > 0) {
     return {
       isAtRisk: true,
-      riskReason: `${pendingCount} t\u00e2che${pendingCount > 1 ? "s" : ""} critique${pendingCount > 1 ? "s" : ""} encore en attente`,
+      riskReason: `${pendingCount} tâche${pendingCount > 1 ? "s" : ""} critique${pendingCount > 1 ? "s" : ""} encore en attente`,
     }
   }
 
@@ -262,11 +262,11 @@ export async function useStreakJoker(householdId: string): Promise<{
   `, [householdId])
 
   if (!household) {
-    return { success: false, error: "Foyer non trouv\u00e9" }
+    return { success: false, error: "Foyer non trouvé" }
   }
 
   if (household.subscription_status !== "active") {
-    return { success: false, error: "Fonctionnalit\u00e9 r\u00e9serv\u00e9e aux membres Premium" }
+    return { success: false, error: "Fonctionnalité réservée aux membres Premium" }
   }
 
   // Limit jokers per month (e.g., 2 per month)
@@ -276,7 +276,7 @@ export async function useStreakJoker(householdId: string): Promise<{
   }
 
   if (household.streak_current === 0) {
-    return { success: false, error: "Pas de streak \u00e0 sauver" }
+    return { success: false, error: "Pas de streak à sauver" }
   }
 
   // Apply the joker - extend streak_last_completed by one day

@@ -34,13 +34,13 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
-  administratif: "\ud83d\udcdd",
-  sante: "\ud83c\udfe5",
-  ecole: "\ud83c\udf93",
-  quotidien: "\ud83c\udfe0",
-  social: "\ud83c\udf89",
-  activites: "\u26bd",
-  logistique: "\ud83d\ude97",
+  administratif: "📝",
+  sante: "🏥",
+  ecole: "🎓",
+  quotidien: "🏠",
+  social: "🎉",
+  activites: "⚽",
+  logistique: "🚗",
 }
 
 export function ChargeCategoryBreakdown({
@@ -53,9 +53,9 @@ export function ChargeCategoryBreakdown({
       <Card className={cn(className)}>
         <CardContent className="py-8">
           <p className="text-center text-muted-foreground">
-            Pas encore de donn\u00e9es par cat\u00e9gorie.
+            Pas encore de données par catégorie.
             <br />
-            Cr\u00e9ez des t\u00e2ches pour voir la r\u00e9partition.
+            Créez des tâches pour voir la répartition.
           </p>
         </CardContent>
       </Card>
@@ -69,7 +69,7 @@ export function ChargeCategoryBreakdown({
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
-                <span>{CATEGORY_ICONS[category.category] || "\ud83d\udccb"}</span>
+                <span>{CATEGORY_ICONS[category.category] || "📋"}</span>
                 {category.categoryLabel}
               </CardTitle>
               <span className="text-sm text-muted-foreground">
@@ -92,7 +92,7 @@ export function ChargeCategoryBreakdown({
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{category.totalLoad} points</span>
                 <span>
-                  {category.tasksCount} t\u00e2che{category.tasksCount > 1 ? "s" : ""}
+                  {category.tasksCount} tâche{category.tasksCount > 1 ? "s" : ""}
                 </span>
               </div>
             </div>
