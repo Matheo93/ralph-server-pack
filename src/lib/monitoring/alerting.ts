@@ -747,7 +747,7 @@ export function detectAnomalies(
   if (!config.enabled) return results
   if (series.dataPoints.length < config.minDataPoints) return results
 
-  const currentValue = series.dataPoints[series.dataPoints.length - 1].value
+  const currentValue = series.dataPoints[series.dataPoints.length - 1]!.value
 
   if (config.methods.includes("spike")) {
     results.push(detectSpike(currentValue, series.stats, config.sensitivity))
@@ -827,7 +827,7 @@ export function groupAlerts(
     return {
       key,
       alerts: sortedAlerts,
-      severity: sortedAlerts[0].severity,
+      severity: sortedAlerts[0]!.severity,
       startsAt: new Date(Math.min(...groupAlerts.map(a => a.startsAt.getTime()))),
       latestAt: new Date(Math.max(...groupAlerts.map(a => a.startsAt.getTime()))),
       count: groupAlerts.length,
