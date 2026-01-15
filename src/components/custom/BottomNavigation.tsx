@@ -42,26 +42,34 @@ interface BottomNavigationProps {
 // NAVIGATION ITEMS
 // =============================================================================
 
-const NAV_ITEMS: NavItem[] = [
+const NAV_ITEMS: (NavItem & { activeColor: string; activeBg: string })[] = [
   {
     href: "/dashboard",
     label: "Accueil",
     icon: <Home className="w-5 h-5" />,
+    activeColor: "text-primary",
+    activeBg: "bg-primary/10",
   },
   {
     href: "/tasks",
     label: "Tâches",
     icon: <CheckSquare className="w-5 h-5" />,
+    activeColor: "text-green-600",
+    activeBg: "bg-green-50",
   },
   {
     href: "/children",
     label: "Enfants",
     icon: <Users className="w-5 h-5" />,
+    activeColor: "text-blue-600",
+    activeBg: "bg-blue-50",
   },
   {
     href: "/tasks/week",
     label: "Semaine",
     icon: <Calendar className="w-5 h-5" />,
+    activeColor: "text-amber-600",
+    activeBg: "bg-amber-50",
   },
 ]
 
@@ -109,19 +117,32 @@ export function BottomNavigation({
     >
       <div className="grid grid-cols-5 h-16">
         {/* Main nav items */}
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors",
-              isActive(item.href) && "text-primary"
-            )}
-          >
-            {item.icon}
-            <span className="text-xs">{item.label}</span>
-          </Link>
-        ))}
+        {NAV_ITEMS.map((item) => {
+          const active = isActive(item.href)
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 transition-all duration-200 relative py-2 mx-1 rounded-lg",
+                active
+                  ? `${item.activeColor} ${item.activeBg}`
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <div className={cn(active && "scale-110 transition-transform")}>
+                {item.icon}
+              </div>
+              <span className={cn("text-xs", active && "font-medium")}>{item.label}</span>
+              {active && (
+                <span className={cn(
+                  "absolute -bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full",
+                  item.activeColor.replace("text-", "bg-")
+                )} />
+              )}
+            </Link>
+          )
+        })}
 
         {/* More menu */}
         <Sheet open={isMoreOpen} onOpenChange={setIsMoreOpen}>
