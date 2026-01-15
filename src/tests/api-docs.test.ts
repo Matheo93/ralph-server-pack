@@ -140,8 +140,8 @@ describe("API Paths", () => {
   it("should have valid operation definitions", async () => {
     const { apiPaths } = await import("@/lib/openapi/schema")
 
-    // Check a sample endpoint
-    const taskPost = apiPaths["/api/tasks"]?.post
+    // Check a sample endpoint (v1 tasks)
+    const taskPost = apiPaths["/api/v1/tasks"]?.post
 
     expect(taskPost?.tags).toBeDefined()
     expect(taskPost?.tags).toContain("Tasks")
@@ -158,8 +158,8 @@ describe("API Paths", () => {
     const { apiPaths } = await import("@/lib/openapi/schema")
 
     // Tasks should require auth
-    expect(apiPaths["/api/tasks"]?.get?.security).toBeDefined()
-    expect(apiPaths["/api/tasks"]?.post?.security).toBeDefined()
+    expect(apiPaths["/api/v1/tasks"]?.get?.security).toBeDefined()
+    expect(apiPaths["/api/v1/tasks"]?.post?.security).toBeDefined()
 
     // Health check should not require auth
     expect(apiPaths["/api/mobile/health"]?.get?.security).toBeUndefined()
