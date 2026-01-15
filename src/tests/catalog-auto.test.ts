@@ -91,7 +91,7 @@ describe("Task Templates - Extended", () => {
 
     it("should add template to store", () => {
       const store = createTemplateStore()
-      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36, description: "0-3 ans" }
       const template = buildHealthTemplate({
         slug: 'test_vaccine',
         titleFR: 'Vaccination test',
@@ -106,7 +106,7 @@ describe("Task Templates - Extended", () => {
 
     it("should get template by ID", () => {
       const store = createTemplateStore()
-      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36, description: "0-3 ans" }
       const template = buildHealthTemplate({
         slug: 'test_vaccine',
         titleFR: 'Vaccination test',
@@ -127,7 +127,7 @@ describe("Task Templates - Extended", () => {
 
     it("should get templates by category", () => {
       const store = createTemplateStore()
-      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36, description: "0-3 ans" }
       const template = buildHealthTemplate({
         slug: 'test_vaccine',
         titleFR: 'Vaccination test',
@@ -143,7 +143,7 @@ describe("Task Templates - Extended", () => {
 
   describe("Template Builders", () => {
     it("should build health template with correct defaults", () => {
-      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36, description: "0-3 ans" }
       const template = buildHealthTemplate({
         slug: 'vaccine_test',
         titleFR: 'Vaccin test',
@@ -159,7 +159,7 @@ describe("Task Templates - Extended", () => {
     })
 
     it("should build education template", () => {
-      const ageRange: AgeRange = { minMonths: 72, maxMonths: 132 }
+      const ageRange: AgeRange = { minMonths: 72, maxMonths: 132, description: "6-11 ans" }
       const template = buildEducationTemplate({
         slug: 'school_test',
         titleFR: 'Ecole test',
@@ -172,7 +172,7 @@ describe("Task Templates - Extended", () => {
     })
 
     it("should build administrative template", () => {
-      const ageRange: AgeRange = { minMonths: 0, maxMonths: 216 }
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 216, description: "0-18 ans" }
       const template = buildAdministrativeTemplate({
         slug: 'admin_test',
         titleFR: 'Admin test',
@@ -200,7 +200,7 @@ describe("Task Templates - Extended", () => {
     })
 
     it("should get localized title from template", () => {
-      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36, description: "0-3 ans" }
       const template = buildHealthTemplate({
         slug: 'test',
         titleFR: 'Titre FR',
@@ -288,7 +288,7 @@ describe("Age Rules", () => {
     })
 
     it("should get milestones by type", () => {
-      const vaccines = getMilestonesByType(store, 'vaccine', 'FR')
+      const vaccines = getMilestonesByType(store, 'vaccine')
       expect(vaccines).toBeDefined()
     })
   })

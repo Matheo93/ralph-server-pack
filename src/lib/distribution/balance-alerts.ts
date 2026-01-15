@@ -312,7 +312,7 @@ export function generateAlertMessage(
   const typeMessages = ALERT_MESSAGES[type]
   const severityMessages = typeMessages[severity as keyof typeof typeMessages]
 
-  if (!severityMessages || severityMessages.length === 0) {
+  if (!severityMessages) {
     return `Alerte ${type}: ${severity}`
   }
 
