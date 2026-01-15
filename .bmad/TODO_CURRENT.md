@@ -143,27 +143,27 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
 
 ## Phase 5: Documentation & API
 
-- [ ] 5.1 Ameliorer `src/app/api/docs/route.ts`:
+- [x] 5.1 Ameliorer `src/app/api/docs/route.ts`:
   - OpenAPI 3.1 complet
   - Tous les endpoints documentes
   - Exemples pour chaque route
 
-- [ ] 5.2 Creer `src/lib/api/error-responses.ts`:
+- [x] 5.2 Creer `src/lib/api/error-responses.ts`:
   - Error codes standardises
   - Messages localises
   - Documentation erreurs
 
-- [ ] 5.3 Creer `src/lib/api/versioning.ts`:
+- [x] 5.3 Creer `src/lib/api/versioning.ts`:
   - Support API v1 et v2
   - Deprecation warnings
   - Migration guides
 
-- [ ] 5.4 Creer `src/app/api/v2/` structure:
+- [x] 5.4 Creer `src/app/api/v2/` structure:
   - Routes v2 avec breaking changes
   - Meilleure pagination
   - Filtering avance
 
-- [ ] 5.5 Tests API (25+ tests):
+- [x] 5.5 Tests API (25+ tests):
   - OpenAPI validation
   - Error responses tests
   - Versioning tests
@@ -171,14 +171,14 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
 ---
 
 ## Definition of Done Sprint 18
-- [ ] Security: OWASP Top 10 couvert
-- [ ] i18n: 4 langues supportees (fr, en, es, de)
-- [ ] E2E: User journeys critiques testes
-- [ ] Features: Smart scheduler et insights
-- [ ] API: Documentation complete OpenAPI 3.1
-- [ ] Build production OK: `bunx tsc --noEmit && bun run build`
-- [ ] Tous les tests passent: `bun test src/tests/`
-- [ ] 110+ nouveaux tests (30 security + 25 i18n + 30 features + 25 API)
+- [x] Security: OWASP Top 10 couvert
+- [x] i18n: 4 langues supportees (fr, en, es, de)
+- [x] E2E: User journeys critiques testes
+- [x] Features: Smart scheduler et insights
+- [x] API: Documentation complete OpenAPI 3.1
+- [x] Build production OK: `bunx tsc --noEmit && bun run build`
+- [x] Tous les tests passent: `bun test src/tests/`
+- [x] 110+ nouveaux tests (30 security + 25 i18n + 30 features + 25 API)
 
 ---
 
