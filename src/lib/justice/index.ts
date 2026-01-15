@@ -13,26 +13,39 @@
 export {
   // Schemas
   MemberLoadSchema,
-  ExclusionPeriodSchema,
   FairnessScoreSchema,
-  CategoryFairnessSchema,
   FairnessTrendSchema,
+  CategoryFairnessSchema,
+  ExclusionAdjustmentSchema,
   // Types
   type MemberLoad,
-  type ExclusionPeriod,
   type FairnessScore,
-  type CategoryFairness,
   type FairnessTrend,
+  type CategoryFairness,
+  type ExclusionAdjustment,
+  type TaskCompletion,
+  type MemberExclusion,
   // Constants
   CATEGORY_NAMES,
-  // Functions
-  calculateGiniCoefficient,
+  FAIRNESS_THRESHOLDS,
+  // Core Functions
+  calculateGini,
+  giniToFairnessScore,
+  calculateExclusionAdjustment,
+  getAllExclusionAdjustments,
   calculateMemberLoads,
-  calculateCategoryFairness,
   calculateFairnessScore,
+  getFairnessStatus,
+  analyzeCategoryFairness,
+  getAllCategoryFairness,
   calculateFairnessTrend,
-  getLoadStatus,
-  detectLoadImbalance,
+  // Formatting
+  getFairnessStatusLabel,
+  getFairnessStatusColor,
+  getTrendIcon,
+  getTrendLabel,
+  formatFairnessScore,
+  formatMemberLoad,
 } from "./fairness-calculator"
 
 // Messaging Engine
