@@ -63,13 +63,12 @@ export type AgeMilestone = z.infer<typeof AgeMilestoneSchema>;
 /**
  * Age rule store
  */
-export const AgeRuleStoreSchema = z.object({
-  milestones: z.map(z.string(), AgeMilestoneSchema),
-  byType: z.map(AgeMilestoneTypeSchema, z.array(z.string())),
-  byAge: z.map(z.number(), z.array(z.string())),
-  lastUpdated: z.date()
-});
-export type AgeRuleStore = z.infer<typeof AgeRuleStoreSchema>;
+export type AgeRuleStore = {
+  milestones: Map<string, AgeMilestone>;
+  byType: Map<AgeMilestoneType, string[]>;
+  byAge: Map<number, string[]>;
+  lastUpdated: Date;
+};
 
 // =============================================================================
 // FRENCH VACCINE SCHEDULE (Calendrier vaccinal 2024)
@@ -842,11 +841,11 @@ export function milestoneToTemplate(
   childId: string,
   childName: string
 ): TaskTemplate {
-  const titleFR = milestone.name.fr.replace('{enfant}', childName).replace('{child}', childName);
-  const titleEN = (milestone.name.en || milestone.name.fr).replace('{enfant}', childName).replace('{child}', childName);
+  const titleFR = (milestone.name['fr'] ?? '').replace('{enfant}', childName).replace('{child}', childName);
+  const titleEN = (milestone.name['en'] || milestone.name['fr'] || '').replace('{enfant}', childName).replace('{child}', childName);
 
-  const descFR = milestone.description.fr.replace('{enfant}', childName).replace('{child}', childName);
-  const descEN = (milestone.description.en || milestone.description.fr).replace('{enfant}', childName).replace('{child}', childName);
+  const descFR = (milestone.description['fr'] ?? '').replace('{enfant}', childName).replace('{child}', childName);
+  const descEN = (milestone.description['en'] || milestone.description['fr'] || '').replace('{enfant}', childName).replace('{child}', childName);
 
   const category = milestone.type === 'vaccine' || milestone.type === 'health_checkup'
     ? 'health'
