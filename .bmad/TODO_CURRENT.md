@@ -75,7 +75,7 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
   - Jours de la semaine localises
   - Periodes relatives ("il y a 2 jours")
 
-- [ ] 2.5 Tests i18n (25+ tests):
+- [x] 2.5 Tests i18n (25+ tests):
   - Toutes les langues chargent
   - Pluralisation correcte
   - Formatage dates par locale

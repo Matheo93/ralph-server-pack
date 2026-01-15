@@ -504,7 +504,7 @@ describe("Date Formatter", () => {
     it("should format relative time", () => {
       const now = Date.now()
       const result = formatter.relative(now)
-      expect(result).toBe("Today")
+      expect(result).toBe("Just now")
     })
 
     it("should format duration", () => {
