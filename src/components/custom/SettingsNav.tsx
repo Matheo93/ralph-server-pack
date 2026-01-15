@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: "/settings/household", label: "Foyer", icon: "🏠" },
   { href: "/settings/notifications", label: "Notifications", icon: "🔔" },
   { href: "/settings/templates", label: "Templates", icon: "📋" },
+  { href: "/settings/exclusions", label: "Exclusions", icon: "📅" },
 ]
 
 export function SettingsNav() {
