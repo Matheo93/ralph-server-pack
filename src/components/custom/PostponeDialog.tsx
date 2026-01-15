@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -11,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { postponeTask } from "@/lib/actions/tasks"
+import { modalBackdrop, modalContent } from "@/lib/animations"
 
 interface PostponeDialogProps {
   taskId: string | null

@@ -1,8 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { TaskCard } from "./TaskCard"
 import { PostponeDialog } from "./PostponeDialog"
+import { staggerContainer, taskCardVariants } from "@/lib/animations"
 import type { TaskListItem, TasksByDate } from "@/types/task"
 
 interface TaskListProps {
@@ -93,7 +95,12 @@ export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListP
     return (
       <div className="space-y-6">
         {groups.map((group) => (
-          <div key={group.date}>
+          <motion.div
+            key={group.date}
+            initial="initial"
+            animate="animate"
+            variants={staggerContainer}
+          >
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-lg">
                 {formatGroupDate(group.date)}
@@ -103,15 +110,25 @@ export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListP
               </span>
             </div>
             <div className="space-y-3">
-              {group.tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onPostpone={handlePostpone}
-                />
-              ))}
+              <AnimatePresence mode="popLayout">
+                {group.tasks.map((task) => (
+                  <motion.div
+                    key={task.id}
+                    variants={taskCardVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    layout
+                  >
+                    <TaskCard
+                      task={task}
+                      onPostpone={handlePostpone}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
         ))}
         <PostponeDialog
           taskId={postponeTaskId}
@@ -122,18 +139,33 @@ export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListP
   }
 
   return (
-    <div className="space-y-3">
-      {tasks.map((task) => (
-        <TaskCard
-          key={task.id}
-          task={task}
-          onPostpone={handlePostpone}
-        />
-      ))}
+    <motion.div
+      className="space-y-3"
+      initial="initial"
+      animate="animate"
+      variants={staggerContainer}
+    >
+      <AnimatePresence mode="popLayout">
+        {tasks.map((task) => (
+          <motion.div
+            key={task.id}
+            variants={taskCardVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            layout
+          >
+            <TaskCard
+              task={task}
+              onPostpone={handlePostpone}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
       <PostponeDialog
         taskId={postponeTaskId}
         onClose={() => setPostponeTaskId(null)}
       />
-    </div>
+    </motion.div>
   )
 }
