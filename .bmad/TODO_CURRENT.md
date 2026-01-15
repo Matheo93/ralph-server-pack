@@ -15,29 +15,29 @@ Polir l'application pour une expérience utilisateur de niveau production: anima
 ---
 
 ## PRÉ-REQUIS
-- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [ ] 0.2 Vérifier que les tests passent: `bun test src/tests/`
+- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [x] 0.2 Vérifier que les tests passent: `bun test src/tests/`
 
 ---
 
 ## Phase 1: Animations & Micro-interactions
 
-- [ ] 1.1 Créer `src/lib/animations.ts`:
+- [x] 1.1 Créer `src/lib/animations.ts`:
   - Définir les variantes Framer Motion réutilisables
   - fadeIn, slideIn, scaleIn, staggerChildren
   - Durées et easings cohérents
-- [ ] 1.2 Ajouter animations au TaskCard:
+- [x] 1.2 Ajouter animations au TaskCard:
   - Animation d'entrée (stagger)
   - Animation de complétion (scale + fade)
   - Animation de suppression (slide out)
-- [ ] 1.3 Ajouter animations au VocalButton:
+- [x] 1.3 Ajouter animations au VocalButton:
   - Pulse animation pendant enregistrement
   - Feedback visuel de succès/erreur
   - Waveform animation
-- [ ] 1.4 Ajouter animations aux modals/dialogs:
+- [x] 1.4 Ajouter animations aux modals/dialogs:
   - Scale in/out
   - Backdrop blur transition
-- [ ] 1.5 Tests visuels animations (snapshots)
+- [x] 1.5 Tests visuels animations (snapshots)
 
 ---
 
