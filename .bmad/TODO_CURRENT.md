@@ -50,27 +50,32 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 
 ---
 
-## Phase 2: Joker Streak (Feature Premium)
+## Phase 2: Joker Streak (Feature Premium) ✅
 
-- [ ] 2.1 Créer migration `src/lib/aws/joker-schema.sql`:
-  - Table `streak_jokers` (household_id, used_at, month)
+- [x] 2.1 Créer migration `src/lib/aws/joker-schema.sql`:
+  - Table `streak_jokers` (household_id, used_at, month, year, streak_value_saved)
   - 1 joker/mois pour abonnés premium
+  - Helper functions: can_use_joker(), use_joker()
 
-- [ ] 2.2 Ajouter action `src/lib/actions/streak.ts`:
+- [x] 2.2 Ajouter action `src/lib/actions/streak.ts`:
   - `useJoker()` - utiliser le joker pour sauver le streak
   - `getJokerStatus()` - vérifier si joker disponible
-  - Validation: abonnement actif + pas déjà utilisé ce mois
+  - `getStreakInfo()` - info complète du streak
+  - `getJokerHistory()` - historique des jokers utilisés
+  - `updateStreakOnTaskComplete()` - mise à jour du streak
 
-- [ ] 2.3 Créer composant `src/components/custom/JokerButton.tsx`:
+- [x] 2.3 Créer composant `src/components/custom/JokerButton.tsx`:
   - Bouton pour utiliser le joker
   - État disabled si non premium ou déjà utilisé
-  - Animation de confirmation
+  - Animation de confirmation avec dialog
+  - Hook useJoker() pour état
 
-- [ ] 2.4 Intégrer dans `StreakCounter.tsx`:
+- [x] 2.4 Intégrer dans `StreakCounter.tsx`:
   - Afficher le bouton joker quand streak à risque
   - Message d'avertissement avant rupture
+  - Joker status dans le compteur
 
-- [ ] 2.5 Tests joker streak
+- [x] 2.5 Tests joker streak (27 tests passants)
 
 ---
 
