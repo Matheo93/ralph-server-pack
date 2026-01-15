@@ -170,11 +170,12 @@ export function AnimatedFamilyIllustration() {
 
       {/* Parent 1 (left) - with breathing and hover */}
       <motion.g
-        transform="translate(80, 80)"
+        initial={{ x: 80, y: 80 }}
         onMouseEnter={() => setIsHovered("parent1")}
         style={{ cursor: "pointer" }}
         animate={{
-          y: isHovered === "parent1" ? -5 : 0,
+          x: 80,
+          y: isHovered === "parent1" ? 75 : 80,
           scale: isHovered === "parent1" ? 1.03 : 1
         }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -254,11 +255,12 @@ export function AnimatedFamilyIllustration() {
 
       {/* Parent 2 (right) - with breathing and hover */}
       <motion.g
-        transform="translate(220, 80)"
+        initial={{ x: 220, y: 80 }}
         onMouseEnter={() => setIsHovered("parent2")}
         style={{ cursor: "pointer" }}
         animate={{
-          y: isHovered === "parent2" ? -5 : 0,
+          x: 220,
+          y: isHovered === "parent2" ? 75 : 80,
           scale: isHovered === "parent2" ? 1.03 : 1
         }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -339,11 +341,12 @@ export function AnimatedFamilyIllustration() {
 
       {/* Child (center, front) - bouncing with excitement */}
       <motion.g
-        transform="translate(160, 150)"
+        initial={{ x: 160, y: 150 }}
         onMouseEnter={() => setIsHovered("child")}
         style={{ cursor: "pointer" }}
         animate={{
-          y: isHovered === "child" ? [-8, 0] : [0, -6, 0],
+          x: 160,
+          y: isHovered === "child" ? [142, 150] : [150, 144, 150],
           scale: isHovered === "child" ? 1.05 : [1, 1.015, 1]
         }}
         transition={{
