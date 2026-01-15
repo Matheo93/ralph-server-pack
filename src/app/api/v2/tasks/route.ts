@@ -542,7 +542,7 @@ export async function POST(request: NextRequest) {
   return withAuth(request, async (userId, householdId) => {
     const bodyResult = await parseBody(request, CreateTaskV2Schema)
     if (!bodyResult.success) {
-      return validationError(bodyResult.error)
+      return validationError({ message: bodyResult.error })
     }
 
     const data = bodyResult.data
@@ -649,7 +649,7 @@ export async function PATCH(request: NextRequest) {
   return withAuth(request, async (userId, householdId) => {
     const bodyResult = await parseBody(request, BulkUpdateV2Schema)
     if (!bodyResult.success) {
-      return validationError(bodyResult.error)
+      return validationError({ message: bodyResult.error })
     }
 
     const { ids, update } = bodyResult.data
@@ -751,7 +751,7 @@ export async function DELETE(request: NextRequest) {
   return withAuth(request, async (_userId, householdId) => {
     const bodyResult = await parseBody(request, BulkDeleteV2Schema)
     if (!bodyResult.success) {
-      return validationError(bodyResult.error)
+      return validationError({ message: bodyResult.error })
     }
 
     const { ids } = bodyResult.data
