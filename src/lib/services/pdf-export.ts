@@ -711,16 +711,16 @@ export function ChildHistoryPDF({
  * Get export filename with date
  */
 export function getExportFilename(type: "weekly" | "monthly" | "child", identifier?: string): string {
-  const date = new Date().toISOString().split("T")[0]
+  const dateStr = new Date().toISOString().split("T")[0] ?? ""
   switch (type) {
     case "weekly":
-      return `rapport-hebdomadaire-${date}.pdf`
+      return `rapport-hebdomadaire-${dateStr}.pdf`
     case "monthly":
-      return `rapport-mensuel-${identifier ?? date.substring(0, 7)}.pdf`
+      return `rapport-mensuel-${identifier ?? dateStr.substring(0, 7)}.pdf`
     case "child":
-      return `historique-${identifier ?? "enfant"}-${date}.pdf`
+      return `historique-${identifier ?? "enfant"}-${dateStr}.pdf`
     default:
-      return `export-${date}.pdf`
+      return `export-${dateStr}.pdf`
   }
 }
 
