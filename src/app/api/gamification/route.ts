@@ -11,7 +11,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { query, queryOne } from "@/lib/aws/database"
-import { getCurrentUser } from "@/lib/auth/session"
+import { getCurrentUser } from "@/lib/aws/cognito"
 import {
   // Streak
   calculateStreakStatus,
