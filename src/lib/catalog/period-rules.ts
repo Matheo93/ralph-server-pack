@@ -44,30 +44,34 @@ export const PeriodTypeSchema = z.enum([
 export type PeriodType = z.infer<typeof PeriodTypeSchema>;
 
 /**
+ * Localized string type
+ */
+export type LocalizedStrings = Record<string, string>;
+
+/**
  * Period rule definition
  */
-export const PeriodRuleSchema = z.object({
-  id: z.string(),
-  name: z.record(z.string()),           // Localized name
-  description: z.record(z.string()),    // Localized description
-  periodType: PeriodTypeSchema,
-  month: z.number().min(1).max(12),     // Trigger month
-  dayOfMonth: z.number().min(1).max(31).optional(),
-  weekOfMonth: z.number().min(1).max(5).optional(),
-  dayOfWeek: z.number().min(0).max(6).optional(), // 0=Sunday
-  leadDays: z.number().default(14),     // Days before to create task
-  ageRange: z.object({
-    minMonths: z.number().min(0),
-    maxMonths: z.number().max(216)
-  }).optional(),                        // Age applicability
-  countries: z.array(z.string()),
-  category: z.enum(['health', 'education', 'administrative', 'social', 'finance', 'transport', 'seasonal']),
-  priority: z.enum(['critical', 'high', 'medium', 'low']),
-  recurrence: z.enum(['yearly', 'semester', 'quarterly', 'monthly', 'once']),
-  tags: z.array(z.string()),
-  enabled: z.boolean().default(true)
-});
-export type PeriodRule = z.infer<typeof PeriodRuleSchema>;
+export type PeriodRule = {
+  id: string;
+  name: LocalizedStrings;
+  description: LocalizedStrings;
+  periodType: PeriodType;
+  month: number;
+  dayOfMonth?: number;
+  weekOfMonth?: number;
+  dayOfWeek?: number;
+  leadDays: number;
+  ageRange?: {
+    minMonths: number;
+    maxMonths: number;
+  };
+  countries: string[];
+  category: 'health' | 'education' | 'administrative' | 'social' | 'finance' | 'transport' | 'seasonal';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  recurrence: 'yearly' | 'semester' | 'quarterly' | 'monthly' | 'once';
+  tags: string[];
+  enabled: boolean;
+};
 
 /**
  * Period rule store

@@ -44,21 +44,25 @@ export const AgeMilestoneTypeSchema = z.enum([
 export type AgeMilestoneType = z.infer<typeof AgeMilestoneTypeSchema>;
 
 /**
+ * Localized string type
+ */
+export type LocalizedStrings = Record<string, string>;
+
+/**
  * Age milestone definition
  */
-export const AgeMilestoneSchema = z.object({
-  id: z.string(),
-  type: AgeMilestoneTypeSchema,
-  ageMonths: z.number(),              // Exact age in months
-  tolerance: z.number().default(1),   // Months before/after to trigger
-  name: z.record(z.string()),         // Localized name
-  description: z.record(z.string()),  // Localized description
-  countries: z.array(z.string()),     // Applicable countries
-  priority: z.enum(['critical', 'high', 'medium', 'low']),
-  mandatory: z.boolean(),             // Is this legally required?
-  reminders: z.array(z.number())      // Days before to send reminders
-});
-export type AgeMilestone = z.infer<typeof AgeMilestoneSchema>;
+export type AgeMilestone = {
+  id: string;
+  type: AgeMilestoneType;
+  ageMonths: number;
+  tolerance: number;
+  name: LocalizedStrings;
+  description: LocalizedStrings;
+  countries: string[];
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  mandatory: boolean;
+  reminders: number[];
+};
 
 /**
  * Age rule store

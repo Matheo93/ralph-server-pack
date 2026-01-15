@@ -110,13 +110,12 @@ export type TaskTemplate = {
 /**
  * Template store (immutable)
  */
-export const TemplateStoreSchema = z.object({
-  templates: z.map(z.string(), TaskTemplateSchema),
-  byCategory: z.map(TemplateCategorySchema, z.array(z.string())),
-  byCountry: z.map(CountryCodeSchema, z.array(z.string())),
-  lastUpdated: z.date()
-});
-export type TemplateStore = z.infer<typeof TemplateStoreSchema>;
+export type TemplateStore = {
+  templates: Map<string, TaskTemplate>;
+  byCategory: Map<TemplateCategory, string[]>;
+  byCountry: Map<CountryCode, string[]>;
+  lastUpdated: Date;
+};
 
 // =============================================================================
 // CONSTANTS
@@ -645,20 +644,29 @@ export function buildAdministrativeTemplate(
 // =============================================================================
 
 /**
- * Validate a template
+ * Validate a template (basic validation without Zod schema)
  */
 export function validateTemplate(template: unknown): { valid: boolean; errors: string[] } {
-  const result = TaskTemplateSchema.safeParse(template);
+  const errors: string[] = [];
 
-  if (result.success) {
-    return { valid: true, errors: [] };
+  if (!template || typeof template !== 'object') {
+    return { valid: false, errors: ['Template must be an object'] };
   }
 
-  const errors = result.error.errors.map(e =>
-    `${e.path.join('.')}: ${e.message}`
-  );
+  const t = template as TaskTemplate;
 
-  return { valid: false, errors };
+  if (typeof t.id !== 'string' || !t.id) errors.push('id: Required string');
+  if (typeof t.slug !== 'string' || !t.slug) errors.push('slug: Required string');
+  if (!t.titleTemplate || typeof t.titleTemplate !== 'object') errors.push('titleTemplate: Required object');
+  if (!t.category) errors.push('category: Required');
+  if (!t.priority) errors.push('priority: Required');
+  if (!t.ageRange || typeof t.ageRange !== 'object') errors.push('ageRange: Required object');
+  if (!t.chargeWeight || typeof t.chargeWeight !== 'object') errors.push('chargeWeight: Required object');
+  if (!t.recurrence) errors.push('recurrence: Required');
+  if (!Array.isArray(t.countries)) errors.push('countries: Required array');
+  if (!Array.isArray(t.tags)) errors.push('tags: Required array');
+
+  return { valid: errors.length === 0, errors };
 }
 
 /**

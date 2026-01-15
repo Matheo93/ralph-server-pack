@@ -462,11 +462,11 @@ export function generateFromMilestone(
   child: ChildContext,
   language: string = 'fr'
 ): AutoTask {
-  const title = (milestone.name[language] || milestone.name.fr || '')
+  const title = (milestone.name[language] || milestone.name['fr'] || '')
     .replace('{enfant}', child.name)
     .replace('{child}', child.name);
 
-  const description = (milestone.description[language] || milestone.description.fr || '')
+  const description = (milestone.description[language] || milestone.description['fr'] || '')
     .replace('{enfant}', child.name)
     .replace('{child}', child.name);
 
@@ -518,11 +518,11 @@ export function generateFromPeriodRule(
   year: number,
   language: string = 'fr'
 ): AutoTask {
-  const title = (rule.name[language] || rule.name.fr || '')
+  const title = (rule.name[language] || rule.name['fr'] || '')
     .replace('{enfant}', child.name)
     .replace('{child}', child.name);
 
-  const description = (rule.description[language] || rule.description.fr || '')
+  const description = (rule.description[language] || rule.description['fr'] || '')
     .replace('{enfant}', child.name)
     .replace('{child}', child.name);
 
@@ -699,7 +699,7 @@ export function getTasksNeedingReminder(
       (task.dueDate.getTime() - referenceDate.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    return AUTO_TASK_CONFIG.reminderDays.includes(daysUntilDue);
+    return (AUTO_TASK_CONFIG.reminderDays as readonly number[]).includes(daysUntilDue);
   });
 }
 
