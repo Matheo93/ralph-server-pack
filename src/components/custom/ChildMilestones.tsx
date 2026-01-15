@@ -158,7 +158,7 @@ export function ChildMilestones({
               value={currentMilestones.length}
               description={
                 currentMilestones.length > 0
-                  ? currentMilestones[0]?.title
+                  ? currentMilestones[0]?.title ?? "Aucun jalon en cours"
                   : "Aucun jalon en cours"
               }
               onClick={() => setActiveTab("milestones")}
@@ -169,7 +169,7 @@ export function ChildMilestones({
               value={dueVaccinations.length}
               description={
                 dueVaccinations.length > 0
-                  ? dueVaccinations[0]?.nameShort
+                  ? dueVaccinations[0]?.nameShort ?? "À jour"
                   : "À jour"
               }
               variant={dueVaccinations.length > 0 ? "warning" : "default"}
