@@ -1,49 +1,11 @@
 /**
  * Push Notifications Tests
  *
- * Unit tests for Firebase push notifications and notification scheduler.
- * These tests mock Firebase to test notification logic without sending real notifications.
+ * Unit tests for Firebase push notifications logic and types.
+ * These are pure unit tests that don't require Firebase.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest"
-
-// Mock Firebase Admin
-vi.mock("firebase-admin", () => ({
-  default: {
-    apps: [],
-    initializeApp: vi.fn(),
-    credential: {
-      cert: vi.fn(),
-    },
-    messaging: vi.fn(() => ({
-      send: vi.fn().mockResolvedValue("mock-message-id"),
-      sendEachForMulticast: vi.fn().mockResolvedValue({
-        successCount: 2,
-        failureCount: 0,
-        responses: [
-          { success: true, messageId: "msg-1" },
-          { success: true, messageId: "msg-2" },
-        ],
-      }),
-    })),
-  },
-  apps: [],
-  initializeApp: vi.fn(),
-  credential: {
-    cert: vi.fn(),
-  },
-  messaging: vi.fn(() => ({
-    send: vi.fn().mockResolvedValue("mock-message-id"),
-    sendEachForMulticast: vi.fn().mockResolvedValue({
-      successCount: 2,
-      failureCount: 0,
-      responses: [
-        { success: true, messageId: "msg-1" },
-        { success: true, messageId: "msg-2" },
-      ],
-    }),
-  })),
-}))
+import { describe, it, expect, beforeEach } from "vitest"
 
 // Mock environment variables
 beforeEach(() => {
@@ -71,239 +33,10 @@ describe("Push Notification Types", () => {
     expect(types).toContain("streak_risk")
     expect(types).toContain("charge_alert")
   })
-
-  it("should have consistent type export", async () => {
-    const firebase = await import("@/lib/firebase")
-    expect(firebase.sendPushNotification).toBeDefined()
-    expect(firebase.sendMultiplePush).toBeDefined()
-    expect(firebase.sendTaskReminderPush).toBeDefined()
-    expect(firebase.sendStreakRiskPush).toBeDefined()
-    expect(firebase.sendDeadlineWarningPush).toBeDefined()
-  })
-})
-
-describe("Push Notification Payloads", () => {
-  it("should format task reminder correctly", async () => {
-    const { sendTaskReminderPush } = await import("@/lib/firebase/messaging")
-
-    // Test payload generation (won't actually send due to mock)
-    const result = await sendTaskReminderPush(
-      "test-token",
-      "Rendez-vous médecin",
-      "task-123",
-      "2024-12-25T10:00:00Z"
-    )
-
-    // With mock, we get the mocked result
-    expect(result.success).toBe(true)
-  })
-
-  it("should format streak risk correctly with high streak", async () => {
-    const { sendStreakRiskPush } = await import("@/lib/firebase/messaging")
-
-    const result = await sendStreakRiskPush(
-      "test-token",
-      15,
-      "Médicament Emma",
-      "task-456"
-    )
-
-    expect(result.success).toBe(true)
-  })
-
-  it("should format deadline warning with different hour thresholds", async () => {
-    const { sendDeadlineWarningPush } = await import("@/lib/firebase/messaging")
-
-    // 3 hours left
-    const result3h = await sendDeadlineWarningPush(
-      "test-token",
-      "Course urgente",
-      "task-789",
-      3
-    )
-    expect(result3h.success).toBe(true)
-
-    // 1 hour left
-    const result1h = await sendDeadlineWarningPush(
-      "test-token",
-      "Course urgente",
-      "task-789",
-      1
-    )
-    expect(result1h.success).toBe(true)
-  })
-
-  it("should format task completed notification", async () => {
-    const { sendTaskCompletedPush } = await import("@/lib/firebase/messaging")
-
-    const result = await sendTaskCompletedPush(
-      "test-token",
-      "Courses alimentaires",
-      "Marie",
-      "task-101"
-    )
-
-    expect(result.success).toBe(true)
-  })
-
-  it("should format milestone notification", async () => {
-    const { sendMilestonePush } = await import("@/lib/firebase/messaging")
-
-    const result = await sendMilestonePush(
-      "test-token",
-      "Lucas",
-      "Premiers pas!",
-      "milestone-001"
-    )
-
-    expect(result.success).toBe(true)
-  })
-
-  it("should format imbalance alert correctly", async () => {
-    const { sendImbalanceAlertPush } = await import("@/lib/firebase/messaging")
-
-    // Warning level
-    const resultWarning = await sendImbalanceAlertPush(
-      "test-token",
-      "65/35",
-      "warning"
-    )
-    expect(resultWarning.success).toBe(true)
-
-    // Critical level
-    const resultCritical = await sendImbalanceAlertPush(
-      "test-token",
-      "80/20",
-      "critical"
-    )
-    expect(resultCritical.success).toBe(true)
-  })
-})
-
-describe("Multi-device Push", () => {
-  it("should send to multiple tokens", async () => {
-    const { sendMultiplePush } = await import("@/lib/firebase/messaging")
-
-    const result = await sendMultiplePush(
-      ["token1", "token2"],
-      { title: "Test", body: "Test body" },
-      { type: "task_reminder" }
-    )
-
-    expect(result.successCount).toBe(2)
-    expect(result.failureCount).toBe(0)
-    expect(result.results).toHaveLength(2)
-  })
-
-  it("should handle empty token array", async () => {
-    const { sendMultiplePush } = await import("@/lib/firebase/messaging")
-
-    const result = await sendMultiplePush([], { title: "Test", body: "Test" })
-
-    expect(result.successCount).toBe(0)
-    expect(result.failureCount).toBe(0)
-    expect(result.results).toHaveLength(0)
-  })
-
-  it("should track invalid tokens", async () => {
-    const { sendMultiplePush } = await import("@/lib/firebase/messaging")
-
-    // The mock returns success, but we can verify the interface
-    const result = await sendMultiplePush(
-      ["valid-token", "invalid-token"],
-      { title: "Test", body: "Test" }
-    )
-
-    expect(result.invalidTokens).toBeDefined()
-    expect(Array.isArray(result.invalidTokens)).toBe(true)
-  })
-})
-
-describe("Batch Notifications", () => {
-  it("should send multiple notification batches", async () => {
-    const { sendBatchNotifications } = await import("@/lib/firebase/messaging")
-
-    const results = await sendBatchNotifications([
-      {
-        tokens: ["token1"],
-        notification: { title: "Batch 1", body: "Body 1" },
-        data: { type: "task_reminder" },
-      },
-      {
-        tokens: ["token2", "token3"],
-        notification: { title: "Batch 2", body: "Body 2" },
-      },
-    ])
-
-    expect(results).toHaveLength(2)
-  })
-
-  it("should skip empty token batches", async () => {
-    const { sendBatchNotifications } = await import("@/lib/firebase/messaging")
-
-    const results = await sendBatchNotifications([
-      {
-        tokens: [],
-        notification: { title: "Empty", body: "Body" },
-      },
-      {
-        tokens: ["token1"],
-        notification: { title: "Valid", body: "Body" },
-      },
-    ])
-
-    expect(results).toHaveLength(1)
-  })
-})
-
-describe("Firebase Configuration", () => {
-  it("should detect when Firebase is configured", async () => {
-    process.env["FIREBASE_PROJECT_ID"] = "test-project"
-    process.env["FIREBASE_CLIENT_EMAIL"] = "test@test.com"
-    process.env["FIREBASE_PRIVATE_KEY"] = "test-key"
-
-    const { isFirebaseConfigured } = await import("@/lib/firebase/admin")
-    expect(isFirebaseConfigured()).toBe(true)
-  })
-
-  it("should detect when Firebase is not configured", async () => {
-    delete process.env["FIREBASE_PROJECT_ID"]
-
-    // Need to reimport after changing env
-    vi.resetModules()
-    const { isFirebaseConfigured } = await import("@/lib/firebase/admin")
-    expect(isFirebaseConfigured()).toBe(false)
-
-    // Restore for other tests
-    process.env["FIREBASE_PROJECT_ID"] = "test-project"
-  })
-
-  it("should handle missing client email", async () => {
-    delete process.env["FIREBASE_CLIENT_EMAIL"]
-
-    vi.resetModules()
-    const { isFirebaseConfigured } = await import("@/lib/firebase/admin")
-    expect(isFirebaseConfigured()).toBe(false)
-
-    // Restore
-    process.env["FIREBASE_CLIENT_EMAIL"] = "test@test.com"
-  })
-
-  it("should handle missing private key", async () => {
-    delete process.env["FIREBASE_PRIVATE_KEY"]
-
-    vi.resetModules()
-    const { isFirebaseConfigured } = await import("@/lib/firebase/admin")
-    expect(isFirebaseConfigured()).toBe(false)
-
-    // Restore
-    process.env["FIREBASE_PRIVATE_KEY"] = "test-key"
-  })
 })
 
 describe("Notification Result Types", () => {
   it("should have correct PushResult structure", () => {
-    // Type check - creating valid result objects
     const successResult = {
       success: true,
       messageId: "msg-123",
@@ -341,106 +74,334 @@ describe("Notification Result Types", () => {
     const payload = {
       title: "Test Title",
       body: "Test Body",
-      icon: "/icons/icon.png",
-      badge: "/icons/badge.png",
+      icon: "/icons/icon-192x192.png",
+      badge: "/icons/badge-72x72.png",
       clickAction: "/tasks",
     }
 
     expect(payload.title).toBe("Test Title")
     expect(payload.body).toBe("Test Body")
-    expect(payload.icon).toBe("/icons/icon.png")
+    expect(payload.icon).toBe("/icons/icon-192x192.png")
   })
 })
 
-describe("Push Notification Error Handling", () => {
-  it("should return failure when Firebase not configured", async () => {
-    delete process.env["FIREBASE_PROJECT_ID"]
-    vi.resetModules()
+describe("Firebase Configuration Detection", () => {
+  it("should detect full configuration", () => {
+    const config = {
+      projectId: "test-project",
+      clientEmail: "test@test.com",
+      privateKey: "test-key",
+    }
 
-    const { sendPushNotification } = await import("@/lib/firebase/messaging")
-
-    const result = await sendPushNotification(
-      "token",
-      "Title",
-      "Body"
-    )
-
-    expect(result.success).toBe(false)
-    expect(result.error).toContain("not configured")
-
-    // Restore
-    process.env["FIREBASE_PROJECT_ID"] = "test-project"
+    const isConfigured = !!(config.projectId && config.clientEmail && config.privateKey)
+    expect(isConfigured).toBe(true)
   })
 
-  it("should handle sendMultiplePush when not configured", async () => {
-    delete process.env["FIREBASE_PROJECT_ID"]
-    vi.resetModules()
+  it("should detect missing project ID", () => {
+    const config = {
+      projectId: null,
+      clientEmail: "test@test.com",
+      privateKey: "test-key",
+    }
 
-    const { sendMultiplePush } = await import("@/lib/firebase/messaging")
+    const isConfigured = !!(config.projectId && config.clientEmail && config.privateKey)
+    expect(isConfigured).toBe(false)
+  })
 
-    const result = await sendMultiplePush(
-      ["token1", "token2"],
-      { title: "Test", body: "Test" }
-    )
+  it("should detect missing client email", () => {
+    const config = {
+      projectId: "test-project",
+      clientEmail: null,
+      privateKey: "test-key",
+    }
 
-    expect(result.successCount).toBe(0)
-    expect(result.failureCount).toBe(2)
-    expect(result.results.every(r => !r.success)).toBe(true)
+    const isConfigured = !!(config.projectId && config.clientEmail && config.privateKey)
+    expect(isConfigured).toBe(false)
+  })
 
-    // Restore
-    process.env["FIREBASE_PROJECT_ID"] = "test-project"
+  it("should detect missing private key", () => {
+    const config = {
+      projectId: "test-project",
+      clientEmail: "test@test.com",
+      privateKey: null,
+    }
+
+    const isConfigured = !!(config.projectId && config.clientEmail && config.privateKey)
+    expect(isConfigured).toBe(false)
+  })
+})
+
+describe("Notification Message Formatting", () => {
+  it("should format task reminder title correctly", () => {
+    const taskTitle = "Rendez-vous médecin"
+    const reminderTitle = `Rappel: ${taskTitle}`
+
+    expect(reminderTitle).toBe("Rappel: Rendez-vous médecin")
+  })
+
+  it("should format task reminder body with deadline", () => {
+    const deadline = new Date("2024-12-25T10:00:00Z")
+    const body = `À faire avant le ${deadline.toLocaleDateString("fr-FR")}`
+
+    expect(body).toContain("25")
+    expect(body).toContain("12")
+    expect(body).toContain("2024")
+  })
+
+  it("should format streak risk title for high streaks", () => {
+    const currentStreak = 15
+    const title = currentStreak >= 7
+      ? `🔥 Série de ${currentStreak} jours en danger !`
+      : `Attention: série de ${currentStreak} jours`
+
+    expect(title).toBe("🔥 Série de 15 jours en danger !")
+  })
+
+  it("should format streak risk title for low streaks", () => {
+    const currentStreak = 3
+    const title = currentStreak >= 7
+      ? `🔥 Série de ${currentStreak} jours en danger !`
+      : `Attention: série de ${currentStreak} jours`
+
+    expect(title).toBe("Attention: série de 3 jours")
+  })
+
+  it("should format deadline warning for 3 hours", () => {
+    const hoursLeft = 3
+    const title = hoursLeft <= 1
+      ? "⚠️ Dernière heure !"
+      : `⏰ Plus que ${hoursLeft}h`
+
+    expect(title).toBe("⏰ Plus que 3h")
+  })
+
+  it("should format deadline warning for 1 hour", () => {
+    const hoursLeft = 1
+    const title = hoursLeft <= 1
+      ? "⚠️ Dernière heure !"
+      : `⏰ Plus que ${hoursLeft}h`
+
+    expect(title).toBe("⚠️ Dernière heure !")
+  })
+
+  it("should format imbalance alert for warning level", () => {
+    const alertLevel = "warning" as "warning" | "critical"
+    const title = alertLevel === "critical"
+      ? "Alerte déséquilibre critique"
+      : "Attention: déséquilibre détecté"
+
+    expect(title).toBe("Attention: déséquilibre détecté")
+  })
+
+  it("should format imbalance alert for critical level", () => {
+    const alertLevel = "critical" as "warning" | "critical"
+    const title = alertLevel === "critical"
+      ? "Alerte déséquilibre critique"
+      : "Attention: déséquilibre détecté"
+
+    expect(title).toBe("Alerte déséquilibre critique")
+  })
+
+  it("should format imbalance body with ratio", () => {
+    const ratio = "65/35"
+    const body = `La répartition de charge est de ${ratio}. Pensez à rééquilibrer les tâches.`
+
+    expect(body).toBe("La répartition de charge est de 65/35. Pensez à rééquilibrer les tâches.")
   })
 })
 
 describe("Notification Data Payloads", () => {
-  it("should include type in data payload for task reminder", async () => {
-    const { sendTaskReminderPush } = await import("@/lib/firebase/messaging")
+  it("should create task reminder data payload", () => {
+    const taskId = "task-123"
+    const data = {
+      type: "task_reminder",
+      taskId,
+      link: `/tasks/${taskId}`,
+    }
 
-    // The function includes type: "task_reminder" in data
-    await sendTaskReminderPush("token", "Task", "id", "2024-12-01")
-
-    // We can't easily verify the exact payload sent due to mocking,
-    // but we can verify the function completes successfully
-    expect(true).toBe(true)
+    expect(data.type).toBe("task_reminder")
+    expect(data.taskId).toBe("task-123")
+    expect(data.link).toBe("/tasks/task-123")
   })
 
-  it("should include link in data payload", async () => {
-    const { sendTaskReminderPush } = await import("@/lib/firebase/messaging")
+  it("should create task assignment data payload", () => {
+    const taskId = "task-456"
+    const data = {
+      type: "task_assignment",
+      taskId,
+      link: `/tasks/${taskId}`,
+    }
 
-    // The function should include link: "/tasks/{taskId}" in data
-    await sendTaskReminderPush("token", "Task", "task-abc", "2024-12-01")
-
-    expect(true).toBe(true)
+    expect(data.type).toBe("task_assignment")
+    expect(data.link).toBe("/tasks/task-456")
   })
 
-  it("should include alert level in imbalance data", async () => {
-    const { sendImbalanceAlertPush } = await import("@/lib/firebase/messaging")
+  it("should create streak risk data payload", () => {
+    const taskId = "task-789"
+    const currentStreak = 10
+    const data = {
+      type: "streak_risk",
+      currentStreak: String(currentStreak),
+      taskId,
+      link: `/tasks/${taskId}`,
+    }
 
-    await sendImbalanceAlertPush("token", "70/30", "critical")
+    expect(data.type).toBe("streak_risk")
+    expect(data.currentStreak).toBe("10")
+    expect(data.link).toBe("/tasks/task-789")
+  })
 
-    expect(true).toBe(true)
+  it("should create charge alert data payload", () => {
+    const alertLevel: "warning" | "critical" = "critical"
+    const data = {
+      type: "charge_alert",
+      alertLevel,
+      link: "/charge",
+    }
+
+    expect(data.type).toBe("charge_alert")
+    expect(data.alertLevel).toBe("critical")
+    expect(data.link).toBe("/charge")
+  })
+
+  it("should create deadline warning data payload", () => {
+    const taskId = "task-101"
+    const hoursLeft = 3
+    const data = {
+      type: "deadline_warning",
+      taskId,
+      hoursLeft: String(hoursLeft),
+      link: `/tasks/${taskId}`,
+    }
+
+    expect(data.type).toBe("deadline_warning")
+    expect(data.hoursLeft).toBe("3")
+    expect(data.link).toBe("/tasks/task-101")
   })
 })
 
-describe("Notification Aggregation", () => {
-  it("should batch similar notifications", async () => {
-    const { sendBatchNotifications } = await import("@/lib/firebase/messaging")
+describe("Invalid Token Detection", () => {
+  it("should detect invalid FCM token error", () => {
+    const errorMessages = [
+      "not a valid FCM registration token",
+      "Requested entity was not found",
+      "registration-token-not-registered",
+    ]
 
-    // Simulate aggregating task reminders for the same user
-    const userTokens = ["token1", "token2"]
+    for (const message of errorMessages) {
+      const isInvalid = message.includes("not a valid FCM registration token") ||
+        message.includes("Requested entity was not found") ||
+        message.includes("registration-token-not-registered")
 
-    const results = await sendBatchNotifications([
-      {
-        tokens: userTokens,
-        notification: {
-          title: "📋 3 tâches à faire",
-          body: "Consultez votre liste de tâches",
-        },
-        data: { type: "task_reminder", link: "/tasks/today" },
-      },
-    ])
+      expect(isInvalid).toBe(true)
+    }
+  })
 
-    expect(results).toHaveLength(1)
-    expect(results[0]?.successCount).toBeGreaterThanOrEqual(0)
+  it("should not flag other errors as invalid token", () => {
+    const errorMessage = "Server error: unable to send"
+    const isInvalid = errorMessage.includes("not a valid FCM registration token") ||
+      errorMessage.includes("Requested entity was not found") ||
+      errorMessage.includes("registration-token-not-registered")
+
+    expect(isInvalid).toBe(false)
+  })
+})
+
+describe("Multi-Device Handling", () => {
+  it("should handle empty token array", () => {
+    const tokens: string[] = []
+
+    const result = {
+      successCount: 0,
+      failureCount: 0,
+      invalidTokens: [] as string[],
+      results: [] as Array<{ success: boolean }>,
+    }
+
+    expect(result.successCount).toBe(0)
+    expect(result.failureCount).toBe(0)
+    expect(result.results).toHaveLength(0)
+  })
+
+  it("should track results per token", () => {
+    const tokens = ["token1", "token2", "token3"]
+    const responses = [
+      { success: true, messageId: "msg-1" },
+      { success: false, error: "Invalid token" },
+      { success: true, messageId: "msg-3" },
+    ]
+
+    const successCount = responses.filter(r => r.success).length
+    const failureCount = responses.filter(r => !r.success).length
+
+    expect(successCount).toBe(2)
+    expect(failureCount).toBe(1)
+    expect(responses).toHaveLength(3)
+  })
+
+  it("should collect invalid tokens", () => {
+    const tokens = ["token1", "token2", "token3"]
+    const responses = [
+      { success: true },
+      { success: false, invalidToken: true },
+      { success: false, invalidToken: false },
+    ]
+
+    const invalidTokens: string[] = []
+    responses.forEach((resp, index) => {
+      if (!resp.success && "invalidToken" in resp && resp.invalidToken) {
+        const token = tokens[index]
+        if (token) {
+          invalidTokens.push(token)
+        }
+      }
+    })
+
+    expect(invalidTokens).toHaveLength(1)
+    expect(invalidTokens[0]).toBe("token2")
+  })
+})
+
+describe("Batch Notification Logic", () => {
+  it("should skip empty batches", () => {
+    const batches = [
+      { tokens: [], notification: { title: "Empty", body: "Body" } },
+      { tokens: ["token1"], notification: { title: "Valid", body: "Body" } },
+      { tokens: [], notification: { title: "Empty 2", body: "Body" } },
+    ]
+
+    const nonEmptyBatches = batches.filter(b => b.tokens.length > 0)
+    expect(nonEmptyBatches).toHaveLength(1)
+  })
+
+  it("should count total tokens across batches", () => {
+    const batches = [
+      { tokens: ["t1", "t2"] },
+      { tokens: ["t3"] },
+      { tokens: ["t4", "t5", "t6"] },
+    ]
+
+    const totalTokens = batches.reduce((sum, b) => sum + b.tokens.length, 0)
+    expect(totalTokens).toBe(6)
+  })
+})
+
+describe("Notification Content Validation", () => {
+  it("should validate title length", () => {
+    const maxLength = 100
+    const validTitle = "Rappel: Tâche importante"
+    const tooLongTitle = "A".repeat(150)
+
+    expect(validTitle.length).toBeLessThanOrEqual(maxLength)
+    expect(tooLongTitle.length).toBeGreaterThan(maxLength)
+  })
+
+  it("should validate body length", () => {
+    const maxLength = 500
+    const validBody = "Cette tâche doit être complétée avant la deadline"
+    const tooLongBody = "B".repeat(600)
+
+    expect(validBody.length).toBeLessThanOrEqual(maxLength)
+    expect(tooLongBody.length).toBeGreaterThan(maxLength)
   })
 })

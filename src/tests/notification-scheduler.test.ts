@@ -5,7 +5,7 @@
  * Tests scheduling logic, aggregation, and timing calculations.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, vi } from "vitest"
 
 // Mock database module
 vi.mock("@/lib/aws/database", () => ({
@@ -66,19 +66,10 @@ describe("Schedule Configuration", () => {
 })
 
 describe("Notification Scheduling Logic", () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
   it("should calculate J-1 reminder time correctly", () => {
     // Deadline: January 15 at 18:00
     const deadline = new Date("2024-01-15T18:00:00Z")
     const now = new Date("2024-01-13T10:00:00Z")
-    vi.setSystemTime(now)
 
     // J-1 should be January 14 at 09:00
     const dayBefore = new Date(deadline)
@@ -94,7 +85,6 @@ describe("Notification Scheduling Logic", () => {
     // Deadline: January 15 at 18:00
     const deadline = new Date("2024-01-15T18:00:00Z")
     const now = new Date("2024-01-14T20:00:00Z")
-    vi.setSystemTime(now)
 
     // J-0 should be January 15 at 08:00
     const dayOf = new Date(deadline)
@@ -108,7 +98,6 @@ describe("Notification Scheduling Logic", () => {
   it("should calculate H-3 reminder time correctly", () => {
     const deadline = new Date("2024-01-15T18:00:00Z")
     const now = new Date("2024-01-15T14:00:00Z")
-    vi.setSystemTime(now)
 
     // H-3 should be January 15 at 15:00
     const threeHours = new Date(deadline)
@@ -121,7 +110,6 @@ describe("Notification Scheduling Logic", () => {
   it("should calculate H-1 reminder time correctly", () => {
     const deadline = new Date("2024-01-15T18:00:00Z")
     const now = new Date("2024-01-15T16:00:00Z")
-    vi.setSystemTime(now)
 
     // H-1 should be January 15 at 17:00
     const oneHour = new Date(deadline)
@@ -135,7 +123,6 @@ describe("Notification Scheduling Logic", () => {
     // Deadline is in 30 minutes, so J-1 and J-0 morning should be skipped
     const deadline = new Date("2024-01-15T18:00:00Z")
     const now = new Date("2024-01-15T17:30:00Z")
-    vi.setSystemTime(now)
 
     // J-1 at 9:00 yesterday is in the past
     const dayBefore = new Date(deadline)
@@ -351,7 +338,7 @@ describe("Charge Alert Detection", () => {
 })
 
 describe("Notification Cancellation", () => {
-  it("should cancel notifications by task ID", async () => {
+  it("should cancel notifications by task ID", () => {
     const taskId = "task-to-cancel"
     const notificationsToCancel = [
       { id: "notif-1", task_id: taskId, is_sent: false },
@@ -398,17 +385,8 @@ describe("Notification Rescheduling", () => {
 })
 
 describe("Due Notification Detection", () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
   it("should identify due notifications", () => {
     const now = new Date("2024-01-15T10:00:00Z")
-    vi.setSystemTime(now)
 
     const notifications = [
       { scheduled_for: new Date("2024-01-15T09:00:00Z"), is_sent: false }, // Due
