@@ -11,18 +11,16 @@ import { z } from "zod"
 import { getUserId } from "@/lib/auth/actions"
 import {
   calculateFairnessScore,
-  calculateCategoryFairness,
   calculateFairnessTrend,
+  getAllCategoryFairness,
   generateScoreBasedMessages,
   generateMemberMessages,
   generateWeeklySummary,
   generateWeeklyReport,
   generateMonthlyReport,
   generateWeeklyReportEmail,
-  generateWeeklyReportPush,
-  type MemberLoad,
-  type ExclusionPeriod,
-  type FairnessTrend,
+  type TaskCompletion,
+  type MemberExclusion,
   type WeeklyScoreData,
 } from "@/lib/justice"
 
@@ -31,12 +29,11 @@ import {
 // =============================================================================
 
 const TaskDataSchema = z.object({
-  id: z.string(),
+  taskId: z.string(),
   category: z.string(),
   weight: z.number().min(1).max(10),
   completedAt: z.string(),
-  completedBy: z.string(),
-  completedByName: z.string(),
+  userId: z.string(),
 })
 
 const MemberDataSchema = z.object({
@@ -55,11 +52,14 @@ const GetFairnessInputSchema = z.object({
   householdId: z.string(),
   tasks: z.array(TaskDataSchema),
   members: z.array(MemberDataSchema),
-  periodDays: z.number().min(1).max(365).default(7),
+  periodStart: z.string(),
+  periodEnd: z.string(),
   historicalScores: z.array(
     z.object({
-      date: z.string(),
+      startDate: z.string(),
+      endDate: z.string(),
       score: z.number(),
+      gini: z.number(),
     })
   ).optional(),
 })
@@ -73,43 +73,23 @@ const GenerateReportInputSchema = z.object({
   year: z.number().optional(),
   tasks: z.array(TaskDataSchema),
   members: z.array(MemberDataSchema),
+  periodStart: z.string(),
+  periodEnd: z.string(),
   weeklyScores: z.array(
     z.object({
       weekNumber: z.number(),
       score: z.number(),
       status: z.string(),
-      memberLoads: z.array(
-        z.object({
-          userId: z.string(),
-          userName: z.string(),
-          tasksCompleted: z.number(),
-          totalWeight: z.number(),
-          percentage: z.number(),
-          adjustedPercentage: z.number(),
-          exclusionDays: z.number(),
-        })
-      ),
-      categoryFairness: z.array(
-        z.object({
-          category: z.string(),
-          fairnessScore: z.number(),
-          totalTasks: z.number(),
-          memberContributions: z.array(
-            z.object({
-              userId: z.string(),
-              userName: z.string(),
-              taskCount: z.number(),
-              percentage: z.number(),
-            })
-          ),
-        })
-      ),
+      memberLoads: z.array(z.any()),
+      categoryFairness: z.array(z.any()),
     })
   ).optional(),
   historicalScores: z.array(
     z.object({
-      date: z.string(),
+      startDate: z.string(),
+      endDate: z.string(),
       score: z.number(),
+      gini: z.number(),
     })
   ).optional(),
 })
@@ -119,106 +99,34 @@ const GenerateReportInputSchema = z.object({
 // =============================================================================
 
 /**
- * Transform task data to member loads
+ * Transform task data to TaskCompletion[]
  */
-function transformToMemberLoads(
-  tasks: z.infer<typeof TaskDataSchema>[],
-  members: z.infer<typeof MemberDataSchema>[],
-  periodDays: number
-): MemberLoad[] {
-  const loadMap = new Map<string, MemberLoad>()
-
-  // Initialize all members
-  for (const member of members) {
-    const exclusionDays = calculateExclusionDays(
-      member.exclusionPeriods ?? [],
-      periodDays
-    )
-
-    loadMap.set(member.userId, {
-      userId: member.userId,
-      userName: member.userName,
-      tasksCompleted: 0,
-      totalWeight: 0,
-      percentage: 0,
-      adjustedPercentage: 0,
-      exclusionDays,
-    })
-  }
-
-  // Aggregate task completions
-  const totalWeight = tasks.reduce((sum, t) => sum + t.weight, 0)
-
-  for (const task of tasks) {
-    const load = loadMap.get(task.completedBy)
-    if (load) {
-      load.tasksCompleted += 1
-      load.totalWeight += task.weight
-    }
-  }
-
-  // Calculate percentages
-  for (const load of loadMap.values()) {
-    load.percentage = totalWeight > 0
-      ? (load.totalWeight / totalWeight) * 100
-      : 0
-
-    // Adjust for exclusion days
-    const activeDays = periodDays - load.exclusionDays
-    if (activeDays > 0 && activeDays < periodDays) {
-      const adjustmentFactor = periodDays / activeDays
-      load.adjustedPercentage = load.percentage * adjustmentFactor
-    } else {
-      load.adjustedPercentage = load.percentage
-    }
-  }
-
-  return Array.from(loadMap.values())
+function transformToTaskCompletions(
+  tasks: z.infer<typeof TaskDataSchema>[]
+): TaskCompletion[] {
+  return tasks.map((t) => ({
+    taskId: t.taskId,
+    userId: t.userId,
+    category: t.category,
+    weight: t.weight,
+    completedAt: new Date(t.completedAt),
+  }))
 }
 
 /**
- * Calculate exclusion days from periods
+ * Transform member data to Map and exclusions
  */
-function calculateExclusionDays(
-  periods: Array<{ startDate: string; endDate: string }>,
-  periodDays: number
-): number {
-  const now = new Date()
-  const periodStart = new Date(now)
-  periodStart.setDate(periodStart.getDate() - periodDays)
-
-  let totalDays = 0
-
-  for (const period of periods) {
-    const start = new Date(period.startDate)
-    const end = new Date(period.endDate)
-
-    // Clip to period bounds
-    const effectiveStart = start < periodStart ? periodStart : start
-    const effectiveEnd = end > now ? now : end
-
-    if (effectiveEnd >= effectiveStart) {
-      const days = Math.ceil(
-        (effectiveEnd.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60 * 24)
-      )
-      totalDays += days
-    }
-  }
-
-  return Math.min(totalDays, periodDays)
-}
-
-/**
- * Transform to exclusion periods
- */
-function transformToExclusionPeriods(
+function transformMembers(
   members: z.infer<typeof MemberDataSchema>[]
-): ExclusionPeriod[] {
-  const periods: ExclusionPeriod[] = []
+): { memberInfo: Map<string, string>; exclusions: MemberExclusion[] } {
+  const memberInfo = new Map<string, string>()
+  const exclusions: MemberExclusion[] = []
 
   for (const member of members) {
+    memberInfo.set(member.userId, member.userName)
+
     for (const period of member.exclusionPeriods ?? []) {
-      periods.push({
+      exclusions.push({
         userId: member.userId,
         startDate: new Date(period.startDate),
         endDate: new Date(period.endDate),
@@ -227,27 +135,7 @@ function transformToExclusionPeriods(
     }
   }
 
-  return periods
-}
-
-/**
- * Group tasks by category
- */
-function groupTasksByCategory(
-  tasks: z.infer<typeof TaskDataSchema>[]
-): Map<string, z.infer<typeof TaskDataSchema>[]> {
-  const groups = new Map<string, z.infer<typeof TaskDataSchema>[]>()
-
-  for (const task of tasks) {
-    const existing = groups.get(task.category)
-    if (existing) {
-      existing.push(task)
-    } else {
-      groups.set(task.category, [task])
-    }
-  }
-
-  return groups
+  return { memberInfo, exclusions }
 }
 
 // =============================================================================
@@ -264,9 +152,6 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       )
     }
-
-    const { searchParams } = new URL(request.url)
-    const action = searchParams.get("action") ?? "score"
 
     // Parse body for POST-like GET with body
     const body = await request.json().catch(() => null)
@@ -287,48 +172,51 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const { householdId, tasks, members, periodDays, historicalScores } = parsed.data
+    const { householdId, tasks, members, periodStart, periodEnd, historicalScores } = parsed.data
 
-    // Calculate member loads
-    const memberLoads = transformToMemberLoads(tasks, members, periodDays)
-    const exclusionPeriods = transformToExclusionPeriods(members)
+    // Transform data
+    const taskCompletions = transformToTaskCompletions(tasks)
+    const { memberInfo, exclusions } = transformMembers(members)
+    const start = new Date(periodStart)
+    const end = new Date(periodEnd)
 
     // Calculate fairness score
     const fairnessScore = calculateFairnessScore(
-      memberLoads,
-      exclusionPeriods,
-      periodDays
+      householdId,
+      taskCompletions,
+      memberInfo,
+      exclusions,
+      start,
+      end
     )
 
     // Calculate category fairness
-    const tasksByCategory = groupTasksByCategory(tasks)
-    const categoryAnalyses = Array.from(tasksByCategory.entries()).map(
-      ([category, categoryTasks]) => {
-        const categoryLoads = transformToMemberLoads(categoryTasks, members, periodDays)
-        return calculateCategoryFairness(category, categoryLoads)
-      }
-    )
+    const categoryAnalyses = getAllCategoryFairness(fairnessScore.memberLoads)
 
     // Calculate trend
-    const trend: FairnessTrend = historicalScores && historicalScores.length > 0
+    const trend = historicalScores && historicalScores.length > 0
       ? calculateFairnessTrend(
+          householdId,
           historicalScores.map((h) => ({
-            date: new Date(h.date),
+            startDate: new Date(h.startDate),
+            endDate: new Date(h.endDate),
             score: h.score,
+            gini: h.gini,
           }))
         )
       : {
-          trend: "stable",
-          previousScore: null,
-          change: 0,
-          weeklyScores: [],
+          householdId,
+          periods: [],
+          trend: "stable" as const,
           averageScore: fairnessScore.overallScore,
+          bestPeriod: null,
+          worstPeriod: null,
         }
 
     // Generate messages
     const messages = [
       ...generateScoreBasedMessages(fairnessScore, trend),
-      ...generateMemberMessages(memberLoads),
+      ...generateMemberMessages(fairnessScore.memberLoads),
     ]
 
     // Generate summary
@@ -392,37 +280,50 @@ export async function POST(request: NextRequest) {
       year,
       tasks,
       members,
+      periodStart,
+      periodEnd,
       weeklyScores,
       historicalScores,
     } = parsed.data
 
     if (type === "weekly") {
-      // Calculate current data
-      const memberLoads = transformToMemberLoads(tasks, members, 7)
-      const exclusionPeriods = transformToExclusionPeriods(members)
-      const fairnessScore = calculateFairnessScore(memberLoads, exclusionPeriods, 7)
+      // Transform data
+      const taskCompletions = transformToTaskCompletions(tasks)
+      const { memberInfo, exclusions } = transformMembers(members)
+      const start = new Date(periodStart)
+      const end = new Date(periodEnd)
 
-      const tasksByCategory = groupTasksByCategory(tasks)
-      const categoryAnalyses = Array.from(tasksByCategory.entries()).map(
-        ([category, categoryTasks]) => {
-          const categoryLoads = transformToMemberLoads(categoryTasks, members, 7)
-          return calculateCategoryFairness(category, categoryLoads)
-        }
+      // Calculate fairness score
+      const fairnessScore = calculateFairnessScore(
+        householdId,
+        taskCompletions,
+        memberInfo,
+        exclusions,
+        start,
+        end
       )
 
-      const trend: FairnessTrend = historicalScores && historicalScores.length > 0
+      // Calculate category fairness
+      const categoryAnalyses = getAllCategoryFairness(fairnessScore.memberLoads)
+
+      // Calculate trend
+      const trend = historicalScores && historicalScores.length > 0
         ? calculateFairnessTrend(
+            householdId,
             historicalScores.map((h) => ({
-              date: new Date(h.date),
+              startDate: new Date(h.startDate),
+              endDate: new Date(h.endDate),
               score: h.score,
+              gini: h.gini,
             }))
           )
         : {
-            trend: "stable",
-            previousScore: null,
-            change: 0,
-            weeklyScores: [],
+            householdId,
+            periods: [],
+            trend: "stable" as const,
             averageScore: fairnessScore.overallScore,
+            bestPeriod: null,
+            worstPeriod: null,
           }
 
       const report = generateWeeklyReport(
@@ -436,14 +337,12 @@ export async function POST(request: NextRequest) {
       )
 
       const email = generateWeeklyReportEmail(report)
-      const push = generateWeeklyReportPush(report)
 
       return NextResponse.json({
         success: true,
         data: {
           report,
           email,
-          push,
         },
       })
     } else if (type === "monthly") {
@@ -454,18 +353,10 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      const weeklyScoreData: WeeklyScoreData[] = weeklyScores.map((w) => ({
-        weekNumber: w.weekNumber,
-        score: w.score,
-        status: w.status,
-        memberLoads: w.memberLoads,
-        categoryFairness: w.categoryFairness,
-      }))
-
       const report = generateMonthlyReport(
         householdId,
         householdName,
-        weeklyScoreData,
+        weeklyScores as WeeklyScoreData[],
         month,
         year
       )
