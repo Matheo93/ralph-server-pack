@@ -475,7 +475,7 @@ export function calculateAssignmentScore(
  * Find optimal assignee for a task
  */
 export function findOptimalAssignee(
-  task: TaskWeightInput,
+  task: TaskWeightInputWithSkills,
   candidates: MemberAvailability[],
   historicalEntries: HistoricalLoadEntry[],
   rotationTracker: RotationTracker,
@@ -584,7 +584,7 @@ export function findOptimalAssignee(
  * Assign multiple tasks optimally
  */
 export function assignTasksBatch(
-  tasks: TaskWeightInput[],
+  tasks: TaskWeightInputWithSkills[],
   candidates: MemberAvailability[],
   historicalEntries: HistoricalLoadEntry[],
   rotationTracker: RotationTracker

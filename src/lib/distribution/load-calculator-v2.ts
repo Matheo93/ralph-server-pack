@@ -114,7 +114,7 @@ export interface LoadDistributionV2 {
 }
 
 export interface LoadAlert {
-  type: "imbalance" | "overload" | "underload" | "fatigue" | "trend"
+  type: "imbalance" | "overload" | "underload" | "fatigue" | "trend" | "inactivity"
   severity: "low" | "medium" | "high" | "critical"
   userId?: string
   userName?: string

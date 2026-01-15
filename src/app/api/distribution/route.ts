@@ -189,6 +189,8 @@ export async function GET(request: NextRequest) {
         isCritical: task.is_critical,
         childId: task.child_id ?? undefined,
         estimatedMinutes: task.estimated_minutes ?? undefined,
+        requiresCoordination: false,
+        hasDeadlinePressure: task.due_date ? new Date(task.due_date).getTime() - Date.now() < 86400000 : false,
       }
 
       if (!pendingTasksByUser.has(task.assigned_to)) {
