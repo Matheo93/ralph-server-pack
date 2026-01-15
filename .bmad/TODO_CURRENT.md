@@ -20,33 +20,33 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 
 ---
 
-## Phase 1: Catalogue Automatique par Âge (Feature Core)
+## Phase 1: Catalogue Automatique par Âge (Feature Core) ✅
 
-- [ ] 1.1 Créer `src/lib/services/age-based-tasks.ts`:
+- [x] 1.1 Créer `src/lib/services/age-based-tasks.ts`:
   - Calculer l'âge de chaque enfant à partir de birth_date
-  - Mapper l'âge aux règles du MASTER_PROMPT (0-3, 3-6, 6-11, 11-15, 15-18)
+  - Mapper l'âge aux règles du MASTER_PROMPT (0-3, 3-6, 6-11, 11-15, 15-18, 18-25)
   - Récupérer les templates applicables pour l'âge
   - Générer les tâches automatiques
 
-- [ ] 1.2 Créer `src/lib/data/age-based-templates.ts`:
+- [x] 1.2 Créer `src/lib/data/age-based-templates.ts`:
   - Templates 0-3 ans: vaccins, visites PMI, mode de garde
   - Templates 3-6 ans: inscription école, assurance scolaire, réunions
   - Templates 6-11 ans: fournitures, cantine, études, sorties
   - Templates 11-15 ans: orientation, brevet, activités ados
   - Templates 15-18 ans: permis, bac, parcoursup
 
-- [ ] 1.3 Créer `src/lib/services/period-tasks.ts`:
-  - Règles par période (septembre, octobre, décembre, janvier, juin)
+- [x] 1.3 Créer `src/lib/services/period-tasks.ts`:
+  - Règles par période (rentree, toussaint, noel, hiver, printemps, ete)
   - Détecter la période actuelle
   - Générer les tâches saisonnières
 
-- [ ] 1.4 Créer API `src/app/api/cron/generate-tasks/route.ts`:
-  - Endpoint pour génération quotidienne
+- [x] 1.4 Créer API `src/app/api/cron/generate-tasks/route.ts`:
+  - Endpoint pour génération quotidienne (GET cron + POST manual)
   - Parcourir tous les foyers actifs
   - Générer les tâches pour chaque enfant
   - Éviter les duplicatas
 
-- [ ] 1.5 Tests unitaires génération automatique
+- [x] 1.5 Tests unitaires génération automatique (85 tests passants)
 
 ---
 
