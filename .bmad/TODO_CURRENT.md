@@ -79,29 +79,31 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 
 ---
 
-## Phase 3: Exclusions Temporaires (Compléter)
+## Phase 3: Exclusions Temporaires (Compléter) ✅
 
-- [ ] 3.1 Améliorer `src/lib/actions/settings.ts`:
-  - `createExclusion(userId, startDate, endDate, reason)`
-  - `getActiveExclusions(householdId)`
+- [x] 3.1 Améliorer `src/lib/actions/settings.ts`:
+  - `createExclusion(memberId, startDate, endDate, reason)`
+  - `getActiveExclusions()` + `getAllExclusions()`
   - `deleteExclusion(exclusionId)`
+  - `isUserExcluded(userId, householdId)`
 
-- [ ] 3.2 Créer composant `src/components/custom/ExclusionForm.tsx`:
-  - Formulaire de création d'exclusion
-  - Raisons prédéfinies: voyage, maladie, fatigue, autre
-  - Dates de début et fin
+- [x] 3.2 Créer composant `src/components/custom/ExclusionForm.tsx`:
+  - Formulaire de création d'exclusion avec dialog
+  - Raisons prédéfinies: voyage, maladie, surcharge_travail, garde_alternee, autre
+  - ExclusionCard pour affichage
 
-- [ ] 3.3 Créer page `src/app/(dashboard)/settings/exclusions/page.tsx`:
-  - Liste des exclusions actives et passées
+- [x] 3.3 Créer page `src/app/(dashboard)/settings/exclusions/page.tsx`:
+  - Liste des exclusions actives, futures et passées
   - Bouton créer nouvelle exclusion
   - Suppression d'exclusion
+  - Info card explicatif
 
-- [ ] 3.4 Intégrer dans le moteur d'assignation:
-  - Modifier `src/lib/services/assignment.ts`
-  - Exclure les membres avec exclusion active
-  - Réassigner automatiquement
+- [x] 3.4 Intégrer dans le moteur d'assignation:
+  - `src/lib/services/assignment.ts` déjà intégré
+  - filterExcludedMembers() filtre les membres exclus
+  - determineAssignment() retourne "excluded" si tous exclus
 
-- [ ] 3.5 Tests exclusions
+- [x] 3.5 Tests exclusions (27 tests passants)
 
 ---
 
