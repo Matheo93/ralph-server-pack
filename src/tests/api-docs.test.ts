@@ -98,13 +98,13 @@ describe("API Paths", () => {
   it("should define task endpoints", async () => {
     const { apiPaths } = await import("@/lib/openapi/schema")
 
-    expect(apiPaths["/api/tasks"]).toBeDefined()
-    expect(apiPaths["/api/tasks"]?.get).toBeDefined()
-    expect(apiPaths["/api/tasks"]?.post).toBeDefined()
-    expect(apiPaths["/api/tasks/{id}"]).toBeDefined()
-    expect(apiPaths["/api/tasks/{id}"]?.get).toBeDefined()
-    expect(apiPaths["/api/tasks/{id}"]?.patch).toBeDefined()
-    expect(apiPaths["/api/tasks/{id}"]?.delete).toBeDefined()
+    expect(apiPaths["/api/v1/tasks"]).toBeDefined()
+    expect(apiPaths["/api/v1/tasks"]?.get).toBeDefined()
+    expect(apiPaths["/api/v1/tasks"]?.post).toBeDefined()
+    expect(apiPaths["/api/v1/tasks/{id}"]).toBeDefined()
+    expect(apiPaths["/api/v1/tasks/{id}"]?.get).toBeDefined()
+    expect(apiPaths["/api/v1/tasks/{id}"]?.patch).toBeDefined()
+    expect(apiPaths["/api/v1/tasks/{id}"]?.delete).toBeDefined()
   })
 
   it("should define mobile endpoints", async () => {
