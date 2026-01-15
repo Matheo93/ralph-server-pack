@@ -48,7 +48,6 @@ interface AuthResponse {
   user: {
     id: string
     email: string
-    name: string | null
   }
 }
 
@@ -68,12 +67,11 @@ export async function POST(request: NextRequest) {
   const user = await queryOne<{
     id: string
     email: string
-    name: string | null
     password_hash: string | null
   }>(`
-    SELECT id, email, name, password_hash
+    SELECT id, email, password_hash
     FROM users
-    WHERE email = $1 AND deleted_at IS NULL
+    WHERE email = $1
   `, [email.toLowerCase()])
 
   if (!user) {
@@ -133,7 +131,6 @@ export async function POST(request: NextRequest) {
     user: {
       id: user.id,
       email: user.email,
-      name: user.name,
     },
   }
 
@@ -193,9 +190,8 @@ export async function PUT(request: NextRequest) {
   const user = await queryOne<{
     id: string
     email: string
-    name: string | null
   }>(`
-    SELECT id, email, name FROM users WHERE id = $1
+    SELECT id, email FROM users WHERE id = $1
   `, [session.user_id])
 
   if (!user) {

@@ -10,6 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email TEXT UNIQUE NOT NULL,
+    name TEXT, -- Display name (optional)
     auth_provider TEXT DEFAULT 'email', -- email, google, apple
     language TEXT DEFAULT 'fr',
     timezone TEXT DEFAULT 'Europe/Paris',
