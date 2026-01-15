@@ -21,7 +21,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <div className="relative z-10 flex flex-col items-center justify-center w-full p-12">
           {/* Logo */}
           <div className="w-20 h-20 rounded-2xl bg-primary shadow-xl shadow-primary/30 flex items-center justify-center mb-6">
-            <span className="text-4xl">👨‍👩‍👧</span>
+            <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="6" r="3" />
+              <circle cx="6" cy="10" r="2.5" />
+              <circle cx="18" cy="10" r="2.5" />
+              <path d="M12 10c-2 0-3.5 1.5-3.5 3.5V18h7v-4.5c0-2-1.5-3.5-3.5-3.5z" />
+              <path d="M6 13c-1.5 0-2.5 1-2.5 2.5V18h4v-2.5c0-.5-.1-1-.3-1.5-.4-.6-1-1-1.7-1z" opacity="0.8" />
+              <path d="M18 13c1.5 0 2.5 1 2.5 2.5V18h-4v-2.5c0-.5.1-1 .3-1.5.4-.6 1-1 1.7-1z" opacity="0.8" />
+            </svg>
           </div>
 
           <h2 className="text-3xl font-bold text-foreground mb-3">FamilyLoad</h2>
@@ -76,7 +83,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           {/* Mobile logo */}
           <div className="lg:hidden flex flex-col items-center mb-8">
             <div className="w-16 h-16 rounded-xl bg-primary shadow-lg shadow-primary/20 flex items-center justify-center mb-4">
-              <span className="text-3xl">👨‍👩‍👧</span>
+              <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="6" r="3" />
+                <circle cx="6" cy="10" r="2.5" />
+                <circle cx="18" cy="10" r="2.5" />
+                <path d="M12 10c-2 0-3.5 1.5-3.5 3.5V18h7v-4.5c0-2-1.5-3.5-3.5-3.5z" />
+                <path d="M6 13c-1.5 0-2.5 1-2.5 2.5V18h4v-2.5c0-.5-.1-1-.3-1.5-.4-.6-1-1-1.7-1z" opacity="0.8" />
+                <path d="M18 13c1.5 0 2.5 1 2.5 2.5V18h-4v-2.5c0-.5.1-1 .3-1.5.4-.6 1-1 1.7-1z" opacity="0.8" />
+              </svg>
             </div>
             <h1 className="text-2xl font-bold">FamilyLoad</h1>
             <p className="text-sm text-muted-foreground">Libérez votre charge mentale</p>
