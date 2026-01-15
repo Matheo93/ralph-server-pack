@@ -543,17 +543,17 @@ export function calculateMetricStats(dataPoints: MetricDataPoint[]): MetricStats
   const stdDev = Math.sqrt(avgSquaredDiff)
 
   // Min/Max
-  const min = values[0]
-  const max = values[n - 1]
+  const min = values[0]!
+  const max = values[n - 1]!
 
   // Median
   const median = n % 2 === 0
-    ? (values[n / 2 - 1] + values[n / 2]) / 2
-    : values[Math.floor(n / 2)]
+    ? (values[n / 2 - 1]! + values[n / 2]!) / 2
+    : values[Math.floor(n / 2)]!
 
   // Percentiles
-  const p95 = values[Math.floor(n * 0.95)]
-  const p99 = values[Math.floor(n * 0.99)]
+  const p95 = values[Math.floor(n * 0.95)] ?? max
+  const p99 = values[Math.floor(n * 0.99)] ?? max
 
   return { mean, stdDev, min, max, median, p95, p99 }
 }
@@ -636,7 +636,8 @@ export function detectDrift(
   let denominator = 0
 
   for (let i = 0; i < n; i++) {
-    numerator += (i - xMean) * (dataPoints[i].value - yMean)
+    const dp = dataPoints[i]!
+    numerator += (i - xMean) * (dp.value - yMean)
     denominator += Math.pow(i - xMean, 2)
   }
 
@@ -646,8 +647,8 @@ export function detectDrift(
   const driftThreshold = 0.1 * (1 - sensitivity * 0.5) // 10% per window at default
   const detected = Math.abs(slopeNormalized) > driftThreshold
 
-  const firstValue = dataPoints[0].value
-  const lastValue = dataPoints[n - 1].value
+  const firstValue = dataPoints[0]!.value
+  const lastValue = dataPoints[n - 1]!.value
 
   return {
     detected,
@@ -726,7 +727,8 @@ function calculateSlope(dataPoints: MetricDataPoint[]): number {
   let denominator = 0
 
   for (let i = 0; i < n; i++) {
-    numerator += (i - xMean) * (dataPoints[i].value - yMean)
+    const dp = dataPoints[i]!
+    numerator += (i - xMean) * (dp.value - yMean)
     denominator += Math.pow(i - xMean, 2)
   }
 
