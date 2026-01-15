@@ -14,6 +14,8 @@ import {
   calculateTaskWeight,
   calculateFatigueLevel,
   getCategoryWeight,
+  TaskWeightInputSchema as BaseTaskWeightInputSchema,
+  HistoricalLoadEntrySchema as BaseHistoricalLoadEntrySchema,
   type TaskWeightInput,
   type HistoricalLoadEntry,
 } from "./load-calculator-v2"
@@ -21,6 +23,13 @@ import {
 // =============================================================================
 // SCHEMAS
 // =============================================================================
+
+// Extended task schema with required skills
+export const TaskWeightInputSchemaWithSkills = BaseTaskWeightInputSchema.extend({
+  requiredSkills: z.array(z.string()).default([]),
+})
+
+export type TaskWeightInputWithSkills = z.infer<typeof TaskWeightInputSchemaWithSkills>
 
 export const MemberAvailabilitySchema = z.object({
   userId: z.string(),
@@ -43,38 +52,12 @@ export const MemberAvailabilitySchema = z.object({
 })
 
 export const AssignmentRequestSchema = z.object({
-  task: TaskWeightInputSchema,
+  task: TaskWeightInputSchemaWithSkills,
   candidates: z.array(MemberAvailabilitySchema),
-  historicalEntries: z.array(HistoricalLoadEntrySchema),
+  historicalEntries: z.array(BaseHistoricalLoadEntrySchema),
   targetDate: z.date().optional(),
   forceAssignee: z.string().optional(),
   rotationEnabled: z.boolean().default(true),
-})
-
-export const TaskWeightInputSchema = z.object({
-  taskId: z.string(),
-  title: z.string(),
-  category: z.string(),
-  priority: z.number().min(1).max(3).default(2),
-  estimatedMinutes: z.number().min(0).optional(),
-  dueDate: z.date().optional(),
-  isRecurring: z.boolean().default(false),
-  recurrencePattern: z.string().optional(),
-  isCritical: z.boolean().default(false),
-  childId: z.string().optional(),
-  requiresCoordination: z.boolean().default(false),
-  hasDeadlinePressure: z.boolean().default(false),
-  requiredSkills: z.array(z.string()).default([]),
-})
-
-export const HistoricalLoadEntrySchema = z.object({
-  date: z.date(),
-  userId: z.string(),
-  taskId: z.string(),
-  category: z.string(),
-  weight: z.number(),
-  wasCompleted: z.boolean(),
-  minutesSpent: z.number().optional(),
 })
 
 export const AssignmentScoreSchema = z.object({
@@ -231,7 +214,7 @@ export function hasCapacity(member: MemberAvailability): {
  */
 export function checkEligibility(
   member: MemberAvailability,
-  task: TaskWeightInput,
+  task: TaskWeightInputWithSkills,
   targetDate?: Date
 ): { eligible: boolean; reason?: string } {
   // Check if member is active
@@ -252,7 +235,7 @@ export function checkEligibility(
   }
 
   // Check skills
-  const skills = hasRequiredSkills(member, task.requiredSkills ?? [])
+  const skills = hasRequiredSkills(member, task.requiredSkills)
   if (!skills.hasSkills) {
     return {
       eligible: false,
@@ -420,7 +403,7 @@ export function calculateFatigueScore(
  */
 export function calculateAssignmentScore(
   member: MemberAvailability,
-  task: TaskWeightInput,
+  task: TaskWeightInputWithSkills,
   allMembers: MemberAvailability[],
   historicalEntries: HistoricalLoadEntry[],
   rotationTracker: RotationTracker,
@@ -453,7 +436,7 @@ export function calculateAssignmentScore(
     member,
     task.category
   )
-  const skillMatch = calculateSkillMatchScore(member, task.requiredSkills ?? [])
+  const skillMatch = calculateSkillMatchScore(member, task.requiredSkills)
   const availability = calculateAvailabilityScore(member, targetDate)
   const rotation = calculateRotationScore(member, task.category, rotationTracker)
   const fatigue = calculateFatigueScore(member, historicalEntries)
