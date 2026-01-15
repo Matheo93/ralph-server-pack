@@ -303,8 +303,8 @@ describe("Smart Suggestions: Deadline Prediction", () => {
       logistique: 7,
     }
 
-    expect(defaultDays.sante).toBe(14)
-    expect(defaultDays.quotidien).toBe(3)
+    expect(defaultDays["sante"]).toBe(14)
+    expect(defaultDays["quotidien"]).toBe(3)
     expect(Object.keys(defaultDays)).toHaveLength(7)
   })
 

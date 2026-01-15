@@ -340,8 +340,9 @@ async function getTemplateBasedSuggestions(
     for (const template of topTemplates) {
       // Calculate suggested deadline
       let deadline: Date | null = null
-      if (template.cron_rule) {
-        deadline = calculateNextDeadline(template.cron_rule)
+      if (template.recurrence && template.recurrence !== "once") {
+        const cronRule = template.recurrence === "yearly" ? "@yearly" : "@monthly"
+        deadline = calculateNextDeadline(cronRule)
       }
 
       suggestions.push({
