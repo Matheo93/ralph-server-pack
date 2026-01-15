@@ -219,23 +219,49 @@
 
   /* Interactive card hover effect */
   .card-interactive {
-    @apply transition-card hover:shadow-card-hover hover:-translate-y-0.5 active:shadow-card-active active:translate-y-0;
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out;
+  }
+  .card-interactive:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    transform: translateY(-2px);
+  }
+  .card-interactive:active {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    transform: translateY(0);
   }
 
   /* Consistent spacing for sections */
-  .section-spacing {
-    @apply space-y-6 md:space-y-8;
+  .section-spacing > :not(:last-child) {
+    margin-bottom: 1.5rem;
   }
-  .card-spacing {
-    @apply space-y-4;
+  @media (min-width: 768px) {
+    .section-spacing > :not(:last-child) {
+      margin-bottom: 2rem;
+    }
   }
-  .form-spacing {
-    @apply space-y-4;
+  .card-spacing > :not(:last-child) {
+    margin-bottom: 1rem;
+  }
+  .form-spacing > :not(:last-child) {
+    margin-bottom: 1rem;
   }
 
   /* Consistent padding for containers */
   .container-padding {
-    @apply px-4 sm:px-6 lg:px-8;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-padding {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container-padding {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
   }
 
   /* Consistent gap utilities */
