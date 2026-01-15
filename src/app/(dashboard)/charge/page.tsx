@@ -43,8 +43,8 @@ export default async function ChargePage() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Charge mentale</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Charge mentale</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Analyse de la r\u00e9partition des t\u00e2ches dans {householdData?.name || "votre foyer"}
           </p>
         </div>

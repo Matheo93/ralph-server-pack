@@ -73,19 +73,19 @@ export function TaskFilters({ children, categories, className }: TaskFiltersProp
 
   return (
     <div className={cn("space-y-4", className)}>
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <Input
           placeholder="Rechercher..."
           value={currentSearch}
           onChange={(e) => updateFilter("search", e.target.value)}
-          className="w-48"
+          className="w-full sm:w-48"
         />
 
         <Select
           value={currentStatus || "all"}
           onValueChange={(v) => updateFilter("status", v)}
         >
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="w-[calc(50%-4px)] sm:w-36">
             <SelectValue placeholder="Statut" />
           </SelectTrigger>
           <SelectContent>
@@ -102,7 +102,7 @@ export function TaskFilters({ children, categories, className }: TaskFiltersProp
           value={currentPriority || "all"}
           onValueChange={(v) => updateFilter("priority", v)}
         >
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="w-[calc(50%-4px)] sm:w-36">
             <SelectValue placeholder="Priorité" />
           </SelectTrigger>
           <SelectContent>
@@ -120,7 +120,7 @@ export function TaskFilters({ children, categories, className }: TaskFiltersProp
             value={currentChild || "all"}
             onValueChange={(v) => updateFilter("child_id", v)}
           >
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-[calc(50%-4px)] sm:w-36">
               <SelectValue placeholder="Enfant" />
             </SelectTrigger>
             <SelectContent>
@@ -139,7 +139,7 @@ export function TaskFilters({ children, categories, className }: TaskFiltersProp
             value={currentCategory || "all"}
             onValueChange={(v) => updateFilter("category_id", v)}
           >
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-[calc(50%-4px)] sm:w-36">
               <SelectValue placeholder="Catégorie" />
             </SelectTrigger>
             <SelectContent>

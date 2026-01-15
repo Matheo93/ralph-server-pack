@@ -48,19 +48,23 @@ export default async function TasksPage({ searchParams }: PageProps) {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Tâches</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Tâches</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             {tasks.length} tâche{tasks.length > 1 ? "s" : ""} à gérer
           </p>
         </div>
         <div className="flex gap-2">
           <Link href="/tasks/today">
-            <Button variant="outline">Aujourd&apos;hui</Button>
+            <Button variant="outline" size="sm" className="sm:h-10 sm:px-4 sm:py-2">
+              Aujourd&apos;hui
+            </Button>
           </Link>
           <Link href="/tasks/new">
-            <Button>Nouvelle tâche</Button>
+            <Button size="sm" className="sm:h-10 sm:px-4 sm:py-2">
+              Nouvelle tâche
+            </Button>
           </Link>
         </div>
       </div>

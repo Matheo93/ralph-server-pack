@@ -37,7 +37,7 @@ const SETTINGS_SECTIONS = [
 
 export default function SettingsPage() {
   return (
-    <div className="container max-w-3xl py-8">
+    <div className="container max-w-3xl py-8 px-4">
       <div className="mb-8">
         <h1 className="text-2xl font-bold">Paramètres</h1>
         <p className="text-muted-foreground">
