@@ -234,7 +234,7 @@ export async function showLocalNotification(
     }
     // Actions are supported in service worker notifications
     if (payload.actions) {
-      notificationOptions.actions = payload.actions
+      notificationOptions["actions"] = payload.actions
     }
     await registration.showNotification(payload.title, notificationOptions as NotificationOptions)
     return true
