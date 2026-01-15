@@ -53,10 +53,8 @@ beforeEach(() => {
 })
 
 describe("Push Notification Types", () => {
-  it("should define all notification types", async () => {
-    const { type NotificationType } = await import("@/lib/firebase/messaging")
-
-    // Type check - these should be valid
+  it("should define all notification types", () => {
+    // Type check - these should be valid notification types
     const types: string[] = [
       "task_reminder",
       "task_assignment",
@@ -304,9 +302,7 @@ describe("Firebase Configuration", () => {
 })
 
 describe("Notification Result Types", () => {
-  it("should have correct PushResult structure", async () => {
-    const { type PushResult } = await import("@/lib/firebase/messaging")
-
+  it("should have correct PushResult structure", () => {
     // Type check - creating valid result objects
     const successResult = {
       success: true,
@@ -324,9 +320,7 @@ describe("Notification Result Types", () => {
     expect(failureResult.invalidToken).toBe(true)
   })
 
-  it("should have correct MultiplePushResult structure", async () => {
-    const { type MultiplePushResult } = await import("@/lib/firebase/messaging")
-
+  it("should have correct MultiplePushResult structure", () => {
     const result = {
       successCount: 5,
       failureCount: 1,
@@ -343,9 +337,7 @@ describe("Notification Result Types", () => {
     expect(result.results).toHaveLength(2)
   })
 
-  it("should have correct NotificationPayload structure", async () => {
-    const { type NotificationPayload } = await import("@/lib/firebase/messaging")
-
+  it("should have correct NotificationPayload structure", () => {
     const payload = {
       title: "Test Title",
       body: "Test Body",
