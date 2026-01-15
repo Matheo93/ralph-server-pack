@@ -828,8 +828,11 @@ export function detectCategoryFromKeywords(
     };
   }
 
-  const [primary, primaryScore] = sortedCategories[0] as [TaskCategory, number];
-  const secondary = sortedCategories.length > 1 ? sortedCategories[1][0] as TaskCategory : null;
+  const firstResult = sortedCategories[0];
+  const primary = firstResult ? firstResult[0] as TaskCategory : 'other' as TaskCategory;
+  const primaryScore = firstResult ? firstResult[1] : 0;
+  const secondResult = sortedCategories[1];
+  const secondary = secondResult ? secondResult[0] as TaskCategory : null;
 
   return {
     primary,
@@ -837,7 +840,7 @@ export function detectCategoryFromKeywords(
     confidence: {
       score: Math.min(0.9, 0.5 + primaryScore * 0.1),
       reason: `Matched ${primaryScore} keyword(s) for ${primary}`,
-      alternatives: sortedCategories.slice(1, 3).map(([cat]) => cat)
+      alternatives: sortedCategories.slice(1, 3).map(([cat]) => cat as string)
     }
   };
 }
@@ -936,12 +939,15 @@ export function parseDateFromText(
   const dateRegex = /(\d{1,2})[\/\-.](\d{1,2})[\/\-.]?(\d{2,4})?/;
   const match = text.match(dateRegex);
 
-  if (match) {
-    const [fullMatch, day, month, year] = match;
+  if (match && match[1] && match[2]) {
+    const fullMatch = match[0];
+    const day = match[1];
+    const month = match[2];
+    const year = match[3];
     const parsedYear = year
       ? (year.length === 2 ? 2000 + parseInt(year) : parseInt(year))
       : baseDate.getFullYear();
-    const parsedDate = new Date(parsedYear, parseInt(month) - 1, parseInt(day));
+    const parsedDate = new Date(parsedYear, parseInt(month), parseInt(day));
 
     if (!isNaN(parsedDate.getTime())) {
       return {
@@ -1018,7 +1024,7 @@ export function extractActionBasic(text: string): ExtractedAction {
 
   // Try to identify verb (first word or after common prefixes)
   const words = cleaned.split(/\s+/);
-  const verb = words.length > 0 ? words[0] : null;
+  const verb = words.length > 0 ? (words[0] ?? null) : null;
   const object = words.length > 1 ? words.slice(1).join(' ') : null;
 
   return {

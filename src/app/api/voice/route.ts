@@ -281,7 +281,7 @@ async function handleUploadChunk(
     id: `chunk_${request.uploadId}_${request.chunkIndex}`,
     index: request.chunkIndex,
     totalChunks: request.totalChunks,
-    data: chunkBuffer,
+    data: new Uint8Array(chunkBuffer.buffer.slice(0)) as Uint8Array<ArrayBuffer>,
     size: chunkBuffer.length
   };
 
@@ -776,8 +776,8 @@ async function handleFullPipeline(
  * Get mock transcription text based on language
  * In production, this would be replaced by actual STT output
  */
-function getMockTranscriptionText(language: SupportedLanguage): string {
-  const mockTexts: Record<SupportedLanguage, readonly string[]> = {
+function getMockTranscriptionText(language: string): string {
+  const mockTexts: Record<string, readonly string[]> = {
     fr: [
       'Il faut emmener Lucas chez le médecin demain pour son vaccin',
       'Penser à acheter les fournitures scolaires pour Emma cette semaine',
@@ -832,8 +832,9 @@ function getMockTranscriptionText(language: SupportedLanguage): string {
     ]
   };
 
-  const texts = mockTexts[language];
-  return texts[Math.floor(Math.random() * texts.length)];
+  const texts = mockTexts[language] ?? mockTexts['fr'] ?? ['Tâche à faire'];
+  const randomIndex = Math.floor(Math.random() * texts.length);
+  return texts[randomIndex] ?? 'Tâche à faire';
 }
 
 // =============================================================================
