@@ -1,9 +1,27 @@
 import Stripe from "stripe"
 
-// Server-side Stripe instance
-export const stripe = new Stripe(process.env["STRIPE_SECRET_KEY"] ?? "", {
-  apiVersion: "2025-12-15.clover",
-  typescript: true,
+// Server-side Stripe instance (lazy initialization to avoid errors in tests)
+let _stripe: Stripe | null = null
+
+function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env["STRIPE_SECRET_KEY"]
+    if (!key) {
+      throw new Error("STRIPE_SECRET_KEY not configured")
+    }
+    _stripe = new Stripe(key, {
+      apiVersion: "2025-12-15.clover",
+      typescript: true,
+    })
+  }
+  return _stripe
+}
+
+// Export a proxy that lazily initializes Stripe
+export const stripe = new Proxy({} as Stripe, {
+  get(_target, prop) {
+    return getStripe()[prop as keyof Stripe]
+  },
 })
 
 // Environment variables validation

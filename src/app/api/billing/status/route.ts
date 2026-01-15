@@ -68,13 +68,18 @@ export async function GET() {
     }
   } else {
     const now = new Date()
-    const periodEnd = new Date(subscription.current_period_end * 1000)
+    // Access timestamp fields via bracket notation for new Stripe API
+    const sub = subscription as unknown as Record<string, unknown>
+    const periodEndTs = sub["current_period_end"] as number
+    const trialEndTs = sub["trial_end"] as number | null
+
+    const periodEnd = new Date(periodEndTs * 1000)
     const daysRemaining = Math.ceil(
       (periodEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     )
 
-    const trialEnd = subscription.trial_end
-      ? new Date(subscription.trial_end * 1000)
+    const trialEnd = trialEndTs
+      ? new Date(trialEndTs * 1000)
       : null
 
     response = {
