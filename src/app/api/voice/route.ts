@@ -10,14 +10,16 @@ import { z } from 'zod';
 
 // Import voice pipeline modules
 import {
-  createAudioStore,
+  createAudioProcessorStore,
   validateAudio,
   initializeUpload,
   addChunk,
   assembleChunks,
   getUploadStatus,
-  type AudioStore,
-  type AudioMetadata
+  generateUploadId,
+  getAudioProcessorStats,
+  type AudioProcessorStore,
+  type AudioChunk
 } from '@/lib/voice/audio-processor';
 
 import {
@@ -26,8 +28,9 @@ import {
   completeTranscription,
   getTranscription,
   createMockTranscription,
+  getSTTStats,
   type STTStore,
-  type TranscriptionResult
+  type TranscriptionRequest
 } from '@/lib/voice/speech-to-text';
 
 import {
@@ -36,9 +39,7 @@ import {
   completeExtraction,
   extractWithLLM,
   getExtraction,
-  getExtractionByTranscription,
   type ExtractionStore,
-  type ExtractionResult,
   type HouseholdContext,
   type SupportedLanguage
 } from '@/lib/voice/semantic-extractor';
@@ -55,9 +56,6 @@ import {
   getConfirmedTasks,
   createMockWorkloads,
   type TaskGeneratorStore,
-  type TaskPreview,
-  type GeneratedTask,
-  type ParentWorkload,
   type TaskPriority
 } from '@/lib/voice/task-generator';
 
@@ -65,7 +63,7 @@ import {
 // IN-MEMORY STORES (replace with database in production)
 // =============================================================================
 
-let audioStore: AudioStore = createAudioStore();
+let audioStore: AudioProcessorStore = createAudioProcessorStore();
 let sttStore: STTStore = createSTTStore();
 let extractionStore: ExtractionStore = createExtractionStore();
 let taskStore: TaskGeneratorStore = createTaskGeneratorStore();
@@ -96,7 +94,7 @@ const UploadInitRequestSchema = z.object({
   filename: z.string().min(1),
   mimeType: z.string().min(1),
   totalSize: z.number().positive(),
-  totalChunks: z.number().positive().optional(),
+  userId: z.string().min(1),
   language: z.enum(['fr', 'en', 'es', 'de', 'it', 'pt']).optional()
 });
 
@@ -104,6 +102,7 @@ const UploadChunkRequestSchema = z.object({
   action: z.literal('upload_chunk'),
   uploadId: z.string().min(1),
   chunkIndex: z.number().min(0),
+  totalChunks: z.number().min(1),
   chunkData: z.string().min(1) // Base64 encoded
 });
 
@@ -115,7 +114,7 @@ const AssembleUploadRequestSchema = z.object({
 const TranscribeRequestSchema = z.object({
   action: z.literal('transcribe'),
   uploadId: z.string().min(1),
-  language: z.enum(['fr', 'en', 'es', 'de', 'it', 'pt']).optional(),
+  language: z.enum(['fr', 'en', 'es', 'de', 'it', 'pt', 'nl', 'auto']).optional(),
   provider: z.enum(['whisper', 'deepgram']).optional()
 });
 
@@ -228,48 +227,27 @@ function errorResponse(message: string, status = 400): NextResponse {
 // ACTION HANDLERS
 // =============================================================================
 
-/**
- * Initialize a chunked upload
- */
 async function handleInitUpload(
   request: z.infer<typeof UploadInitRequestSchema>
 ): Promise<NextResponse> {
-  // Create metadata from request
-  const metadata: AudioMetadata = {
-    filename: request.filename,
-    mimeType: request.mimeType,
-    size: request.totalSize,
-    duration: 0, // Will be calculated after assembly
-    sampleRate: 0,
-    channels: 0,
-    bitDepth: 0
-  };
-
-  // Validate audio metadata
-  const validation = validateAudio(metadata);
-  if (!validation.isValid) {
+  const validation = validateAudio(request.filename, request.totalSize, 10, request.mimeType);
+  if (!validation.valid) {
     return errorResponse(`Invalid audio: ${validation.errors.join(', ')}`);
   }
 
-  // Initialize upload
-  const result = initializeUpload(audioStore, metadata, request.totalChunks || 1);
-  audioStore = result.store;
+  const uploadId = generateUploadId();
+  audioStore = initializeUpload(audioStore, uploadId, request.userId, request.filename, request.totalSize);
 
   return successResponse({
-    uploadId: result.uploadId,
-    expectedChunks: request.totalChunks || 1,
+    uploadId,
     maxDuration: 30,
     supportedFormats: ['audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/m4a', 'audio/webm', 'audio/ogg']
   });
 }
 
-/**
- * Add a chunk to an upload
- */
 async function handleUploadChunk(
   request: z.infer<typeof UploadChunkRequestSchema>
 ): Promise<NextResponse> {
-  // Decode base64 chunk
   let chunkBuffer: Uint8Array;
   try {
     const binaryString = atob(request.chunkData);
@@ -281,119 +259,90 @@ async function handleUploadChunk(
     return errorResponse('Invalid base64 chunk data');
   }
 
-  // Add chunk to store
-  const result = addChunk(audioStore, request.uploadId, request.chunkIndex, chunkBuffer);
-  audioStore = result.store;
+  const chunk: Omit<AudioChunk, 'uploadedAt'> = {
+    id: `chunk_${request.uploadId}_${request.chunkIndex}`,
+    index: request.chunkIndex,
+    totalChunks: request.totalChunks,
+    data: new Uint8Array(chunkBuffer.buffer.slice(0)) as Uint8Array<ArrayBuffer>,
+    size: chunkBuffer.length
+  };
 
-  if (!result.success) {
-    return errorResponse('Failed to add chunk - upload not found or invalid index');
-  }
-
-  // Get upload status
+  audioStore = addChunk(audioStore, request.uploadId, chunk);
   const status = getUploadStatus(audioStore, request.uploadId);
+
+  if (!status) {
+    return errorResponse('Upload not found');
+  }
 
   return successResponse({
     uploadId: request.uploadId,
     chunkIndex: request.chunkIndex,
-    receivedChunks: status?.receivedChunks || 0,
-    totalChunks: status?.totalChunks || 0,
-    isComplete: status?.isComplete || false
+    receivedChunks: status.chunks.length,
+    totalChunks: request.totalChunks,
+    isComplete: status.status === 'complete'
   });
 }
 
-/**
- * Assemble chunks into complete audio
- */
 async function handleAssembleUpload(
   request: z.infer<typeof AssembleUploadRequestSchema>
 ): Promise<NextResponse> {
-  const result = assembleChunks(audioStore, request.uploadId);
-  audioStore = result.store;
+  const status = getUploadStatus(audioStore, request.uploadId);
+  if (!status) return errorResponse('Upload not found');
+  if (status.status !== 'complete') return errorResponse('Upload not complete');
 
-  if (!result.success || !result.audio) {
-    return errorResponse('Failed to assemble audio - missing chunks or upload not found');
-  }
+  const assembled = assembleChunks(audioStore, request.uploadId);
+  if (!assembled) return errorResponse('Failed to assemble audio');
 
-  return successResponse({
-    uploadId: request.uploadId,
-    audioSize: result.audio.data.length,
-    isReady: true
-  });
+  return successResponse({ uploadId: request.uploadId, audioSize: assembled.length, isReady: true });
 }
 
-/**
- * Transcribe audio using STT
- */
 async function handleTranscribe(
   request: z.infer<typeof TranscribeRequestSchema>
 ): Promise<NextResponse> {
-  // Get upload status to verify audio is ready
   const uploadStatus = getUploadStatus(audioStore, request.uploadId);
-  if (!uploadStatus || !uploadStatus.isComplete) {
+  if (!uploadStatus || uploadStatus.status !== 'complete') {
     return errorResponse('Audio upload not complete or not found');
   }
 
-  // Start transcription
-  const transcriptionId = `trans_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  const transcriptionReq: TranscriptionRequest = {
+    audioId: request.uploadId,
+    audioUrl: `internal://${request.uploadId}`,
+    language: request.language || 'auto',
+    enableWordTimings: false,
+    enableSegments: true,
+    provider: request.provider
+  };
+
+  sttStore = startTranscription(sttStore, transcriptionReq);
   const language = (request.language || 'fr') as SupportedLanguage;
-
-  sttStore = startTranscription(sttStore, transcriptionId, {
-    provider: request.provider === 'deepgram' ? 'deepgram' : 'whisper',
-    language,
-    enablePunctuation: true,
-    enableDiarization: false
-  });
-
-  // In production, this would call the actual STT API
-  // For now, simulate with mock transcription based on upload ID
   const mockText = getMockTranscriptionText(language);
 
-  // Complete transcription with mock result
-  const transcriptionResult = createMockTranscription(
-    transcriptionId,
-    mockText,
-    language
-  );
-
-  sttStore = completeTranscription(sttStore, transcriptionResult);
+  const result = createMockTranscription(request.uploadId, mockText, language, request.provider || 'whisper');
+  sttStore = completeTranscription(sttStore, result);
 
   return successResponse({
-    transcriptionId,
-    text: transcriptionResult.text,
-    language: transcriptionResult.language,
-    confidence: transcriptionResult.confidence,
-    duration: transcriptionResult.duration,
-    provider: transcriptionResult.provider
+    transcriptionId: result.id,
+    text: result.text,
+    language: result.language,
+    confidence: result.confidence,
+    duration: result.duration,
+    provider: result.provider
   });
 }
 
-/**
- * Extract semantic information from transcription
- */
 async function handleExtract(
   request: z.infer<typeof ExtractRequestSchema>
 ): Promise<NextResponse> {
-  // Get transcription
   const transcription = getTranscription(sttStore, request.transcriptionId);
-  if (!transcription) {
-    return errorResponse('Transcription not found');
-  }
+  if (!transcription) return errorResponse('Transcription not found');
 
-  // Start extraction
   extractionStore = startExtraction(extractionStore, request.transcriptionId);
-
-  // Get household context (use mock or fetch from database)
-  const household = mockHouseholdContext;
-
-  // Perform extraction
   const extraction = await extractWithLLM(
     request.transcriptionId,
     transcription.text,
     transcription.language as SupportedLanguage,
-    household
+    mockHouseholdContext
   );
-
-  // Complete extraction
   extractionStore = completeExtraction(extractionStore, extraction);
 
   return successResponse({
@@ -401,7 +350,7 @@ async function handleExtract(
     originalText: extraction.originalText,
     action: extraction.action,
     child: extraction.child,
-    date: extraction.date,
+    date: { raw: extraction.date.raw, parsed: extraction.date.parsed?.toISOString() || null, type: extraction.date.type },
     category: extraction.category,
     urgency: extraction.urgency,
     overallConfidence: extraction.overallConfidence,
@@ -409,25 +358,13 @@ async function handleExtract(
   });
 }
 
-/**
- * Generate task preview from extraction
- */
 async function handleGeneratePreview(
   request: z.infer<typeof GeneratePreviewRequestSchema>
 ): Promise<NextResponse> {
-  // Get extraction
   const extraction = getExtraction(extractionStore, request.extractionId);
-  if (!extraction) {
-    return errorResponse('Extraction not found');
-  }
+  if (!extraction) return errorResponse('Extraction not found');
 
-  // Get household context
-  const household = mockHouseholdContext;
-
-  // Generate preview
-  const preview = generateTaskPreview(extraction, household, mockWorkloads);
-
-  // Add to store
+  const preview = generateTaskPreview(extraction, mockHouseholdContext, mockWorkloads);
   taskStore = addPreview(taskStore, preview);
 
   return successResponse({
@@ -449,13 +386,9 @@ async function handleGeneratePreview(
   });
 }
 
-/**
- * Confirm a task preview
- */
 async function handleConfirmTask(
   request: z.infer<typeof ConfirmTaskRequestSchema>
 ): Promise<NextResponse> {
-  // Parse overrides
   const overrides = request.overrides ? {
     title: request.overrides.title,
     description: request.overrides.description,
@@ -465,20 +398,10 @@ async function handleConfirmTask(
     assigneeId: request.overrides.assigneeId
   } : undefined;
 
-  // Confirm task
-  const result = confirmTask(
-    taskStore,
-    request.previewId,
-    request.householdId,
-    request.userId,
-    overrides
-  );
-
+  const result = confirmTask(taskStore, request.previewId, request.householdId, request.userId, overrides);
   taskStore = result.store;
 
-  if (!result.task) {
-    return errorResponse('Preview not found or already confirmed');
-  }
+  if (!result.task) return errorResponse('Preview not found or already confirmed');
 
   return successResponse({
     taskId: result.task.id,
@@ -494,119 +417,64 @@ async function handleConfirmTask(
   });
 }
 
-/**
- * Cancel a task preview
- */
 async function handleCancelPreview(
   request: z.infer<typeof CancelPreviewRequestSchema>
 ): Promise<NextResponse> {
   const preview = getPreview(taskStore, request.previewId);
-  if (!preview) {
-    return errorResponse('Preview not found');
-  }
-
+  if (!preview) return errorResponse('Preview not found');
   taskStore = cancelPreview(taskStore, request.previewId);
-
-  return successResponse({
-    previewId: request.previewId,
-    cancelled: true
-  });
+  return successResponse({ previewId: request.previewId, cancelled: true });
 }
 
-/**
- * Update a task preview
- */
 async function handleUpdatePreview(
   request: z.infer<typeof UpdatePreviewRequestSchema>
 ): Promise<NextResponse> {
   const preview = getPreview(taskStore, request.previewId);
-  if (!preview) {
-    return errorResponse('Preview not found');
-  }
+  if (!preview) return errorResponse('Preview not found');
 
-  // Parse date if provided
   const updates = {
     ...request.updates,
-    dueDate: request.updates.dueDate
-      ? (request.updates.dueDate === null ? null : new Date(request.updates.dueDate))
-      : undefined,
+    dueDate: request.updates.dueDate ? (request.updates.dueDate === null ? null : new Date(request.updates.dueDate)) : undefined,
     priority: request.updates.priority as TaskPriority | undefined
   };
 
   taskStore = updatePreview(taskStore, request.previewId, updates);
-
-  const updatedPreview = getPreview(taskStore, request.previewId);
+  const updated = getPreview(taskStore, request.previewId);
 
   return successResponse({
     previewId: request.previewId,
     updated: true,
-    preview: updatedPreview ? {
-      title: updatedPreview.title,
-      description: updatedPreview.description,
-      category: updatedPreview.category,
-      priority: updatedPreview.priority,
-      dueDate: updatedPreview.dueDate?.toISOString() || null,
-      childId: updatedPreview.childId,
-      childName: updatedPreview.childName
-    } : null
+    preview: updated ? { title: updated.title, category: updated.category, priority: updated.priority } : null
   });
 }
 
-/**
- * Get status of pipeline items
- */
 async function handleGetStatus(
   request: z.infer<typeof GetStatusRequestSchema>
 ): Promise<NextResponse> {
   const status: Record<string, unknown> = {};
 
   if (request.uploadId) {
-    const uploadStatus = getUploadStatus(audioStore, request.uploadId);
-    status['upload'] = uploadStatus || { error: 'Not found' };
+    const s = getUploadStatus(audioStore, request.uploadId);
+    status['upload'] = s ? { uploadId: s.uploadId, status: s.status, uploadedSize: s.uploadedSize } : { error: 'Not found' };
   }
-
   if (request.transcriptionId) {
-    const transcription = getTranscription(sttStore, request.transcriptionId);
-    status['transcription'] = transcription ? {
-      id: transcription.id,
-      text: transcription.text,
-      language: transcription.language,
-      confidence: transcription.confidence,
-      status: 'completed'
-    } : { error: 'Not found' };
+    const t = getTranscription(sttStore, request.transcriptionId);
+    status['transcription'] = t ? { id: t.id, text: t.text, confidence: t.confidence } : { error: 'Not found' };
   }
-
   if (request.extractionId) {
-    const extraction = getExtraction(extractionStore, request.extractionId);
-    status['extraction'] = extraction ? {
-      id: extraction.id,
-      category: extraction.category.primary,
-      urgency: extraction.urgency.level,
-      confidence: extraction.overallConfidence,
-      status: 'completed'
-    } : { error: 'Not found' };
+    const e = getExtraction(extractionStore, request.extractionId);
+    status['extraction'] = e ? { id: e.id, category: e.category.primary, confidence: e.overallConfidence } : { error: 'Not found' };
   }
-
   if (request.previewId) {
-    const preview = getPreview(taskStore, request.previewId);
-    status['preview'] = preview ? {
-      id: preview.id,
-      title: preview.title,
-      category: preview.category,
-      priority: preview.priority,
-      status: 'pending_confirmation'
-    } : { error: 'Not found' };
+    const p = getPreview(taskStore, request.previewId);
+    status['preview'] = p ? { id: p.id, title: p.title, priority: p.priority } : { error: 'Not found' };
   }
 
   return successResponse(status);
 }
 
-/**
- * Get all pending previews
- */
 async function handleGetPendingPreviews(): Promise<NextResponse> {
   const previews = getPendingPreviews(taskStore);
-
   return successResponse({
     count: previews.length,
     previews: previews.map(p => ({
@@ -615,16 +483,11 @@ async function handleGetPendingPreviews(): Promise<NextResponse> {
       category: p.category,
       priority: p.priority,
       dueDate: p.dueDate?.toISOString() || null,
-      childName: p.childName,
-      confidence: p.confidence,
-      generatedAt: p.generatedAt.toISOString()
+      confidence: p.confidence
     }))
   });
 }
 
-/**
- * Get confirmed tasks
- */
 async function handleGetConfirmedTasks(
   request: z.infer<typeof GetConfirmedTasksRequestSchema>
 ): Promise<NextResponse> {
@@ -643,91 +506,47 @@ async function handleGetConfirmedTasks(
       priority: t.priority,
       dueDate: t.dueDate?.toISOString() || null,
       childId: t.childId,
-      assigneeId: t.assigneeId,
-      chargeWeight: t.chargeWeight,
-      createdAt: t.createdAt.toISOString()
+      assigneeId: t.assigneeId
     }))
   });
 }
 
-/**
- * Run full pipeline in one request
- */
 async function handleFullPipeline(
   request: z.infer<typeof FullPipelineRequestSchema>
 ): Promise<NextResponse> {
   const language = (request.language || 'fr') as SupportedLanguage;
-  const household = mockHouseholdContext;
 
   try {
-    // Step 1: Create mock transcription (in production, would process real audio)
-    const transcriptionId = `trans_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const audioId = generateUploadId();
     const mockText = getMockTranscriptionText(language);
 
-    sttStore = startTranscription(sttStore, transcriptionId, {
-      provider: 'whisper',
+    const transcriptionReq: TranscriptionRequest = {
+      audioId,
+      audioUrl: `internal://${audioId}`,
       language,
-      enablePunctuation: true,
-      enableDiarization: false
-    });
+      enableWordTimings: false,
+      enableSegments: true,
+      provider: 'whisper'
+    };
 
-    const transcriptionResult = createMockTranscription(
-      transcriptionId,
-      mockText,
-      language
-    );
+    sttStore = startTranscription(sttStore, transcriptionReq);
+    const transcription = createMockTranscription(audioId, mockText, language);
+    sttStore = completeTranscription(sttStore, transcription);
 
-    sttStore = completeTranscription(sttStore, transcriptionResult);
-
-    // Step 2: Extract semantic information
-    extractionStore = startExtraction(extractionStore, transcriptionId);
-
-    const extraction = await extractWithLLM(
-      transcriptionId,
-      transcriptionResult.text,
-      language,
-      household
-    );
-
+    extractionStore = startExtraction(extractionStore, transcription.id);
+    const extraction = await extractWithLLM(transcription.id, transcription.text, language, mockHouseholdContext);
     extractionStore = completeExtraction(extractionStore, extraction);
 
-    // Step 3: Generate task preview
-    const preview = generateTaskPreview(extraction, household, mockWorkloads);
+    const preview = generateTaskPreview(extraction, mockHouseholdContext, mockWorkloads);
     taskStore = addPreview(taskStore, preview);
 
     return successResponse({
-      transcription: {
-        id: transcriptionResult.id,
-        text: transcriptionResult.text,
-        language: transcriptionResult.language,
-        confidence: transcriptionResult.confidence
-      },
-      extraction: {
-        id: extraction.id,
-        action: extraction.action,
-        child: extraction.child,
-        date: extraction.date,
-        category: extraction.category,
-        urgency: extraction.urgency,
-        confidence: extraction.overallConfidence
-      },
-      preview: {
-        id: preview.id,
-        title: preview.title,
-        category: preview.category,
-        priority: preview.priority,
-        dueDate: preview.dueDate?.toISOString() || null,
-        childId: preview.childId,
-        childName: preview.childName,
-        chargeWeight: preview.chargeWeight,
-        confidence: preview.confidence,
-        warnings: preview.warnings,
-        alternativeTitles: preview.alternativeTitles
-      }
+      transcription: { id: transcription.id, text: transcription.text, confidence: transcription.confidence },
+      extraction: { id: extraction.id, category: extraction.category, urgency: extraction.urgency, confidence: extraction.overallConfidence },
+      preview: { id: preview.id, title: preview.title, priority: preview.priority, confidence: preview.confidence }
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return errorResponse(`Pipeline failed: ${message}`, 500);
+    return errorResponse(`Pipeline failed: ${error instanceof Error ? error.message : 'Unknown error'}`, 500);
   }
 }
 
@@ -735,62 +554,24 @@ async function handleFullPipeline(
 // MOCK TRANSCRIPTION HELPER
 // =============================================================================
 
-/**
- * Get mock transcription text based on language
- * In production, this would be replaced by actual STT output
- */
-function getMockTranscriptionText(language: SupportedLanguage): string {
-  const mockTexts: Record<SupportedLanguage, readonly string[]> = {
-    fr: [
-      'Il faut emmener Lucas chez le médecin demain pour son vaccin',
-      'Penser à acheter les fournitures scolaires pour Emma cette semaine',
-      'Réunion parents-profs vendredi soir à ne pas oublier',
-      'Inscription au foot pour Hugo avant la fin du mois',
-      'Rendez-vous dentiste pour les enfants la semaine prochaine'
-    ],
-    en: [
-      'Need to take Lucas to the doctor tomorrow for his vaccine',
-      'Remember to buy school supplies for Emma this week',
-      'Parent-teacher meeting Friday evening not to forget',
-      'Register Hugo for soccer before the end of the month',
-      'Dentist appointment for the kids next week'
-    ],
-    es: [
-      'Hay que llevar a Lucas al médico mañana para su vacuna',
-      'Acordarse de comprar los útiles escolares para Emma esta semana',
-      'Reunión de padres el viernes por la noche que no hay que olvidar',
-      'Inscribir a Hugo al fútbol antes de fin de mes',
-      'Cita con el dentista para los niños la próxima semana'
-    ],
-    de: [
-      'Lucas muss morgen zum Arzt für seine Impfung',
-      'Diese Woche Schulsachen für Emma kaufen nicht vergessen',
-      'Elternabend am Freitag Abend nicht vergessen',
-      'Hugo bis Ende des Monats zum Fußball anmelden',
-      'Zahnarzttermin für die Kinder nächste Woche'
-    ],
-    it: [
-      'Bisogna portare Lucas dal medico domani per il suo vaccino',
-      'Ricordarsi di comprare il materiale scolastico per Emma questa settimana',
-      'Riunione genitori venerdì sera da non dimenticare',
-      'Iscrivere Hugo a calcio entro fine mese',
-      'Appuntamento dal dentista per i bambini la prossima settimana'
-    ],
-    pt: [
-      'Precisa levar o Lucas ao médico amanhã para a vacina dele',
-      'Lembrar de comprar o material escolar para a Emma esta semana',
-      'Reunião de pais na sexta à noite não esquecer',
-      'Inscrever o Hugo no futebol antes do fim do mês',
-      'Consulta no dentista para as crianças na próxima semana'
-    ]
+function getMockTranscriptionText(language: string): string {
+  const mockTexts: Record<string, readonly string[]> = {
+    fr: ['Il faut emmener Lucas chez le médecin demain pour son vaccin', 'Penser à acheter les fournitures scolaires pour Emma cette semaine'],
+    en: ['Need to take Lucas to the doctor tomorrow for his vaccine', 'Remember to buy school supplies for Emma this week'],
+    es: ['Hay que llevar a Lucas al médico mañana para su vacuna', 'Acordarse de comprar los útiles escolares para Emma esta semana'],
+    de: ['Lucas muss morgen zum Arzt für seine Impfung', 'Diese Woche Schulsachen für Emma kaufen nicht vergessen'],
+    it: ['Bisogna portare Lucas dal medico domani per il suo vaccino', 'Ricordarsi di comprare il materiale scolastico per Emma questa settimana'],
+    pt: ['Precisa levar o Lucas ao médico amanhã para a vacina dele', 'Lembrar de comprar o material escolar para a Emma esta semana'],
+    nl: ['Lucas moet morgen naar de dokter voor zijn vaccinatie', 'Schoolspullen kopen voor Emma deze week'],
+    auto: ['Il faut emmener Lucas chez le médecin demain pour son vaccin']
   };
 
-  const texts = mockTexts[language];
-  return texts[Math.floor(Math.random() * texts.length)];
+  const texts = mockTexts[language] ?? mockTexts['fr'] ?? ['Tâche à faire'];
+  return texts[Math.floor(Math.random() * texts.length)] ?? 'Tâche à faire';
 }
 
 // =============================================================================
-// MAIN HANDLER
+// MAIN HANDLERS
 // =============================================================================
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -802,55 +583,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return errorResponse(`Invalid request: ${parsed.error.message}`);
     }
 
-    const data = parsed.data;
-
-    switch (data.action) {
-      case 'init_upload':
-        return handleInitUpload(data);
-
-      case 'upload_chunk':
-        return handleUploadChunk(data);
-
-      case 'assemble_upload':
-        return handleAssembleUpload(data);
-
-      case 'transcribe':
-        return handleTranscribe(data);
-
-      case 'extract':
-        return handleExtract(data);
-
-      case 'generate_preview':
-        return handleGeneratePreview(data);
-
-      case 'confirm_task':
-        return handleConfirmTask(data);
-
-      case 'cancel_preview':
-        return handleCancelPreview(data);
-
-      case 'update_preview':
-        return handleUpdatePreview(data);
-
-      case 'get_status':
-        return handleGetStatus(data);
-
-      case 'get_pending_previews':
-        return handleGetPendingPreviews();
-
-      case 'get_confirmed_tasks':
-        return handleGetConfirmedTasks(data);
-
-      case 'full_pipeline':
-        return handleFullPipeline(data);
-
-      default:
-        return errorResponse('Unknown action');
+    switch (parsed.data.action) {
+      case 'init_upload': return handleInitUpload(parsed.data);
+      case 'upload_chunk': return handleUploadChunk(parsed.data);
+      case 'assemble_upload': return handleAssembleUpload(parsed.data);
+      case 'transcribe': return handleTranscribe(parsed.data);
+      case 'extract': return handleExtract(parsed.data);
+      case 'generate_preview': return handleGeneratePreview(parsed.data);
+      case 'confirm_task': return handleConfirmTask(parsed.data);
+      case 'cancel_preview': return handleCancelPreview(parsed.data);
+      case 'update_preview': return handleUpdatePreview(parsed.data);
+      case 'get_status': return handleGetStatus(parsed.data);
+      case 'get_pending_previews': return handleGetPendingPreviews();
+      case 'get_confirmed_tasks': return handleGetConfirmedTasks(parsed.data);
+      case 'full_pipeline': return handleFullPipeline(parsed.data);
+      default: return errorResponse('Unknown action');
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Voice API error:', message);
-    return errorResponse(`Server error: ${message}`, 500);
+    console.error('Voice API error:', error);
+    return errorResponse(`Server error: ${error instanceof Error ? error.message : 'Unknown'}`, 500);
   }
 }
 
@@ -858,66 +609,26 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
   const action = searchParams.get('action');
 
-  try {
-    switch (action) {
-      case 'stats':
-        return successResponse({
-          audio: {
-            pendingUploads: audioStore.pendingUploads.size,
-            completedUploads: audioStore.completedAudios.size,
-            stats: audioStore.stats
-          },
-          stt: {
-            pendingTranscriptions: sttStore.pendingTranscriptions.size,
-            completedTranscriptions: sttStore.transcriptions.size,
-            stats: sttStore.stats
-          },
-          extraction: {
-            pendingExtractions: extractionStore.pendingExtractions.size,
-            completedExtractions: extractionStore.extractions.size,
-            stats: extractionStore.stats
-          },
-          tasks: {
-            pendingPreviews: taskStore.pendingConfirmation.size,
-            confirmedTasks: taskStore.confirmedTasks.size,
-            stats: taskStore.stats
-          }
-        });
-
-      case 'pending':
-        return handleGetPendingPreviews();
-
-      case 'household':
-        return successResponse({
-          household: mockHouseholdContext
-        });
-
-      default:
-        return successResponse({
-          service: 'voice-to-task',
-          version: '1.0.0',
-          endpoints: {
-            POST: [
-              'init_upload',
-              'upload_chunk',
-              'assemble_upload',
-              'transcribe',
-              'extract',
-              'generate_preview',
-              'confirm_task',
-              'cancel_preview',
-              'update_preview',
-              'get_status',
-              'get_pending_previews',
-              'get_confirmed_tasks',
-              'full_pipeline'
-            ],
-            GET: ['stats', 'pending', 'household']
-          }
-        });
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return errorResponse(`Server error: ${message}`, 500);
+  switch (action) {
+    case 'stats':
+      return successResponse({
+        audio: getAudioProcessorStats(audioStore),
+        stt: getSTTStats(sttStore),
+        extraction: { pending: extractionStore.pendingExtractions.size, completed: extractionStore.extractions.size },
+        tasks: { pending: taskStore.pendingConfirmation.size, confirmed: taskStore.confirmedTasks.size }
+      });
+    case 'pending':
+      return handleGetPendingPreviews();
+    case 'household':
+      return successResponse({ household: mockHouseholdContext });
+    default:
+      return successResponse({
+        service: 'voice-to-task',
+        version: '1.0.0',
+        endpoints: {
+          POST: ['init_upload', 'upload_chunk', 'assemble_upload', 'transcribe', 'extract', 'generate_preview', 'confirm_task', 'cancel_preview', 'update_preview', 'get_status', 'get_pending_previews', 'get_confirmed_tasks', 'full_pipeline'],
+          GET: ['stats', 'pending', 'household']
+        }
+      });
   }
 }
