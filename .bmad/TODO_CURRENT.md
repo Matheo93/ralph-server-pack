@@ -20,8 +20,8 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
 ---
 
 ## PRE-REQUIS
-- [ ] 0.1 Verifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [ ] 0.2 Verifier que les tests passent: `bun test src/tests/`
+- [x] 0.1 Verifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [x] 0.2 Verifier que les tests passent: `bun test src/tests/`
 
 ---
 
