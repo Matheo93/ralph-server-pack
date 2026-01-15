@@ -28,31 +28,31 @@ Sprint 20 se concentre sur:
 
 ## Phase 1: Push Notifications Service
 
-- [ ] 1.1 Creer `src/lib/notifications/push-service.ts`:
+- [x] 1.1 Creer `src/lib/notifications/push-service.ts`:
   - Firebase Cloud Messaging integration
   - APNs integration for iOS
   - Device token management
   - Notification payload builder
 
-- [ ] 1.2 Creer `src/lib/notifications/notification-scheduler.ts`:
+- [x] 1.2 Creer `src/lib/notifications/notification-scheduler.ts`:
   - Schedule notifications for task deadlines
   - Batch notification processing
   - Priority queue management
   - Rate limiting per device
 
-- [ ] 1.3 Creer `src/lib/notifications/notification-templates.ts`:
+- [x] 1.3 Creer `src/lib/notifications/notification-templates.ts`:
   - Multi-language notification templates
   - Dynamic content interpolation
   - Action buttons configuration
   - Deep linking support
 
-- [ ] 1.4 Creer `src/app/api/notifications/push/route.ts`:
+- [x] 1.4 Creer `src/app/api/notifications/push/route.ts`:
   - Send push notification endpoint
   - Batch send endpoint
   - Device registration endpoint
   - Notification status endpoint
 
-- [ ] 1.5 Tests push notifications (20+ tests):
+- [x] 1.5 Tests push notifications (70 tests):
   - FCM integration tests
   - APNs integration tests
   - Scheduler tests
