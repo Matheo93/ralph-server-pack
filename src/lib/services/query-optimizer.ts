@@ -6,6 +6,7 @@
  */
 
 import { query } from "@/lib/aws/database"
+import type { QueryResultRow } from "pg"
 
 // =============================================================================
 // TYPES
@@ -302,7 +303,7 @@ export interface PaginationResult<T> {
 /**
  * Paginate query results with total count
  */
-export async function paginatedQuery<T>(
+export async function paginatedQuery<T extends QueryResultRow>(
   baseQuery: string,
   countQuery: string,
   params: unknown[],
