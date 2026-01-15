@@ -37,7 +37,7 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
   - SQL injection prevention (double-check Supabase)
   - File upload validation stricte
 
-- [ ] 1.3 Creer `src/lib/security/rate-limiter-advanced.ts`:
+- [x] 1.3 Creer `src/lib/security/rate-limiter-advanced.ts`:
   - Sliding window algorithm
   - Per-user et per-IP limits
   - Adaptive rate limiting (augmente apres echecs)
