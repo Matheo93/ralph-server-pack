@@ -128,12 +128,13 @@ export function ExclusionsClient({
         <Card>
           <CardContent className="py-12">
             <EmptyState
-              icon="calendar"
+              variant="calendar"
               title="Aucune exclusion"
               description="Les exclusions temporaires permettent d'exclure un membre de l'assignation des taches pendant une periode (voyage, maladie, etc.)."
-            >
+            />
+            <div className="flex justify-center mt-4">
               <ExclusionForm members={members} onSuccess={handleSuccess} />
-            </EmptyState>
+            </div>
           </CardContent>
         </Card>
       )}

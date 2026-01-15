@@ -16,11 +16,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils/index"
-import {
-  createExclusion,
-  EXCLUSION_REASONS,
-  type ExclusionReason,
-} from "@/lib/actions/settings"
+import { createExclusion } from "@/lib/actions/settings"
+import { EXCLUSION_REASONS, type ExclusionReason } from "@/lib/constants/exclusion-reasons"
 
 interface HouseholdMember {
   id: string

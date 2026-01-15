@@ -356,17 +356,11 @@ export async function getActiveTemplates(): Promise<{ id: string; title: string;
 // MEMBER EXCLUSIONS
 // ============================================================
 
+// Note: EXCLUSION_REASONS constant is in @/lib/constants/exclusion-reasons.ts
+// because "use server" files cannot export non-async values
+import type { ExclusionReason } from "@/lib/constants/exclusion-reasons"
+
 const ExclusionReasonEnum = z.enum(["voyage", "maladie", "surcharge_travail", "garde_alternee", "autre"])
-
-export type ExclusionReason = z.infer<typeof ExclusionReasonEnum>
-
-export const EXCLUSION_REASONS: Record<ExclusionReason, { label: string; icon: string }> = {
-  voyage: { label: "Voyage / Vacances", icon: "✈️" },
-  maladie: { label: "Maladie", icon: "🤒" },
-  surcharge_travail: { label: "Surcharge de travail", icon: "💼" },
-  garde_alternee: { label: "Garde alternée (absent)", icon: "🏠" },
-  autre: { label: "Autre", icon: "📝" },
-}
 
 const CreateExclusionSchema = z.object({
   member_id: z.string().uuid(),
