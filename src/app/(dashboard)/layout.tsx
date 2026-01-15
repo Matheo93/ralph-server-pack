@@ -11,6 +11,7 @@ import { BottomNav } from "@/components/custom/bottom-nav"
 import { InstallPrompt } from "@/components/custom/InstallPrompt"
 import { SkipLinks } from "@/components/custom/SkipLinks"
 import { KeyboardShortcutsHelp } from "@/components/custom/KeyboardShortcutsHelp"
+import { OfflineIndicator } from "@/components/custom/OfflineIndicator"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -82,6 +83,7 @@ export default async function DashboardLayout({
           <BottomNav />
           <InstallPrompt />
           <KeyboardShortcutsHelp />
+          <OfflineIndicator showOnlineStatus />
         </div>
       </QueryProvider>
     </NextIntlClientProvider>

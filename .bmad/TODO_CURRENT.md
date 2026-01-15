@@ -107,41 +107,41 @@ Polir l'application pour une expérience utilisateur de niveau production: anima
 
 ## Phase 5: Performance Optimizations
 
-- [ ] 5.1 Optimiser les re-renders:
+- [x] 5.1 Optimiser les re-renders:
   - useMemo pour calculs lourds (charge calculation)
   - useCallback pour handlers
   - React.memo sur composants statiques
-- [ ] 5.2 Lazy loading des composants:
+- [x] 5.2 Lazy loading des composants:
   - Dynamic import pour VocalRecorder
   - Dynamic import pour ChargeWeekChart
   - Dynamic import pour modals
-- [ ] 5.3 Optimiser les images:
+- [x] 5.3 Optimiser les images:
   - next/image partout
   - Sizes optimisés
   - Placeholder blur
-- [ ] 5.4 Optimiser le bundle:
+- [x] 5.4 Optimiser le bundle:
   - Analyser avec `next build --analyze`
   - Tree shaking des imports
   - Code splitting par route
-- [ ] 5.5 Tests performance (Lighthouse CI)
+- [x] 5.5 Tests performance (Lighthouse CI)
 
 ---
 
 ## Phase 6: Offline & PWA Enhancements
 
-- [ ] 6.1 Améliorer le service worker:
+- [x] 6.1 Améliorer le service worker:
   - Cache des assets statiques
   - Cache des API responses (stale-while-revalidate)
   - Background sync pour tâches offline
-- [ ] 6.2 Créer `src/components/custom/OfflineIndicator.tsx`:
+- [x] 6.2 Créer `src/components/custom/OfflineIndicator.tsx`:
   - Détection de l'état offline
   - Banner visible quand offline
   - Queue des actions en attente
-- [ ] 6.3 Optimistic updates:
+- [x] 6.3 Optimistic updates:
   - TaskCard completion optimistic
   - TaskCard deletion optimistic
   - Rollback en cas d'erreur
-- [ ] 6.4 Tests offline behavior
+- [x] 6.4 Tests offline behavior
 
 ---
 
