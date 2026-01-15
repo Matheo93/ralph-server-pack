@@ -86,12 +86,12 @@ Sprint 19 se concentre sur:
 
 ## Phase 3: Real-time Features
 
-- [ ] 3.1 Creer `src/lib/realtime/websocket-manager.ts`:
+- [x] 3.1 Creer `src/lib/realtime/websocket-manager.ts`:
   - Connection pooling
   - Heartbeat management
   - Auto-reconnection
 
-- [ ] 3.2 Creer `src/lib/realtime/event-broadcaster.ts`:
+- [x] 3.2 Creer `src/lib/realtime/event-broadcaster.ts`:
   - Task updates broadcast
   - Household notifications
   - Presence indicators
