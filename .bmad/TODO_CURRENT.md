@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 18: Security Hardening, i18n & Advanced Features
+# TODO CURRENT - Sprint 19: Production Readiness & Mobile Integration
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,175 +10,176 @@
 ---
 
 ## Sprint Goal
-Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre sur:
-- Security hardening (OWASP Top 10)
-- Internationalisation complete (i18n)
-- Tests E2E critiques
-- Features avancees manquantes
-- Documentation API
+Sprint 18 a couvert security, i18n, E2E tests, features avancées et documentation API.
+Sprint 19 se concentre sur:
+- Production readiness final
+- Mobile API optimization
+- Advanced distribution engine
+- Real-time features
+- Monitoring & alerting
 
 ---
 
 ## PRE-REQUIS
-- [x] 0.1 Verifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [x] 0.2 Verifier que les tests passent: `bun test src/tests/`
+- [ ] 0.1 Verifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [ ] 0.2 Verifier que les tests passent: `bun test src/tests/`
 
 ---
 
-## Phase 1: Security Hardening (OWASP Top 10)
+## Phase 1: Mobile API Optimization
 
-- [x] 1.1 Creer `src/lib/security/csrf-protection.ts`:
-  - Double-submit cookie pattern
-  - Token generation et validation
-  - Middleware integration
+- [ ] 1.1 Creer `src/lib/mobile/response-compression.ts`:
+  - Compression gzip/brotli pour responses
+  - Delta sync (seulement les changements)
+  - Payload optimization
 
-- [x] 1.2 Creer `src/lib/security/input-validation.ts`:
-  - XSS sanitization avancee
-  - SQL injection prevention (double-check Supabase)
-  - File upload validation stricte
+- [ ] 1.2 Creer `src/lib/mobile/battery-aware-sync.ts`:
+  - Detection battery level
+  - Sync frequency adjustment
+  - Background sync optimization
 
-- [x] 1.3 Creer `src/lib/security/rate-limiter-advanced.ts`:
-  - Sliding window algorithm
-  - Per-user et per-IP limits
-  - Adaptive rate limiting (augmente apres echecs)
+- [ ] 1.3 Creer `src/lib/mobile/connectivity-handler.ts`:
+  - Network quality detection
+  - Adaptive payload size
+  - Retry strategies par network type
 
-- [x] 1.4 Creer `src/lib/security/session-management.ts`:
-  - Session fixation prevention
-  - Concurrent session limits
-  - Force logout capability
+- [ ] 1.4 Ameliorer `src/app/api/mobile/sync/route.ts`:
+  - Support incremental sync
+  - Conflict resolution amélioré
+  - Batch operations
 
-- [x] 1.5 Tests security (30+ tests):
-  - CSRF protection tests
-  - XSS prevention tests
-  - Rate limiting tests
-  - Session management tests
-
----
-
-## Phase 2: Internationalisation Complete (i18n)
-
-- [x] 2.1 Creer `src/i18n/messages/en.ts`:
-  - Toutes les traductions anglaises
-  - Format coherent avec fr.ts existant
-  - Pluralisation correcte
-
-- [x] 2.2 Creer `src/i18n/messages/es.ts`:
-  - Traductions espagnoles completes
-  - Adaptations culturelles (dates, nombres)
-
-- [x] 2.3 Creer `src/i18n/messages/de.ts`:
-  - Traductions allemandes completes
-  - Gestion des cas grammaticaux
-
-- [x] 2.4 Creer `src/lib/i18n/date-formatter.ts`:
-  - Formatage dates par locale
-  - Jours de la semaine localises
-  - Periodes relatives ("il y a 2 jours")
-
-- [x] 2.5 Tests i18n (25+ tests):
-  - Toutes les langues chargent
-  - Pluralisation correcte
-  - Formatage dates par locale
-  - Fallback vers francais
+- [ ] 1.5 Tests mobile optimization (20+ tests):
+  - Compression tests
+  - Delta sync tests
+  - Battery-aware tests
 
 ---
 
-## Phase 3: Tests E2E Critiques
+## Phase 2: Advanced Distribution Engine
 
-- [x] 3.1 Creer `e2e/full-user-journey.spec.ts`:
-  - Signup -> Onboarding -> First task -> Streak
-  - Test complet 10+ etapes
-  - Screenshots automatiques
+- [ ] 2.1 Creer `src/lib/distribution/fairness-algorithm.ts`:
+  - Weighted fairness calculation
+  - Historical load balancing
+  - Preference-based assignment
 
-- [x] 3.2 Creer `e2e/payment-flow.spec.ts`:
-  - Stripe checkout simulation
-  - Subscription upgrade/downgrade
-  - Billing portal access
+- [ ] 2.2 Creer `src/lib/distribution/workload-predictor.ts`:
+  - ML-based workload prediction
+  - Pattern recognition par période
+  - Proactive task distribution
 
-- [x] 3.3 Creer `e2e/co-parent-invite.spec.ts`:
-  - Invitation envoyee
-  - Token valide
-  - Acceptation et acces foyer
+- [ ] 2.3 Creer `src/lib/distribution/burnout-prevention.ts`:
+  - Surcharge detection
+  - Auto-balancing triggers
+  - Recovery period suggestions
 
-- [x] 3.4 Creer `e2e/vocal-task-creation.spec.ts`:
-  - Enregistrement audio mock
-  - Transcription et analyse
-  - Creation tache automatique
+- [ ] 2.4 Creer `src/lib/distribution/delegation-engine.ts`:
+  - Smart delegation suggestions
+  - Skill-based assignment
+  - Availability awareness
 
-- [x] 3.5 Creer `e2e/offline-sync.spec.ts`:
-  - Creation offline
-  - Synchronisation au retour online
-  - Conflit resolution
-
----
-
-## Phase 4: Features Avancees
-
-- [x] 4.1 Creer `src/lib/services/smart-scheduler.ts`:
-  - Prediction meilleur moment pour taches
-  - Learning sur patterns utilisateur
-  - Suggestions horaires
-
-- [x] 4.2 Creer `src/lib/services/family-insights.ts`:
-  - Statistiques mensuelles
-  - Trends charge mentale
-  - Comparaison semaine precedente
-
-- [x] 4.3 Creer `src/components/custom/WeeklyReport.tsx`:
-  - Recap hebdomadaire
-  - Graphiques completion
-  - Points amelioration
-
-- [x] 4.4 Creer `src/lib/services/task-prioritization.ts`:
-  - Algorithme scoring avance
-  - Urgence vs importance
-  - Deadlines implicites
-
-- [x] 4.5 Tests features avancees (30+ tests):
-  - Smart scheduler tests
-  - Family insights tests
-  - Task prioritization tests
+- [ ] 2.5 Tests distribution engine (25+ tests):
+  - Fairness algorithm tests
+  - Workload prediction tests
+  - Burnout prevention tests
 
 ---
 
-## Phase 5: Documentation & API
+## Phase 3: Real-time Features
 
-- [x] 5.1 Ameliorer `src/app/api/docs/route.ts`:
-  - OpenAPI 3.1 complet
-  - Tous les endpoints documentes
-  - Exemples pour chaque route
+- [ ] 3.1 Creer `src/lib/realtime/websocket-manager.ts`:
+  - Connection pooling
+  - Heartbeat management
+  - Auto-reconnection
 
-- [x] 5.2 Creer `src/lib/api/error-responses.ts`:
-  - Error codes standardises
-  - Messages localises
-  - Documentation erreurs
+- [ ] 3.2 Creer `src/lib/realtime/event-broadcaster.ts`:
+  - Task updates broadcast
+  - Household notifications
+  - Presence indicators
 
-- [x] 5.3 Creer `src/lib/api/versioning.ts`:
-  - Support API v1 et v2
-  - Deprecation warnings
-  - Migration guides
+- [ ] 3.3 Creer `src/lib/realtime/sync-coordinator.ts`:
+  - Multi-device sync
+  - Conflict prevention
+  - Optimistic updates
 
-- [x] 5.4 Creer `src/app/api/v2/` structure:
-  - Routes v2 avec breaking changes
-  - Meilleure pagination
-  - Filtering avance
+- [ ] 3.4 Creer `src/lib/realtime/notification-center.ts`:
+  - Real-time notifications
+  - Priority queuing
+  - Delivery confirmation
 
-- [x] 5.5 Tests API (25+ tests):
-  - OpenAPI validation
-  - Error responses tests
-  - Versioning tests
+- [ ] 3.5 Tests realtime (20+ tests):
+  - WebSocket tests
+  - Event broadcasting tests
+  - Sync coordination tests
 
 ---
 
-## Definition of Done Sprint 18
-- [x] Security: OWASP Top 10 couvert
-- [x] i18n: 4 langues supportees (fr, en, es, de)
-- [x] E2E: User journeys critiques testes
-- [x] Features: Smart scheduler et insights
-- [x] API: Documentation complete OpenAPI 3.1
-- [x] Build production OK: `bunx tsc --noEmit && bun run build`
-- [x] Tous les tests passent: `bun test src/tests/`
-- [x] 110+ nouveaux tests (30 security + 25 i18n + 30 features + 25 API)
+## Phase 4: Production Monitoring
+
+- [ ] 4.1 Creer `src/lib/monitoring/health-checker.ts`:
+  - Service health probes
+  - Dependency checks
+  - Circuit breaker patterns
+
+- [ ] 4.2 Creer `src/lib/monitoring/alerting.ts`:
+  - Threshold-based alerts
+  - Anomaly detection
+  - Alert routing (Slack, email)
+
+- [ ] 4.3 Creer `src/lib/monitoring/performance-tracker.ts`:
+  - Response time tracking
+  - Error rate monitoring
+  - Resource utilization
+
+- [ ] 4.4 Creer `src/lib/monitoring/user-analytics.ts`:
+  - Feature usage tracking
+  - Conversion funnels
+  - Retention metrics
+
+- [ ] 4.5 Tests monitoring (20+ tests):
+  - Health check tests
+  - Alerting tests
+  - Analytics tests
+
+---
+
+## Phase 5: Production Hardening
+
+- [ ] 5.1 Creer `src/lib/production/graceful-shutdown.ts`:
+  - Connection draining
+  - In-flight request handling
+  - State persistence
+
+- [ ] 5.2 Creer `src/lib/production/feature-flags.ts`:
+  - Feature toggle system
+  - A/B testing support
+  - Gradual rollouts
+
+- [ ] 5.3 Creer `src/lib/production/data-integrity.ts`:
+  - Transaction management
+  - Data validation layers
+  - Consistency checks
+
+- [ ] 5.4 Creer `src/lib/production/backup-restore.ts`:
+  - Point-in-time recovery
+  - Data export automation
+  - Disaster recovery
+
+- [ ] 5.5 Tests production (25+ tests):
+  - Graceful shutdown tests
+  - Feature flags tests
+  - Data integrity tests
+
+---
+
+## Definition of Done Sprint 19
+- [ ] Mobile: API optimisée pour Flutter
+- [ ] Distribution: Algorithme fairness avancé
+- [ ] Realtime: WebSocket fully functional
+- [ ] Monitoring: Health checks + alerting
+- [ ] Production: Feature flags + graceful shutdown
+- [ ] Build production OK: `bunx tsc --noEmit && bun run build`
+- [ ] Tous les tests passent: `bun test src/tests/`
+- [ ] 110+ nouveaux tests (20 mobile + 25 distribution + 20 realtime + 20 monitoring + 25 production)
 
 ---
 
