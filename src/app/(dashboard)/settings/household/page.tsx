@@ -61,11 +61,11 @@ async function getHouseholdData(): Promise<{
       u.name,
       hm.role,
       hm.is_active,
-      hm.created_at as joined_at
+      hm.joined_at
     FROM household_members hm
     LEFT JOIN users u ON u.id = hm.user_id
     WHERE hm.household_id = $1
-    ORDER BY hm.created_at ASC
+    ORDER BY hm.joined_at ASC
   `, [membership.household_id])
 
   return { household, members, currentUserId: userId }

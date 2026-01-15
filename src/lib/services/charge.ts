@@ -604,19 +604,19 @@ export async function getChargeByCategory(): Promise<{
     tasks_count: string
   }>(`
     SELECT
-      c.code as category_code,
+      tc.code as category_code,
       t.assigned_to,
       SUM(t.load_weight)::text as total_load,
       COUNT(t.id)::text as tasks_count
     FROM tasks t
-    JOIN categories c ON c.id = t.category_id
+    JOIN task_categories tc ON tc.id = t.category_id
     WHERE t.household_id = $1
       AND t.assigned_to IS NOT NULL
       AND t.status IN ('done', 'pending')
       AND (t.completed_at >= NOW() - INTERVAL '7 days'
            OR (t.status = 'pending' AND t.deadline >= CURRENT_DATE))
-    GROUP BY c.code, t.assigned_to
-    ORDER BY c.code
+    GROUP BY tc.code, t.assigned_to
+    ORDER BY tc.code
   `, [householdId])
 
   // Build category breakdown
