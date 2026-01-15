@@ -195,7 +195,7 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 - [x] Dashboard UX amélioré
 - [x] Performance et monitoring en place
 - [x] Build production OK: `bunx tsc --noEmit && bun run build`
-- [x] Tous les tests passent: `bun test src/tests/` (479 tests)
+- [x] Tous les tests passent: `bun test src/tests/` (532 tests)
 
 ---
 
