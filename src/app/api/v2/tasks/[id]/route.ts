@@ -262,7 +262,7 @@ export async function PUT(
     }
 
     if (updates.length === 0) {
-      return validationError("No updates provided")
+      return validationError({ message: "No updates provided" })
     }
 
     updates.push("updated_at = NOW()")

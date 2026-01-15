@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
     // Validate birthDate is in the past
     const birthDate = new Date(data.birthDate)
     if (birthDate > new Date()) {
-      return validationError("birthDate must be in the past")
+      return validationError({ message: "birthDate must be in the past" })
     }
 
     // Create child
