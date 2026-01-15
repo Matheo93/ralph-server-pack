@@ -343,7 +343,7 @@ describe("Event Broadcaster", () => {
         createBroadcastEvent("task", "t2", {}, { priority: "urgent" }),
       ]
       const sorted = sortByPriority(events)
-      expect(sorted[0].priority).toBe("urgent")
+      expect(sorted[0]!.priority).toBe("urgent")
     })
 
     it("should parse room ID", () => {

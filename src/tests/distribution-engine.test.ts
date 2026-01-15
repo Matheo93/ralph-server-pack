@@ -122,9 +122,9 @@ describe("Fairness Algorithm", () => {
     })
 
     it("should calculate proportional shares for different capacities", () => {
-      members[0].maxWeeklyLoad = 20
-      members[1].maxWeeklyLoad = 10
-      members[2].maxWeeklyLoad = 10
+      members[0]!.maxWeeklyLoad = 20
+      members[1]!.maxWeeklyLoad = 10
+      members[2]!.maxWeeklyLoad = 10
 
       const shares = calculateFairShare(members)
 
@@ -144,21 +144,21 @@ describe("Fairness Algorithm", () => {
   describe("calculateLoadBalanceScore", () => {
     it("should give high score to underloaded members", () => {
       const history = histories.get("m3")!
-      const score = calculateLoadBalanceScore(members[2], history, 33.33, 50)
+      const score = calculateLoadBalanceScore(members[2]!, history, 33.33, 50)
 
       expect(score).toBeGreaterThan(50) // Under fair share
     })
 
     it("should give low score to overloaded members", () => {
       const history = histories.get("m2")!
-      const score = calculateLoadBalanceScore(members[1], history, 33.33, 50)
+      const score = calculateLoadBalanceScore(members[1]!, history, 33.33, 50)
 
       expect(score).toBeLessThan(50) // Over fair share
     })
 
     it("should return neutral score when no tasks", () => {
       const history = createEmptyHistory("m1")
-      const score = calculateLoadBalanceScore(members[0], history, 33.33, 0)
+      const score = calculateLoadBalanceScore(members[0]!, history, 33.33, 0)
 
       expect(score).toBe(50)
     })
@@ -192,7 +192,7 @@ describe("Fairness Algorithm", () => {
 
   describe("calculatePreferenceScore", () => {
     it("should give high score for preferred category", () => {
-      members[0].preferences.preferred = ["cleaning"]
+      members[0]!.preferences.preferred = ["cleaning"]
       const task: TaskDefinition = {
         id: "t1",
         name: "Clean kitchen",
@@ -203,12 +203,12 @@ describe("Fairness Algorithm", () => {
         priority: 5,
       }
 
-      const score = calculatePreferenceScore(members[0], task)
+      const score = calculatePreferenceScore(members[0]!, task)
       expect(score).toBeGreaterThan(70)
     })
 
     it("should return 0 for blocked category", () => {
-      members[0].preferences.blocked = ["gardening"]
+      members[0]!.preferences.blocked = ["gardening"]
       const task: TaskDefinition = {
         id: "t1",
         name: "Mow lawn",
@@ -219,12 +219,12 @@ describe("Fairness Algorithm", () => {
         priority: 5,
       }
 
-      const score = calculatePreferenceScore(members[0], task)
+      const score = calculatePreferenceScore(members[0]!, task)
       expect(score).toBe(0)
     })
 
     it("should give lower score for disliked category", () => {
-      members[0].preferences.disliked = ["laundry"]
+      members[0]!.preferences.disliked = ["laundry"]
       const task: TaskDefinition = {
         id: "t1",
         name: "Do laundry",
@@ -235,7 +235,7 @@ describe("Fairness Algorithm", () => {
         priority: 5,
       }
 
-      const score = calculatePreferenceScore(members[0], task)
+      const score = calculatePreferenceScore(members[0]!, task)
       expect(score).toBeLessThan(50)
     })
   })
@@ -252,12 +252,12 @@ describe("Fairness Algorithm", () => {
         priority: 5,
       }
 
-      const score = calculateSkillScore(members[0], task)
+      const score = calculateSkillScore(members[0]!, task)
       expect(score).toBe(100)
     })
 
     it("should calculate partial skill match", () => {
-      members[0].skills = ["cooking", "cleaning"]
+      members[0]!.skills = ["cooking", "cleaning"]
       const task: TaskDefinition = {
         id: "t1",
         name: "Cook and clean",
@@ -268,15 +268,15 @@ describe("Fairness Algorithm", () => {
         priority: 5,
       }
 
-      const score = calculateSkillScore(members[0], task)
+      const score = calculateSkillScore(members[0]!, task)
       expect(score).toBe(50) // 1 out of 2 skills
     })
   })
 
   describe("findBestAssignment", () => {
     it("should find best member for task", () => {
-      members[0].preferences.preferred = ["cleaning"]
-      members[0].skills = ["cleaning"]
+      members[0]!.preferences.preferred = ["cleaning"]
+      members[0]!.skills = ["cleaning"]
 
       const task: TaskDefinition = {
         id: "t1",
@@ -348,7 +348,7 @@ describe("Workload Predictor", () => {
       expect(dp.taskCount).toBe(5)
       expect(dp.totalMinutes).toBe(75)
       expect(dp.dayOfWeek).toBe(3) // Wednesday
-      expect(dp.categories.cleaning).toBe(3)
+      expect(dp.categories["cleaning"]).toBe(3)
     })
   })
 
@@ -439,7 +439,7 @@ describe("Workload Predictor", () => {
 
       expect(anomalies.length).toBeGreaterThan(0)
       // Anomalies can be spikes or drops depending on data
-      expect(["spike", "drop"]).toContain(anomalies[0].type)
+      expect(["spike", "drop"]).toContain(anomalies[0]!.type)
     })
 
     it("should return empty for consistent data", () => {
@@ -461,7 +461,7 @@ describe("Workload Predictor", () => {
       const profiles = buildSeasonalProfile(sampleData)
 
       expect(profiles.length).toBeGreaterThan(0)
-      expect(profiles[0].averageTaskCount).toBeGreaterThanOrEqual(0)
+      expect(profiles[0]!.averageTaskCount).toBeGreaterThanOrEqual(0)
     })
   })
 })
@@ -836,7 +836,7 @@ describe("Delegation Engine", () => {
       const best = findBestWindows(windows, 60) // 60 minutes
 
       expect(best.length).toBeGreaterThan(0)
-      expect(best[0].score).toBeGreaterThan(0)
+      expect(best[0]!.score).toBeGreaterThan(0)
     })
   })
 
@@ -880,7 +880,7 @@ describe("Delegation Engine", () => {
       )
 
       expect(suggestions.length).toBe(2)
-      expect(suggestions[0].score).toBeGreaterThanOrEqual(suggestions[1].score)
+      expect(suggestions[0]!.score).toBeGreaterThanOrEqual(suggestions[1]!.score)
     })
   })
 
@@ -988,7 +988,7 @@ describe("Delegation Engine", () => {
       const expired = getExpiredDelegations(requests, 24)
 
       expect(expired.length).toBe(1)
-      expect(expired[0].id).toBe("r1")
+      expect(expired[0]!.id).toBe("r1")
     })
   })
 

@@ -1263,14 +1263,14 @@ describe("User Analytics", () => {
       expect(event.userId).toBe("user123")
       expect(event.type).toBe("feature_use")
       expect(event.name).toBe("task_created")
-      expect(event.properties.taskType).toBe("chore")
+      expect(event.properties["taskType"]).toBe("chore")
     })
 
     it("creates page view event", () => {
       const event = createPageViewEvent("user123", "session456", "Dashboard", "/dashboard")
       expect(event.type).toBe("page_view")
       expect(event.name).toBe("Dashboard")
-      expect(event.properties.path).toBe("/dashboard")
+      expect(event.properties["path"]).toBe("/dashboard")
     })
 
     it("creates feature use event", () => {

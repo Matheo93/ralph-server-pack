@@ -364,8 +364,8 @@ describe("Feature Flags", () => {
   describe("A/B testing", () => {
     it("should create A/B test", () => {
       const test = createABTest("test-1", "homepage-test", "button-color-flag", [
-        { id: "control", value: "blue", weight: 50 },
-        { id: "variant-a", value: "green", weight: 50 },
+        { id: "control", name: "Control", value: "blue", weight: 50 },
+        { id: "variant-a", name: "Variant A", value: "green", weight: 50 },
       ])
 
       expect(test.name).toBe("homepage-test")
@@ -373,15 +373,21 @@ describe("Feature Flags", () => {
     })
 
     it("should assign consistent variant to user", () => {
-      const test = createABTest("test-1", "button-test", "button-flag", [
-        { id: "a", value: "blue", weight: 50 },
-        { id: "b", value: "green", weight: 50 },
-      ])
+      // Create a feature flag with variants for testing assignment
+      const flag = createFeatureFlag("button-flag", "Button Color", "string", "blue")
+      const flagWithVariants: FeatureFlag = {
+        ...flag,
+        variants: [
+          { id: "a", name: "Blue", value: "blue", weight: 50 },
+          { id: "b", name: "Green", value: "green", weight: 50 },
+        ],
+      }
 
-      const variant1 = assignVariant(test, "user-123")
-      const variant2 = assignVariant(test, "user-123")
+      const context: EvaluationContext = { userId: "user-123" }
+      const result1 = assignVariant(flagWithVariants, context)
+      const result2 = assignVariant(flagWithVariants, context)
 
-      expect(variant1.id).toBe(variant2.id) // Same user = same variant
+      expect(result1.variant?.id).toBe(result2.variant?.id) // Same user = same variant
     })
   })
 })

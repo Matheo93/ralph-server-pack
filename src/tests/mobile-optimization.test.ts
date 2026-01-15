@@ -295,7 +295,7 @@ describe("Battery-Aware Sync", () => {
         batteryLevel: "low",
         charging: true,
         chargingState: "charging",
-        online: true,
+        remainingTime: 120,
       }
 
       expect(determineSyncStrategy(status)).toBe("aggressive")
@@ -307,7 +307,7 @@ describe("Battery-Aware Sync", () => {
         batteryLevel: "critical",
         charging: false,
         chargingState: "discharging",
-        online: true,
+        remainingTime: 120,
       }
 
       expect(determineSyncStrategy(status)).toBe("minimal")
@@ -319,7 +319,7 @@ describe("Battery-Aware Sync", () => {
         batteryLevel: "high",
         charging: false,
         chargingState: "discharging",
-        online: true,
+        remainingTime: 120,
       }
 
       expect(determineSyncStrategy(status)).toBe("normal")
@@ -333,7 +333,7 @@ describe("Battery-Aware Sync", () => {
         batteryLevel: "full",
         charging: true,
         chargingState: "full",
-        online: true,
+        remainingTime: 120,
       }
 
       const config = getSyncConfig(status)
@@ -351,7 +351,7 @@ describe("Battery-Aware Sync", () => {
         batteryLevel: "critical",
         charging: true,
         chargingState: "charging",
-        online: true,
+        remainingTime: 120,
       }
 
       const result = shouldDelaySyncForBattery(status, 1000)
@@ -365,7 +365,7 @@ describe("Battery-Aware Sync", () => {
         batteryLevel: "critical",
         charging: false,
         chargingState: "discharging",
-        online: true,
+        remainingTime: 120,
       }
 
       const result = shouldDelaySyncForBattery(status, 1000)
@@ -386,7 +386,7 @@ describe("Battery-Aware Sync", () => {
         batteryLevel: "critical",
         charging: false,
         chargingState: "discharging",
-        online: true,
+        remainingTime: 120,
       }
 
       const result = prioritizeBackgroundTasks(tasks, status)
@@ -657,7 +657,6 @@ describe("Mobile Optimization Integration", () => {
       batteryLevel: "medium",
       charging: false,
       chargingState: "discharging",
-      online: true,
     }
 
     const networkStatus: NetworkStatus = {
