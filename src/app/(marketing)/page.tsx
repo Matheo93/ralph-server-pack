@@ -1,4 +1,4 @@
-import { Hero, Features, Pricing, Testimonials } from "@/components/marketing"
+import { Hero, Features, Pricing, Testimonials, FAQ } from "@/components/marketing"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
@@ -17,6 +17,9 @@ export default function MarketingPage() {
 
       {/* Testimonials Section */}
       <Testimonials />
+
+      {/* FAQ Section */}
+      <FAQ />
 
       {/* Final CTA Section */}
       <section className="py-20 md:py-28">
