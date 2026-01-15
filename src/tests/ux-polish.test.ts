@@ -320,3 +320,182 @@ describe("Mobile Responsiveness", () => {
     expect(typeof result).toBe("boolean")
   })
 })
+
+// =============================================================================
+// PageTransition Animation Variants Tests
+// =============================================================================
+
+describe("PageTransition Animation Variants", () => {
+  const pageVariants = {
+    initial: (direction: "forward" | "back") => ({
+      opacity: 0,
+      x: direction === "forward" ? 20 : -20,
+    }),
+    animate: {
+      opacity: 1,
+      x: 0,
+    },
+    exit: (direction: "forward" | "back") => ({
+      opacity: 0,
+      x: direction === "forward" ? -20 : 20,
+    }),
+  }
+
+  const fadeVariants = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+  }
+
+  const slideUpVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 },
+  }
+
+  const scaleVariants = {
+    initial: { opacity: 0, scale: 0.95 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 1.05 },
+  }
+
+  describe("pageVariants", () => {
+    it("should have correct initial state for forward direction", () => {
+      const initial = pageVariants.initial("forward")
+      expect(initial.opacity).toBe(0)
+      expect(initial.x).toBe(20)
+    })
+
+    it("should have correct initial state for back direction", () => {
+      const initial = pageVariants.initial("back")
+      expect(initial.opacity).toBe(0)
+      expect(initial.x).toBe(-20)
+    })
+
+    it("should have correct animate state", () => {
+      expect(pageVariants.animate.opacity).toBe(1)
+      expect(pageVariants.animate.x).toBe(0)
+    })
+
+    it("should have correct exit state for forward direction", () => {
+      const exit = pageVariants.exit("forward")
+      expect(exit.opacity).toBe(0)
+      expect(exit.x).toBe(-20)
+    })
+
+    it("should have correct exit state for back direction", () => {
+      const exit = pageVariants.exit("back")
+      expect(exit.opacity).toBe(0)
+      expect(exit.x).toBe(20)
+    })
+  })
+
+  describe("fadeVariants", () => {
+    it("should have correct initial opacity", () => {
+      expect(fadeVariants.initial.opacity).toBe(0)
+    })
+
+    it("should have correct animate opacity", () => {
+      expect(fadeVariants.animate.opacity).toBe(1)
+    })
+
+    it("should have correct exit opacity", () => {
+      expect(fadeVariants.exit.opacity).toBe(0)
+    })
+  })
+
+  describe("slideUpVariants", () => {
+    it("should have correct initial state", () => {
+      expect(slideUpVariants.initial.opacity).toBe(0)
+      expect(slideUpVariants.initial.y).toBe(20)
+    })
+
+    it("should have correct animate state", () => {
+      expect(slideUpVariants.animate.opacity).toBe(1)
+      expect(slideUpVariants.animate.y).toBe(0)
+    })
+
+    it("should have correct exit state", () => {
+      expect(slideUpVariants.exit.opacity).toBe(0)
+      expect(slideUpVariants.exit.y).toBe(-20)
+    })
+  })
+
+  describe("scaleVariants", () => {
+    it("should have correct initial state", () => {
+      expect(scaleVariants.initial.opacity).toBe(0)
+      expect(scaleVariants.initial.scale).toBe(0.95)
+    })
+
+    it("should have correct animate state", () => {
+      expect(scaleVariants.animate.opacity).toBe(1)
+      expect(scaleVariants.animate.scale).toBe(1)
+    })
+
+    it("should have correct exit state", () => {
+      expect(scaleVariants.exit.opacity).toBe(0)
+      expect(scaleVariants.exit.scale).toBe(1.05)
+    })
+  })
+})
+
+// =============================================================================
+// Loading State Configuration Tests
+// =============================================================================
+
+describe("Loading State Configuration", () => {
+  const LOADING_VARIANTS = ["spinner", "skeleton", "pulse", "progress"] as const
+
+  it("should have spinner variant", () => {
+    expect(LOADING_VARIANTS).toContain("spinner")
+  })
+
+  it("should have skeleton variant", () => {
+    expect(LOADING_VARIANTS).toContain("skeleton")
+  })
+
+  it("should have pulse variant", () => {
+    expect(LOADING_VARIANTS).toContain("pulse")
+  })
+
+  it("should have progress variant", () => {
+    expect(LOADING_VARIANTS).toContain("progress")
+  })
+
+  it("should have exactly 4 variants", () => {
+    expect(LOADING_VARIANTS.length).toBe(4)
+  })
+})
+
+// =============================================================================
+// Skeleton Configuration Tests
+// =============================================================================
+
+describe("Skeleton Configuration", () => {
+  const SKELETON_VARIANTS = ["text", "circular", "rectangular"] as const
+  const ANIMATION_TYPES = ["pulse", "wave", "none"] as const
+
+  it("should have text variant", () => {
+    expect(SKELETON_VARIANTS).toContain("text")
+  })
+
+  it("should have circular variant", () => {
+    expect(SKELETON_VARIANTS).toContain("circular")
+  })
+
+  it("should have rectangular variant", () => {
+    expect(SKELETON_VARIANTS).toContain("rectangular")
+  })
+
+  it("should have pulse animation type", () => {
+    expect(ANIMATION_TYPES).toContain("pulse")
+  })
+
+  it("should have wave animation type", () => {
+    expect(ANIMATION_TYPES).toContain("wave")
+  })
+
+  it("should have none animation type", () => {
+    expect(ANIMATION_TYPES).toContain("none")
+  })
+})

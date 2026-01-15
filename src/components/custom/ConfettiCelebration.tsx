@@ -97,15 +97,17 @@ function createParticle(
   containerHeight: number,
   colors: string[]
 ): Particle {
-  const shapes = ["circle", "square", "star"] as const
+  const shapes: Array<"circle" | "square" | "star"> = ["circle", "square", "star"]
+  const colorIndex = Math.floor(Math.random() * colors.length)
+  const shapeIndex = Math.floor(Math.random() * shapes.length)
   return {
     id,
     x: Math.random() * containerWidth,
     y: -20,
     rotation: Math.random() * 360,
     scale: 0.5 + Math.random() * 0.5,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    shape: shapes[Math.floor(Math.random() * shapes.length)],
+    color: colors[colorIndex] ?? "#FF6B6B",
+    shape: shapes[shapeIndex] ?? "circle",
     velocityX: (Math.random() - 0.5) * 10,
     velocityY: 2 + Math.random() * 5,
   }
