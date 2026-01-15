@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, CheckCircle2, Heart, Users, Sparkles } from "lucide-react"
+import { AnimatedFamilyIllustration } from "./AnimatedFamilyIllustration"
 
 export function Hero() {
   return (
@@ -93,121 +94,9 @@ export function Hero() {
                   </svg>
                 </div>
 
-                {/* Family SVG Illustration */}
+                {/* Animated Family SVG Illustration */}
                 <div className="relative z-10">
-                  <svg viewBox="0 0 400 320" className="w-full h-auto">
-                    {/* Background circle */}
-                    <circle cx="200" cy="160" r="140" fill="url(#bgGradient)" opacity="0.3"/>
-
-                    {/* Gradients */}
-                    <defs>
-                      <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#f97316" stopOpacity="0.2"/>
-                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.1"/>
-                      </linearGradient>
-                      <linearGradient id="skinTone" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#fcd5b8"/>
-                        <stop offset="100%" stopColor="#e8b896"/>
-                      </linearGradient>
-                      <linearGradient id="hairBrown" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#5c4033"/>
-                        <stop offset="100%" stopColor="#3d2817"/>
-                      </linearGradient>
-                      <linearGradient id="coralShirt" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#f97316"/>
-                        <stop offset="100%" stopColor="#ea580c"/>
-                      </linearGradient>
-                      <linearGradient id="blueShirt" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#3b82f6"/>
-                        <stop offset="100%" stopColor="#2563eb"/>
-                      </linearGradient>
-                      <linearGradient id="greenShirt" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#22c55e"/>
-                        <stop offset="100%" stopColor="#16a34a"/>
-                      </linearGradient>
-                    </defs>
-
-                    {/* Parent 1 (left) */}
-                    <g transform="translate(80, 80)">
-                      {/* Body */}
-                      <ellipse cx="50" cy="180" rx="35" ry="50" fill="url(#coralShirt)"/>
-                      {/* Neck */}
-                      <rect x="40" y="110" width="20" height="25" fill="url(#skinTone)"/>
-                      {/* Head */}
-                      <circle cx="50" cy="80" r="45" fill="url(#skinTone)"/>
-                      {/* Hair */}
-                      <ellipse cx="50" cy="55" rx="42" ry="30" fill="url(#hairBrown)"/>
-                      {/* Eyes */}
-                      <circle cx="35" cy="80" r="5" fill="#3d2817"/>
-                      <circle cx="65" cy="80" r="5" fill="#3d2817"/>
-                      <circle cx="37" cy="78" r="2" fill="white"/>
-                      <circle cx="67" cy="78" r="2" fill="white"/>
-                      {/* Smile */}
-                      <path d="M35 100 Q50 115 65 100" stroke="#d97706" strokeWidth="3" fill="none" strokeLinecap="round"/>
-                      {/* Cheeks */}
-                      <circle cx="25" cy="95" r="8" fill="#fca5a5" opacity="0.4"/>
-                      <circle cx="75" cy="95" r="8" fill="#fca5a5" opacity="0.4"/>
-                    </g>
-
-                    {/* Parent 2 (right) */}
-                    <g transform="translate(220, 80)">
-                      {/* Body */}
-                      <ellipse cx="50" cy="180" rx="35" ry="50" fill="url(#blueShirt)"/>
-                      {/* Neck */}
-                      <rect x="40" y="110" width="20" height="25" fill="url(#skinTone)"/>
-                      {/* Head */}
-                      <circle cx="50" cy="80" r="45" fill="url(#skinTone)"/>
-                      {/* Hair (shorter) */}
-                      <ellipse cx="50" cy="50" rx="38" ry="25" fill="url(#hairBrown)"/>
-                      {/* Eyes */}
-                      <circle cx="35" cy="80" r="5" fill="#3d2817"/>
-                      <circle cx="65" cy="80" r="5" fill="#3d2817"/>
-                      <circle cx="37" cy="78" r="2" fill="white"/>
-                      <circle cx="67" cy="78" r="2" fill="white"/>
-                      {/* Smile */}
-                      <path d="M35 100 Q50 115 65 100" stroke="#d97706" strokeWidth="3" fill="none" strokeLinecap="round"/>
-                      {/* Cheeks */}
-                      <circle cx="25" cy="95" r="8" fill="#fca5a5" opacity="0.4"/>
-                      <circle cx="75" cy="95" r="8" fill="#fca5a5" opacity="0.4"/>
-                    </g>
-
-                    {/* Child (center, front) */}
-                    <g transform="translate(160, 150)">
-                      {/* Body */}
-                      <ellipse cx="40" cy="130" rx="25" ry="35" fill="url(#greenShirt)"/>
-                      {/* Neck */}
-                      <rect x="32" y="85" width="16" height="18" fill="url(#skinTone)"/>
-                      {/* Head */}
-                      <circle cx="40" cy="60" r="35" fill="url(#skinTone)"/>
-                      {/* Hair (pigtails style) */}
-                      <ellipse cx="40" cy="40" rx="30" ry="22" fill="url(#hairBrown)"/>
-                      <circle cx="10" cy="45" r="12" fill="url(#hairBrown)"/>
-                      <circle cx="70" cy="45" r="12" fill="url(#hairBrown)"/>
-                      {/* Eyes */}
-                      <circle cx="28" cy="58" r="4" fill="#3d2817"/>
-                      <circle cx="52" cy="58" r="4" fill="#3d2817"/>
-                      <circle cx="29" cy="56" r="1.5" fill="white"/>
-                      <circle cx="53" cy="56" r="1.5" fill="white"/>
-                      {/* Big smile */}
-                      <path d="M28 75 Q40 88 52 75" stroke="#d97706" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-                      {/* Cheeks */}
-                      <circle cx="18" cy="70" r="6" fill="#fca5a5" opacity="0.5"/>
-                      <circle cx="62" cy="70" r="6" fill="#fca5a5" opacity="0.5"/>
-                    </g>
-
-                    {/* Heart decorations */}
-                    <g fill="#f97316" opacity="0.6">
-                      <path transform="translate(60, 50) scale(0.8)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                      <path transform="translate(320, 60) scale(0.6)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                      <path transform="translate(340, 200) scale(0.5)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </g>
-
-                    {/* Stars/sparkles */}
-                    <g fill="#f59e0b">
-                      <polygon transform="translate(45, 100)" points="6,0 7.5,4.5 12,4.5 8.5,7.5 10,12 6,9 2,12 3.5,7.5 0,4.5 4.5,4.5" opacity="0.7"/>
-                      <polygon transform="translate(335, 120)" points="6,0 7.5,4.5 12,4.5 8.5,7.5 10,12 6,9 2,12 3.5,7.5 0,4.5 4.5,4.5" opacity="0.5"/>
-                    </g>
-                  </svg>
+                  <AnimatedFamilyIllustration />
                 </div>
 
                 {/* Floating voice command card */}
