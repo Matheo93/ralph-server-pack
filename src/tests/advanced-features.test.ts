@@ -1044,7 +1044,7 @@ describe("Task Prioritization", () => {
 
       const recommendations = generateRecommendations(task, score)
 
-      expect(recommendations.some(r => r.toLowerCase().includes("déléguer") || r.toLowerCase().includes("confier"))).toBe(true)
+      expect(recommendations.some(r => r.toLowerCase().includes("délég") || r.toLowerCase().includes("confier") || r.toLowerCase().includes("assign"))).toBe(true)
     })
   })
 

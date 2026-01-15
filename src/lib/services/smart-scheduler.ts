@@ -624,6 +624,10 @@ export function findBestDayForTask(
   const best = preferred[0] || sorted[0]
   const dayNames = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"]
 
+  if (!best) {
+    return { date: new Date(), reason: "Aucun jour disponible" }
+  }
+
   let reason = `${dayNames[best.date.getDay()]} `
   if (best.workload < 0.5) {
     reason += "est une journée légère"
@@ -712,15 +716,15 @@ export class SmartScheduler {
    */
   importPattern(data: Record<string, unknown>): void {
     this.pattern = {
-      userId: data.userId as string,
-      preferredHours: data.preferredHours as number[],
-      preferredDays: data.preferredDays as number[],
-      avgTasksPerDay: data.avgTasksPerDay as number,
-      avgCompletionTime: data.avgCompletionTime as number,
+      userId: data["userId"] as string,
+      preferredHours: data["preferredHours"] as number[],
+      preferredDays: data["preferredDays"] as number[],
+      avgTasksPerDay: data["avgTasksPerDay"] as number,
+      avgCompletionTime: data["avgCompletionTime"] as number,
       categoryPreferences: new Map(
-        Object.entries(data.categoryPreferences as Record<string, TimeSlot[]> || {})
+        Object.entries(data["categoryPreferences"] as Record<string, TimeSlot[]> || {})
       ),
-      lastUpdated: new Date(data.lastUpdated as string),
+      lastUpdated: new Date(data["lastUpdated"] as string),
     }
   }
 }
