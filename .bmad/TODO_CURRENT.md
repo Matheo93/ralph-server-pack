@@ -57,12 +57,12 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
 
 ## Phase 2: Internationalisation Complete (i18n)
 
-- [ ] 2.1 Creer `src/i18n/messages/en.ts`:
+- [x] 2.1 Creer `src/i18n/messages/en.ts`:
   - Toutes les traductions anglaises
   - Format coherent avec fr.ts existant
   - Pluralisation correcte
 
-- [ ] 2.2 Creer `src/i18n/messages/es.ts`:
+- [x] 2.2 Creer `src/i18n/messages/es.ts`:
   - Traductions espagnoles completes
   - Adaptations culturelles (dates, nombres)
 

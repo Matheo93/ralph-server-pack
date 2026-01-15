@@ -604,7 +604,7 @@ const en: Messages = {
     hours: "{count} hours",
     days: "{count} days",
     weeks: "{count} weeks",
-    months: "{count} months",
+    monthsDuration: "{count} months",
     years: "{count} years",
     morning: "Morning",
     afternoon: "Afternoon",
@@ -628,7 +628,7 @@ const en: Messages = {
       saturday: "Sat",
       sunday: "Sun",
     },
-    months: {
+    monthNames: {
       january: "January",
       february: "February",
       march: "March",

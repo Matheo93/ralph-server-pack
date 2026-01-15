@@ -700,7 +700,7 @@ export interface TimeMessages {
   hours: string
   days: string
   weeks: string
-  months: string
+  monthsDuration: string
   years: string
   morning: string
   afternoon: string
@@ -708,7 +708,7 @@ export interface TimeMessages {
   night: string
   weekdays: WeekdaysMessages
   weekdaysShort: WeekdaysMessages
-  months: MonthsMessages
+  monthNames: MonthsMessages
   monthsShort: MonthsMessages
 }
 
