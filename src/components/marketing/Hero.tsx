@@ -61,19 +61,19 @@ export function Hero() {
               </Button>
             </div>
 
-            {/* Trust indicators */}
+            {/* Trust indicators - More emotional, less corporate */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                <span>Aucune carte requise</span>
+                <Heart className="h-5 w-5 text-primary fill-primary/20" />
+                <span>Fini les &ldquo;c&apos;est toujours moi qui...&rdquo;</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                <span>Configuration en 2 minutes</span>
+                <Sparkles className="h-5 w-5 text-amber-500" />
+                <span>Prêt en 2 minutes</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                <span>RGPD compliant</span>
+                <Users className="h-5 w-5 text-primary" />
+                <span>Vos données restent les vôtres</span>
               </div>
             </div>
           </div>
