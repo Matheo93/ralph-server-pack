@@ -137,29 +137,29 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 
 ---
 
-## Phase 5: Amélioration UX Dashboard
+## Phase 5: Amélioration UX Dashboard ✅
 
-- [ ] 5.1 Améliorer `DashboardToday.tsx`:
+- [x] 5.1 Améliorer `DashboardToday.tsx`:
   - Grouper les tâches par enfant
   - Tri par priorité + deadline
   - Quick actions plus visibles
 
-- [ ] 5.2 Créer `src/components/custom/TaskSummaryCard.tsx`:
+- [x] 5.2 Créer `src/components/custom/TaskSummaryCard.tsx`:
   - Card récapitulatif du jour
   - Nombre de tâches par statut
   - Tâches en retard highlight
 
-- [ ] 5.3 Améliorer notifications in-app:
+- [x] 5.3 Améliorer notifications in-app:
   - Badge notification dans header
   - Liste des notifications non lues
   - Mark as read
 
-- [ ] 5.4 Ajouter tutoriel first-time user:
+- [x] 5.4 Ajouter tutoriel first-time user:
   - Overlay d'aide au premier login
   - Highlights des fonctionnalités clés
   - Skip option
 
-- [ ] 5.5 Tests UX dashboard
+- [x] 5.5 Tests UX dashboard (16 tests passants)
 
 ---
 
@@ -192,7 +192,7 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 - [x] Joker streak implémenté pour premium users
 - [x] Exclusions temporaires complètes avec UI
 - [x] Tests E2E Playwright configurés et passants
-- [ ] Dashboard UX amélioré
+- [x] Dashboard UX amélioré
 - [ ] Performance et monitoring en place
 - [x] Build production OK: `bunx tsc --noEmit && bun run build`
 - [x] Tous les tests passent: `bun test src/tests/` (479 tests)
