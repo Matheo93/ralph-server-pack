@@ -611,19 +611,21 @@ export function sanitizeJsonKeys(obj: unknown): unknown {
     return obj.map(sanitizeJsonKeys)
   }
 
-  const result: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(obj)) {
+  // Use Object.create(null) to avoid prototype pollution
+  const result: Record<string, unknown> = Object.create(null)
+
+  for (const key of Object.keys(obj as Record<string, unknown>)) {
     // Skip keys starting with $ (MongoDB operators)
     if (key.startsWith("$")) {
       continue
     }
-    // Skip __proto__ and constructor
+    // Skip __proto__, constructor, prototype
     if (key === "__proto__" || key === "constructor" || key === "prototype") {
       continue
     }
     // Sanitize key
     const sanitizedKey = key.replace(/[^\w.-]/g, "_").slice(0, 100)
-    result[sanitizedKey] = sanitizeJsonKeys(value)
+    result[sanitizedKey] = sanitizeJsonKeys((obj as Record<string, unknown>)[key])
   }
 
   return result
