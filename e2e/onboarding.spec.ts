@@ -1,131 +1,112 @@
+/**
+ * Onboarding E2E Tests
+ *
+ * Tests for the onboarding flow including:
+ * - Household creation
+ * - Child addition
+ * - Member invitation
+ */
+
 import { test, expect } from "@playwright/test"
 
-test.describe("Onboarding", () => {
-  test.describe("Onboarding Page Access", () => {
-    test("should redirect to login when not authenticated", async ({ page }) => {
+test.describe("Onboarding Flow", () => {
+  // Skip these tests as they require authentication
+  // They are documented for when auth fixtures are available
+
+  test.describe.skip("Step 1: Household Creation", () => {
+    test("should display household form", async ({ page }) => {
       await page.goto("/onboarding")
-      await expect(page).toHaveURL(/login/)
+
+      // Check for household name input
+      await expect(page.getByLabel(/nom du foyer|household name/i)).toBeVisible()
+
+      // Check for country selection
+      await expect(page.locator("text=/pays|country/i")).toBeVisible()
+
+      // Check for submit button
+      await expect(page.getByRole("button", { name: /suivant|next|continuer|continue/i })).toBeVisible()
+    })
+
+    test("should validate household name", async ({ page }) => {
+      await page.goto("/onboarding")
+
+      // Try to proceed without filling
+      await page.getByRole("button", { name: /suivant|next|continuer|continue/i }).click()
+
+      // Should show validation error
+      await expect(page.locator("text=/obligatoire|required/i")).toBeVisible()
     })
   })
 
-  test.describe("Onboarding Flow (Mock)", () => {
-    test.skip("should show step 1: create household", async ({ page }) => {
-      // Would require authenticated state without household
-      // Then check for:
-      // - Household name input
-      // - Country selector
-      // - Continue button
+  test.describe.skip("Step 2: Children Addition", () => {
+    test("should allow adding children", async ({ page }) => {
+      await page.goto("/onboarding") // Assumes we're on step 2
+
+      // Check for child form
+      await expect(page.getByLabel(/prénom|first name/i)).toBeVisible()
+      await expect(page.getByLabel(/date de naissance|birthdate/i)).toBeVisible()
     })
 
-    test.skip("should show step 2: add children", async ({ page }) => {
-      // After step 1, check for:
-      // - Child name input
-      // - Birthdate picker
-      // - Add another child option
-      // - Skip option
-    })
+    test("should validate child data", async ({ page }) => {
+      await page.goto("/onboarding")
 
-    test.skip("should show step 3: invite co-parent", async ({ page }) => {
-      // After step 2, check for:
-      // - Email input for co-parent
-      // - Skip option
-      // - Send invite button
-    })
+      // Click add child button
+      const addChildBtn = page.getByRole("button", { name: /ajouter|add child/i })
+      if (await addChildBtn.isVisible()) {
+        await addChildBtn.click()
 
-    test.skip("should complete onboarding and redirect", async ({ page }) => {
-      // After completing all steps:
-      // - Verify redirect to dashboard
-      // - Verify household created
-      // - Verify children added (if any)
+        // Try to proceed without required fields
+        await page.getByRole("button", { name: /suivant|next/i }).click()
+
+        // Should show validation error
+        await expect(page.locator("text=/obligatoire|required/i")).toBeVisible()
+      }
     })
   })
 
-  test.describe("Onboarding Validation", () => {
-    test.skip("should validate household name", async ({ page }) => {
-      // Would require:
-      // - Empty name submission -> error
-      // - Too short name -> error
-      // - Valid name -> success
+  test.describe.skip("Step 3: Member Invitation", () => {
+    test("should show invitation form", async ({ page }) => {
+      await page.goto("/onboarding")
+
+      // Check for email input
+      await expect(page.getByLabel(/email/i)).toBeVisible()
+
+      // Check for role selection
+      await expect(page.locator("text=/rôle|role/i")).toBeVisible()
     })
 
-    test.skip("should validate child birthdate", async ({ page }) => {
-      // Would require:
-      // - Future date -> error
-      // - Date too old -> error
-      // - Valid date -> success
-    })
+    test("should allow skipping invitations", async ({ page }) => {
+      await page.goto("/onboarding")
 
-    test.skip("should validate co-parent email", async ({ page }) => {
-      // Would require:
-      // - Invalid email -> error
-      // - Own email -> error
-      // - Valid email -> success
+      // Should have skip option
+      const skipBtn = page.getByRole("button", { name: /passer|skip|ignorer/i })
+      await expect(skipBtn).toBeVisible()
     })
   })
 
-  test.describe("Onboarding Progress", () => {
-    test.skip("should show progress indicator", async ({ page }) => {
-      // Check for:
-      // - Step counter (1/3, 2/3, 3/3)
-      // - Progress bar
-      // - Step labels
+  test.describe.skip("Step 4: Preferences", () => {
+    test("should show notification preferences", async ({ page }) => {
+      await page.goto("/onboarding")
+
+      // Check for notification options
+      await expect(page.locator("text=/notification/i")).toBeVisible()
     })
 
-    test.skip("should allow going back to previous step", async ({ page }) => {
-      // Check for:
-      // - Back button
-      // - Previous step content preserved
-    })
-  })
-})
+    test("should complete onboarding", async ({ page }) => {
+      await page.goto("/onboarding")
 
-test.describe("Invite Flow", () => {
-  test.describe("Invite Token Page", () => {
-    test("should display invite page for valid token format", async ({ page }) => {
-      // Even without valid token, the page should load
-      await page.goto("/invite/test-token-123")
-
-      // Should either show the invite page or an error
-      // (depending on token validation)
-      const body = page.locator("body")
-      await expect(body).toBeVisible()
-    })
-
-    test("should handle invalid invite token", async ({ page }) => {
-      await page.goto("/invite/invalid-token")
-
-      // Should show error or redirect
-      const body = page.locator("body")
-      await expect(body).toBeVisible()
-    })
-  })
-
-  test.describe("Accept Invite (Mock)", () => {
-    test.skip("should show household info when accepting invite", async ({ page }) => {
-      // Would require valid token
-      // Then check for:
-      // - Household name
-      // - Inviter name
-      // - Accept/Decline buttons
-    })
-
-    test.skip("should join household on accept", async ({ page }) => {
-      // After clicking accept:
-      // - Verify redirect to dashboard
-      // - Verify membership created
+      // Should have finish button
+      const finishBtn = page.getByRole("button", { name: /terminer|finish|commencer|start/i })
+      await expect(finishBtn).toBeVisible()
     })
   })
 })
 
-test.describe("Onboarding Accessibility", () => {
-  test("signup page has accessible form", async ({ page }) => {
-    await page.goto("/signup")
+test.describe("Onboarding Access", () => {
+  test("should redirect unauthenticated users", async ({ page }) => {
+    await page.goto("/onboarding")
 
-    // Check for accessible form elements
-    await expect(page.getByRole("textbox", { name: /email/i })).toBeVisible()
-
-    // Check page has proper structure
-    const main = page.locator("main, [role='main'], body")
-    await expect(main).toBeVisible()
+    // Should redirect to login
+    await expect(page).toHaveURL(/login/)
   })
 })

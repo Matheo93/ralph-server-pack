@@ -188,14 +188,14 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 ---
 
 ## Definition of Done Sprint 10
-- [ ] Génération automatique de tâches basée sur l'âge fonctionnelle
-- [ ] Joker streak implémenté pour premium users
-- [ ] Exclusions temporaires complètes avec UI
+- [x] Génération automatique de tâches basée sur l'âge fonctionnelle
+- [x] Joker streak implémenté pour premium users
+- [x] Exclusions temporaires complètes avec UI
 - [ ] Tests E2E Playwright configurés et passants
 - [ ] Dashboard UX amélioré
 - [ ] Performance et monitoring en place
-- [ ] Build production OK: `bunx tsc --noEmit && bun run build`
-- [ ] Tous les tests passent: `bun test src/tests/`
+- [x] Build production OK: `bunx tsc --noEmit && bun run build`
+- [x] Tous les tests passent: `bun test src/tests/` (479 tests)
 
 ---
 

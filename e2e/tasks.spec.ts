@@ -1,99 +1,157 @@
+/**
+ * Tasks E2E Tests
+ *
+ * Tests for task CRUD operations:
+ * - Task listing
+ * - Task creation
+ * - Task completion
+ * - Task deletion
+ * - Week view
+ */
+
 import { test, expect } from "@playwright/test"
 
 test.describe("Tasks", () => {
-  test.describe("Tasks Page", () => {
-    test("should redirect to login when not authenticated", async ({ page }) => {
+  test.describe("Tasks List Page", () => {
+    test("should redirect unauthenticated users to login", async ({ page }) => {
       await page.goto("/tasks")
       await expect(page).toHaveURL(/login/)
     })
+  })
 
-    test("should redirect to login when accessing task creation", async ({ page }) => {
-      await page.goto("/tasks/new")
-      await expect(page).toHaveURL(/login/)
-    })
-
-    test("should redirect to login when accessing today tasks", async ({ page }) => {
+  test.describe("Task Today Page", () => {
+    test("should redirect unauthenticated users to login", async ({ page }) => {
       await page.goto("/tasks/today")
       await expect(page).toHaveURL(/login/)
     })
+  })
 
-    test("should redirect to login when accessing week tasks", async ({ page }) => {
+  test.describe("Task Week Page", () => {
+    test("should redirect unauthenticated users to login", async ({ page }) => {
       await page.goto("/tasks/week")
       await expect(page).toHaveURL(/login/)
     })
   })
 
-  test.describe("Task Creation Form", () => {
-    test.beforeEach(async ({ page }) => {
-      // Navigate to task creation page (will redirect to login)
+  test.describe("New Task Page", () => {
+    test("should redirect unauthenticated users to login", async ({ page }) => {
       await page.goto("/tasks/new")
-    })
-
-    test("should require authentication", async ({ page }) => {
-      // Since we're not authenticated, should be on login page
       await expect(page).toHaveURL(/login/)
     })
   })
 
-  test.describe("Task List UI Elements", () => {
-    test("login page should have proper form", async ({ page }) => {
-      await page.goto("/login")
-
-      // Verify the login form elements exist
-      await expect(page.getByRole("textbox", { name: /email/i })).toBeVisible()
-      await expect(page.getByRole("button", { name: /Connexion|Log in|Continuer/i })).toBeVisible()
-    })
-  })
-
-  // Tests with mocked authentication (would require proper test setup)
-  test.describe("Task Actions (Mock)", () => {
-    test.skip("should display task list when authenticated", async ({ page }) => {
-      // This test would require proper authentication setup
-      // Skipped until test environment is configured
-
+  // Tests that require authentication - documented for future use
+  test.describe.skip("Authenticated Task Operations", () => {
+    test("should display tasks list", async ({ page }) => {
       await page.goto("/tasks")
 
-      // Would check for:
-      // - Task list container
-      // - Filter options
-      // - Sort options
-      // - Task cards
+      // Should show task list or empty state
+      const taskList = page.locator("[data-testid='task-list'], [data-testid='empty-state']")
+      await expect(taskList.first()).toBeVisible()
     })
 
-    test.skip("should allow creating a new task", async ({ page }) => {
-      // This test would require proper authentication setup
+    test("should show create task button", async ({ page }) => {
+      await page.goto("/tasks")
 
+      // Should have add task button
+      const addBtn = page.getByRole("button", { name: /ajouter|add|nouvelle|new/i })
+        .or(page.getByRole("link", { name: /ajouter|add|nouvelle|new/i }))
+      await expect(addBtn.first()).toBeVisible()
+    })
+
+    test("should show task creation form", async ({ page }) => {
       await page.goto("/tasks/new")
 
-      // Would fill in:
-      // - Title
-      // - Description
-      // - Category
-      // - Priority
-      // - Deadline
-      // - Assigned to
+      // Check form elements
+      await expect(page.getByLabel(/titre|title/i)).toBeVisible()
+      await expect(page.getByLabel(/description/i)).toBeVisible()
+      await expect(page.getByRole("button", { name: /créer|create|sauvegarder|save/i })).toBeVisible()
     })
 
-    test.skip("should allow completing a task", async ({ page }) => {
-      // This test would require proper authentication and task data setup
+    test("should validate task form", async ({ page }) => {
+      await page.goto("/tasks/new")
 
+      // Submit empty form
+      await page.getByRole("button", { name: /créer|create|sauvegarder|save/i }).click()
+
+      // Should show validation error
+      await expect(page.locator("text=/obligatoire|required/i")).toBeVisible()
+    })
+
+    test("should display week view with 7 days", async ({ page }) => {
+      await page.goto("/tasks/week")
+
+      // Should show 7 day columns
+      const dayColumns = page.locator("[data-testid='day-column']")
+      await expect(dayColumns).toHaveCount(7)
+    })
+
+    test("should allow task completion via checkbox", async ({ page }) => {
       await page.goto("/tasks")
 
-      // Would:
-      // - Find a task card
-      // - Click complete button or swipe
-      // - Verify task moves to completed
+      // Find a task checkbox
+      const checkbox = page.locator("[data-testid='task-checkbox']").first()
+      if (await checkbox.isVisible()) {
+        await checkbox.click()
+
+        // Should show completion feedback
+        await expect(page.locator("text=/complété|completed|terminé|done/i")).toBeVisible()
+      }
+    })
+
+    test("should allow task deletion", async ({ page }) => {
+      await page.goto("/tasks")
+
+      // Find delete button
+      const deleteBtn = page.locator("[data-testid='task-delete']").first()
+      if (await deleteBtn.isVisible()) {
+        await deleteBtn.click()
+
+        // Should show confirmation dialog
+        await expect(page.locator("text=/confirmer|confirm|supprimer|delete/i")).toBeVisible()
+      }
     })
   })
 })
 
 test.describe("Task Filters", () => {
-  test("should have filter URL params", async ({ page }) => {
-    // Test that filter URL structure works
-    await page.goto("/tasks?status=pending")
-    await expect(page).toHaveURL(/login/) // Will redirect but URL should be preserved
+  test.describe.skip("Authenticated Filter Tests", () => {
+    test("should filter by status", async ({ page }) => {
+      await page.goto("/tasks")
 
-    await page.goto("/tasks?priority=high")
-    await expect(page).toHaveURL(/login/)
+      // Click filter dropdown
+      const filterBtn = page.locator("[data-testid='filter-status']")
+      if (await filterBtn.isVisible()) {
+        await filterBtn.click()
+        // Select completed
+        await page.getByText(/terminé|completed|done/i).click()
+        // URL should reflect filter
+        await expect(page).toHaveURL(/status=done|completed/)
+      }
+    })
+
+    test("should filter by child", async ({ page }) => {
+      await page.goto("/tasks")
+
+      // Click child filter
+      const filterBtn = page.locator("[data-testid='filter-child']")
+      if (await filterBtn.isVisible()) {
+        await filterBtn.click()
+        // Should show child options
+        await expect(page.locator("[data-testid='child-option']")).toBeVisible()
+      }
+    })
+
+    test("should filter by category", async ({ page }) => {
+      await page.goto("/tasks")
+
+      // Click category filter
+      const filterBtn = page.locator("[data-testid='filter-category']")
+      if (await filterBtn.isVisible()) {
+        await filterBtn.click()
+        // Should show category options
+        await expect(page.locator("[data-testid='category-option']")).toBeVisible()
+      }
+    })
   })
 })

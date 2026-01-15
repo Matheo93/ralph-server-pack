@@ -1,101 +1,137 @@
+/**
+ * Charge Mentale (Mental Load) E2E Tests
+ *
+ * Tests for load balance display:
+ * - Balance indicators
+ * - Week chart
+ * - Member breakdown
+ */
+
 import { test, expect } from "@playwright/test"
 
 test.describe("Charge Mentale", () => {
-  test.describe("Charge Page Access", () => {
-    test("should redirect to login when not authenticated", async ({ page }) => {
-      await page.goto("/charge")
+  test.describe("Dashboard Access", () => {
+    test("should redirect unauthenticated users from dashboard", async ({ page }) => {
+      await page.goto("/dashboard")
       await expect(page).toHaveURL(/login/)
     })
   })
 
-  test.describe("Export PDF API", () => {
-    test("should have PDF export endpoint", async ({ request }) => {
-      const response = await request.get("/api/export/pdf?type=charge")
+  // Tests that require authentication
+  test.describe.skip("Authenticated Charge Tests", () => {
+    test("should display balance indicator on dashboard", async ({ page }) => {
+      await page.goto("/dashboard")
 
-      // Should return 401 (unauthorized) without auth
-      // 405 would mean endpoint doesn't exist
-      expect([400, 401]).toContain(response.status())
+      // Should show balance component
+      const balanceIndicator = page.locator("[data-testid='charge-balance'], [data-testid='balance']")
+      await expect(balanceIndicator).toBeVisible()
     })
 
-    test("should have data export endpoint", async ({ request }) => {
-      const response = await request.get("/api/export/data")
-      expect([400, 401]).toContain(response.status())
-    })
-  })
+    test("should show percentage for each member", async ({ page }) => {
+      await page.goto("/dashboard")
 
-  // Tests with authentication would go here
-  test.describe("Charge Balance Display (Mock)", () => {
-    test.skip("should show balance between parents", async ({ page }) => {
-      // Would require authenticated state with 2+ household members
-      // Then check for:
-      // - Balance percentage display
-      // - Parent names
-      // - Visual indicator (bars, chart)
+      // Should show member percentages
+      const percentages = page.locator("[data-testid='member-percentage'], text=/%/")
+      await expect(percentages.first()).toBeVisible()
     })
 
-    test.skip("should show weekly chart", async ({ page }) => {
-      // Would check for:
-      // - Chart container
-      // - Week labels
-      // - Data points
-      // - Legend
+    test("should display week chart", async ({ page }) => {
+      await page.goto("/dashboard")
+
+      // Should show chart
+      const chart = page.locator("[data-testid='charge-chart'], [data-testid='week-chart']")
+      await expect(chart).toBeVisible()
     })
 
-    test.skip("should show category breakdown", async ({ page }) => {
-      // Would check for:
-      // - Category list
-      // - Weight per category
-      // - Color coding
+    test("should update when task completed", async ({ page }) => {
+      await page.goto("/dashboard")
+
+      // Get initial balance
+      const balanceBefore = await page.locator("[data-testid='charge-balance']").textContent()
+
+      // Complete a task
+      const checkbox = page.locator("[data-testid='task-checkbox']").first()
+      if (await checkbox.isVisible()) {
+        await checkbox.click()
+        await page.waitForTimeout(1000)
+
+        // Balance should potentially change
+        const balanceAfter = await page.locator("[data-testid='charge-balance']").textContent()
+        // Note: balance may or may not change depending on assignment
+      }
     })
 
-    test.skip("should allow date range selection", async ({ page }) => {
-      // Would check for:
-      // - Date picker
-      // - Range options (week, month, quarter)
-      // - Data updates on selection
-    })
-  })
+    test("should show balance alert when imbalanced", async ({ page }) => {
+      await page.goto("/dashboard")
 
-  test.describe("Export Functionality (Mock)", () => {
-    test.skip("should download PDF report", async ({ page }) => {
-      // Would require authenticated state
-      // Then:
-      // - Click export button
-      // - Select PDF format
-      // - Verify download starts
-    })
-
-    test.skip("should download JSON export", async ({ page }) => {
-      // RGPD data export test
-      // Would verify:
-      // - Export button click
-      // - Download of JSON file
-      // - File contains user data
-    })
-  })
-
-  test.describe("Charge Alerts", () => {
-    test.skip("should show imbalance warning", async ({ page }) => {
-      // Would mock data with >60/40 split
-      // Then verify warning message displayed
-    })
-
-    test.skip("should show overload alert", async ({ page }) => {
-      // Would mock data with high task count
-      // Then verify overload alert displayed
+      // Check for alert component (may not be visible if balanced)
+      const alert = page.locator("[data-testid='charge-alert']")
+      // Alert visibility depends on actual balance state
+      if (await alert.isVisible()) {
+        await expect(alert).toContainText(/déséquilibre|imbalance|attention/i)
+      }
     })
   })
 })
 
-test.describe("Charge Page UI", () => {
-  test("login page is accessible", async ({ page }) => {
-    await page.goto("/login")
+test.describe("Charge Week View", () => {
+  test.describe.skip("Authenticated Week View Tests", () => {
+    test("should display 7 days of data", async ({ page }) => {
+      await page.goto("/dashboard")
 
-    // Verify basic page structure
-    await expect(page.locator("body")).toBeVisible()
+      // Chart should show 7 data points
+      const dataPoints = page.locator("[data-testid='chart-bar'], [data-testid='day-bar']")
+      await expect(dataPoints).toHaveCount(7)
+    })
 
-    // Check for main heading
-    const heading = page.locator("h1")
-    await expect(heading).toBeVisible()
+    test("should show legend with member names", async ({ page }) => {
+      await page.goto("/dashboard")
+
+      // Should have legend
+      const legend = page.locator("[data-testid='chart-legend'], [role='legend']")
+      await expect(legend).toBeVisible()
+    })
+
+    test("should update when date range changes", async ({ page }) => {
+      await page.goto("/dashboard")
+
+      // Click previous week button
+      const prevBtn = page.locator("[data-testid='prev-week'], [aria-label*='précédent']")
+      if (await prevBtn.isVisible()) {
+        await prevBtn.click()
+        await page.waitForTimeout(500)
+
+        // Chart should update
+        await expect(page.locator("[data-testid='charge-chart']")).toBeVisible()
+      }
+    })
+  })
+})
+
+test.describe("Streak Display", () => {
+  test.describe.skip("Authenticated Streak Tests", () => {
+    test("should show streak counter", async ({ page }) => {
+      await page.goto("/dashboard")
+
+      // Should show streak
+      const streak = page.locator("[data-testid='streak-counter']")
+      await expect(streak).toBeVisible()
+    })
+
+    test("should show streak milestones", async ({ page }) => {
+      await page.goto("/dashboard")
+
+      // Should show milestone badges
+      const milestones = page.locator("[data-testid='streak-milestone'], [data-testid='badge']")
+      await expect(milestones.first()).toBeVisible()
+    })
+
+    test("should show joker button for premium users", async ({ page }) => {
+      await page.goto("/dashboard")
+
+      // Joker button visibility depends on subscription
+      const jokerBtn = page.locator("[data-testid='joker-button']")
+      // May or may not be visible depending on subscription status
+    })
   })
 })

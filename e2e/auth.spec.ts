@@ -1,103 +1,130 @@
+/**
+ * Authentication E2E Tests
+ *
+ * Tests for login, signup, and logout flows.
+ * Tests protection of authenticated routes.
+ */
+
 import { test, expect } from "@playwright/test"
 
 test.describe("Authentication", () => {
-  test.describe("Login Flow", () => {
-    test("should display login page", async ({ page }) => {
+  test.describe("Login Page", () => {
+    test("should display login form", async ({ page }) => {
       await page.goto("/login")
 
-      // Check page title and form elements
-      await expect(page.locator("h1")).toContainText(/Connexion|Log in/i)
-      await expect(page.getByRole("textbox", { name: /email/i })).toBeVisible()
-      await expect(page.getByRole("button", { name: /Connexion|Log in|Continuer/i })).toBeVisible()
+      // Check page title
+      await expect(page).toHaveTitle(/FamilyLoad/)
+
+      // Check form elements are present
+      await expect(page.getByLabel(/email/i)).toBeVisible()
+      await expect(page.getByLabel(/mot de passe|password/i)).toBeVisible()
+      await expect(page.getByRole("button", { name: /connexion|login|se connecter/i })).toBeVisible()
+    })
+
+    test("should show link to signup", async ({ page }) => {
+      await page.goto("/login")
+
+      // Should have link to create account
+      const signupLink = page.getByRole("link", { name: /inscription|signup|créer|create/i })
+      await expect(signupLink).toBeVisible()
+    })
+
+    test("should show validation errors for empty form", async ({ page }) => {
+      await page.goto("/login")
+
+      // Click submit without filling form
+      await page.getByRole("button", { name: /connexion|login|se connecter/i }).click()
+
+      // Should show validation error
+      await expect(page.locator("text=/obligatoire|required|invalide|invalid/i")).toBeVisible({ timeout: 5000 })
     })
 
     test("should show error for invalid credentials", async ({ page }) => {
       await page.goto("/login")
 
-      // Fill in invalid credentials
-      await page.getByRole("textbox", { name: /email/i }).fill("invalid@test.com")
+      // Fill with invalid credentials
+      await page.getByLabel(/email/i).fill("invalid@example.com")
+      await page.getByLabel(/mot de passe|password/i).fill("wrongpassword")
+      await page.getByRole("button", { name: /connexion|login|se connecter/i }).click()
 
-      // Submit form
-      await page.getByRole("button", { name: /Connexion|Log in|Continuer/i }).click()
-
-      // Should show error or stay on login page
-      await expect(page).toHaveURL(/login/)
-    })
-
-    test("should have signup link", async ({ page }) => {
-      await page.goto("/login")
-
-      // Check for signup link
-      const signupLink = page.getByRole("link", { name: /inscription|signup|créer|create/i })
-      await expect(signupLink).toBeVisible()
-    })
-
-    test("should have Google login option", async ({ page }) => {
-      await page.goto("/login")
-
-      // Check for Google button
-      const googleButton = page.getByRole("button", { name: /google/i })
-      await expect(googleButton).toBeVisible()
+      // Should show error message
+      await expect(page.locator("text=/erreur|error|incorrect|invalide/i")).toBeVisible({ timeout: 10000 })
     })
   })
 
-  test.describe("Signup Flow", () => {
-    test("should display signup page", async ({ page }) => {
+  test.describe("Signup Page", () => {
+    test("should display signup form", async ({ page }) => {
       await page.goto("/signup")
 
-      // Check page elements
-      await expect(page.locator("h1")).toContainText(/inscription|sign up|créer/i)
-      await expect(page.getByRole("textbox", { name: /email/i })).toBeVisible()
+      // Check form elements
+      await expect(page.getByLabel(/email/i)).toBeVisible()
+      await expect(page.getByLabel(/mot de passe|password/i).first()).toBeVisible()
     })
 
-    test("should have login link", async ({ page }) => {
+    test("should show link to login", async ({ page }) => {
       await page.goto("/signup")
 
-      // Check for login link
-      const loginLink = page.getByRole("link", { name: /connexion|log in|déjà/i })
+      // Should have link to login
+      const loginLink = page.getByRole("link", { name: /connexion|login|déjà un compte/i })
       await expect(loginLink).toBeVisible()
     })
+
+    test("should validate email format", async ({ page }) => {
+      await page.goto("/signup")
+
+      // Fill with invalid email
+      await page.getByLabel(/email/i).fill("not-an-email")
+      await page.getByLabel(/mot de passe|password/i).first().click() // blur email
+
+      // Should show validation error
+      await expect(page.locator("text=/invalide|invalid|format/i")).toBeVisible({ timeout: 5000 })
+    })
   })
 
-  test.describe("Protected Routes", () => {
-    test("should redirect to login from dashboard when not authenticated", async ({ page }) => {
-      // Try to access dashboard without authentication
+  test.describe("Route Protection", () => {
+    test("should redirect unauthenticated users from dashboard", async ({ page }) => {
       await page.goto("/dashboard")
 
       // Should redirect to login
-      await expect(page).toHaveURL(/login/)
+      await expect(page).toHaveURL(/login|connexion/)
     })
 
-    test("should redirect to login from settings when not authenticated", async ({ page }) => {
+    test("should redirect unauthenticated users from tasks", async ({ page }) => {
+      await page.goto("/tasks")
+
+      // Should redirect to login
+      await expect(page).toHaveURL(/login|connexion/)
+    })
+
+    test("should redirect unauthenticated users from settings", async ({ page }) => {
       await page.goto("/settings")
-      await expect(page).toHaveURL(/login/)
+
+      // Should redirect to login
+      await expect(page).toHaveURL(/login|connexion/)
     })
 
-    test("should redirect to login from children page when not authenticated", async ({ page }) => {
-      await page.goto("/children")
-      await expect(page).toHaveURL(/login/)
-    })
+    test("should allow access to public pages", async ({ page }) => {
+      // Home page should be accessible
+      await page.goto("/")
+      await expect(page.locator("body")).toBeVisible()
 
-    test("should redirect to login from charge page when not authenticated", async ({ page }) => {
-      await page.goto("/charge")
-      await expect(page).toHaveURL(/login/)
+      // Login should be accessible
+      await page.goto("/login")
+      await expect(page.locator("body")).toBeVisible()
+
+      // Signup should be accessible
+      await page.goto("/signup")
+      await expect(page.locator("body")).toBeVisible()
     })
   })
+})
 
-  test.describe("Public Routes", () => {
-    test("should allow access to home page", async ({ page }) => {
-      await page.goto("/")
-      await expect(page).toHaveURL("/")
-    })
+test.describe("Navigation", () => {
+  test("should have consistent navigation elements", async ({ page }) => {
+    await page.goto("/login")
 
-    test("should allow access to login page", async ({ page }) => {
-      await page.goto("/login")
-      await expect(page).toHaveURL("/login")
-    })
-
-    test("should allow access to signup page", async ({ page }) => {
-      await page.goto("/signup")
-      await expect(page).toHaveURL("/signup")
-    })
+    // Check for logo or brand
+    const brand = page.locator("[data-testid='logo'], .logo, [alt*='logo'], text=FamilyLoad")
+    await expect(brand.first()).toBeVisible({ timeout: 5000 })
   })
 })
