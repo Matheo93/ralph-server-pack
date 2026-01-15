@@ -39,24 +39,27 @@ Préparer l'intégration mobile Flutter, améliorer les notifications push, et r
 
 ## Phase 2: Push Notifications Enhancement
 
-- [ ] 2.1 Améliorer `src/lib/services/notifications.ts`:
+- [x] 2.1 Améliorer `src/lib/services/notifications.ts`:
   - Firebase Cloud Messaging (FCM) integration
   - APNs integration (iOS)
-  - Notification queuing
-  - Retry mechanism
+  - Notification queuing (`src/lib/services/notification-queue.ts`)
+  - Retry mechanism with exponential backoff
 
-- [ ] 2.2 Créer notification templates:
+- [x] 2.2 Créer notification templates (`src/lib/templates/push/index.ts`):
   - Daily reminder
   - Deadline approaching
   - Streak at risk
   - Balance alert
   - Weekly summary
+  - Task completed
+  - Task assigned
+  - Welcome
 
-- [ ] 2.3 Créer API endpoints:
+- [x] 2.3 Créer API endpoints:
   - `src/app/api/notifications/subscribe/route.ts`
-  - `src/app/api/notifications/preferences/route.ts`
+  - `src/app/api/notifications/preferences/route.ts` (existait déjà)
 
-- [ ] 2.4 Tests notifications (≥10 tests)
+- [x] 2.4 Tests notifications (≥10 tests) - 39 tests created
 
 ---
 
