@@ -351,3 +351,257 @@ export async function getActiveTemplates(): Promise<{ id: string; title: string;
 
   return templates
 }
+
+// ============================================================
+// MEMBER EXCLUSIONS
+// ============================================================
+
+const ExclusionReasonEnum = z.enum(["voyage", "maladie", "surcharge_travail", "garde_alternee", "autre"])
+
+export type ExclusionReason = z.infer<typeof ExclusionReasonEnum>
+
+export const EXCLUSION_REASONS: Record<ExclusionReason, { label: string; icon: string }> = {
+  voyage: { label: "Voyage / Vacances", icon: "✈️" },
+  maladie: { label: "Maladie", icon: "🤒" },
+  surcharge_travail: { label: "Surcharge de travail", icon: "💼" },
+  garde_alternee: { label: "Garde alternée (absent)", icon: "🏠" },
+  autre: { label: "Autre", icon: "📝" },
+}
+
+const CreateExclusionSchema = z.object({
+  member_id: z.string().uuid(),
+  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  reason: ExclusionReasonEnum,
+})
+
+export interface MemberExclusion {
+  id: string
+  member_id: string
+  member_name: string | null
+  member_email: string
+  household_id: string
+  exclude_from: string
+  exclude_until: string
+  reason: ExclusionReason
+  is_active: boolean
+  created_at: string
+}
+
+export async function createExclusion(
+  data: z.infer<typeof CreateExclusionSchema>
+): Promise<ActionResult<{ id: string }>> {
+  const userId = await getUserId()
+  if (!userId) {
+    return { success: false, error: "Utilisateur non connecté" }
+  }
+
+  const validation = CreateExclusionSchema.safeParse(data)
+  if (!validation.success) {
+    return { success: false, error: validation.error.issues[0]?.message ?? "Données invalides" }
+  }
+
+  // Validate dates
+  const startDate = new Date(validation.data.start_date)
+  const endDate = new Date(validation.data.end_date)
+
+  if (endDate <= startDate) {
+    return { success: false, error: "La date de fin doit être après la date de début" }
+  }
+
+  await setCurrentUser(userId)
+
+  // Get user's household
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
+
+  if (!membership) {
+    return { success: false, error: "Vous n'avez pas de foyer" }
+  }
+
+  // Verify target member is in the same household
+  const targetMember = await queryOne<{ user_id: string }>(`
+    SELECT user_id
+    FROM household_members
+    WHERE user_id = $1 AND household_id = $2 AND is_active = true
+  `, [validation.data.member_id, membership.household_id])
+
+  if (!targetMember) {
+    return { success: false, error: "Membre non trouvé dans votre foyer" }
+  }
+
+  // Check for overlapping exclusions
+  const overlapping = await queryOne<{ id: string }>(`
+    SELECT id FROM member_exclusions
+    WHERE member_id = $1
+    AND household_id = $2
+    AND NOT (exclude_until <= $3 OR exclude_from >= $4)
+  `, [validation.data.member_id, membership.household_id, startDate.toISOString(), endDate.toISOString()])
+
+  if (overlapping) {
+    return { success: false, error: "Une exclusion existe déjà pour cette période" }
+  }
+
+  // Create exclusion
+  const result = await query<{ id: string }>(`
+    INSERT INTO member_exclusions (member_id, household_id, exclude_from, exclude_until, reason)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING id
+  `, [validation.data.member_id, membership.household_id, startDate.toISOString(), endDate.toISOString(), validation.data.reason])
+
+  if (result.length === 0) {
+    return { success: false, error: "Erreur lors de la création" }
+  }
+
+  revalidatePath("/settings/exclusions")
+  return { success: true, data: { id: result[0]!.id } }
+}
+
+export async function getActiveExclusions(): Promise<MemberExclusion[]> {
+  const userId = await getUserId()
+  if (!userId) return []
+
+  await setCurrentUser(userId)
+
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
+
+  if (!membership) return []
+
+  const exclusions = await query<{
+    id: string
+    member_id: string
+    member_name: string | null
+    member_email: string
+    household_id: string
+    exclude_from: string
+    exclude_until: string
+    reason: ExclusionReason
+    created_at: string
+  }>(`
+    SELECT
+      me.id,
+      me.member_id,
+      u.name as member_name,
+      u.email as member_email,
+      me.household_id,
+      me.exclude_from::text,
+      me.exclude_until::text,
+      me.reason,
+      me.created_at::text
+    FROM member_exclusions me
+    JOIN users u ON u.id = me.member_id
+    WHERE me.household_id = $1
+    AND me.exclude_until >= NOW()
+    ORDER BY me.exclude_from ASC
+  `, [membership.household_id])
+
+  return exclusions.map(e => ({
+    ...e,
+    is_active: new Date(e.exclude_from) <= new Date() && new Date(e.exclude_until) >= new Date(),
+  }))
+}
+
+export async function getAllExclusions(): Promise<MemberExclusion[]> {
+  const userId = await getUserId()
+  if (!userId) return []
+
+  await setCurrentUser(userId)
+
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
+
+  if (!membership) return []
+
+  const exclusions = await query<{
+    id: string
+    member_id: string
+    member_name: string | null
+    member_email: string
+    household_id: string
+    exclude_from: string
+    exclude_until: string
+    reason: ExclusionReason
+    created_at: string
+  }>(`
+    SELECT
+      me.id,
+      me.member_id,
+      u.name as member_name,
+      u.email as member_email,
+      me.household_id,
+      me.exclude_from::text,
+      me.exclude_until::text,
+      me.reason,
+      me.created_at::text
+    FROM member_exclusions me
+    JOIN users u ON u.id = me.member_id
+    WHERE me.household_id = $1
+    ORDER BY me.exclude_from DESC
+    LIMIT 50
+  `, [membership.household_id])
+
+  return exclusions.map(e => ({
+    ...e,
+    is_active: new Date(e.exclude_from) <= new Date() && new Date(e.exclude_until) >= new Date(),
+  }))
+}
+
+export async function deleteExclusion(exclusionId: string): Promise<ActionResult> {
+  const userId = await getUserId()
+  if (!userId) {
+    return { success: false, error: "Utilisateur non connecté" }
+  }
+
+  if (!z.string().uuid().safeParse(exclusionId).success) {
+    return { success: false, error: "ID invalide" }
+  }
+
+  await setCurrentUser(userId)
+
+  // Get user's household
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
+
+  if (!membership) {
+    return { success: false, error: "Vous n'avez pas de foyer" }
+  }
+
+  // Delete only if in same household
+  const result = await query<{ id: string }>(`
+    DELETE FROM member_exclusions
+    WHERE id = $1 AND household_id = $2
+    RETURNING id
+  `, [exclusionId, membership.household_id])
+
+  if (result.length === 0) {
+    return { success: false, error: "Exclusion non trouvée" }
+  }
+
+  revalidatePath("/settings/exclusions")
+  return { success: true }
+}
+
+export async function isUserExcluded(userId: string, householdId: string): Promise<boolean> {
+  const exclusion = await queryOne<{ id: string }>(`
+    SELECT id FROM member_exclusions
+    WHERE member_id = $1
+    AND household_id = $2
+    AND exclude_from <= NOW()
+    AND exclude_until >= NOW()
+  `, [userId, householdId])
+
+  return !!exclusion
+}
