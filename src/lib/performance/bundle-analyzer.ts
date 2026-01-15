@@ -239,7 +239,7 @@ export function detectDuplicates(modules: string[]): OptimizationSuggestion[] {
   for (const module of modules) {
     // Extract base module name and version
     const match = module.match(/node_modules\/(.+?)\//)
-    if (match) {
+    if (match && match[1]) {
       const moduleName = extractModuleName(match[1])
       const versions = moduleVersions.get(moduleName) || new Set()
       versions.add(module)
