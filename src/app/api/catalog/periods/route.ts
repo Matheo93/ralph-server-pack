@@ -67,10 +67,10 @@ export async function GET(request: NextRequest) {
     category: rule.category,
     priority: rule.priority,
     periodType: rule.periodType,
-    months: rule.months,
+    month: rule.month,
     leadDays: rule.leadDays,
     isTriggered: shouldTriggerRule(rule, now),
-    ageRanges: rule.ageRanges,
+    ageRange: rule.ageRange,
     countries: rule.countries,
     tags: rule.tags,
   })
