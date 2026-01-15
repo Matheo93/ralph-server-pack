@@ -45,7 +45,8 @@ const TranscriptionResponseSchema = z.object({
 const WHISPER_API_URL = "https://api.openai.com/v1/audio/transcriptions"
 const DEEPGRAM_API_URL = "https://api.deepgram.com/v1/listen"
 
-const MAX_AUDIO_SIZE_BYTES = 25 * 1024 * 1024 // 25MB limit
+export const MAX_AUDIO_SIZE = 25 * 1024 * 1024 // 25MB limit
+const MAX_AUDIO_SIZE_BYTES = MAX_AUDIO_SIZE
 const MAX_DURATION_SECONDS = 30
 
 // =============================================================================
@@ -249,13 +250,13 @@ export function normalizeText(text: string): string {
 
 export function validateAudioBlob(blob: Blob): { valid: boolean; error?: string } {
   if (blob.size === 0) {
-    return { valid: false, error: "Audio file is empty" }
+    return { valid: false, error: "Le fichier audio est vide" }
   }
 
   if (blob.size > MAX_AUDIO_SIZE_BYTES) {
     return {
       valid: false,
-      error: `Audio file too large. Maximum size is ${MAX_AUDIO_SIZE_BYTES / 1024 / 1024}MB`,
+      error: `Le fichier audio est trop volumineux. Taille maximale : ${MAX_AUDIO_SIZE_BYTES / 1024 / 1024}MB`,
     }
   }
 
@@ -272,11 +273,63 @@ export function validateAudioBlob(blob: Blob): { valid: boolean; error?: string 
   if (blob.type && !validTypes.includes(blob.type)) {
     return {
       valid: false,
-      error: `Unsupported audio format: ${blob.type}. Supported: ${validTypes.join(", ")}`,
+      error: `Format audio non supporté : ${blob.type}. Formats acceptés : ${validTypes.join(", ")}`,
     }
   }
 
   return { valid: true }
+}
+
+/**
+ * Detect language from text using heuristics
+ */
+export function detectLanguage(text: string): "fr" | "en" {
+  const lower = text.toLowerCase()
+
+  // French indicators
+  const frenchIndicators = [
+    "je", "tu", "il", "elle", "nous", "vous", "ils", "elles",
+    "le", "la", "les", "un", "une", "des",
+    "de", "du", "au", "aux",
+    "pour", "avec", "dans", "sur", "chez",
+    "est", "sont", "être", "avoir",
+    "faire", "aller", "venir",
+    "ce", "cette", "ces",
+    "qui", "que", "quoi",
+    "oui", "non", "bien",
+    "bonjour", "merci", "s'il",
+    "acheter", "emmener", "chercher",
+    "enfant", "enfants", "couches", "pain",
+    "école", "médecin", "rendez-vous",
+    "ça", "là", "où",
+  ]
+
+  // English indicators
+  const englishIndicators = [
+    "i", "you", "he", "she", "we", "they",
+    "the", "a", "an",
+    "is", "are", "was", "were",
+    "to", "for", "with", "from",
+    "have", "has", "had",
+    "do", "does", "did",
+    "can", "could", "will", "would",
+    "this", "that", "these", "those",
+    "what", "where", "when", "why", "how",
+    "yes", "no", "please", "thank",
+    "buy", "get", "pick", "take",
+    "child", "children", "school", "doctor",
+  ]
+
+  let frenchCount = 0
+  let englishCount = 0
+
+  const words = lower.split(/\s+/)
+  for (const word of words) {
+    if (frenchIndicators.includes(word)) frenchCount++
+    if (englishIndicators.includes(word)) englishCount++
+  }
+
+  return frenchCount >= englishCount ? "fr" : "en"
 }
 
 // =============================================================================

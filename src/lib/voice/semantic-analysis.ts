@@ -11,15 +11,18 @@ import { z } from "zod"
 // TYPES
 // =============================================================================
 
-export type TaskCategory =
-  | "ecole"
-  | "sante"
-  | "administratif"
-  | "quotidien"
-  | "social"
-  | "activites"
-  | "logistique"
-  | "autre"
+export const TASK_CATEGORIES = [
+  "ecole",
+  "sante",
+  "administratif",
+  "quotidien",
+  "social",
+  "activites",
+  "logistique",
+  "autre",
+] as const
+
+export type TaskCategory = (typeof TASK_CATEGORIES)[number]
 
 export type Urgency = "haute" | "normale" | "basse"
 
@@ -393,19 +396,109 @@ export function getUrgencyDisplayName(urgency: Urgency, language: "fr" | "en" = 
 }
 
 /**
- * Convert urgency to priority number (1-5)
+ * Convert urgency to priority number (1-3)
  */
-export function urgencyToPriority(urgency: Urgency): number {
+export function urgencyToPriority(urgency: Urgency | string): number {
   switch (urgency) {
     case "haute":
-      return 5
-    case "normale":
-      return 3
-    case "basse":
+    case "high":
       return 1
-    default:
+    case "normale":
+    case "normal":
+      return 2
+    case "basse":
+    case "low":
       return 3
+    default:
+      return 2
   }
+}
+
+/**
+ * Get system prompt for analysis
+ */
+export function getSystemPrompt(language: "fr" | "en", childrenNames?: string[]): string {
+  return buildSystemPrompt({ childrenNames, language })
+}
+
+/**
+ * Detect task category from text using keywords
+ */
+export function detectCategoryFromText(text: string): TaskCategory {
+  const lower = text.toLowerCase()
+
+  // Health keywords
+  if (/médecin|docteur|dentiste|vaccin|ordonnance|pharmacie|médicament|santé|hôpital|rendez-vous médical/i.test(lower)) {
+    return "sante"
+  }
+
+  // School keywords
+  if (/école|collège|lycée|prof|enseignant|réunion.*parent|fourniture|cartable|rentrée|scolaire|élève|devoirs/i.test(lower)) {
+    return "ecole"
+  }
+
+  // Activities keywords
+  if (/sport|foot|football|rugby|tennis|natation|piscine|musique|piano|guitare|danse|activité|club|cours de/i.test(lower)) {
+    return "activites"
+  }
+
+  // Social keywords
+  if (/anniversaire|fête|cadeau|invitation|ami|amis|soirée|goûter|copain|copine/i.test(lower)) {
+    return "social"
+  }
+
+  // Administrative keywords
+  if (/papier|document|formulaire|assurance|caf|impôt|passeport|carte.*identité|administratif|dossier|inscription/i.test(lower)) {
+    return "administratif"
+  }
+
+  // Logistics keywords
+  if (/emmener|chercher|récupérer|conduire|transport|garde|baby|nourrice|vacances|voyage|déplacement|voiture/i.test(lower)) {
+    return "logistique"
+  }
+
+  // Daily keywords
+  if (/couche|repas|cuisine|courses|vêtement|lessive|ménage|linge|manger|supermarché|acheter.*pain|acheter.*lait/i.test(lower)) {
+    return "quotidien"
+  }
+
+  return "autre"
+}
+
+/**
+ * Detect urgency from text using keywords
+ */
+export function detectUrgencyFromText(text: string): Urgency {
+  const lower = text.toLowerCase()
+
+  // High urgency
+  if (/urgent|important|immédiat|aujourd'hui|tout de suite|vite|rapidement|asap|maintenant/i.test(lower)) {
+    return "haute"
+  }
+
+  // Low urgency
+  if (/quand.*peut|si possible|éventuellement|pas pressé|plus tard|un jour|occasionnel/i.test(lower)) {
+    return "basse"
+  }
+
+  return "normale"
+}
+
+/**
+ * Extract child name from text
+ */
+export function extractChildName(text: string, childrenNames: string[]): string | null {
+  if (!text || childrenNames.length === 0) return null
+
+  const lower = text.toLowerCase()
+
+  for (const name of childrenNames) {
+    if (lower.includes(name.toLowerCase())) {
+      return name
+    }
+  }
+
+  return null
 }
 
 /**
