@@ -10,6 +10,7 @@ import { MobileNav } from "@/components/custom/mobile-nav"
 import { BottomNav } from "@/components/custom/bottom-nav"
 import { InstallPrompt } from "@/components/custom/InstallPrompt"
 import { SkipLinks } from "@/components/custom/SkipLinks"
+import { KeyboardShortcutsHelp } from "@/components/custom/KeyboardShortcutsHelp"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -80,6 +81,7 @@ export default async function DashboardLayout({
           </div>
           <BottomNav />
           <InstallPrompt />
+          <KeyboardShortcutsHelp />
         </div>
       </QueryProvider>
     </NextIntlClientProvider>

@@ -46,7 +46,11 @@ export function Header({ email, householdName }: HeaderProps) {
         <div className="ml-auto flex items-center gap-x-4 lg:gap-x-6">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+              <Button
+                variant="ghost"
+                className="relative h-9 w-9 rounded-full"
+                aria-label="Menu utilisateur"
+              >
                 <Avatar className="h-9 w-9">
                   <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>

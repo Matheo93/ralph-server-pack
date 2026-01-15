@@ -164,6 +164,9 @@ export function VocalButton({
               size="lg"
               onClick={handleClick}
               disabled={isProcessing || state === "confirming"}
+              aria-label={isRecording ? "Arreter l'enregistrement" : stateLabels[state]}
+              aria-busy={isProcessing}
+              aria-pressed={isRecording}
               className={cn(
                 "rounded-full w-16 h-16 p-0 transition-colors relative overflow-hidden",
                 isRecording && "bg-red-500 hover:bg-red-600",
@@ -228,7 +231,7 @@ export function VocalButton({
       </div>
 
       {/* Status text with animation */}
-      <div className="text-center min-h-[40px]">
+      <div className="text-center min-h-[40px]" aria-live="polite" aria-atomic="true">
         <AnimatePresence mode="wait">
           <motion.div
             key={state}
@@ -270,6 +273,11 @@ export function VocalButton({
             animate={{ opacity: 1, scaleX: 1 }}
             exit={{ opacity: 0, scaleX: 0 }}
             transition={{ duration: durations.normal }}
+            role="progressbar"
+            aria-valuenow={Math.round((duration / 30) * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Progression de l'enregistrement"
           >
             <motion.div
               className="h-full bg-red-500 rounded-full"
