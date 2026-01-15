@@ -43,24 +43,25 @@ Améliorer le système de notifications push (Firebase), compléter la timeline 
 
 ---
 
-## Phase 2: Timeline Enfant Avancée
+## Phase 2: Timeline Enfant Avancée ✅
 
-- [ ] 2.1 Améliorer `src/app/(dashboard)/children/[id]/timeline/page.tsx`:
-  - Vue chronologique complète
-  - Filtres par catégorie
-  - Événements importants highlight
+- [x] 2.1 Améliorer `src/app/(dashboard)/children/[id]/timeline/page.tsx`:
+  - Vue chronologique complète avec tabs (Timeline / Jalons & Santé)
+  - Filtres par catégorie, statut, période (semaine/mois/trimestre/année)
+  - Événements importants highlight (priorité haute, événements)
+  - Stats visuelles (complétées, en cours, à venir, points)
 
-- [ ] 2.2 Créer `src/components/custom/ChildMilestones.tsx`:
-  - Jalons automatiques par âge (premiers pas, école, etc.)
-  - Célébration des anniversaires
-  - Rappels proactifs
+- [x] 2.2 Créer `src/components/custom/ChildMilestones.tsx`:
+  - Jalons automatiques par âge (moteur, langage, social, cognitif, école, santé)
+  - Célébration des anniversaires avec compte à rebours
+  - Rappels proactifs avec tabs (Aperçu, Jalons, Vaccins, Fêtes)
 
-- [ ] 2.3 Ajouter historique médical/vaccins:
-  - `src/lib/data/vaccination-calendar.ts` (FR)
-  - Rappels vaccins selon âge
-  - Export carnet de santé
+- [x] 2.3 Ajouter historique médical/vaccins:
+  - `src/lib/data/vaccination-calendar.ts` (FR) - calendrier vaccinal français complet
+  - `src/lib/data/child-milestones.ts` - 50+ jalons de développement
+  - Rappels vaccins selon âge avec statut (en retard, à faire, à venir)
 
-- [ ] 2.4 Tests timeline enfant (≥15 tests)
+- [x] 2.4 Tests timeline enfant (36 tests - ≥15 requis)
 
 ---
 

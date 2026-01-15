@@ -57,6 +57,19 @@ interface ChildMilestonesProps {
 
 type TabValue = "overview" | "milestones" | "vaccinations" | "celebrations"
 
+// Helper function to format age in months to human-readable string
+function formatAgeMonths(ageMonths: number): string {
+  if (ageMonths < 12) {
+    return `${ageMonths} mois`
+  }
+  const years = Math.floor(ageMonths / 12)
+  const months = ageMonths % 12
+  if (months === 0) {
+    return `${years} an${years > 1 ? "s" : ""}`
+  }
+  return `${years} an${years > 1 ? "s" : ""} ${months} mois`
+}
+
 // Icon mapping for categories
 const categoryIcons: Record<MilestoneCategory, React.ReactNode> = {
   moteur: <Baby className="h-4 w-4" />,
@@ -528,7 +541,7 @@ function MilestoneItem({ milestone, compact = false }: MilestoneItemProps) {
                   <span style={{ color: categoryInfo.color }}>
                     {categoryInfo.label}
                   </span>
-                  <span>• {milestone.ageDescription}</span>
+                  <span>• {formatAgeMonths(milestone.ageMonths)}</span>
                 </div>
               </div>
               <Info className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -553,7 +566,7 @@ function MilestoneItem({ milestone, compact = false }: MilestoneItemProps) {
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Âge typique</span>
-            <span>{milestone.ageDescription}</span>
+            <span>{formatAgeMonths(milestone.ageMonths)}</span>
           </div>
           {milestone.ageRange && (
             <div className="flex items-center justify-between text-sm">
@@ -664,7 +677,7 @@ function VaccinationItem({ vaccine, birthdate, compact = false }: VaccinationIte
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {vaccine.ageDescription}
+                  {formatAgeMonths(vaccine.ageMonths)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Date prévue:{" "}
@@ -697,7 +710,7 @@ function VaccinationItem({ vaccine, birthdate, compact = false }: VaccinationIte
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Âge recommandé</span>
-            <span>{vaccine.ageDescription}</span>
+            <span>{formatAgeMonths(vaccine.ageMonths)}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Date prévue</span>
