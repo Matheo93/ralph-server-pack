@@ -14,14 +14,13 @@ import {
   buildHealthTemplate,
   buildEducationTemplate,
   buildAdministrativeTemplate,
-  buildSeasonalTemplate,
   calculateAgeInMonths,
   calculateTotalWeight,
   getLocalizedTitle,
   DEFAULT_CHARGE_WEIGHTS,
-  CORE_TEMPLATES,
   type TaskTemplate,
   type TemplateStore,
+  type AgeRange,
 } from "@/lib/catalog/task-templates"
 import {
   createAgeRuleStore,
@@ -86,56 +85,102 @@ import {
 describe("Task Templates - Extended", () => {
   describe("Template Store", () => {
     it("should create empty template store", () => {
-      const store = createTemplateStore([])
+      const store = createTemplateStore()
       expect(store.templates.size).toBe(0)
     })
 
-    it("should create store with core templates", () => {
-      const store = createTemplateStore(CORE_TEMPLATES)
-      expect(store.templates.size).toBe(CORE_TEMPLATES.length)
-    })
-
     it("should add template to store", () => {
-      const store = createTemplateStore([])
-      const template = buildHealthTemplate('test_vaccine', {
-        fr: 'Vaccination test',
-        en: 'Test vaccine',
-      }, { fr: 'Description', en: 'Description' }, 'all')
+      const store = createTemplateStore()
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const template = buildHealthTemplate({
+        slug: 'test_vaccine',
+        titleFR: 'Vaccination test',
+        titleEN: 'Test vaccine',
+        descFR: 'Description',
+        ageRange,
+      })
 
       const updated = addTemplate(store, template)
       expect(updated.templates.size).toBe(1)
+    })
+
+    it("should get template by ID", () => {
+      const store = createTemplateStore()
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const template = buildHealthTemplate({
+        slug: 'test_vaccine',
+        titleFR: 'Vaccination test',
+        titleEN: 'Test vaccine',
+        ageRange,
+      })
+
+      const updated = addTemplate(store, template)
+      const retrieved = getTemplate(updated, template.id)
+      expect(retrieved).toBeDefined()
+    })
+
+    it("should return undefined for non-existent template", () => {
+      const store = createTemplateStore()
+      const template = getTemplate(store, 'non_existent_id')
+      expect(template).toBeUndefined()
+    })
+
+    it("should get templates by category", () => {
+      const store = createTemplateStore()
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const template = buildHealthTemplate({
+        slug: 'test_vaccine',
+        titleFR: 'Vaccination test',
+        titleEN: 'Test vaccine',
+        ageRange,
+      })
+
+      const updated = addTemplate(store, template)
+      const healthTemplates = getTemplatesByCategory(updated, 'health')
+      expect(healthTemplates.length).toBe(1)
     })
   })
 
   describe("Template Builders", () => {
     it("should build health template with correct defaults", () => {
-      const template = buildHealthTemplate('vaccine_test', {
-        fr: 'Vaccin test',
-        en: 'Test vaccine',
-      }, { fr: 'Desc FR', en: 'Desc EN' }, 'all')
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const template = buildHealthTemplate({
+        slug: 'vaccine_test',
+        titleFR: 'Vaccin test',
+        titleEN: 'Test vaccine',
+        descFR: 'Desc FR',
+        descEN: 'Desc EN',
+        ageRange,
+      })
 
-      expect(template.id).toBe('vaccine_test')
+      expect(template.slug).toBe('vaccine_test')
       expect(template.category).toBe('health')
+      expect(template.chargeWeight).toEqual(DEFAULT_CHARGE_WEIGHTS.health)
     })
 
     it("should build education template", () => {
-      const template = buildEducationTemplate('school_test', {
-        fr: 'Ecole test',
-        en: 'Test school',
-      }, { fr: 'Desc', en: 'Desc' }, '6-11')
+      const ageRange: AgeRange = { minMonths: 72, maxMonths: 132 }
+      const template = buildEducationTemplate({
+        slug: 'school_test',
+        titleFR: 'Ecole test',
+        titleEN: 'Test school',
+        ageRange,
+      })
 
       expect(template.category).toBe('education')
-      expect(template.ageRange).toBe('6-11')
+      expect(template.ageRange).toEqual(ageRange)
     })
 
-    it("should build seasonal template", () => {
-      const template = buildSeasonalTemplate('seasonal_test', {
-        fr: 'Saison test',
-        en: 'Season test',
-      }, { fr: 'Desc', en: 'Desc' }, 'all', 'rentree')
+    it("should build administrative template", () => {
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 216 }
+      const template = buildAdministrativeTemplate({
+        slug: 'admin_test',
+        titleFR: 'Admin test',
+        titleEN: 'Admin test',
+        ageRange,
+      })
 
-      expect(template.category).toBe('seasonal')
-      expect(template.periodType).toBe('rentree')
+      expect(template.category).toBe('administrative')
     })
   })
 
@@ -154,10 +199,17 @@ describe("Task Templates - Extended", () => {
       expect(total).toBe(7)
     })
 
-    it("should get localized title", () => {
-      const title = { fr: 'Titre FR', en: 'Title EN' }
-      expect(getLocalizedTitle(title, 'fr')).toBe('Titre FR')
-      expect(getLocalizedTitle(title, 'en')).toBe('Title EN')
+    it("should get localized title from template", () => {
+      const ageRange: AgeRange = { minMonths: 0, maxMonths: 36 }
+      const template = buildHealthTemplate({
+        slug: 'test',
+        titleFR: 'Titre FR',
+        titleEN: 'Title EN',
+        ageRange,
+      })
+
+      expect(getLocalizedTitle(template, 'fr')).toBe('Titre FR')
+      expect(getLocalizedTitle(template, 'en')).toBe('Title EN')
     })
   })
 })
