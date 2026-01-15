@@ -306,7 +306,7 @@ export function useRealtimeNotifications(
     onNotificationEvent: (event) => {
       if (event.type === "notification_new") {
         setUnreadCount((prev) => prev + 1)
-        onNewNotification?.(event.data.notification)
+        onNewNotification?.(event.data["notification"])
       } else if (event.type === "notification_read") {
         setUnreadCount((prev) => Math.max(0, prev - 1))
       }
@@ -324,8 +324,8 @@ export function useRealtimeBalance(initialBalance?: unknown[]) {
 
   useRealtimeUpdates({
     onBalanceEvent: (event) => {
-      if (event.type === "balance_updated" && Array.isArray(event.data.balance)) {
-        setBalance(event.data.balance)
+      if (event.type === "balance_updated" && Array.isArray(event.data["balance"])) {
+        setBalance(event.data["balance"])
       }
     },
   })
@@ -344,8 +344,8 @@ export function useRealtimeStreak(initialStreak?: {
 
   useRealtimeUpdates({
     onStreakEvent: (event) => {
-      if (event.type === "streak_updated" && event.data.streak) {
-        const s = event.data.streak as { streak_current?: number; streak_best?: number }
+      if (event.type === "streak_updated" && event.data["streak"]) {
+        const s = event.data["streak"] as { streak_current?: number; streak_best?: number }
         setStreak({
           current: s.streak_current ?? 0,
           best: s.streak_best ?? 0,
