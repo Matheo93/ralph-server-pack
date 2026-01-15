@@ -80,28 +80,32 @@ export const RecurrencePatternSchema = z.enum([
 export type RecurrencePattern = z.infer<typeof RecurrencePatternSchema>;
 
 /**
+ * Localized string type
+ */
+export type LocalizedStrings = Record<string, string>;
+
+/**
  * Task template definition
  */
-export const TaskTemplateSchema = z.object({
-  id: z.string(),
-  slug: z.string(),                       // URL-friendly identifier
-  titleTemplate: z.record(z.string()),    // Localized titles: { fr: "...", en: "..." }
-  descriptionTemplate: z.record(z.string()).optional(),
-  category: TemplateCategorySchema,
-  priority: TemplatePrioritySchema,
-  ageRange: AgeRangeSchema,
-  chargeWeight: ChargeWeightTemplateSchema,
-  recurrence: RecurrencePatternSchema,
-  countries: z.array(CountryCodeSchema),  // Applicable countries
-  triggerMonth: z.number().min(1).max(12).optional(), // Month to trigger (1-12)
-  triggerDayOfMonth: z.number().min(1).max(31).optional(),
-  leadDays: z.number().default(7),        // Days before due date to create
-  tags: z.array(z.string()),
-  enabled: z.boolean().default(true),
-  createdAt: z.date(),
-  updatedAt: z.date()
-});
-export type TaskTemplate = z.infer<typeof TaskTemplateSchema>;
+export type TaskTemplate = {
+  id: string;
+  slug: string;
+  titleTemplate: LocalizedStrings;
+  descriptionTemplate?: LocalizedStrings;
+  category: TemplateCategory;
+  priority: TemplatePriority;
+  ageRange: AgeRange;
+  chargeWeight: ChargeWeightTemplate;
+  recurrence: RecurrencePattern;
+  countries: CountryCode[];
+  triggerMonth?: number;
+  triggerDayOfMonth?: number;
+  leadDays: number;
+  tags: string[];
+  enabled: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 /**
  * Template store (immutable)
