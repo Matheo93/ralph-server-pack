@@ -176,10 +176,10 @@ export default async function ChildTimelinePage({ params }: PageProps) {
 
       {/* Page header */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
           Timeline de {child.first_name}
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Historique des tâches, jalons de développement et événements à venir
         </p>
       </div>

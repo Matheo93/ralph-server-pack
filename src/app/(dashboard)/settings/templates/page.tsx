@@ -111,7 +111,7 @@ export default async function TemplatesSettingsPage() {
   }
 
   return (
-    <div className="container max-w-3xl py-8">
+    <div className="container max-w-3xl py-8 px-4">
       <div className="mb-6">
         <Link href="/settings">
           <Button variant="ghost" size="sm" className="mb-4">

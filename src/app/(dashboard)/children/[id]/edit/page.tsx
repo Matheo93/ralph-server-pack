@@ -38,8 +38,8 @@ export default async function EditChildPage({ params }: EditChildPageProps) {
             Retour
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold">Modifier {child.first_name}</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold">Modifier {child.first_name}</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
           Modifiez les informations de l&apos;enfant
         </p>
       </div>

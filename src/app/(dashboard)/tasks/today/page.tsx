@@ -30,10 +30,10 @@ export default async function TodayTasksPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Aujourd&apos;hui</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Aujourd&apos;hui</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             {new Date().toLocaleDateString("fr-FR", {
               weekday: "long",
               day: "numeric",
@@ -44,10 +44,14 @@ export default async function TodayTasksPage() {
         </div>
         <div className="flex gap-2">
           <Link href="/tasks">
-            <Button variant="outline">Toutes les tâches</Button>
+            <Button variant="outline" size="sm" className="sm:h-10 sm:px-4 sm:py-2">
+              Toutes les tâches
+            </Button>
           </Link>
           <Link href="/tasks/new">
-            <Button>Nouvelle tâche</Button>
+            <Button size="sm" className="sm:h-10 sm:px-4 sm:py-2">
+              Nouvelle tâche
+            </Button>
           </Link>
         </div>
       </div>

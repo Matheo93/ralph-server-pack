@@ -57,7 +57,7 @@ export default async function NotificationSettingsPage() {
   const preferences = await getNotificationPreferences()
 
   return (
-    <div className="container max-w-2xl py-8">
+    <div className="container max-w-2xl py-8 px-4">
       <div className="mb-6">
         <Link href="/settings">
           <Button variant="ghost" size="sm" className="mb-4">

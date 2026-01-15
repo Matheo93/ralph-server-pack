@@ -36,8 +36,8 @@ export default async function TaskDetailPage({ params }: PageProps) {
   return (
     <div className="container mx-auto py-8 px-4 max-w-2xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Modifier la tâche</h1>
-        <p className="text-muted-foreground">{task.title}</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Modifier la tâche</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">{task.title}</p>
       </div>
 
       <TaskForm

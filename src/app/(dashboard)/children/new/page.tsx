@@ -26,8 +26,8 @@ export default async function NewChildPage() {
             Retour
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold">Ajouter un enfant</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold">Ajouter un enfant</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
           Les tâches seront automatiquement générées selon son âge
         </p>
       </div>

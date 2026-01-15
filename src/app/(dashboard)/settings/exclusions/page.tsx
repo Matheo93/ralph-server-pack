@@ -59,7 +59,7 @@ export default async function ExclusionsPage() {
   ])
 
   return (
-    <div className="container max-w-4xl py-6 space-y-6">
+    <div className="container max-w-4xl py-6 px-4 space-y-6">
       <SettingsNav />
 
       <div className="space-y-2">

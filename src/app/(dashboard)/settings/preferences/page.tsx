@@ -24,7 +24,7 @@ export default async function PreferencesPage() {
   const categories = await getAllCategoriesWithPreferences()
 
   return (
-    <div className="container max-w-3xl py-8">
+    <div className="container max-w-3xl py-8 px-4">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/settings">
