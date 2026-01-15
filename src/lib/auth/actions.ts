@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { isRedirectError } from "next/dist/client/components/redirect-error"
 import { cookies } from "next/headers"
 import { loginSchema, signupSchema, confirmCodeSchema } from "@/lib/validations/auth"
 import type { LoginInput, SignupInput } from "@/lib/validations/auth"
@@ -111,6 +112,11 @@ export async function login(data: LoginInput): Promise<AuthActionResult> {
     revalidatePath("/", "layout")
     redirect("/dashboard")
   } catch (error) {
+    // Re-throw redirect errors - they are NOT real errors!
+    if (isRedirectError(error)) {
+      throw error
+    }
+
     const err = error as Error
     if (err.name === "NotAuthorizedException") {
       return {

@@ -4,6 +4,7 @@ import { getUser } from "@/lib/auth/actions"
 import { getHousehold } from "@/lib/actions/household"
 import { getChildren } from "@/lib/actions/children"
 import { ChildCard } from "@/components/custom/child-card"
+import { ChildrenEmptyState } from "@/components/custom/EmptyState"
 import { Button } from "@/components/ui/button"
 
 export default async function ChildrenPage() {
@@ -38,14 +39,7 @@ export default async function ChildrenPage() {
       </div>
 
       {children.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground mb-4">
-            Vous n&apos;avez pas encore ajouté d&apos;enfant
-          </p>
-          <Link href="/children/new">
-            <Button>Ajouter votre premier enfant</Button>
-          </Link>
-        </div>
+        <ChildrenEmptyState />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {children.map((child) => (
