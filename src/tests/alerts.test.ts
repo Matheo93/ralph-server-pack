@@ -5,8 +5,8 @@
  * Tests imbalance detection, overload alerts, and inactivity warnings.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import type { Alert, AlertSeverity, ImbalanceAlertData, OverloadAlertData, InactivityAlertData } from "@/types/alert"
+import { describe, it, expect, vi, beforeEach, type Mock } from "vitest"
+import type { Alert } from "@/types/alert"
 import { BALANCE_THRESHOLDS } from "@/lib/constants/task-weights"
 
 // Mock the database functions
@@ -28,15 +28,13 @@ import {
   checkImbalanceAlert,
   checkOverloadAlert,
   checkInactivityAlert,
-  getHouseholdAlerts,
-  getAlertSummary,
   shouldShowAlert,
 } from "@/lib/services/alerts"
 
-const mockedQuery = vi.mocked(query)
-const mockedQueryOne = vi.mocked(queryOne)
-const mockedGetLoadBalancePercentage = vi.mocked(getLoadBalancePercentage)
-const mockedGetWeeklyLoadByParent = vi.mocked(getWeeklyLoadByParent)
+const mockedQuery = query as Mock
+const mockedQueryOne = queryOne as Mock
+const mockedGetLoadBalancePercentage = getLoadBalancePercentage as Mock
+const mockedGetWeeklyLoadByParent = getWeeklyLoadByParent as Mock
 
 describe("Alerts Service", () => {
   beforeEach(() => {

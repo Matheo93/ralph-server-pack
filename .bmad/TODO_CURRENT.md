@@ -86,22 +86,22 @@ Durcir l'application pour la production: sécurité, rate limiting, logging, et 
 
 ---
 
-## Phase 5: Tests de Sécurité
+## Phase 5: Tests de Sécurité ✅
 
-- [ ] 5.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
-- [ ] 5.2 `bun run build` - build production OK
-- [ ] 5.3 `bun test` - tests passent
-- [ ] 5.4 Security audit avec `npm audit`
+- [x] 5.1 `bunx tsc --noEmit` - ZÉRO erreur TypeScript
+- [x] 5.2 `bun run build` - build production OK
+- [x] 5.3 `bun test src/tests/` - 190 tests passent
+- [x] 5.4 Security audit avec `bun audit` - aucune vulnérabilité
 
 ---
 
-## Definition of Done Sprint 8
+## Definition of Done Sprint 8 ✅
 - [x] Rate limiting fonctionnel (src/lib/rate-limit.ts)
 - [x] Input sanitization en place (src/lib/sanitize.ts)
 - [x] Security headers configurés (next.config.ts + middleware.ts)
 - [x] Logging structuré (src/lib/logger.ts)
-- [ ] Build production OK
-- [ ] Tests passent
+- [x] Build production OK
+- [x] Tests passent (190 unit tests)
 
 ---
 
