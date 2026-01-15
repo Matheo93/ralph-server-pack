@@ -2,9 +2,19 @@ import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import { getUserId } from "@/lib/auth/actions"
 import { query, queryOne, setCurrentUser } from "@/lib/aws/database"
-import { ChildTimeline } from "@/components/custom/ChildTimeline"
+import { ChildTimeline, type TimelineEvent } from "@/components/custom/ChildTimeline"
+import { ChildMilestones } from "@/components/custom/ChildMilestones"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ArrowLeft, Clock, Sparkles } from "lucide-react"
+import {
+  getMilestonesForChild,
+  getCelebrationMilestones,
+} from "@/lib/data/child-milestones"
+import {
+  getVaccinationsDue,
+  getVaccinationDueDate,
+} from "@/lib/data/vaccination-calendar"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -60,6 +70,8 @@ export default async function ChildTimelinePage({ params }: PageProps) {
     assigned_name: string | null
     load_weight: number
     created_at: string
+    priority: string | null
+    recurrence_rule: Record<string, unknown> | null
   }>(`
     SELECT
       t.id,
@@ -71,13 +83,15 @@ export default async function ChildTimelinePage({ params }: PageProps) {
       tc.color as category_color,
       u.email as assigned_name,
       t.load_weight,
-      t.created_at
+      t.created_at,
+      t.priority,
+      t.recurrence_rule
     FROM tasks t
     LEFT JOIN task_categories tc ON tc.id = t.category_id
     LEFT JOIN users u ON u.id = t.assigned_to
     WHERE t.child_id = $1 AND t.household_id = $2
     ORDER BY COALESCE(t.completed_at, t.deadline, t.created_at) DESC
-    LIMIT 100
+    LIMIT 200
   `, [child.id, membership.household_id])
 
   // Transform tasks for timeline
@@ -106,8 +120,47 @@ export default async function ChildTimelinePage({ params }: PageProps) {
       categoryColor: task.category_color ?? undefined,
       assignedTo: task.assigned_name?.split("@")[0],
       loadWeight: task.load_weight,
+      isHighPriority: task.priority === "high" || task.priority === "critical",
+      isRecurring: task.recurrence_rule !== null,
     }
   })
+
+  // Generate timeline events from milestones, vaccinations, and celebrations
+  const birthdate = new Date(child.birthdate)
+  const milestones = getMilestonesForChild(birthdate, 12, 3)
+  const vaccinations = getVaccinationsDue(birthdate)
+  const celebrations = getCelebrationMilestones(birthdate, 12)
+
+  const timelineEvents: TimelineEvent[] = [
+    // Add milestones
+    ...milestones
+      .filter((m) => m.status === "current" || m.status === "upcoming")
+      .map((m) => ({
+        id: `milestone-${m.id}`,
+        type: "milestone" as const,
+        title: m.title,
+        description: m.description,
+        date: m.dueDate,
+      })),
+    // Add due/upcoming vaccinations
+    ...vaccinations
+      .filter((v) => v.status === "due" || v.status === "upcoming")
+      .map((v) => ({
+        id: `vaccine-${v.id}`,
+        type: "vaccination" as const,
+        title: v.nameShort,
+        description: v.ageDescription,
+        date: getVaccinationDueDate(birthdate, v),
+      })),
+    // Add celebrations
+    ...celebrations.map((c) => ({
+      id: `celebration-${c.id}`,
+      type: c.celebrationType === "school" ? ("school" as const) : ("celebration" as const),
+      title: c.title,
+      description: c.description,
+      date: c.dueDate,
+    })),
+  ]
 
   return (
     <div className="space-y-6">
@@ -127,16 +180,40 @@ export default async function ChildTimelinePage({ params }: PageProps) {
           Timeline de {child.first_name}
         </h2>
         <p className="text-muted-foreground">
-          Historique des tâches et prochaines échéances
+          Historique des tâches, jalons de développement et événements à venir
         </p>
       </div>
 
-      {/* Timeline component */}
-      <ChildTimeline
-        childId={child.id}
-        childName={child.first_name}
-        tasks={timelineTasks}
-      />
+      {/* Main content with tabs */}
+      <Tabs defaultValue="timeline" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="timeline" className="gap-2">
+            <Clock className="h-4 w-4" />
+            Timeline
+          </TabsTrigger>
+          <TabsTrigger value="milestones" className="gap-2">
+            <Sparkles className="h-4 w-4" />
+            Jalons & Santé
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="timeline">
+          <ChildTimeline
+            childId={child.id}
+            childName={child.first_name}
+            tasks={timelineTasks}
+            events={timelineEvents}
+          />
+        </TabsContent>
+
+        <TabsContent value="milestones">
+          <ChildMilestones
+            childId={child.id}
+            childName={child.first_name}
+            birthdate={child.birthdate}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
