@@ -828,8 +828,11 @@ export function detectCategoryFromKeywords(
     };
   }
 
-  const [primary, primaryScore] = sortedCategories[0] as [TaskCategory, number];
-  const secondary = sortedCategories.length > 1 ? sortedCategories[1][0] as TaskCategory : null;
+  const firstCategory = sortedCategories[0];
+  const primary = firstCategory ? firstCategory[0] : 'other' as TaskCategory;
+  const primaryScore = firstCategory ? firstCategory[1] : 0;
+  const secondCategory = sortedCategories[1];
+  const secondary = secondCategory ? secondCategory[0] : null;
 
   return {
     primary,
