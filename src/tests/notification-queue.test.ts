@@ -561,7 +561,7 @@ describe("Notification Templates", () => {
 
     expect(template.notification.title).toBeDefined()
     expect(template.notification.body).toContain("5")
-    expect(template.data.type).toBe("daily_reminder")
+    expect(template.data["type"]).toBe("daily_reminder")
   })
 
   it("should generate deadline approaching template", async () => {
@@ -575,8 +575,8 @@ describe("Notification Templates", () => {
     })
 
     expect(template.notification.body).toContain("Rapport urgent")
-    expect(template.data.taskId).toBe("task-123")
-    expect(template.data.hoursLeft).toBe("2")
+    expect(template.data["taskId"]).toBe("task-123")
+    expect(template.data["hoursLeft"]).toBe("2")
   })
 
   it("should generate streak at risk template", async () => {
@@ -591,7 +591,7 @@ describe("Notification Templates", () => {
     })
 
     expect(template.notification.title).toContain("15")
-    expect(template.data.currentStreak).toBe("15")
+    expect(template.data["currentStreak"]).toBe("15")
   })
 
   it("should generate balance alert template", async () => {
@@ -603,7 +603,7 @@ describe("Notification Templates", () => {
     })
 
     expect(template.notification.title).toContain("critique")
-    expect(template.data.ratio).toBe("70/30")
+    expect(template.data["ratio"]).toBe("70/30")
   })
 
   it("should generate weekly summary template", async () => {
@@ -632,7 +632,7 @@ describe("Notification Templates", () => {
 
     expect(template.notification.title).toContain("Jean")
     expect(template.notification.body).toContain("Faire les courses")
-    expect(template.data.type).toBe("task_completed")
+    expect(template.data["type"]).toBe("task_completed")
   })
 
   it("should generate task assigned template", async () => {
@@ -647,7 +647,7 @@ describe("Notification Templates", () => {
 
     expect(template.notification.title).toContain("Marie")
     expect(template.notification.body).toContain("Rendez-vous medecin")
-    expect(template.data.type).toBe("task_assigned")
+    expect(template.data["type"]).toBe("task_assigned")
   })
 
   it("should generate welcome template", async () => {
@@ -660,7 +660,7 @@ describe("Notification Templates", () => {
 
     expect(template.notification.title).toContain("Pierre")
     expect(template.notification.body).toContain("Famille Martin")
-    expect(template.data.type).toBe("welcome")
+    expect(template.data["type"]).toBe("welcome")
   })
 
   it("should use factory function with discriminated union", async () => {
@@ -675,7 +675,7 @@ describe("Notification Templates", () => {
     })
 
     expect(template.notification.title).toBeDefined()
-    expect(template.data.type).toBe("balance_alert")
+    expect(template.data["type"]).toBe("balance_alert")
   })
 })
 
