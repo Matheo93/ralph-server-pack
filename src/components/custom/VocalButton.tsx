@@ -161,6 +161,7 @@ export function VocalButton({
             animate={isRecording ? "pulse" : "initial"}
           >
             <Button
+              data-vocal-trigger
               size="lg"
               onClick={handleClick}
               disabled={isProcessing || state === "confirming"}
