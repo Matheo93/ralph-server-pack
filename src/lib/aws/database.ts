@@ -1,9 +1,31 @@
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg'
+import { z } from 'zod'
+
+// Validation schema for SQL identifiers (table names, column names)
+const sqlIdentifierSchema = z.string().regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/, {
+  message: 'Invalid SQL identifier: must start with letter or underscore and contain only alphanumeric characters',
+})
+
+// Validate SQL identifier to prevent SQL injection
+function validateIdentifier(identifier: string): string {
+  const result = sqlIdentifierSchema.safeParse(identifier)
+  if (!result.success) {
+    throw new Error(`Invalid SQL identifier: ${identifier}`)
+  }
+  return identifier
+}
+
+// SSL configuration based on environment
+const sslConfig = process.env['NODE_ENV'] === 'production'
+  ? { rejectUnauthorized: false }
+  : process.env['DATABASE_URL']?.includes('localhost')
+    ? false
+    : { rejectUnauthorized: false }
 
 // Create connection pool
 const pool = new Pool({
   connectionString: process.env['DATABASE_URL'],
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: sslConfig,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
@@ -47,12 +69,14 @@ export async function insert<T extends QueryResultRow = QueryResultRow>(
   table: string,
   data: Record<string, unknown>
 ): Promise<T | null> {
+  const validatedTable = validateIdentifier(table)
   const keys = Object.keys(data)
+  const validatedKeys = keys.map(validateIdentifier)
   const values = Object.values(data)
   const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ')
-  const columns = keys.join(', ')
+  const columns = validatedKeys.join(', ')
 
-  const text = `INSERT INTO ${table} (${columns}) VALUES (${placeholders}) RETURNING *`
+  const text = `INSERT INTO ${validatedTable} (${columns}) VALUES (${placeholders}) RETURNING *`
   return queryOne<T>(text, values)
 }
 
@@ -63,11 +87,14 @@ export async function update<T extends QueryResultRow = QueryResultRow>(
   data: Record<string, unknown>,
   idColumn: string = 'id'
 ): Promise<T | null> {
+  const validatedTable = validateIdentifier(table)
+  const validatedIdColumn = validateIdentifier(idColumn)
   const keys = Object.keys(data)
+  const validatedKeys = keys.map(validateIdentifier)
   const values = Object.values(data)
-  const setClause = keys.map((key, i) => `${key} = $${i + 1}`).join(', ')
+  const setClause = validatedKeys.map((key, i) => `${key} = $${i + 1}`).join(', ')
 
-  const text = `UPDATE ${table} SET ${setClause} WHERE ${idColumn} = $${keys.length + 1} RETURNING *`
+  const text = `UPDATE ${validatedTable} SET ${setClause} WHERE ${validatedIdColumn} = $${keys.length + 1} RETURNING *`
   return queryOne<T>(text, [...values, id])
 }
 
@@ -77,7 +104,9 @@ export async function remove(
   id: string,
   idColumn: string = 'id'
 ): Promise<boolean> {
-  const text = `DELETE FROM ${table} WHERE ${idColumn} = $1`
+  const validatedTable = validateIdentifier(table)
+  const validatedIdColumn = validateIdentifier(idColumn)
+  const text = `DELETE FROM ${validatedTable} WHERE ${validatedIdColumn} = $1`
   const result = await pool.query(text, [id])
   return (result.rowCount ?? 0) > 0
 }
