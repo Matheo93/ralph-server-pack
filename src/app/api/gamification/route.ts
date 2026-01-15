@@ -11,7 +11,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { query, queryOne } from "@/lib/aws/database"
-import { getCurrentUser } from "@/lib/aws/cognito"
+import { getUserId } from "@/lib/auth/actions"
 import {
   // Streak
   calculateStreakStatus,
@@ -283,8 +283,8 @@ async function getHouseholdMemberStats(
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const userId = await getUserId()
+    if (!userId) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
     }
 
@@ -307,7 +307,7 @@ export async function GET(request: NextRequest) {
     // Get user's household
     const householdMember = await queryOne<{ household_id: string }>(
       `SELECT household_id FROM household_members WHERE user_id = $1`,
-      [user.id]
+      [userId]
     )
 
     if (!householdMember) {
@@ -319,8 +319,8 @@ export async function GET(request: NextRequest) {
 
     // Get streak data
     if (include.includes("streak")) {
-      const activities = await getUserActivities(user.id)
-      const streakStatus = calculateStreakStatus(user.id, activities, DEFAULT_STREAK_CONFIG)
+      const activities = await getUserActivities(userId)
+      const streakStatus = calculateStreakStatus(userId, activities, DEFAULT_STREAK_CONFIG)
 
       // Get household streak
       const memberActivities = await getHouseholdMemberActivities(householdId)
@@ -348,7 +348,7 @@ export async function GET(request: NextRequest) {
 
     // Get joker data
     if (include.includes("jokers")) {
-      const inventory = await getUserJokerInventory(user.id)
+      const inventory = await getUserJokerInventory(userId)
 
       // Check for monthly allocation
       let updatedInventory = inventory
@@ -366,8 +366,8 @@ export async function GET(request: NextRequest) {
       }
 
       // Get streak status for suggestion
-      const activities = await getUserActivities(user.id)
-      const streakStatus = calculateStreakStatus(user.id, activities, DEFAULT_STREAK_CONFIG)
+      const activities = await getUserActivities(userId)
+      const streakStatus = calculateStreakStatus(userId, activities, DEFAULT_STREAK_CONFIG)
 
       result["jokers"] = {
         ...formatJokerInventory(updatedInventory),
@@ -380,11 +380,11 @@ export async function GET(request: NextRequest) {
 
     // Get achievements data
     if (include.includes("achievements")) {
-      const achievements = await getUserAchievementsData(user.id)
+      const achievements = await getUserAchievementsData(userId)
 
       // Get activities for stats update
-      const activities = await getUserActivities(user.id)
-      const streakStatus = calculateStreakStatus(user.id, activities, DEFAULT_STREAK_CONFIG)
+      const activities = await getUserActivities(userId)
+      const streakStatus = calculateStreakStatus(userId, activities, DEFAULT_STREAK_CONFIG)
 
       // Calculate total stats
       const totalTasks = activities.reduce((sum, a) => sum + a.tasksCompleted, 0)
@@ -430,7 +430,7 @@ export async function GET(request: NextRequest) {
         memberStats,
         leaderboardCategory as LeaderboardCategory,
         leaderboardPeriod as LeaderboardPeriod,
-        user.id
+        userId
       )
 
       result["leaderboard"] = {
@@ -453,8 +453,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const userId = await getUserId()
+    if (!userId) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
     }
 
@@ -471,11 +471,11 @@ export async function POST(request: NextRequest) {
     const { jokerId } = bodyResult.data
 
     // Get current streak status
-    const activities = await getUserActivities(user.id)
-    const streakStatus = calculateStreakStatus(user.id, activities, DEFAULT_STREAK_CONFIG)
+    const activities = await getUserActivities(userId)
+    const streakStatus = calculateStreakStatus(userId, activities, DEFAULT_STREAK_CONFIG)
 
     // Get joker inventory
-    const inventory = await getUserJokerInventory(user.id)
+    const inventory = await getUserJokerInventory(userId)
 
     // Use joker
     const { inventory: updatedInventory, result } = useJoker(
@@ -493,7 +493,7 @@ export async function POST(request: NextRequest) {
         ON CONFLICT (user_id)
         DO UPDATE SET inventory_data = $2, updated_at = NOW()
       `,
-        [user.id, JSON.stringify(updatedInventory)]
+        [userId, JSON.stringify(updatedInventory)]
       )
     }
 
@@ -516,8 +516,8 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const userId = await getUserId()
+    if (!userId) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
     }
 
@@ -546,7 +546,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Get current achievements
-    const achievements = await getUserAchievementsData(user.id)
+    const achievements = await getUserAchievementsData(userId)
 
     // Verify badges are unlocked
     const lockedBadges = displayedBadges.filter((id) => {
@@ -573,7 +573,7 @@ export async function PUT(request: NextRequest) {
       SET achievements_data = $2, displayed_badges = $3, updated_at = NOW()
       WHERE user_id = $1
     `,
-      [user.id, JSON.stringify(updatedAchievements), JSON.stringify(displayedBadges)]
+      [userId, JSON.stringify(updatedAchievements), JSON.stringify(displayedBadges)]
     )
 
     return NextResponse.json({
@@ -593,8 +593,8 @@ export async function PUT(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const userId = await getUserId()
+    if (!userId) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
     }
 
@@ -613,7 +613,7 @@ export async function PATCH(request: NextRequest) {
 
     // Create activity record
     const activity = createDailyActivity(
-      user.id,
+      userId,
       activityDate,
       tasksCompleted,
       criticalTasksCompleted,
@@ -643,7 +643,7 @@ export async function PATCH(request: NextRequest) {
         updated_at = NOW()
     `,
       [
-        user.id,
+        userId,
         activityDate,
         tasksCompleted,
         criticalTasksCompleted,
@@ -655,12 +655,12 @@ export async function PATCH(request: NextRequest) {
     )
 
     // Get updated streak status
-    const activities = await getUserActivities(user.id)
+    const activities = await getUserActivities(userId)
     const previousStreak = activities.length > 1
-      ? calculateStreakStatus(user.id, activities.slice(1), DEFAULT_STREAK_CONFIG)
+      ? calculateStreakStatus(userId, activities.slice(1), DEFAULT_STREAK_CONFIG)
       : { currentStreak: 0, longestStreak: 0 } as StreakStatus
 
-    const currentStreak = calculateStreakStatus(user.id, activities, DEFAULT_STREAK_CONFIG)
+    const currentStreak = calculateStreakStatus(userId, activities, DEFAULT_STREAK_CONFIG)
 
     // Calculate streak points
     const points = calculateStreakPoints(
@@ -669,7 +669,7 @@ export async function PATCH(request: NextRequest) {
     )
 
     // Update achievements
-    const achievements = await getUserAchievementsData(user.id)
+    const achievements = await getUserAchievementsData(userId)
     const totalTasks = activities.reduce((sum, a) => sum + a.tasksCompleted, 0)
     const totalCritical = activities.reduce((sum, a) => sum + a.criticalTasksCompleted, 0)
 
@@ -691,7 +691,7 @@ export async function PATCH(request: NextRequest) {
         ON CONFLICT (user_id)
         DO UPDATE SET achievements_data = $2, total_points = $3, updated_at = NOW()
       `,
-        [user.id, JSON.stringify(updatedAchievements), updatedAchievements.totalPoints]
+        [userId, JSON.stringify(updatedAchievements), updatedAchievements.totalPoints]
       )
     }
 
