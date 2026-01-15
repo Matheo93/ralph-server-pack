@@ -262,3 +262,61 @@
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
   }
 }
+
+/* ============================================
+ * TOUCH FEEDBACK ANIMATIONS
+ * Ripple effect and touch feedback
+ * ============================================ */
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 600ms ease-out forwards;
+}
+
+/* Touch feedback for buttons and interactive elements */
+.touch-feedback {
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-feedback::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 100ms ease-out;
+  pointer-events: none;
+}
+
+.touch-feedback:active::after {
+  opacity: 0.1;
+}
+
+/* Button press animation */
+@keyframes button-press {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.97);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-button-press {
+  animation: button-press 150ms ease-out;
+}
