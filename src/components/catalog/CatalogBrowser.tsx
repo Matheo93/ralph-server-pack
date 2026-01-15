@@ -218,7 +218,7 @@ export function CatalogBrowser({
             <Checkbox
               id="critical"
               checked={criticalOnly}
-              onCheckedChange={(checked) => setCriticalOnly(checked === true)}
+              onCheckedChange={(checked: boolean | "indeterminate") => setCriticalOnly(checked === true)}
             />
             <Label htmlFor="critical" className="text-sm cursor-pointer">
               Afficher uniquement les tâches importantes

@@ -49,31 +49,31 @@ Implémenter la fonctionnalité vocale (dictée → tâche automatique) et le ca
 
 ---
 
-## Phase 2: Task Catalog System
+## Phase 2: Task Catalog System ✅
 
-- [ ] 2.1 Créer schéma task_templates:
+- [x] 2.1 Créer schéma task_templates:
   - `src/lib/catalog/types.ts` - Types pour templates
-  - `src/lib/catalog/templates.ts` - Catalogue par âge/période
+  - `src/lib/catalog/templates.ts` - Catalogue par âge/période (50+ templates)
   - Règles par tranche d'âge (0-3, 3-6, 6-11, 11-15, 15-18)
   - Règles par période (septembre, décembre, juin...)
 
-- [ ] 2.2 Créer `src/lib/catalog/generator.ts`:
+- [x] 2.2 Créer `src/lib/catalog/generator.ts`:
   - Génération automatique de tâches
   - Filtrage par âge des enfants
   - Filtrage par période de l'année
   - Calcul poids de charge
 
-- [ ] 2.3 Créer API endpoints catalog:
+- [x] 2.3 Créer API endpoints catalog:
   - `src/app/api/catalog/templates/route.ts`
   - `src/app/api/catalog/generate/route.ts`
   - `src/app/api/catalog/suggestions/route.ts`
 
-- [ ] 2.4 Créer composants catalog:
+- [x] 2.4 Créer composants catalog:
   - `src/components/catalog/TaskTemplateCard.tsx`
   - `src/components/catalog/CatalogBrowser.tsx`
   - `src/components/catalog/SuggestedTasks.tsx`
 
-- [ ] 2.5 Tests catalog (≥15 tests)
+- [x] 2.5 Tests catalog (38 tests)
 
 ---
 

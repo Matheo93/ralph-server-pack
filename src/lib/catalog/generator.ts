@@ -438,7 +438,10 @@ export function getTemplateStatistics() {
     for (const age of template.ageRanges) {
       byAgeRange[age]++
     }
-    byRecurrence[template.recurrence]++
+    const recurrenceKey = template.recurrence as string
+    if (recurrenceKey in byRecurrence && byRecurrence[recurrenceKey] !== undefined) {
+      byRecurrence[recurrenceKey] = (byRecurrence[recurrenceKey] ?? 0) + 1
+    }
   }
 
   return {
