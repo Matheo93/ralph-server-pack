@@ -332,7 +332,7 @@ export async function GET(request: NextRequest) {
 
       const milestone = getStreakMilestone(streakStatus.currentStreak)
 
-      result.streak = {
+      result["streak"] = {
         user: {
           ...streakStatus,
           display: formatStreakDisplay(streakStatus),
@@ -369,7 +369,7 @@ export async function GET(request: NextRequest) {
       const activities = await getUserActivities(user.id)
       const streakStatus = calculateStreakStatus(user.id, activities, DEFAULT_STREAK_CONFIG)
 
-      result.jokers = {
+      result["jokers"] = {
         ...formatJokerInventory(updatedInventory),
         suggestion: getJokerSuggestion(updatedInventory, streakStatus),
         allocationResult: allocationResult.result.allocated
@@ -405,7 +405,7 @@ export async function GET(request: NextRequest) {
       const summary = formatAchievementsSummary(updated)
       const nextAchievements = getNextAchievements(updated, 3)
 
-      result.achievements = {
+      result["achievements"] = {
         summary,
         next: nextAchievements.map(({ definition, progress }) =>
           formatAchievement(definition, progress)
@@ -433,7 +433,7 @@ export async function GET(request: NextRequest) {
         user.id
       )
 
-      result.leaderboard = {
+      result["leaderboard"] = {
         ...formatLeaderboardSummary(leaderboard),
         entries: leaderboard.entries.map(formatLeaderboardEntry),
         currentUserRank: leaderboard.entries.find((e) => e.isCurrentUser)?.rank ?? null,
