@@ -3,150 +3,130 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { Home, Users, CheckSquare, Scale, Settings, Sparkles } from "lucide-react"
 
 const navigation = [
   {
     name: "Tableau de bord",
     href: "/dashboard",
-    icon: "home",
+    icon: Home,
+    color: "text-primary",
+    bgActive: "bg-primary/10",
   },
   {
     name: "Enfants",
     href: "/children",
-    icon: "users",
+    icon: Users,
+    color: "text-blue-500",
+    bgActive: "bg-blue-50",
   },
   {
     name: "Tâches",
     href: "/tasks",
-    icon: "check-square",
+    icon: CheckSquare,
+    color: "text-green-500",
+    bgActive: "bg-green-50",
   },
   {
     name: "Charge mentale",
-    href: "/load",
-    icon: "scale",
+    href: "/charge",
+    icon: Scale,
+    color: "text-amber-500",
+    bgActive: "bg-amber-50",
+    highlight: true,
   },
   {
     name: "Paramètres",
     href: "/settings",
-    icon: "settings",
+    icon: Settings,
+    color: "text-slate-500",
+    bgActive: "bg-slate-50",
   },
 ]
-
-const icons: Record<string, React.ReactNode> = {
-  home: (
-    <svg
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-      />
-    </svg>
-  ),
-  users: (
-    <svg
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-      />
-    </svg>
-  ),
-  "check-square": (
-    <svg
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-      />
-    </svg>
-  ),
-  scale: (
-    <svg
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
-      />
-    </svg>
-  ),
-  settings: (
-    <svg
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-      />
-    </svg>
-  ),
-}
 
 export function Sidebar() {
   const pathname = usePathname()
 
   return (
     <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-      <div className="flex min-h-0 flex-1 flex-col border-r bg-background">
+      <div className="flex min-h-0 flex-1 flex-col border-r border-border/50 bg-sidebar">
         <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
-          <div className="flex flex-shrink-0 items-center px-4">
-            <h1 className="text-xl font-bold">FamilyLoad</h1>
+          {/* Logo */}
+          <div className="flex flex-shrink-0 items-center px-4 mb-2">
+            <Link href="/dashboard" className="flex items-center gap-2 group">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/30 transition-shadow">
+                <span className="text-xl">👨‍👩‍👧</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">FamilyLoad</h1>
+                <p className="text-[10px] text-muted-foreground -mt-0.5">Charge mentale simplifiée</p>
+              </div>
+            </Link>
           </div>
-          <nav className="mt-8 flex-1 space-y-1 px-2">
+
+          {/* Navigation */}
+          <nav className="mt-8 flex-1 space-y-1 px-3">
             {navigation.map((item) => {
               const isActive =
                 pathname === item.href || pathname.startsWith(`${item.href}/`)
+              const Icon = item.icon
+
               return (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    "group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200",
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? `${item.bgActive} ${item.color} shadow-sm`
+                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                    item.highlight && !isActive && "relative"
                   )}
                 >
-                  <span className="mr-3">{icons[item.icon]}</span>
-                  {item.name}
+                  <Icon
+                    className={cn(
+                      "mr-3 h-5 w-5 transition-colors",
+                      isActive ? item.color : "text-muted-foreground group-hover:text-foreground"
+                    )}
+                  />
+                  <span className="flex-1">{item.name}</span>
+
+                  {/* Highlight badge for "Charge mentale" */}
+                  {item.highlight && !isActive && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 text-[10px] font-semibold">
+                      <Sparkles className="w-3 h-3" />
+                      USP
+                    </span>
+                  )}
+
+                  {/* Active indicator bar */}
+                  {isActive && (
+                    <div className={cn(
+                      "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full",
+                      item.color.replace("text-", "bg-")
+                    )} />
+                  )}
                 </Link>
               )
             })}
           </nav>
+
+          {/* Bottom section - Quick tip */}
+          <div className="px-3 pb-4">
+            <div className="rounded-xl bg-gradient-to-br from-primary/10 to-accent/20 p-4 border border-primary/10">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm">💡</span>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-foreground mb-1">Astuce du jour</p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Utilisez la commande vocale pour ajouter des tâches rapidement !
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </aside>

@@ -11,6 +11,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { HelpCircle, Mail, MessageCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface FAQItem {
   question: string
@@ -62,9 +64,13 @@ const faqs: FAQItem[] = [
 
 export function FAQ() {
   return (
-    <section id="faq" className="py-20 md:py-28">
+    <section id="faq" className="py-20 md:py-28 bg-gradient-to-b from-background to-accent/10">
       <div className="container">
         <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
+            <HelpCircle className="w-4 h-4" />
+            FAQ
+          </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Questions fréquentes
           </h2>
@@ -75,13 +81,17 @@ export function FAQ() {
         </div>
 
         <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="w-full space-y-3">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">
-                  {faq.question}
+              <AccordionItem
+                key={index}
+                value={`item-${index}`}
+                className="bg-white rounded-xl border-2 border-border/50 px-6 data-[state=open]:border-primary/30 data-[state=open]:shadow-md transition-all"
+              >
+                <AccordionTrigger className="text-left hover:no-underline py-5 [&[data-state=open]>svg]:text-primary">
+                  <span className="font-medium pr-4">{faq.question}</span>
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+                <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -90,17 +100,22 @@ export function FAQ() {
         </div>
 
         {/* Contact CTA */}
-        <div className="mt-12 text-center">
-          <p className="text-muted-foreground mb-4">
-            Vous avez d&apos;autres questions ?
-          </p>
-          <a
-            href="mailto:support@familyload.fr"
-            className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
-          >
-            Contactez notre équipe
-            <span aria-hidden="true">→</span>
-          </a>
+        <div className="mt-16 max-w-xl mx-auto">
+          <div className="rounded-2xl bg-gradient-to-r from-primary/5 via-accent/20 to-primary/5 border border-primary/10 p-8 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <MessageCircle className="w-7 h-7 text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Encore des questions ?</h3>
+            <p className="text-muted-foreground mb-6">
+              Notre équipe est disponible pour vous aider à chaque étape.
+            </p>
+            <Button variant="outline" asChild className="border-2 border-primary/20 hover:bg-primary/5">
+              <a href="mailto:support@familyload.fr" className="inline-flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                support@familyload.fr
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
     </section>
