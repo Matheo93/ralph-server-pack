@@ -56,6 +56,7 @@ const singleParsedTask = {
   id: "parsed-single",
   title: "Rappeler le dentiste",
   description: "Rappeler le dentiste demain matin",
+  suggestedChild: undefined as typeof testChildren[0] | undefined,
   suggestedCategory: testCategories[0], // Santé
   suggestedDeadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
   confidence: 0.96,

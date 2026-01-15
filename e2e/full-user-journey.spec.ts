@@ -856,7 +856,8 @@ test.describe("Full User Journey Integration", () => {
 
       // Verify navigation worked (either reached destination or auth redirect)
       const url = page.url()
-      const isValid = url.includes(step.url.split("/")[1]) || url.includes("/login")
+      const urlPart = step.url.split("/")[1] || ""
+      const isValid = url.includes(urlPart) || url.includes("/login")
       expect(isValid).toBe(true)
     }
   })
