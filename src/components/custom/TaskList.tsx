@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { TaskCard } from "./TaskCard"
-import { PostponeDialog } from "./PostponeDialog"
+import { LazyPostponeDialog } from "./LazyPostponeDialog"
 import { staggerContainer, taskCardVariants } from "@/lib/animations"
 import type { TaskListItem, TasksByDate } from "@/types/task"
 
@@ -140,7 +140,7 @@ export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListP
             </div>
           </motion.div>
         ))}
-        <PostponeDialog
+        <LazyPostponeDialog
           taskId={postponeTaskId}
           onClose={handleClosePostpone}
         />
@@ -172,7 +172,7 @@ export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListP
           </motion.div>
         ))}
       </AnimatePresence>
-      <PostponeDialog
+      <LazyPostponeDialog
         taskId={postponeTaskId}
         onClose={handleClosePostpone}
       />

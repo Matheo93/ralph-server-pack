@@ -290,6 +290,38 @@ function TasksPageSkeleton({ shimmer = true }: { shimmer?: boolean }) {
   )
 }
 
+/**
+ * Skeleton for the VocalRecorder component - voice recording button
+ */
+function VocalRecorderSkeleton({ shimmer = false }: { shimmer?: boolean }) {
+  return (
+    <div className="rounded-lg border p-6 bg-card flex flex-col items-center justify-center gap-4">
+      <Skeleton className="h-16 w-16 rounded-full" shimmer={shimmer} />
+      <Skeleton className="h-4 w-32" shimmer={shimmer} />
+    </div>
+  )
+}
+
+/**
+ * Skeleton for modal/dialog content
+ */
+function ModalSkeleton({ shimmer = false }: { shimmer?: boolean }) {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-6 w-48" shimmer={shimmer} />
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-full" shimmer={shimmer} />
+        <Skeleton className="h-4 w-3/4" shimmer={shimmer} />
+        <Skeleton className="h-4 w-1/2" shimmer={shimmer} />
+      </div>
+      <div className="flex justify-end gap-2 pt-4">
+        <Skeleton className="h-10 w-20" shimmer={shimmer} />
+        <Skeleton className="h-10 w-24" shimmer={shimmer} />
+      </div>
+    </div>
+  )
+}
+
 export {
   Skeleton,
   TaskCardSkeleton,
@@ -303,4 +335,6 @@ export {
   ChildrenPageSkeleton,
   TasksPageSkeleton,
   PageSkeleton,
+  VocalRecorderSkeleton,
+  ModalSkeleton,
 }
