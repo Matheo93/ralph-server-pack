@@ -51,7 +51,7 @@ export const OptimizedImageSchema = z.object({
   loading: z.enum(["lazy", "eager"]),
   decoding: z.enum(["async", "sync", "auto"]),
   fetchpriority: z.enum(["high", "low", "auto"]).optional(),
-  style: z.record(z.string()).optional(),
+  style: z.record(z.string(), z.string()).optional(),
 })
 export type OptimizedImage = z.infer<typeof OptimizedImageSchema>
 
@@ -393,7 +393,8 @@ export function getRecommendedDimensions(
     .map(bp => bp.width)
     .find(w => w >= targetWidth)
 
-  return breakpoint || DEFAULT_BREAKPOINTS[DEFAULT_BREAKPOINTS.length - 1].width
+  const lastBreakpoint = DEFAULT_BREAKPOINTS[DEFAULT_BREAKPOINTS.length - 1]
+  return breakpoint ?? lastBreakpoint?.width ?? 1920
 }
 
 // ============================================================================

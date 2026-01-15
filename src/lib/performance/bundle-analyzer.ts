@@ -416,28 +416,36 @@ export function parseBuildOutput(output: string): ChunkInfo[] {
   for (const line of lines) {
     const routeMatch = line.match(routePattern)
     if (routeMatch) {
-      const [, name, sizeStr, unit] = routeMatch
-      const size = parseSize(parseFloat(sizeStr), unit)
-      chunks.push({
-        name,
-        size,
-        modules: [],
-        isShared: false,
-        isFirstLoad: true,
-      })
+      const name = routeMatch[1]
+      const sizeStr = routeMatch[2]
+      const unit = routeMatch[3]
+      if (name && sizeStr && unit) {
+        const size = parseSize(parseFloat(sizeStr), unit)
+        chunks.push({
+          name,
+          size,
+          modules: [],
+          isShared: false,
+          isFirstLoad: true,
+        })
+      }
     }
 
     const chunkMatch = line.match(chunkPattern)
     if (chunkMatch) {
-      const [, name, sizeStr, unit] = chunkMatch
-      const size = parseSize(parseFloat(sizeStr), unit)
-      chunks.push({
-        name: `chunks/${name}`,
-        size,
-        modules: [],
-        isShared: name.includes("shared") || name.includes("commons"),
-        isFirstLoad: false,
-      })
+      const name = chunkMatch[1]
+      const sizeStr = chunkMatch[2]
+      const unit = chunkMatch[3]
+      if (name && sizeStr && unit) {
+        const size = parseSize(parseFloat(sizeStr), unit)
+        chunks.push({
+          name: `chunks/${name}`,
+          size,
+          modules: [],
+          isShared: name.includes("shared") || name.includes("commons"),
+          isFirstLoad: false,
+        })
+      }
     }
   }
 

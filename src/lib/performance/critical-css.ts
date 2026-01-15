@@ -168,8 +168,10 @@ export function parseCSS(css: string): CSSRule[] {
   let match
 
   while ((match = ruleRegex.exec(cleanCSS)) !== null) {
-    const selector = match[1].trim()
-    const declarations = match[2].trim()
+    const selectorMatch = match[1]
+    const declarationsMatch = match[2]
+    const selector = selectorMatch?.trim()
+    const declarations = declarationsMatch?.trim()
 
     if (selector && declarations) {
       rules.push({
@@ -320,7 +322,11 @@ export function extractCSSVariables(css: string): Map<string, string> {
   let match
 
   while ((match = variableRegex.exec(css)) !== null) {
-    variables.set(`--${match[1]}`, match[2].trim())
+    const varName = match[1]
+    const varValue = match[2]
+    if (varName && varValue) {
+      variables.set(`--${varName}`, varValue.trim())
+    }
   }
 
   return variables
@@ -372,10 +378,14 @@ export function extractMediaQueries(css: string): Map<string, string> {
   let match
 
   while ((match = mediaRegex.exec(css)) !== null) {
-    const query = match[1].trim()
-    const content = match[2].trim()
-    const existing = mediaQueries.get(query) || ""
-    mediaQueries.set(query, existing + content)
+    const queryMatch = match[1]
+    const contentMatch = match[2]
+    if (queryMatch && contentMatch) {
+      const query = queryMatch.trim()
+      const content = contentMatch.trim()
+      const existing = mediaQueries.get(query) || ""
+      mediaQueries.set(query, existing + content)
+    }
   }
 
   return mediaQueries
@@ -401,7 +411,8 @@ export function sortMediaQueries(mediaQueries: Map<string, string>): Map<string,
  */
 export function extractMinWidth(query: string): number {
   const match = query.match(/min-width:\s*(\d+)/)
-  return match ? parseInt(match[1], 10) : 0
+  const width = match?.[1]
+  return width ? parseInt(width, 10) : 0
 }
 
 // ============================================================================
