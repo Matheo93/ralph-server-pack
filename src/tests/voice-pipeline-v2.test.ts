@@ -515,12 +515,12 @@ describe("Semantic Extractor", () => {
 
     it("should match child by exact name", () => {
       const result = matchChildFromContext("emmener Marie à l'école", household)
-      expect(result?.childId).toBe("child_1")
+      expect(result?.matchedId).toBe("child_1")
     })
 
     it("should match child by name in different context", () => {
       const result = matchChildFromContext("les devoirs de Lucas", household)
-      expect(result?.childId).toBe("child_2")
+      expect(result?.matchedId).toBe("child_2")
     })
 
     it("should return null for no match", () => {
@@ -695,14 +695,14 @@ describe("Task Generator", () => {
     it("should calculate weight for different categories", () => {
       const transportWeight = calculateChargeWeight("transport", "medium")
       const householdWeight = calculateChargeWeight("household", "medium")
-      expect(transportWeight.base).toBeGreaterThan(0)
-      expect(householdWeight.base).toBeGreaterThan(0)
+      expect(transportWeight.totalWeight).toBeGreaterThan(0)
+      expect(householdWeight.totalWeight).toBeGreaterThan(0)
     })
 
     it("should increase weight for high priority", () => {
       const mediumWeight = calculateChargeWeight("household", "medium")
       const highWeight = calculateChargeWeight("household", "high")
-      expect(highWeight.multiplier).toBeGreaterThan(mediumWeight.multiplier)
+      expect(highWeight.totalWeight).toBeGreaterThan(mediumWeight.totalWeight)
     })
 
     it("should have mental load component", () => {
@@ -764,8 +764,8 @@ describe("Voice Pipeline Integration", () => {
     const medicalWeight = calculateChargeWeight("health", "high")
     const choreWeight = calculateChargeWeight("household", "low")
 
-    // Health with high priority should have higher mental load than household with low
-    expect(medicalWeight.mentalLoad).toBeGreaterThan(choreWeight.mentalLoad)
+    // Health with high priority should have higher total weight than household with low
+    expect(medicalWeight.totalWeight).toBeGreaterThan(choreWeight.totalWeight)
   })
 
   it("should match children correctly in context", () => {
@@ -779,10 +779,10 @@ describe("Voice Pipeline Integration", () => {
     }
 
     const result1 = matchChildFromContext("accompagner Sophie à l'école", household)
-    expect(result1?.childId).toBe("c1")
+    expect(result1?.matchedId).toBe("c1")
 
     const result2 = matchChildFromContext("les devoirs de Thomas", household)
-    expect(result2?.childId).toBe("c2")
+    expect(result2?.matchedId).toBe("c2")
 
     const result3 = matchChildFromContext("faire les courses", household)
     expect(result3).toBeNull()
@@ -794,7 +794,7 @@ describe("Voice Pipeline Integration", () => {
     expect(emptyCategory.primary).toBe("other")
 
     // No date in text
-    const noDate = parseDateFromText("quelque chose sans date")
+    const noDate = parseDateFromText("quelque chose sans date", "fr")
     expect(noDate.parsed).toBeNull()
 
     // No child match with empty household
@@ -841,7 +841,7 @@ describe("Voice Pipeline Integration", () => {
 
     const category = detectCategoryFromKeywords(text, "fr")
     const urgency = detectUrgencyFromKeywords(text, "fr")
-    const date = parseDateFromText(text)
+    const date = parseDateFromText(text, "fr")
     const household = {
       householdId: "h1",
       children: [{ id: "c1", name: "Marie", nicknames: [], age: 8 }],
@@ -856,6 +856,6 @@ describe("Voice Pipeline Integration", () => {
     // Should parse demain
     expect(date.parsed).not.toBeNull()
     // Should match Marie
-    expect(child?.childId).toBe("c1")
+    expect(child?.matchedId).toBe("c1")
   })
 })
