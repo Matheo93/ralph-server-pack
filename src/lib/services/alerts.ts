@@ -1,5 +1,6 @@
 import { query, queryOne } from "@/lib/aws/database"
 import { getLoadBalancePercentage, getWeeklyLoadByParent } from "./charge"
+import { sendPushToHousehold, sendPushToUser } from "./notifications"
 import { BALANCE_THRESHOLDS } from "@/lib/constants/task-weights"
 import type {
   Alert,
@@ -9,7 +10,6 @@ import type {
   ImbalanceAlertData,
   OverloadAlertData,
   InactivityAlertData,
-  ALERT_MESSAGES,
 } from "@/types/alert"
 
 // Threshold for weekly overload (in load points)
@@ -332,4 +332,225 @@ export function shouldShowAlert(
   }
 
   return true
+}
+
+// ============================================================
+// PUSH NOTIFICATION ALERTS
+// ============================================================
+
+/**
+ * Send push notification for load imbalance alert (60/40 threshold)
+ */
+export async function sendImbalancePushNotification(
+  householdId: string
+): Promise<{ sent: boolean; ratio?: string }> {
+  const alert = await checkImbalanceAlert(householdId)
+
+  if (!alert) {
+    return { sent: false }
+  }
+
+  // Only send push for critical imbalance (≥60%)
+  if (alert.severity !== "critical") {
+    return { sent: false }
+  }
+
+  const data = alert.data as ImbalanceAlertData
+
+  // Check if household has balance alert enabled
+  const hasAlertsEnabled = await checkBalanceAlertEnabled(householdId)
+  if (!hasAlertsEnabled) {
+    return { sent: false }
+  }
+
+  // Check if we already sent this alert today
+  const alreadySentToday = await wasAlertSentToday(householdId, "imbalance")
+  if (alreadySentToday) {
+    return { sent: false }
+  }
+
+  // Send push notification to all household members
+  const result = await sendPushToHousehold(
+    householdId,
+    "Charge déséquilibrée",
+    `Répartition actuelle: ${data.ratio}. ${alert.suggestion}`,
+    {
+      type: "balance_alert",
+      alertType: "imbalance",
+      ratio: data.ratio,
+      link: "/charge",
+    }
+  )
+
+  // Record that we sent this alert
+  if (result.sent > 0) {
+    await recordAlertSent(householdId, "imbalance")
+  }
+
+  return { sent: result.sent > 0, ratio: data.ratio }
+}
+
+/**
+ * Send push notification for overload alert
+ */
+export async function sendOverloadPushNotification(
+  memberId: string,
+  householdId: string
+): Promise<{ sent: boolean; weeklyLoad?: number }> {
+  const alert = await checkOverloadAlert(memberId, householdId)
+
+  if (!alert) {
+    return { sent: false }
+  }
+
+  const data = alert.data as OverloadAlertData
+
+  // Check if user has balance alert enabled
+  const hasAlertsEnabled = await checkUserBalanceAlertEnabled(memberId)
+  if (!hasAlertsEnabled) {
+    return { sent: false }
+  }
+
+  // Check if we already sent this alert today
+  const alreadySentToday = await wasAlertSentToday(householdId, `overload-${memberId}`)
+  if (alreadySentToday) {
+    return { sent: false }
+  }
+
+  // Send push notification to the overloaded user
+  const result = await sendPushToUser(
+    memberId,
+    "Charge importante",
+    `Vous avez ${data.weeklyLoad} points cette semaine (${data.tasksCount} tâches). ${alert.suggestion}`,
+    {
+      type: "balance_alert",
+      alertType: "overload",
+      weeklyLoad: String(data.weeklyLoad),
+      link: "/charge",
+    }
+  )
+
+  // Record that we sent this alert
+  if (result.sent > 0) {
+    await recordAlertSent(householdId, `overload-${memberId}`)
+  }
+
+  return { sent: result.sent > 0, weeklyLoad: data.weeklyLoad }
+}
+
+/**
+ * Check and send all balance-related alerts for a household
+ * Called by scheduler to check all households
+ */
+export async function checkAndSendBalanceAlerts(
+  householdId: string
+): Promise<{
+  imbalanceSent: boolean
+  overloadsSent: number
+  ratio?: string
+}> {
+  // Send imbalance alert
+  const imbalanceResult = await sendImbalancePushNotification(householdId)
+
+  // Get all members and check overload
+  const members = await query<{ user_id: string }>(`
+    SELECT user_id
+    FROM household_members
+    WHERE household_id = $1 AND is_active = true
+  `, [householdId])
+
+  let overloadsSent = 0
+  for (const member of members) {
+    const overloadResult = await sendOverloadPushNotification(member.user_id, householdId)
+    if (overloadResult.sent) {
+      overloadsSent++
+    }
+  }
+
+  return {
+    imbalanceSent: imbalanceResult.sent,
+    overloadsSent,
+    ratio: imbalanceResult.ratio,
+  }
+}
+
+/**
+ * Get all households that should receive balance alerts
+ */
+export async function getHouseholdsForBalanceAlerts(): Promise<string[]> {
+  const households = await query<{ household_id: string }>(`
+    SELECT DISTINCT hm.household_id
+    FROM household_members hm
+    JOIN user_preferences up ON up.user_id = hm.user_id
+    WHERE hm.is_active = true
+      AND up.balance_alert_enabled = true
+  `)
+
+  return households.map((h) => h.household_id)
+}
+
+// ============================================================
+// HELPER FUNCTIONS FOR ALERT TRACKING
+// ============================================================
+
+/**
+ * Check if household has at least one member with balance alerts enabled
+ */
+async function checkBalanceAlertEnabled(householdId: string): Promise<boolean> {
+  const result = await queryOne<{ count: number }>(`
+    SELECT COUNT(*) as count
+    FROM household_members hm
+    JOIN user_preferences up ON up.user_id = hm.user_id
+    WHERE hm.household_id = $1
+      AND hm.is_active = true
+      AND up.balance_alert_enabled = true
+  `, [householdId])
+
+  return (result?.count ?? 0) > 0
+}
+
+/**
+ * Check if a specific user has balance alerts enabled
+ */
+async function checkUserBalanceAlertEnabled(userId: string): Promise<boolean> {
+  const result = await queryOne<{ balance_alert_enabled: boolean }>(`
+    SELECT COALESCE(balance_alert_enabled, true) as balance_alert_enabled
+    FROM user_preferences
+    WHERE user_id = $1
+  `, [userId])
+
+  return result?.balance_alert_enabled ?? true
+}
+
+/**
+ * Check if an alert was already sent today to avoid spam
+ */
+async function wasAlertSentToday(
+  householdId: string,
+  alertKey: string
+): Promise<boolean> {
+  const result = await queryOne<{ count: number }>(`
+    SELECT COUNT(*) as count
+    FROM alert_history
+    WHERE household_id = $1
+      AND alert_key = $2
+      AND sent_at::date = CURRENT_DATE
+  `, [householdId, alertKey])
+
+  return (result?.count ?? 0) > 0
+}
+
+/**
+ * Record that an alert was sent
+ */
+async function recordAlertSent(
+  householdId: string,
+  alertKey: string
+): Promise<void> {
+  await query(`
+    INSERT INTO alert_history (household_id, alert_key, sent_at)
+    VALUES ($1, $2, NOW())
+    ON CONFLICT (household_id, alert_key, sent_at::date)
+    DO NOTHING
+  `, [householdId, alertKey])
 }
