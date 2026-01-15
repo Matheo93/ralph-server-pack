@@ -603,15 +603,20 @@ export function getCatalogueCategories(): Array<{ code: string; name: string; ta
  * Search catalogue tasks
  */
 export function searchCatalogueTasks(searchQuery: string): CatalogueTask[] {
-  const query = searchQuery.toLowerCase()
+  const queryLower = searchQuery.toLowerCase()
   const results: CatalogueTask[] = []
 
   // Search vaccinations
   for (const vax of VACCINATION_SCHEDULE) {
-    if (vax.vaccine.toLowerCase().includes(query)) {
+    const title = `Vaccin: ${vax.vaccine}`
+    if (
+      vax.vaccine.toLowerCase().includes(queryLower) ||
+      title.toLowerCase().includes(queryLower) ||
+      "vaccin".includes(queryLower)
+    ) {
       results.push({
         id: `vax-${vax.ageMonths}`,
-        title_fr: `Vaccin: ${vax.vaccine}`,
+        title_fr: title,
         title_en: null,
         description_fr: null,
         category_code: "sante",
@@ -630,8 +635,8 @@ export function searchCatalogueTasks(searchQuery: string): CatalogueTask[] {
   // Search seasonal tasks
   for (const task of SEASONAL_TASKS) {
     if (
-      task.title.toLowerCase().includes(query) ||
-      task.description.toLowerCase().includes(query)
+      task.title.toLowerCase().includes(queryLower) ||
+      task.description.toLowerCase().includes(queryLower)
     ) {
       results.push({
         id: `seasonal-${task.title.replace(/\s/g, "-")}`,
