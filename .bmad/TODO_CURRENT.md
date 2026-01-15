@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 15: Mobile & Payments
+# TODO CURRENT - Sprint 16: Voice & Task Catalog
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,132 +10,125 @@
 ---
 
 ## Sprint Goal
-Préparer l'intégration mobile Flutter, améliorer les notifications push, et renforcer l'intégration Stripe pour le paiement.
+Implémenter la fonctionnalité vocale (dictée → tâche automatique) et le catalogue automatique de tâches par âge/période.
 
 ---
 
 ## PRÉ-REQUIS
-- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [x] 0.2 Vérifier que les tests passent: `bun test src/tests/`
+- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [ ] 0.2 Vérifier que les tests passent: `bun test src/tests/`
 
 ---
 
-## Phase 1: Mobile API Preparation
+## Phase 1: Voice Input Pipeline
 
-- [x] 1.1 Créer `src/lib/services/mobile-api.ts`:
-  - Device token registration
-  - Mobile session management
-  - API response formatting for mobile
-  - Rate limiting helpers
+- [ ] 1.1 Créer `src/lib/voice/transcription.ts`:
+  - Intégration Whisper API (OpenAI)
+  - Fallback Deepgram (si configuré)
+  - Normalisation du texte
+  - Gestion des langues (fr, en)
 
-- [x] 1.2 Créer API endpoints mobiles:
-  - `src/app/api/mobile/register-device/route.ts`
-  - `src/app/api/mobile/sync/route.ts` - Offline sync
-  - `src/app/api/mobile/health/route.ts` - Health check
+- [ ] 1.2 Créer `src/lib/voice/semantic-analysis.ts`:
+  - Analyse sémantique LLM (GPT-4/Claude)
+  - Extraction des champs: action, enfant, date, catégorie, urgence
+  - Scoring de confiance
+  - Prompt optimisé pour tâches parentales
 
-- [x] 1.3 Tests mobile API (≥10 tests) - 32 tests created
+- [ ] 1.3 Créer API endpoints vocaux:
+  - `src/app/api/voice/transcribe/route.ts` - STT
+  - `src/app/api/voice/analyze/route.ts` - Analyse sémantique
+  - `src/app/api/voice/create-task/route.ts` - Pipeline complet
 
----
+- [ ] 1.4 Créer composant VoiceButton:
+  - `src/components/voice/VoiceButton.tsx`
+  - `src/components/voice/VoiceRecorder.tsx`
+  - Feedback visuel (recording, processing)
+  - Hook `useVoiceRecording`
 
-## Phase 2: Push Notifications Enhancement
-
-- [x] 2.1 Améliorer `src/lib/services/notifications.ts`:
-  - Firebase Cloud Messaging (FCM) integration
-  - APNs integration (iOS)
-  - Notification queuing (`src/lib/services/notification-queue.ts`)
-  - Retry mechanism with exponential backoff
-
-- [x] 2.2 Créer notification templates (`src/lib/templates/push/index.ts`):
-  - Daily reminder
-  - Deadline approaching
-  - Streak at risk
-  - Balance alert
-  - Weekly summary
-  - Task completed
-  - Task assigned
-  - Welcome
-
-- [x] 2.3 Créer API endpoints:
-  - `src/app/api/notifications/subscribe/route.ts`
-  - `src/app/api/notifications/preferences/route.ts` (existait déjà)
-
-- [x] 2.4 Tests notifications (≥10 tests) - 39 tests created
+- [ ] 1.5 Tests voice pipeline (≥15 tests)
 
 ---
 
-## Phase 3: Stripe Payments Enhancement
+## Phase 2: Task Catalog System
 
-- [x] 3.1 Améliorer intégration Stripe:
-  - Webhook handling improvements (handleInvoicePaid, handleTrialWillEnd)
-  - Trial period management (extendTrial)
-  - Subscription upgrades/downgrades (changeSubscriptionPlan)
-  - Invoice handling (getUpcomingInvoice, storeInvoice)
+- [ ] 2.1 Créer schéma task_templates:
+  - `src/lib/catalog/types.ts` - Types pour templates
+  - `src/lib/catalog/templates.ts` - Catalogue par âge/période
+  - Règles par tranche d'âge (0-3, 3-6, 6-11, 11-15, 15-18)
+  - Règles par période (septembre, décembre, juin...)
 
-- [x] 3.2 Créer customer portal endpoint:
-  - `src/app/api/billing/portal/route.ts` (existait déjà)
-  - `src/app/api/billing/invoices/route.ts` ✓
+- [ ] 2.2 Créer `src/lib/catalog/generator.ts`:
+  - Génération automatique de tâches
+  - Filtrage par âge des enfants
+  - Filtrage par période de l'année
+  - Calcul poids de charge
 
-- [x] 3.3 Créer composants billing:
-  - `src/components/custom/PricingCard.tsx` ✓
-  - `src/components/custom/SubscriptionStatus.tsx` (existait déjà)
-  - `src/components/custom/InvoiceList.tsx` ✓
+- [ ] 2.3 Créer API endpoints catalog:
+  - `src/app/api/catalog/templates/route.ts`
+  - `src/app/api/catalog/generate/route.ts`
+  - `src/app/api/catalog/suggestions/route.ts`
 
-- [x] 3.4 Tests payments (≥10 tests) - 39 tests in stripe-payments.test.ts
+- [ ] 2.4 Créer composants catalog:
+  - `src/components/catalog/TaskTemplateCard.tsx`
+  - `src/components/catalog/CatalogBrowser.tsx`
+  - `src/components/catalog/SuggestedTasks.tsx`
 
----
-
-## Phase 4: Landing Page Improvements
-
-- [x] 4.1 Améliorer landing page:
-  - Hero section avec animation ✓ (existait déjà)
-  - Feature showcase ✓ (existait déjà)
-  - Testimonials section ✓ (existait déjà)
-  - FAQ section ✓ `src/components/marketing/FAQ.tsx`
-  - Pricing section ✓ (existait déjà)
-
-- [x] 4.2 Créer composants landing:
-  - `src/components/marketing/Hero.tsx` (existait)
-  - `src/components/marketing/Features.tsx` (existait)
-  - `src/components/marketing/Pricing.tsx` (existait)
-  - `src/components/marketing/FAQ.tsx` ✓
-
-- [x] 4.3 SEO improvements:
-  - Meta tags dynamiques ✓ (existait dans layout.tsx)
-  - Structured data (JSON-LD) ✓ `src/lib/seo/structured-data.ts`
-  - `src/components/seo/JsonLd.tsx` ✓
-
-- [x] 4.4 Tests landing (≥5 tests) - 16 tests in landing-page.test.ts
+- [ ] 2.5 Tests catalog (≥15 tests)
 
 ---
 
-## Phase 5: API Documentation
+## Phase 3: Load Distribution Engine
 
-- [x] 5.1 Créer documentation OpenAPI:
-  - Schema definitions ✓
-  - Endpoint documentation ✓
-  - Authentication docs ✓
+- [ ] 3.1 Créer `src/lib/distribution/calculator.ts`:
+  - Calcul charge par parent
+  - Poids par type de tâche
+  - Score hebdomadaire
 
-- [x] 5.2 Créer `src/lib/openapi/schema.ts`:
-  - Request/response types ✓
-  - Error codes ✓
-  - Rate limits ✓
+- [ ] 3.2 Créer `src/lib/distribution/assigner.ts`:
+  - Assignation automatique au parent le moins chargé
+  - Rotation si égalité
+  - Gestion des exclusions temporaires
 
-- [x] 5.3 Créer `/api/docs/route.ts`:
-  - OpenAPI JSON endpoint ✓
+- [ ] 3.3 Créer API endpoints distribution:
+  - `src/app/api/distribution/stats/route.ts`
+  - `src/app/api/distribution/balance/route.ts`
 
-- [x] 5.4 Tests documentation (≥5 tests) - 24 tests in api-docs.test.ts
+- [ ] 3.4 Créer composants distribution:
+  - `src/components/distribution/LoadChart.tsx`
+  - `src/components/distribution/BalanceAlert.tsx`
+  - `src/components/distribution/WeeklyStats.tsx`
+
+- [ ] 3.5 Tests distribution (≥10 tests)
 
 ---
 
-## Definition of Done Sprint 15
-- [x] APIs prêtes pour mobile Flutter
-- [x] Push notifications FCM/APNs
-- [x] Stripe customer portal
-- [x] Landing page améliorée
-- [x] Documentation API OpenAPI
-- [x] Build production OK: `bunx tsc --noEmit && bun run build`
-- [x] Tous les tests passent: `bun test src/tests/` (1306 tests)
-- [x] ≥40 nouveaux tests (150+ nouveaux tests)
+## Phase 4: Streak System
+
+- [ ] 4.1 Créer `src/lib/streak/calculator.ts`:
+  - Calcul streak quotidien
+  - Règles de rupture
+  - Joker premium
+
+- [ ] 4.2 Créer API endpoints streak:
+  - `src/app/api/streak/status/route.ts`
+  - `src/app/api/streak/validate/route.ts`
+
+- [ ] 4.3 Créer composants streak:
+  - `src/components/streak/StreakCounter.tsx`
+  - `src/components/streak/StreakAnimation.tsx`
+
+- [ ] 4.4 Tests streak (≥5 tests)
+
+---
+
+## Definition of Done Sprint 16
+- [ ] Voice pipeline fonctionnel (dictée → tâche)
+- [ ] Catalogue tâches par âge/période
+- [ ] Moteur de répartition opérationnel
+- [ ] Streak system implémenté
+- [ ] Build production OK: `bunx tsc --noEmit && bun run build`
+- [ ] Tous les tests passent: `bun test src/tests/`
+- [ ] ≥45 nouveaux tests
 
 ---
 
