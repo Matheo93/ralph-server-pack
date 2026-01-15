@@ -65,22 +65,22 @@ Préparer l'intégration mobile Flutter, améliorer les notifications push, et r
 
 ## Phase 3: Stripe Payments Enhancement
 
-- [ ] 3.1 Améliorer intégration Stripe:
-  - Webhook handling improvements
-  - Trial period management
-  - Subscription upgrades/downgrades
-  - Invoice handling
+- [x] 3.1 Améliorer intégration Stripe:
+  - Webhook handling improvements (handleInvoicePaid, handleTrialWillEnd)
+  - Trial period management (extendTrial)
+  - Subscription upgrades/downgrades (changeSubscriptionPlan)
+  - Invoice handling (getUpcomingInvoice, storeInvoice)
 
-- [ ] 3.2 Créer customer portal endpoint:
-  - `src/app/api/billing/portal/route.ts`
-  - `src/app/api/billing/invoices/route.ts`
+- [x] 3.2 Créer customer portal endpoint:
+  - `src/app/api/billing/portal/route.ts` (existait déjà)
+  - `src/app/api/billing/invoices/route.ts` ✓
 
-- [ ] 3.3 Créer composants billing:
-  - `src/components/custom/PricingCard.tsx`
-  - `src/components/custom/SubscriptionStatus.tsx`
-  - `src/components/custom/InvoiceList.tsx`
+- [x] 3.3 Créer composants billing:
+  - `src/components/custom/PricingCard.tsx` ✓
+  - `src/components/custom/SubscriptionStatus.tsx` (existait déjà)
+  - `src/components/custom/InvoiceList.tsx` ✓
 
-- [ ] 3.4 Tests payments (≥10 tests)
+- [x] 3.4 Tests payments (≥10 tests) - 39 tests in stripe-payments.test.ts
 
 ---
 
