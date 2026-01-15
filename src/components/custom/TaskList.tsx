@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { TaskCard } from "./TaskCard"
 import { LazyPostponeDialog } from "./LazyPostponeDialog"
+import { TasksEmptyState, SearchEmptyState } from "./EmptyState"
 import { staggerContainer, taskCardVariants } from "@/lib/animations"
 import type { TaskListItem, TasksByDate } from "@/types/task"
 
@@ -93,11 +94,14 @@ export function TaskList({ tasks, groupByDate = false, emptyMessage }: TaskListP
   }, [tasks, groupByDate])
 
   if (tasks.length === 0) {
-    return (
-      <div className="text-center py-12 text-muted-foreground">
-        {emptyMessage ?? "Aucune tâche"}
-      </div>
-    )
+    // Check if emptyMessage indicates search/filter results
+    const isSearchResult = emptyMessage?.toLowerCase().includes("filtre") || emptyMessage?.toLowerCase().includes("correspond")
+
+    if (isSearchResult) {
+      return <SearchEmptyState description={emptyMessage} />
+    }
+
+    return <TasksEmptyState description={emptyMessage} />
   }
 
   if (groupByDate && groups) {
