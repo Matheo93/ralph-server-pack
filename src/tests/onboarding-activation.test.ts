@@ -576,7 +576,7 @@ describe('Personalization Engine', () => {
       store = setFeatureFlag(store, userId, 'beta_features', true);
 
       const profile = getUserProfile(store, userId);
-      expect(profile!.featureFlags.beta_features).toBe(true);
+      expect(profile!.featureFlags['beta_features']).toBe(true);
     });
   });
 
