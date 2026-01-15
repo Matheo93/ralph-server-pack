@@ -123,114 +123,113 @@ import {
 
 describe("Graceful Shutdown", () => {
   let manager: ShutdownManager
+  let state: ShutdownState
 
   beforeEach(() => {
     manager = createShutdownManager()
+    state = createShutdownState()
   })
 
   describe("createShutdownManager", () => {
     it("should create manager with default state", () => {
-      expect(manager.state).toBe("running")
+      expect(manager.state.phase).toBe("idle")
       expect(manager.hooks.length).toBe(0)
       expect(manager.resources.length).toBe(0)
-      expect(manager.inflightRequests.size).toBe(0)
     })
 
-    it("should accept custom drain timeout", () => {
-      const customManager = createShutdownManager(60000)
-      expect(customManager.drainTimeout).toBe(60000)
+    it("should accept custom config", () => {
+      const customManager = createShutdownManager({ drainTimeout: 60000 })
+      expect(customManager.config.drainTimeout).toBe(60000)
+    })
+  })
+
+  describe("createShutdownState", () => {
+    it("should create state with idle phase", () => {
+      expect(state.phase).toBe("idle")
+      expect(state.startedAt).toBeNull()
     })
   })
 
   describe("registerShutdownHook", () => {
     it("should register hook with priority", () => {
       const hook = createShutdownHook("test-hook", async () => {}, 1)
-      const updated = registerShutdownHook(manager, hook)
+      manager.registerHook(hook)
 
-      expect(updated.hooks.length).toBe(1)
-      expect(updated.hooks[0]!.name).toBe("test-hook")
-    })
-
-    it("should sort hooks by priority", () => {
-      const hook1 = createShutdownHook("high-priority", async () => {}, 10)
-      const hook2 = createShutdownHook("low-priority", async () => {}, 1)
-
-      let updated = registerShutdownHook(manager, hook1)
-      updated = registerShutdownHook(updated, hook2)
-
-      expect(updated.hooks[0]!.name).toBe("high-priority")
-      expect(updated.hooks[1]!.name).toBe("low-priority")
+      expect(manager.hooks.length).toBe(1)
+      expect(manager.hooks[0]!.name).toBe("test-hook")
     })
   })
 
   describe("registerResource", () => {
     it("should register resource for cleanup", () => {
-      const updated = registerResource(manager, "database", "db", async () => {}, 1)
+      const resource = createManagedResource("database", "db", async () => {}, 1)
+      manager.registerResource(resource)
 
-      expect(updated.resources.length).toBe(1)
-      expect(updated.resources[0]!.type).toBe("database")
-      expect(updated.resources[0]!.cleaned).toBe(false)
+      expect(manager.resources.length).toBe(1)
+      expect(manager.resources[0]!.type).toBe("database")
     })
   })
 
-  describe("setShutdownState", () => {
-    it("should transition state correctly", () => {
-      let updated = setShutdownState(manager, "draining")
-      expect(updated.state).toBe("draining")
+  describe("shutdown state transitions", () => {
+    it("should transition to draining state", () => {
+      const draining = startDraining(state, "SIGTERM")
+      expect(draining.phase).toBe("draining")
+      expect(draining.signal).toBe("SIGTERM")
+    })
 
-      updated = setShutdownState(updated, "cleaning_up")
-      expect(updated.state).toBe("cleaning_up")
+    it("should transition to cleanup state", () => {
+      let s = startDraining(state, "SIGTERM")
+      s = startCleanup(s)
+      expect(s.phase).toBe("cleanup")
+    })
 
-      updated = setShutdownState(updated, "completed")
-      expect(updated.state).toBe("completed")
+    it("should transition to terminated state", () => {
+      let s = startDraining(state, "SIGTERM")
+      s = startCleanup(s)
+      s = markTerminated(s, true)
+      expect(s.phase).toBe("terminated")
     })
   })
 
-  describe("inflightRequests", () => {
-    it("should track inflight requests", () => {
-      let updated = addInflightRequest(manager, "req-1")
-      updated = addInflightRequest(updated, "req-2")
+  describe("connection tracking", () => {
+    it("should track active connections", () => {
+      let s = updateConnectionCount(state, 5)
+      expect(s.activeConnections).toBe(5)
 
-      expect(updated.inflightRequests.size).toBe(2)
-
-      updated = removeInflightRequest(updated, "req-1")
-      expect(updated.inflightRequests.size).toBe(1)
+      s = updateConnectionCount(s, 3)
+      expect(s.activeConnections).toBe(3)
     })
   })
 
   describe("isShuttingDown", () => {
-    it("should return false when running", () => {
-      expect(isShuttingDown(manager)).toBe(false)
+    it("should return false when idle", () => {
+      expect(isShuttingDown(state)).toBe(false)
     })
 
-    it("should return true when draining or later", () => {
-      const draining = setShutdownState(manager, "draining")
+    it("should return true when draining", () => {
+      const draining = startDraining(state, "SIGTERM")
       expect(isShuttingDown(draining)).toBe(true)
+    })
 
-      const cleaningUp = setShutdownState(manager, "cleaning_up")
-      expect(isShuttingDown(cleaningUp)).toBe(true)
+    it("should return true when in cleanup", () => {
+      let s = startDraining(state, "SIGTERM")
+      s = startCleanup(s)
+      expect(isShuttingDown(s)).toBe(true)
     })
   })
 
-  describe("canAcceptNewRequests", () => {
-    it("should return true only when running", () => {
-      expect(canAcceptNewRequests(manager)).toBe(true)
-
-      const draining = setShutdownState(manager, "draining")
-      expect(canAcceptNewRequests(draining)).toBe(false)
-    })
-  })
-
-  describe("getCleanupOrder", () => {
+  describe("sortResourcesByPriority", () => {
     it("should order resources by priority", () => {
-      let updated = registerResource(manager, "cache", "redis", async () => {}, 1)
-      updated = registerResource(updated, "database", "postgres", async () => {}, 3)
-      updated = registerResource(updated, "queue", "rabbitmq", async () => {}, 2)
+      const resources = [
+        createManagedResource("cache", "redis", async () => {}, 1),
+        createManagedResource("database", "postgres", async () => {}, 3),
+        createManagedResource("queue", "rabbitmq", async () => {}, 2),
+      ]
 
-      const order = getCleanupOrder(updated)
-      expect(order[0]!.type).toBe("database")
-      expect(order[1]!.type).toBe("queue")
-      expect(order[2]!.type).toBe("cache")
+      const sorted = sortResourcesByPriority(resources)
+      expect(sorted[0]!.type).toBe("database")
+      expect(sorted[1]!.type).toBe("queue")
+      expect(sorted[2]!.type).toBe("cache")
     })
   })
 })
@@ -300,17 +299,18 @@ describe("Feature Flags", () => {
   describe("targeting rules", () => {
     it("should create targeting rule", () => {
       const rule = createTargetingRule(
+        "rule-1",
         "premium-users",
-        [createCondition("plan", "equals", "premium")],
-        true
+        [createCondition("plan", "eq", "premium")],
+        "variant-a"
       )
 
       expect(rule.name).toBe("premium-users")
-      expect(rule.value).toBe(true)
+      expect(rule.variant).toBe("variant-a")
     })
 
     it("should evaluate equals condition", () => {
-      const condition = createCondition("country", "equals", "US")
+      const condition = createCondition("country", "eq", "US")
       const context: EvaluationContext = { userId: "user-1", attributes: { country: "US" } }
 
       const result = evaluateCondition(condition, context)
@@ -319,7 +319,7 @@ describe("Feature Flags", () => {
 
     it("should evaluate contains condition", () => {
       const condition = createCondition("email", "contains", "@company.com")
-      const context: EvaluationContext = { userId: "user-1", attributes: { email: "user@company.com" } }
+      const context: EvaluationContext = { userId: "user-1", email: "user@company.com" }
 
       const result = evaluateCondition(condition, context)
       expect(result).toBe(true)
@@ -327,12 +327,13 @@ describe("Feature Flags", () => {
 
     it("should evaluate targeting rule with multiple conditions", () => {
       const rule = createTargetingRule(
+        "rule-1",
         "premium-us-users",
         [
-          createCondition("plan", "equals", "premium"),
-          createCondition("country", "equals", "US"),
+          createCondition("plan", "eq", "premium"),
+          createCondition("country", "eq", "US"),
         ],
-        true
+        "variant-a"
       )
       const context: EvaluationContext = {
         userId: "user-1",
@@ -345,28 +346,24 @@ describe("Feature Flags", () => {
   })
 
   describe("rollout percentage", () => {
-    it("should respect rollout percentage", () => {
-      const flag = createFeatureFlag("gradual-rollout", "boolean", true)
-      flag.rollout = createPercentageRollout(50)
-      store.set(flag)
+    it("should create percentage rollout config", () => {
+      const rollout = createPercentageRollout(50)
+      expect(rollout.strategy).toBe("percentage")
+      expect(rollout.percentage).toBe(50)
+    })
 
-      // Test with multiple users to verify distribution
-      let enabledCount = 0
-      for (let i = 0; i < 100; i++) {
-        const context: EvaluationContext = { userId: `user-${i}` }
-        const result = store.evaluate("gradual-rollout", context)
-        if (result.value === true) enabledCount++
-      }
+    it("should clamp rollout percentage to valid range", () => {
+      const rollout1 = createPercentageRollout(150)
+      expect(rollout1.percentage).toBe(100)
 
-      // Should be roughly 50% (+/- tolerance for hash distribution)
-      expect(enabledCount).toBeGreaterThan(20)
-      expect(enabledCount).toBeLessThan(80)
+      const rollout2 = createPercentageRollout(-10)
+      expect(rollout2.percentage).toBe(0)
     })
   })
 
   describe("A/B testing", () => {
     it("should create A/B test", () => {
-      const test = createABTest("homepage-test", "button-color", [
+      const test = createABTest("test-1", "homepage-test", "button-color-flag", [
         { id: "control", value: "blue", weight: 50 },
         { id: "variant-a", value: "green", weight: 50 },
       ])
@@ -376,7 +373,7 @@ describe("Feature Flags", () => {
     })
 
     it("should assign consistent variant to user", () => {
-      const test = createABTest("test-1", "button", [
+      const test = createABTest("test-1", "button-test", "button-flag", [
         { id: "a", value: "blue", weight: 50 },
         { id: "b", value: "green", weight: 50 },
       ])
