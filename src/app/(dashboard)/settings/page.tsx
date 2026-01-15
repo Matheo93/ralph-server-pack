@@ -16,6 +16,12 @@ const SETTINGS_SECTIONS = [
     icon: "🏠",
   },
   {
+    title: "Préférences d'assignation",
+    description: "Définir vos préférences par catégorie de tâches",
+    href: "/settings/preferences",
+    icon: "💪",
+  },
+  {
     title: "Notifications",
     description: "Configurer les rappels et alertes",
     href: "/settings/notifications",

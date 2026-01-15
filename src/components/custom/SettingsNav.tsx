@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils/index"
 const NAV_ITEMS = [
   { href: "/settings/profile", label: "Profil", icon: "👤" },
   { href: "/settings/household", label: "Foyer", icon: "🏠" },
+  { href: "/settings/preferences", label: "Préférences", icon: "💪" },
   { href: "/settings/notifications", label: "Notifications", icon: "🔔" },
   { href: "/settings/templates", label: "Templates", icon: "📋" },
   { href: "/settings/exclusions", label: "Exclusions", icon: "📅" },
