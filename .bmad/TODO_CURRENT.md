@@ -89,12 +89,12 @@ Toutes les features principales du MASTER_PROMPT sont implementees. Ce sprint se
   - Weekly completion
   - Monthly stats
 
-- [ ] 3.4 Ameliorer transitions pages:
+- [x] 3.4 Ameliorer transitions pages:
   - Shared element transitions
   - Smooth page navigation
   - Loading states elegants
 
-- [x] 3.5 Tests UX (34 tests):
+- [x] 3.5 Tests UX (59 tests):
   - Animation timing
   - Accessibility motion-reduce
   - Mobile responsiveness
