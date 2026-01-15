@@ -22,8 +22,25 @@ interface PostponeDialogProps {
 export function PostponeDialog({ taskId, onClose }: PostponeDialogProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [isPending, startTransition] = useTransition()
+  const isOpen = taskId !== null
 
-  if (!taskId) return null
+  // Reset selected date when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedDate(undefined)
+    }
+  }, [isOpen])
+
+  // Close on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen && !isPending) {
+        onClose()
+      }
+    }
+    document.addEventListener("keydown", handleEscape)
+    return () => document.removeEventListener("keydown", handleEscape)
+  }, [isOpen, isPending, onClose])
 
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
@@ -33,7 +50,7 @@ export function PostponeDialog({ taskId, onClose }: PostponeDialogProps) {
     if (!selectedDate) return
 
     startTransition(async () => {
-      await postponeTask(taskId, selectedDate.toISOString())
+      await postponeTask(taskId!, selectedDate.toISOString())
       onClose()
     })
   }
@@ -51,53 +68,75 @@ export function PostponeDialog({ taskId, onClose }: PostponeDialogProps) {
   ]
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Reporter la tâche</CardTitle>
-          <CardDescription>
-            Choisissez une nouvelle date pour cette tâche
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            {quickDates.map(({ label, date }) => (
-              <Button
-                key={label}
-                variant={
-                  selectedDate?.toDateString() === date.toDateString()
-                    ? "default"
-                    : "outline"
-                }
-                size="sm"
-                onClick={() => setSelectedDate(date)}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          variants={modalBackdrop}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !isPending) {
+              onClose()
+            }
+          }}
+        >
+          <motion.div
+            variants={modalContent}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Card className="w-full max-w-md">
+              <CardHeader>
+                <CardTitle>Reporter la tâche</CardTitle>
+                <CardDescription>
+                  Choisissez une nouvelle date pour cette tâche
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  {quickDates.map(({ label, date }) => (
+                    <Button
+                      key={label}
+                      variant={
+                        selectedDate?.toDateString() === date.toDateString()
+                          ? "default"
+                          : "outline"
+                      }
+                      size="sm"
+                      onClick={() => setSelectedDate(date)}
+                    >
+                      {label}
+                    </Button>
+                  ))}
+                </div>
 
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            disabled={(date) => date < tomorrow}
-            className="rounded-md border mx-auto"
-          />
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  disabled={(date) => date < tomorrow}
+                  className="rounded-md border mx-auto"
+                />
 
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={onClose} disabled={isPending}>
-              Annuler
-            </Button>
-            <Button
-              onClick={handleConfirm}
-              disabled={!selectedDate || isPending}
-            >
-              {isPending ? "..." : "Confirmer"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={onClose} disabled={isPending}>
+                    Annuler
+                  </Button>
+                  <Button
+                    onClick={handleConfirm}
+                    disabled={!selectedDate || isPending}
+                  >
+                    {isPending ? "..." : "Confirmer"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
