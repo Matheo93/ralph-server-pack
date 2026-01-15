@@ -967,9 +967,9 @@ describe("Task Prioritization", () => {
   describe("Batch Prioritization", () => {
     it("should prioritize multiple tasks", () => {
       const tasks: PrioritizationTask[] = [
-        createTestTask({ id: "1", priority: "low" }) as PrioritizationTask,
-        createTestTask({ id: "2", priority: "urgent" }) as PrioritizationTask,
-        createTestTask({ id: "3", priority: "normal" }) as PrioritizationTask,
+        createPriorityTask({ id: "1", priority: "low" }),
+        createPriorityTask({ id: "2", priority: "urgent" }),
+        createPriorityTask({ id: "3", priority: "normal" }),
       ]
 
       const result = prioritizeTasks(tasks)
@@ -980,7 +980,7 @@ describe("Task Prioritization", () => {
 
     it("should provide quadrant summary", () => {
       const tasks: PrioritizationTask[] = [
-        createTestTask({ priority: "urgent", isCritical: true }) as PrioritizationTask,
+        createPriorityTask({ priority: "urgent", isCritical: true }),
         createPriorityTask({ priority: "low" }),
       ]
 
@@ -994,10 +994,10 @@ describe("Task Prioritization", () => {
 
     it("should get top priority tasks", () => {
       const tasks: PrioritizationTask[] = [
-        createTestTask({ id: "1", priority: "low" }) as PrioritizationTask,
-        createTestTask({ id: "2", priority: "urgent" }) as PrioritizationTask,
-        createTestTask({ id: "3", priority: "high" }) as PrioritizationTask,
-        createTestTask({ id: "4", priority: "normal" }) as PrioritizationTask,
+        createPriorityTask({ id: "1", priority: "low" }),
+        createPriorityTask({ id: "2", priority: "urgent" }),
+        createPriorityTask({ id: "3", priority: "high" }),
+        createPriorityTask({ id: "4", priority: "normal" }),
       ]
 
       const top = getTopPriorityTasks(tasks, 2)
@@ -1011,7 +1011,7 @@ describe("Task Prioritization", () => {
       yesterday.setDate(yesterday.getDate() - 1)
 
       const tasks: PrioritizationTask[] = [
-        createTestTask({ priority: "normal", deadline: yesterday.toISOString() }) as PrioritizationTask,
+        createPriorityTask({ priority: "normal", deadline: yesterday.toISOString() }),
       ]
 
       const result = prioritizeTasks(tasks)
@@ -1077,7 +1077,7 @@ describe("Task Prioritization", () => {
 
     it("should get tasks by quadrant", () => {
       const tasks: PrioritizationTask[] = [
-        createTestTask({ priority: "urgent", isCritical: true }) as PrioritizationTask,
+        createPriorityTask({ priority: "urgent", isCritical: true }),
         createPriorityTask({ priority: "low" }),
       ]
 
@@ -1092,7 +1092,7 @@ describe("Task Prioritization", () => {
       yesterday.setDate(yesterday.getDate() - 1)
 
       const tasks: PrioritizationTask[] = [
-        createTestTask({ priority: "urgent", deadline: yesterday.toISOString() }) as PrioritizationTask,
+        createPriorityTask({ priority: "urgent", deadline: yesterday.toISOString() }),
         createPriorityTask({ priority: "high" }),
         createPriorityTask({ priority: "low" }),
       ]
@@ -1107,8 +1107,8 @@ describe("Task Prioritization", () => {
 
     it("should detect implicit deadlines", () => {
       const tasks: PrioritizationTask[] = [
-        createTestTask({ title: "Faire demain" }) as PrioritizationTask,
-        createTestTask({ title: "Normal task", deadline: new Date().toISOString() }) as PrioritizationTask,
+        createPriorityTask({ title: "Faire demain" }),
+        createPriorityTask({ title: "Normal task", deadline: new Date().toISOString() }),
       ]
 
       const prioritizer = new TaskPrioritizer(tasks)
