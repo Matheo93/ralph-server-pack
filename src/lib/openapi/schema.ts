@@ -66,9 +66,15 @@ interface OpenAPISchemaProperty {
 interface OpenAPIResponse {
   description: string
   content?: {
-    "application/json": {
+    "application/json"?: {
       schema: OpenAPISchema | { $ref: string }
       example?: unknown
+    }
+    "text/plain"?: {
+      schema: OpenAPISchema | { $ref: string }
+    }
+    "application/pdf"?: {
+      schema: OpenAPISchema | { $ref: string }
     }
   }
 }
