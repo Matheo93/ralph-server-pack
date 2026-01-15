@@ -100,7 +100,7 @@ export async function subscribeToPush(): Promise<PushSubscriptionData | null> {
       const vapidKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidKey,
+        applicationServerKey: vapidKey.buffer as ArrayBuffer,
       })
     }
 
@@ -220,18 +220,23 @@ export async function showLocalNotification(
 
   try {
     const registration = await navigator.serviceWorker.ready
-    await registration.showNotification(payload.title, {
+    // Extended notification options for service worker
+    const notificationOptions: Record<string, unknown> = {
       body: payload.body,
       icon: payload.icon ?? "/icons/icon-192.png",
       badge: payload.badge ?? "/icons/badge-72.png",
       tag: payload.tag,
       data: payload.data,
-      actions: payload.actions,
       requireInteraction: payload.requireInteraction,
       renotify: payload.renotify,
       silent: payload.silent,
       timestamp: payload.timestamp ?? Date.now(),
-    })
+    }
+    // Actions are supported in service worker notifications
+    if (payload.actions) {
+      notificationOptions.actions = payload.actions
+    }
+    await registration.showNotification(payload.title, notificationOptions as NotificationOptions)
     return true
   } catch {
     return false

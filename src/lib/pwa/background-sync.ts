@@ -216,7 +216,8 @@ class SyncQueue {
 
     try {
       const registration = await navigator.serviceWorker.ready
-      await registration.sync.register(SYNC_TAG)
+      const syncManager = (registration as unknown as { sync: { register: (tag: string) => Promise<void> } }).sync
+      await syncManager.register(SYNC_TAG)
     } catch {
       // Sync registration failed
     }
