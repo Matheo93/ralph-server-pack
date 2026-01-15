@@ -11,3 +11,6 @@ export * from "./image-optimization"
 
 // Critical CSS
 export * from "./critical-css"
+
+// Server Component Analysis
+export * from "./server-component-analyzer"
