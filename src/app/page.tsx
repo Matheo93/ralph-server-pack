@@ -1,4 +1,5 @@
 import { Hero, Features, Pricing, Testimonials, FAQ } from "@/components/marketing"
+import { JsonLd } from "@/components/seo"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
@@ -7,6 +8,7 @@ import MarketingLayout from "./(marketing)/layout"
 export default function HomePage() {
   return (
     <MarketingLayout>
+      <JsonLd />
       {/* Hero Section */}
       <Hero />
 
