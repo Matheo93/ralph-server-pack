@@ -47,7 +47,7 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
   - Concurrent session limits
   - Force logout capability
 
-- [ ] 1.5 Tests security (30+ tests):
+- [x] 1.5 Tests security (30+ tests):
   - CSRF protection tests
   - XSS prevention tests
   - Rate limiting tests
