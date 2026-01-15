@@ -606,6 +606,8 @@ describe("Task Generator", () => {
       const extraction = {
         id: "ext_123",
         transcriptionId: "trans_123",
+        originalText: "Emmener Marie à la danse",
+        language: "fr" as const,
         action: {
           raw: "Emmener Marie à la danse",
           normalized: "emmener marie à la danse",
@@ -619,19 +621,23 @@ describe("Task Generator", () => {
           confidence: { score: 0.9, reason: "Keyword match" },
         },
         urgency: {
-          level: "normal" as const,
+          level: "none" as const,
+          indicators: [],
           confidence: { score: 0.85, reason: "Default" },
         },
         date: {
           type: "none" as const,
-          raw: null,
+          raw: "",
           parsed: null,
           confidence: { score: 0.5, reason: "No date found" },
         },
         child: null,
-        language: "fr",
-        confidence: { score: 0.85, reason: "Overall confidence" },
-        createdAt: new Date(),
+        assigneeSuggestion: null,
+        overallConfidence: 0.85,
+        extractedAt: new Date(),
+        processingTimeMs: 150,
+        llmModel: "gpt-4",
+        warnings: [],
       }
       const household = {
         householdId: "household_123",
@@ -645,29 +651,30 @@ describe("Task Generator", () => {
   })
 
   describe("Preview Management", () => {
-    const createTestPreview = (id: string, status: "pending" | "confirmed" | "cancelled" | "expired" = "pending"): TaskPreview => ({
+    const createTestPreview = (id: string): TaskPreview => ({
       id,
-      householdId: "household_123",
       extractionId: "ext_123",
       title: "Test task",
       description: "Test description",
       category: "household",
       priority: "medium",
       dueDate: new Date(),
-      estimatedDuration: 30,
-      chargeWeight: {
-        base: 2,
-        multiplier: 1,
-        total: 2,
-        factors: [],
-      },
-      suggestedAssignees: [],
+      isRecurring: false,
       childId: null,
-      recurrence: null,
-      status,
+      childName: null,
+      suggestedAssigneeId: null,
+      suggestedAssigneeName: null,
+      chargeWeight: {
+        mentalLoad: 3,
+        timeLoad: 2,
+        emotionalLoad: 1,
+        physicalLoad: 1,
+        totalWeight: 7,
+      },
       confidence: 0.85,
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 3600000),
+      warnings: [],
+      alternativeTitles: [],
+      generatedAt: new Date(),
     })
 
     it("should add preview to store", () => {
@@ -724,12 +731,12 @@ describe("Task Generator", () => {
     })
 
     it("should return only pending previews from pendingConfirmation set", () => {
-      const preview1 = createTestPreview("preview_1", "pending")
-      const preview2 = createTestPreview("preview_2", "confirmed")
+      const preview1 = createTestPreview("preview_1")
+      const preview2 = createTestPreview("preview_2")
 
       let updated = addPreview(store, preview1)
       updated = addPreview(updated, preview2)
-      // Add preview_1 to pendingConfirmation
+      // Add only preview_1 to pendingConfirmation
       updated = { ...updated, pendingConfirmation: new Set(["preview_1"]) }
 
       // getPendingPreviews only takes store, filters by pendingConfirmation set
@@ -869,6 +876,7 @@ describe("Voice Pipeline Integration", () => {
       audioUrl: "https://example.com/audio/test.webm",
       language: "fr",
       enableWordTimings: false,
+      enableSegments: true,
     }
     store = startTranscription(store, request)
     expect(store.pendingRequests.has("audio_test")).toBe(true)
