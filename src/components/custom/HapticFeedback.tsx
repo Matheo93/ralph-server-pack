@@ -30,7 +30,7 @@ interface HapticOptions {
 // Vibration Patterns (in milliseconds)
 // ============================================================================
 
-const VIBRATION_PATTERNS: Record<HapticPattern, number | number[]> = {
+export const VIBRATION_PATTERNS: Record<HapticPattern, number | number[]> = {
   light: 10,
   medium: 20,
   heavy: 40,
