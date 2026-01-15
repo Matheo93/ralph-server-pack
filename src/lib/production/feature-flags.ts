@@ -192,7 +192,7 @@ export const FeatureFlagSchema = z.object({
   name: z.string().min(1),
   description: z.string(),
   type: z.enum(["boolean", "string", "number", "json"]),
-  defaultValue: z.union([z.boolean(), z.string(), z.number(), z.record(z.unknown())]),
+  defaultValue: z.union([z.boolean(), z.string(), z.number(), z.record(z.string(), z.unknown())]),
   enabled: z.boolean(),
   environment: z.array(z.string()),
 })
@@ -202,7 +202,7 @@ export const EvaluationContextSchema = z.object({
   sessionId: z.string().optional(),
   householdId: z.string().optional(),
   email: z.string().optional(),
-  attributes: z.record(z.unknown()).optional(),
+  attributes: z.record(z.string(), z.unknown()).optional(),
   environment: z.string().optional(),
 })
 
