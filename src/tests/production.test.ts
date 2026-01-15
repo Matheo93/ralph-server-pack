@@ -146,13 +146,13 @@ describe("Graceful Shutdown", () => {
   describe("createShutdownState", () => {
     it("should create state with idle phase", () => {
       expect(state.phase).toBe("idle")
-      expect(state.startedAt).toBeNull()
+      expect(state.startedAt).toBeUndefined()
     })
   })
 
   describe("registerShutdownHook", () => {
     it("should register hook with priority", () => {
-      const hook = createShutdownHook("test-hook", async () => {}, 1)
+      const hook = createShutdownHook("hook-1", "test-hook", async () => {}, { priority: 1 })
       manager.registerHook(hook)
 
       expect(manager.hooks.length).toBe(1)
@@ -162,7 +162,7 @@ describe("Graceful Shutdown", () => {
 
   describe("registerResource", () => {
     it("should register resource for cleanup", () => {
-      const resource = createManagedResource("database", "db", async () => {}, 1)
+      const resource = createManagedResource("db-1", "database", "postgres", async () => {}, { priority: 1 })
       manager.registerResource(resource)
 
       expect(manager.resources.length).toBe(1)
@@ -219,17 +219,17 @@ describe("Graceful Shutdown", () => {
   })
 
   describe("sortResourcesByPriority", () => {
-    it("should order resources by priority", () => {
+    it("should order resources by priority (lower number = higher priority)", () => {
       const resources = [
-        createManagedResource("cache", "redis", async () => {}, 1),
-        createManagedResource("database", "postgres", async () => {}, 3),
-        createManagedResource("queue", "rabbitmq", async () => {}, 2),
+        createManagedResource("cache-1", "cache", "redis", async () => {}, { priority: 3 }),
+        createManagedResource("db-1", "database", "postgres", async () => {}, { priority: 1 }),
+        createManagedResource("queue-1", "queue", "rabbitmq", async () => {}, { priority: 2 }),
       ]
 
       const sorted = sortResourcesByPriority(resources)
-      expect(sorted[0]!.type).toBe("database")
-      expect(sorted[1]!.type).toBe("queue")
-      expect(sorted[2]!.type).toBe("cache")
+      expect(sorted[0]!.type).toBe("database") // priority 1
+      expect(sorted[1]!.type).toBe("queue")    // priority 2
+      expect(sorted[2]!.type).toBe("cache")    // priority 3
     })
   })
 })
@@ -247,7 +247,7 @@ describe("Feature Flags", () => {
 
   describe("createFeatureFlag", () => {
     it("should create feature flag with defaults", () => {
-      const flag = createFeatureFlag("dark-mode", "boolean", false)
+      const flag = createFeatureFlag("dark-mode", "Dark Mode", "boolean", false)
 
       expect(flag.id).toBe("dark-mode")
       expect(flag.type).toBe("boolean")
@@ -256,7 +256,7 @@ describe("Feature Flags", () => {
     })
 
     it("should create string feature flag", () => {
-      const flag = createFeatureFlag("theme", "string", "light")
+      const flag = createFeatureFlag("theme", "Theme Setting", "string", "light")
 
       expect(flag.type).toBe("string")
       expect(flag.defaultValue).toBe("light")
@@ -265,7 +265,7 @@ describe("Feature Flags", () => {
 
   describe("evaluateFlag", () => {
     it("should return disabled result when flag disabled", () => {
-      const flag = createFeatureFlag("test-flag", "boolean", true)
+      const flag = createFeatureFlag("test-flag", "Test Flag", "boolean", true)
       flag.enabled = false
       store.set(flag)
 
@@ -275,7 +275,7 @@ describe("Feature Flags", () => {
     })
 
     it("should evaluate enabled flag", () => {
-      const flag = createFeatureFlag("test-flag", "boolean", false)
+      const flag = createFeatureFlag("test-flag", "Test Flag", "boolean", false)
       store.set(flag)
 
       const context: EvaluationContext = { userId: "user-1" }
@@ -286,7 +286,7 @@ describe("Feature Flags", () => {
 
   describe("evaluateFlagWithContext", () => {
     it("should evaluate flag with user context", () => {
-      const flag = createFeatureFlag("premium-feature", "boolean", false)
+      const flag = createFeatureFlag("premium-feature", "Premium Feature", "boolean", false)
       store.set(flag)
 
       const context: EvaluationContext = { userId: "user-1", attributes: { plan: "premium" } }
