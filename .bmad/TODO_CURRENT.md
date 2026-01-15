@@ -42,7 +42,7 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
   - Per-user et per-IP limits
   - Adaptive rate limiting (augmente apres echecs)
 
-- [ ] 1.4 Creer `src/lib/security/session-management.ts`:
+- [x] 1.4 Creer `src/lib/security/session-management.ts`:
   - Session fixation prevention
   - Concurrent session limits
   - Force logout capability

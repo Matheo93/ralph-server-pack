@@ -256,18 +256,23 @@ export function escapeSqlString(input: string): string {
 // ============================================================
 
 const NOSQL_INJECTION_PATTERNS = [
-  // MongoDB operators
+  // MongoDB operators (with or without quotes)
+  /['"]\$where['"]\s*:/i,
+  /['"]\$gt['"]\s*:/i,
+  /['"]\$lt['"]\s*:/i,
+  /['"]\$ne['"]\s*:/i,
+  /['"]\$nin['"]\s*:/i,
+  /['"]\$regex['"]\s*:/i,
+  /['"]\$or['"]\s*:/i,
+  /['"]\$and['"]\s*:/i,
+  // Also check without quotes (JS object literal)
   /\$where\s*:/i,
   /\$gt\s*:/i,
   /\$lt\s*:/i,
   /\$ne\s*:/i,
-  /\$nin\s*:/i,
-  /\$regex\s*:/i,
-  /\$or\s*:/i,
-  /\$and\s*:/i,
   // JSON injection in strings
   /["']\s*:\s*{/,
-  /{\s*\$[a-z]+\s*:/i,
+  /{\s*['"]\$[a-z]+['"]\s*:/i,
   // Function injection
   /function\s*\(/i,
 ]

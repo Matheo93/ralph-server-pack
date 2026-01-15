@@ -119,17 +119,19 @@ export async function verifySignedCsrfToken(
  * Constant-time string comparison to prevent timing attacks
  */
 export function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    // Compare anyway to maintain constant time
-    b = a
-  }
+  const lengthsMatch = a.length === b.length
+
+  // If lengths differ, still do comparison to maintain constant time
+  // but use 'a' for both to avoid out-of-bounds
+  const compareLen = a.length
+  const bToCompare = lengthsMatch ? b : a
 
   let result = 0
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  for (let i = 0; i < compareLen; i++) {
+    result |= a.charCodeAt(i) ^ bToCompare.charCodeAt(i)
   }
 
-  return result === 0 && a.length === b.length
+  return result === 0 && lengthsMatch
 }
 
 // ============================================================
