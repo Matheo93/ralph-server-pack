@@ -136,37 +136,22 @@ export async function updateNotificationPreferences(
 
   await setCurrentUser(userId)
 
-  // Upsert preferences
+  // Build JSONB object for notification_preferences column in users table
+  const prefsJson = {
+    push: validation.data.push_enabled,
+    email: validation.data.email_enabled,
+    reminder_time: validation.data.daily_reminder_time,
+    reminder_before_deadline_hours: validation.data.reminder_before_deadline_hours,
+    weekly_summary: validation.data.weekly_summary_enabled,
+    balance_alert: validation.data.balance_alert_enabled,
+  }
+
   const result = await query(
-    `INSERT INTO user_preferences (
-      user_id,
-      push_enabled,
-      email_enabled,
-      daily_reminder_time,
-      reminder_before_deadline_hours,
-      weekly_summary_enabled,
-      balance_alert_enabled,
-      updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-    ON CONFLICT (user_id)
-    DO UPDATE SET
-      push_enabled = EXCLUDED.push_enabled,
-      email_enabled = EXCLUDED.email_enabled,
-      daily_reminder_time = EXCLUDED.daily_reminder_time,
-      reminder_before_deadline_hours = EXCLUDED.reminder_before_deadline_hours,
-      weekly_summary_enabled = EXCLUDED.weekly_summary_enabled,
-      balance_alert_enabled = EXCLUDED.balance_alert_enabled,
-      updated_at = NOW()
-    RETURNING user_id`,
-    [
-      userId,
-      validation.data.push_enabled,
-      validation.data.email_enabled,
-      validation.data.daily_reminder_time,
-      validation.data.reminder_before_deadline_hours,
-      validation.data.weekly_summary_enabled,
-      validation.data.balance_alert_enabled,
-    ]
+    `UPDATE users
+     SET notification_preferences = $1::jsonb, updated_at = NOW()
+     WHERE id = $2
+     RETURNING id`,
+    [JSON.stringify(prefsJson), userId]
   )
 
   if (result.length === 0) {
@@ -232,27 +217,24 @@ export async function deleteAccount(
   }
 
   // Delete in order (cascade should handle most, but be explicit)
-  // 1. User preferences
-  await query(`DELETE FROM user_preferences WHERE user_id = $1`, [userId])
-
-  // 2. Deactivate household memberships
+  // 1. Deactivate household memberships
   await query(
-    `UPDATE household_members SET is_active = false, updated_at = NOW() WHERE user_id = $1`,
+    `UPDATE household_members SET is_active = false WHERE user_id = $1`,
     [userId]
   )
 
-  // 3. Anonymize tasks assigned to user
+  // 2. Anonymize tasks assigned to user
   await query(
     `UPDATE tasks SET assigned_to = NULL, updated_at = NOW() WHERE assigned_to = $1`,
     [userId]
   )
 
-  // 4. Mark user as deleted (soft delete for audit)
+  // 3. Mark user as deleted (soft delete for audit)
   await query(
     `UPDATE users
      SET email = CONCAT('deleted_', id, '@deleted.familyload.com'),
-         name = 'Compte supprimé',
-         deleted_at = NOW(),
+         name = 'Compte supprime',
+         notification_preferences = '{}',
          updated_at = NOW()
      WHERE id = $1`,
     [userId]
@@ -340,13 +322,13 @@ export async function getActiveTemplates(): Promise<{ id: string; title: string;
   const templates = await query<{ id: string; title: string; is_enabled: boolean }>(`
     SELECT
       tt.id,
-      tt.title,
+      tt.title_fr as title,
       COALESCE(hts.is_enabled, true) as is_enabled
     FROM task_templates tt
     LEFT JOIN household_template_settings hts
       ON hts.template_id = tt.id AND hts.household_id = $1
     WHERE tt.is_active = true
-    ORDER BY tt.category, tt.title
+    ORDER BY tt.category_id, tt.title_fr
   `, [membership.household_id])
 
   return templates

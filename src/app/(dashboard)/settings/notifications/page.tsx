@@ -15,37 +15,53 @@ interface NotificationPreferences {
   balance_alert_enabled: boolean
 }
 
+interface UserNotificationPrefsRow {
+  notification_preferences: {
+    push?: boolean
+    email?: boolean
+    reminder_time?: string
+    reminder_before_deadline_hours?: number
+    weekly_summary?: boolean
+    balance_alert?: boolean
+  } | null
+}
+
 async function getNotificationPreferences(): Promise<NotificationPreferences | null> {
   const userId = await getUserId()
   if (!userId) return null
 
   await setCurrentUser(userId)
 
-  const prefs = await queryOne<NotificationPreferences>(`
-    SELECT
-      push_enabled,
-      email_enabled,
-      daily_reminder_time,
-      reminder_before_deadline_hours,
-      weekly_summary_enabled,
-      balance_alert_enabled
-    FROM user_preferences
-    WHERE user_id = $1
+  const user = await queryOne<UserNotificationPrefsRow>(`
+    SELECT notification_preferences
+    FROM users
+    WHERE id = $1
   `, [userId])
 
-  // Return defaults if no preferences exist
-  if (!prefs) {
-    return {
-      push_enabled: true,
-      email_enabled: true,
-      daily_reminder_time: "08:00",
-      reminder_before_deadline_hours: 24,
-      weekly_summary_enabled: true,
-      balance_alert_enabled: true,
-    }
+  // Default preferences
+  const defaults: NotificationPreferences = {
+    push_enabled: true,
+    email_enabled: true,
+    daily_reminder_time: "08:00",
+    reminder_before_deadline_hours: 24,
+    weekly_summary_enabled: true,
+    balance_alert_enabled: true,
   }
 
-  return prefs
+  if (!user?.notification_preferences) {
+    return defaults
+  }
+
+  const prefs = user.notification_preferences
+
+  return {
+    push_enabled: prefs.push ?? defaults.push_enabled,
+    email_enabled: prefs.email ?? defaults.email_enabled,
+    daily_reminder_time: prefs.reminder_time ?? defaults.daily_reminder_time,
+    reminder_before_deadline_hours: prefs.reminder_before_deadline_hours ?? defaults.reminder_before_deadline_hours,
+    weekly_summary_enabled: prefs.weekly_summary ?? defaults.weekly_summary_enabled,
+    balance_alert_enabled: prefs.balance_alert ?? defaults.balance_alert_enabled,
+  }
 }
 
 export default async function NotificationSettingsPage() {
