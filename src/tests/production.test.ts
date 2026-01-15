@@ -186,7 +186,7 @@ describe("Graceful Shutdown", () => {
     it("should transition to terminated state", () => {
       let s = startDraining(state, "SIGTERM")
       s = startCleanup(s)
-      s = markTerminated(s, true)
+      s = markTerminated(s)
       expect(s.phase).toBe("terminated")
     })
   })
