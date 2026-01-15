@@ -47,14 +47,49 @@ const mockStripeClient = {
   },
 }
 
-// Mock only the stripe client, preserve other exports
-vi.mock("@/lib/stripe/client", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/stripe/client")>()
-  return {
-    ...actual,
-    stripe: mockStripeClient,
+// Inline the real implementations to avoid mock pollution
+// This must match src/lib/stripe/client.ts exactly
+function mapStripeStatusReal(
+  stripeStatus: string
+): "active" | "trial" | "past_due" | "cancelled" {
+  switch (stripeStatus) {
+    case "trialing":
+      return "trial"
+    case "active":
+      return "active"
+    case "past_due":
+      return "past_due"
+    case "canceled":
+    case "unpaid":
+    case "incomplete_expired":
+      return "cancelled"
+    default:
+      return "active"
   }
-})
+}
+
+// Mock stripe client with real implementations of utility functions
+vi.mock("@/lib/stripe/client", () => ({
+  stripe: mockStripeClient,
+  mapStripeStatus: mapStripeStatusReal,
+  validateStripeConfig: () => ({ valid: true, missing: [] }),
+  PRICE_CONFIG: {
+    id: "price_test",
+    amount: 400,
+    currency: "eur",
+    interval: "month" as const,
+    trialDays: 14,
+  },
+  CHECKOUT_CONFIG: {
+    successUrl: "http://localhost:3000/settings/billing?success=true",
+    cancelUrl: "http://localhost:3000/settings/billing?canceled=true",
+    billingAddressCollection: "required" as const,
+    allowPromotionCodes: true,
+  },
+  PORTAL_CONFIG: {
+    returnUrl: "http://localhost:3000/settings/billing",
+  },
+}))
 
 import { query, queryOne } from "@/lib/aws/database"
 import { stripe, mapStripeStatus } from "@/lib/stripe/client"
