@@ -829,10 +829,10 @@ export function detectCategoryFromKeywords(
   }
 
   const firstCategory = sortedCategories[0];
-  const primary = firstCategory ? firstCategory[0] : 'other' as TaskCategory;
+  const primary = (firstCategory ? firstCategory[0] : 'other') as TaskCategory;
   const primaryScore = firstCategory ? firstCategory[1] : 0;
   const secondCategory = sortedCategories[1];
-  const secondary = secondCategory ? secondCategory[0] : null;
+  const secondary = (secondCategory ? secondCategory[0] : null) as TaskCategory | null;
 
   return {
     primary,
@@ -939,8 +939,11 @@ export function parseDateFromText(
   const dateRegex = /(\d{1,2})[\/\-.](\d{1,2})[\/\-.]?(\d{2,4})?/;
   const match = text.match(dateRegex);
 
-  if (match) {
-    const [fullMatch, day, month, year] = match;
+  if (match && match[1] && match[2]) {
+    const fullMatch = match[0] ?? '';
+    const day = match[1];
+    const month = match[2];
+    const year = match[3];
     const parsedYear = year
       ? (year.length === 2 ? 2000 + parseInt(year) : parseInt(year))
       : baseDate.getFullYear();
