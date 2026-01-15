@@ -27,12 +27,12 @@ Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre s
 
 ## Phase 1: Security Hardening (OWASP Top 10)
 
-- [ ] 1.1 Creer `src/lib/security/csrf-protection.ts`:
+- [x] 1.1 Creer `src/lib/security/csrf-protection.ts`:
   - Double-submit cookie pattern
   - Token generation et validation
   - Middleware integration
 
-- [ ] 1.2 Creer `src/lib/security/input-validation.ts`:
+- [x] 1.2 Creer `src/lib/security/input-validation.ts`:
   - XSS sanitization avancee
   - SQL injection prevention (double-check Supabase)
   - File upload validation stricte
