@@ -90,6 +90,15 @@ const createSchedulerTask = (overrides: Partial<SchedulerTask> = {}): SchedulerT
   ...overrides,
 })
 
+const createPriorityTask = (overrides: Partial<PrioritizationTask> = {}): PrioritizationTask => ({
+  id: `task-${Date.now()}-${Math.random()}`,
+  title: "Test Task",
+  status: "pending",
+  priority: "normal",
+  createdAt: new Date().toISOString(),
+  ...overrides,
+})
+
 // ============================================================
 // SMART SCHEDULER TESTS
 // ============================================================
@@ -742,8 +751,8 @@ describe("Family Insights", () => {
 describe("Task Prioritization", () => {
   describe("Urgency Calculation", () => {
     it("should calculate urgency based on priority", () => {
-      const urgentTask: PrioritizationTask = createTestTask({ priority: "urgent" }) as PrioritizationTask
-      const lowTask: PrioritizationTask = createTestTask({ priority: "low" }) as PrioritizationTask
+      const urgentTask: PrioritizationTask = createPriorityTask({ priority: "urgent" })
+      const lowTask: PrioritizationTask = createPriorityTask({ priority: "low" })
 
       const urgentResult = calculateUrgency(urgentTask)
       const lowResult = calculateUrgency(lowTask)
@@ -798,8 +807,8 @@ describe("Task Prioritization", () => {
 
   describe("Importance Calculation", () => {
     it("should calculate importance based on priority", () => {
-      const highTask: PrioritizationTask = createTestTask({ priority: "high" }) as PrioritizationTask
-      const lowTask: PrioritizationTask = createTestTask({ priority: "low" }) as PrioritizationTask
+      const highTask: PrioritizationTask = createPriorityTask({ priority: "high" })
+      const lowTask: PrioritizationTask = createPriorityTask({ priority: "low" })
 
       const highResult = calculateImportance(highTask)
       const lowResult = calculateImportance(lowTask)
@@ -972,7 +981,7 @@ describe("Task Prioritization", () => {
     it("should provide quadrant summary", () => {
       const tasks: PrioritizationTask[] = [
         createTestTask({ priority: "urgent", isCritical: true }) as PrioritizationTask,
-        createTestTask({ priority: "low" }) as PrioritizationTask,
+        createPriorityTask({ priority: "low" }),
       ]
 
       const result = prioritizeTasks(tasks)
@@ -1056,8 +1065,8 @@ describe("Task Prioritization", () => {
 
     it("should get prioritized list", () => {
       const tasks: PrioritizationTask[] = [
-        createTestTask({ priority: "high" }) as PrioritizationTask,
-        createTestTask({ priority: "low" }) as PrioritizationTask,
+        createPriorityTask({ priority: "high" }),
+        createPriorityTask({ priority: "low" }),
       ]
 
       const prioritizer = new TaskPrioritizer(tasks)
@@ -1069,7 +1078,7 @@ describe("Task Prioritization", () => {
     it("should get tasks by quadrant", () => {
       const tasks: PrioritizationTask[] = [
         createTestTask({ priority: "urgent", isCritical: true }) as PrioritizationTask,
-        createTestTask({ priority: "low" }) as PrioritizationTask,
+        createPriorityTask({ priority: "low" }),
       ]
 
       const prioritizer = new TaskPrioritizer(tasks)
@@ -1084,8 +1093,8 @@ describe("Task Prioritization", () => {
 
       const tasks: PrioritizationTask[] = [
         createTestTask({ priority: "urgent", deadline: yesterday.toISOString() }) as PrioritizationTask,
-        createTestTask({ priority: "high" }) as PrioritizationTask,
-        createTestTask({ priority: "low" }) as PrioritizationTask,
+        createPriorityTask({ priority: "high" }),
+        createPriorityTask({ priority: "low" }),
       ]
 
       const prioritizer = new TaskPrioritizer(tasks)
