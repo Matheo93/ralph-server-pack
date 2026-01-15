@@ -314,13 +314,13 @@ export async function DELETE(request: NextRequest) {
     const invitationId = searchParams.get("invitationId")
 
     if (!memberId && !invitationId) {
-      return validationError("Either memberId or invitationId is required")
+      return validationError({ message: "Either memberId or invitationId is required" })
     }
 
     if (memberId) {
       // Cannot remove self
       if (memberId === userId) {
-        return validationError("Cannot remove yourself from the household")
+        return validationError({ message: "Cannot remove yourself from the household" })
       }
 
       // Deactivate member
