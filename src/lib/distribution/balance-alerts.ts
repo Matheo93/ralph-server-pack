@@ -209,13 +209,45 @@ const ALERT_MESSAGES = {
     medium: [
       "{userName} pourrait contribuer davantage si disponible.",
     ],
+    high: [
+      "{userName} n'a pas participé depuis un moment.",
+    ],
+    critical: [
+      "{userName} semble absent(e) - tout va bien ?",
+    ],
   },
   trend: {
+    low: [
+      "La tendance est légèrement à surveiller.",
+    ],
+    medium: [
+      "La tendance mérite attention.",
+    ],
+    high: [
+      "La tendance est préoccupante.",
+    ],
+    critical: [
+      "La tendance nécessite une action.",
+    ],
     increasing: [
       "La charge de {userName} augmente - surveillons ensemble.",
     ],
     decreasing: [
       "{userName} allège sa charge - c'est bien de prendre soin de soi.",
+    ],
+  },
+  underload: {
+    low: [
+      "{userName} a une charge légère.",
+    ],
+    medium: [
+      "{userName} pourrait prendre plus de tâches si disponible.",
+    ],
+    high: [
+      "{userName} a très peu de tâches assignées.",
+    ],
+    critical: [
+      "{userName} n'a presque aucune tâche.",
     ],
   },
 } as const

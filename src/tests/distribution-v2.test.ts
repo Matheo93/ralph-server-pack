@@ -67,6 +67,7 @@ import {
   createMemberAvailability,
   getAssignmentStats,
   type MemberAvailability,
+  type TaskWeightInputWithSkills,
 } from "@/lib/distribution/assignment-optimizer"
 
 // Balance Alerts
@@ -96,6 +97,21 @@ const createTestTask = (overrides: Partial<TaskWeightInput> = {}): TaskWeightInp
   isCritical: false,
   requiresCoordination: false,
   hasDeadlinePressure: false,
+  ...overrides,
+})
+
+const createTestTaskWithSkills = (
+  overrides: Partial<TaskWeightInputWithSkills> = {}
+): TaskWeightInputWithSkills => ({
+  taskId: "task-1",
+  title: "Test Task",
+  category: "quotidien",
+  priority: 2,
+  isRecurring: false,
+  isCritical: false,
+  requiresCoordination: false,
+  hasDeadlinePressure: false,
+  requiredSkills: [],
   ...overrides,
 })
 
@@ -586,7 +602,7 @@ describe("Assignment Optimizer", () => {
 
   describe("Assignment", () => {
     it("should find optimal assignee", () => {
-      const task = createTestTask()
+      const task = createTestTaskWithSkills()
       const members = [
         createTestMember({ userId: "1", userName: "Alice", currentLoad: 15 }),
         createTestMember({ userId: "2", userName: "Bob", currentLoad: 5 }),
@@ -600,7 +616,7 @@ describe("Assignment Optimizer", () => {
     })
 
     it("should respect blocked categories", () => {
-      const task = createTestTask({ category: "administratif" })
+      const task = createTestTaskWithSkills({ category: "administratif" })
       const members = [
         createTestMember({ userId: "1", userName: "Alice", blockedCategories: ["administratif"] }),
         createTestMember({ userId: "2", userName: "Bob", blockedCategories: [] }),
@@ -614,7 +630,7 @@ describe("Assignment Optimizer", () => {
     })
 
     it("should handle forced assignment", () => {
-      const task = createTestTask()
+      const task = createTestTaskWithSkills()
       const members = [
         createTestMember({ userId: "1", userName: "Alice", currentLoad: 5 }),
         createTestMember({ userId: "2", userName: "Bob", currentLoad: 15 }),
@@ -629,9 +645,9 @@ describe("Assignment Optimizer", () => {
 
     it("should assign batch of tasks", () => {
       const tasks = [
-        createTestTask({ taskId: "1", category: "sante" }),
-        createTestTask({ taskId: "2", category: "ecole" }),
-        createTestTask({ taskId: "3", category: "quotidien" }),
+        createTestTaskWithSkills({ taskId: "1", category: "sante" }),
+        createTestTaskWithSkills({ taskId: "2", category: "ecole" }),
+        createTestTaskWithSkills({ taskId: "3", category: "quotidien" }),
       ]
       const members = [
         createTestMember({ userId: "1", userName: "Alice" }),
