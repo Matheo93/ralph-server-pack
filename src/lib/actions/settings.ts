@@ -599,3 +599,176 @@ export async function isUserExcluded(userId: string, householdId: string): Promi
 
   return !!exclusion
 }
+
+// ============================================================
+// CATEGORY PREFERENCES (ASSIGNMENT)
+// ============================================================
+
+export type PreferenceLevel = "prefer" | "neutral" | "dislike" | "expert"
+
+export interface CategoryPreference {
+  id: string
+  categoryId: string
+  categoryName: string
+  categoryColor: string
+  preferenceLevel: PreferenceLevel
+}
+
+const SetPreferenceSchema = z.object({
+  categoryId: z.string().uuid(),
+  preferenceLevel: z.enum(["prefer", "neutral", "dislike", "expert"]),
+})
+
+export async function setCategoryPreference(
+  data: z.infer<typeof SetPreferenceSchema>
+): Promise<ActionResult> {
+  const userId = await getUserId()
+  if (!userId) {
+    return { success: false, error: "Utilisateur non connecté" }
+  }
+
+  const validation = SetPreferenceSchema.safeParse(data)
+  if (!validation.success) {
+    return { success: false, error: validation.error.issues[0]?.message ?? "Données invalides" }
+  }
+
+  await setCurrentUser(userId)
+
+  // Get user's household
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
+
+  if (!membership) {
+    return { success: false, error: "Vous n'avez pas de foyer" }
+  }
+
+  // Verify category exists
+  const category = await queryOne<{ id: string }>(`
+    SELECT id FROM task_categories WHERE id = $1
+  `, [validation.data.categoryId])
+
+  if (!category) {
+    return { success: false, error: "Catégorie introuvable" }
+  }
+
+  // If preference is neutral, delete instead of insert
+  if (validation.data.preferenceLevel === "neutral") {
+    await query(`
+      DELETE FROM member_category_preferences
+      WHERE user_id = $1 AND household_id = $2 AND category_id = $3
+    `, [userId, membership.household_id, validation.data.categoryId])
+  } else {
+    // Upsert preference
+    await query(`
+      INSERT INTO member_category_preferences (
+        user_id, household_id, category_id, preference_level, updated_at
+      ) VALUES ($1, $2, $3, $4, NOW())
+      ON CONFLICT (user_id, household_id, category_id)
+      DO UPDATE SET preference_level = EXCLUDED.preference_level, updated_at = NOW()
+    `, [userId, membership.household_id, validation.data.categoryId, validation.data.preferenceLevel])
+  }
+
+  revalidatePath("/settings/preferences")
+  return { success: true }
+}
+
+export async function getCategoryPreferences(): Promise<CategoryPreference[]> {
+  const userId = await getUserId()
+  if (!userId) return []
+
+  await setCurrentUser(userId)
+
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
+
+  if (!membership) return []
+
+  const preferences = await query<{
+    id: string
+    category_id: string
+    category_name: string
+    category_color: string
+    preference_level: PreferenceLevel
+  }>(`
+    SELECT
+      mcp.id,
+      mcp.category_id,
+      tc.name_fr as category_name,
+      tc.color as category_color,
+      mcp.preference_level
+    FROM member_category_preferences mcp
+    JOIN task_categories tc ON tc.id = mcp.category_id
+    WHERE mcp.user_id = $1 AND mcp.household_id = $2
+    ORDER BY tc.name_fr
+  `, [userId, membership.household_id])
+
+  return preferences.map(p => ({
+    id: p.id,
+    categoryId: p.category_id,
+    categoryName: p.category_name,
+    categoryColor: p.category_color,
+    preferenceLevel: p.preference_level,
+  }))
+}
+
+export interface TaskCategoryWithPreference {
+  id: string
+  name: string
+  code: string
+  color: string
+  icon: string | null
+  preference: PreferenceLevel
+}
+
+export async function getAllCategoriesWithPreferences(): Promise<TaskCategoryWithPreference[]> {
+  const userId = await getUserId()
+  if (!userId) return []
+
+  await setCurrentUser(userId)
+
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
+
+  if (!membership) return []
+
+  const categories = await query<{
+    id: string
+    name: string
+    code: string
+    color: string
+    icon: string | null
+    preference: PreferenceLevel | null
+  }>(`
+    SELECT
+      tc.id,
+      tc.name_fr as name,
+      tc.code,
+      tc.color,
+      tc.icon,
+      mcp.preference_level as preference
+    FROM task_categories tc
+    LEFT JOIN member_category_preferences mcp
+      ON mcp.category_id = tc.id
+      AND mcp.user_id = $1
+      AND mcp.household_id = $2
+    ORDER BY tc.name_fr
+  `, [userId, membership.household_id])
+
+  return categories.map(c => ({
+    id: c.id,
+    name: c.name,
+    code: c.code,
+    color: c.color,
+    icon: c.icon,
+    preference: c.preference ?? "neutral",
+  }))
+}
