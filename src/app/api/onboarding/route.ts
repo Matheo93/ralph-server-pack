@@ -13,13 +13,13 @@ import {
   skipStep,
   goToPreviousStep,
   goToStep,
-  resetOnboarding,
-  getOnboardingProgress,
+  getCurrentStep,
+  getProgress,
+  isOnboardingComplete,
   calculateOnboardingMetrics,
+  setHouseholdId,
   OnboardingState,
-  SetupStep,
-  OnboardingStore,
-  createOnboardingStore
+  SetupStepType
 } from '@/lib/onboarding/guided-setup';
 
 import {
@@ -72,7 +72,7 @@ const OnboardingActionSchema = z.discriminatedUnion('action', [
   z.object({
     action: z.literal('create_state'),
     userId: z.string(),
-    householdId: z.string().optional()
+    source: z.enum(['organic', 'referral', 'ad', 'social', 'unknown']).optional()
   }),
   z.object({
     action: z.literal('complete_step'),
@@ -90,14 +90,15 @@ const OnboardingActionSchema = z.discriminatedUnion('action', [
   z.object({
     action: z.literal('go_to_step'),
     userId: z.string(),
-    step: z.string()
+    stepIndex: z.number()
   }),
   z.object({
-    action: z.literal('reset'),
-    userId: z.string()
+    action: z.literal('set_household'),
+    userId: z.string(),
+    householdId: z.string()
   }),
   z.object({
-    action: z.literal('get_progress'),
+    action: z.literal('get_state'),
     userId: z.string()
   }),
   z.object({
@@ -240,7 +241,7 @@ type OnboardingAction = z.infer<typeof OnboardingActionSchema>;
 // IN-MEMORY STORES (would be replaced with database in production)
 // ============================================================================
 
-let onboardingStore: OnboardingStore = createOnboardingStore();
+const onboardingStates = new Map<string, OnboardingState>();
 let activationStore: ActivationStore = createActivationStore();
 let personalizationStore: PersonalizationStore = createPersonalizationStore();
 
@@ -254,10 +255,11 @@ function serializeOnboardingState(state: OnboardingState | undefined): unknown {
     ...state,
     startedAt: state.startedAt.toISOString(),
     completedAt: state.completedAt?.toISOString(),
-    stepHistory: state.stepHistory.map(h => ({
-      ...h,
-      enteredAt: h.enteredAt.toISOString(),
-      exitedAt: h.exitedAt?.toISOString()
+    lastActivityAt: state.lastActivityAt.toISOString(),
+    steps: state.steps.map(s => ({
+      ...s,
+      completedAt: s.completedAt?.toISOString(),
+      skippedAt: s.skippedAt?.toISOString()
     }))
   };
 }
@@ -310,12 +312,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // ======================================================================
 
       case 'create_state': {
-        onboardingStore = createOnboardingState(
-          onboardingStore,
-          action.userId,
-          action.householdId
-        );
-        const state = onboardingStore.states.get(action.userId);
+        const state = createOnboardingState(action.userId, action.source);
+        onboardingStates.set(action.userId, state);
         return NextResponse.json({
           success: true,
           state: serializeOnboardingState(state)
@@ -323,65 +321,83 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
 
       case 'complete_step': {
-        onboardingStore = completeStep(
-          onboardingStore,
-          action.userId,
-          action.stepData
-        );
-        const state = onboardingStore.states.get(action.userId);
+        const current = onboardingStates.get(action.userId);
+        if (!current) {
+          return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+        const newState = completeStep(current, action.stepData);
+        onboardingStates.set(action.userId, newState);
         return NextResponse.json({
           success: true,
-          state: serializeOnboardingState(state)
+          state: serializeOnboardingState(newState)
         });
       }
 
       case 'skip_step': {
-        onboardingStore = skipStep(onboardingStore, action.userId);
-        const state = onboardingStore.states.get(action.userId);
+        const current = onboardingStates.get(action.userId);
+        if (!current) {
+          return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+        const newState = skipStep(current);
+        onboardingStates.set(action.userId, newState);
         return NextResponse.json({
           success: true,
-          state: serializeOnboardingState(state)
+          state: serializeOnboardingState(newState)
         });
       }
 
       case 'previous_step': {
-        onboardingStore = goToPreviousStep(onboardingStore, action.userId);
-        const state = onboardingStore.states.get(action.userId);
+        const current = onboardingStates.get(action.userId);
+        if (!current) {
+          return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+        const newState = goToPreviousStep(current);
+        onboardingStates.set(action.userId, newState);
         return NextResponse.json({
           success: true,
-          state: serializeOnboardingState(state)
+          state: serializeOnboardingState(newState)
         });
       }
 
       case 'go_to_step': {
-        onboardingStore = goToStep(
-          onboardingStore,
-          action.userId,
-          action.step as SetupStep
-        );
-        const state = onboardingStore.states.get(action.userId);
+        const current = onboardingStates.get(action.userId);
+        if (!current) {
+          return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+        const newState = goToStep(current, action.stepIndex);
+        onboardingStates.set(action.userId, newState);
         return NextResponse.json({
           success: true,
-          state: serializeOnboardingState(state)
+          state: serializeOnboardingState(newState)
         });
       }
 
-      case 'reset': {
-        onboardingStore = resetOnboarding(onboardingStore, action.userId);
-        const state = onboardingStore.states.get(action.userId);
+      case 'set_household': {
+        const current = onboardingStates.get(action.userId);
+        if (!current) {
+          return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+        const newState = setHouseholdId(current, action.householdId);
+        onboardingStates.set(action.userId, newState);
         return NextResponse.json({
           success: true,
-          state: serializeOnboardingState(state)
+          state: serializeOnboardingState(newState)
         });
       }
 
-      case 'get_progress': {
-        const progress = getOnboardingProgress(onboardingStore, action.userId);
-        return NextResponse.json({ success: true, progress });
+      case 'get_state': {
+        const state = onboardingStates.get(action.userId);
+        return NextResponse.json({
+          success: true,
+          state: serializeOnboardingState(state),
+          progress: state ? getProgress(state) : 0,
+          isComplete: state ? isOnboardingComplete(state) : false,
+          currentStep: state ? getCurrentStep(state) : null
+        });
       }
 
       case 'get_metrics': {
-        const state = onboardingStore.states.get(action.userId);
+        const state = onboardingStates.get(action.userId);
         if (!state) {
           return NextResponse.json(
             { error: 'User not found' },
@@ -671,7 +687,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 export async function GET(): Promise<NextResponse> {
   try {
-    const onboardingCount = onboardingStore.states.size;
+    const onboardingCount = onboardingStates.size;
     const activationCount = activationStore.states.size;
     const personalizationCount = personalizationStore.profiles.size;
 

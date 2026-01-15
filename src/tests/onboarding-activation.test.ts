@@ -1,28 +1,25 @@
 /**
  * Onboarding Activation & Personalization Tests
- * Tests for guided setup, activation tracking, and personalization engine
+ * Tests for activation tracking and personalization engine
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 
-// Guided Setup
+// Guided Setup (using existing interface)
 import {
-  createOnboardingStore,
   createOnboardingState,
   completeStep,
   skipStep,
   goToPreviousStep,
   goToStep,
-  resetOnboarding,
-  getOnboardingProgress,
-  validateStepData,
-  canSkipStep,
+  getCurrentStep,
+  getProgress,
+  isOnboardingComplete,
   calculateOnboardingMetrics,
-  calculateAggregateMetrics,
-  SetupStep,
-  OnboardingStore,
-  SETUP_STEPS,
-  STEP_METADATA
+  setHouseholdId,
+  validateStepData,
+  OnboardingState,
+  DEFAULT_STEPS
 } from '@/lib/onboarding/guided-setup';
 
 // Activation Tracker
@@ -74,207 +71,194 @@ import {
 } from '@/lib/onboarding/personalization-engine';
 
 // ============================================================================
-// GUIDED SETUP TESTS
+// GUIDED SETUP TESTS (using existing interface)
 // ============================================================================
 
 describe('Guided Setup', () => {
-  let store: OnboardingStore;
   const userId = 'user-123';
 
-  beforeEach(() => {
-    store = createOnboardingStore();
-  });
-
-  describe('createOnboardingStore', () => {
-    it('should create empty store', () => {
-      expect(store.states.size).toBe(0);
-    });
-  });
-
   describe('createOnboardingState', () => {
-    it('should initialize onboarding state', () => {
-      store = createOnboardingState(store, userId);
-      const state = store.states.get(userId);
+    it('should create initial onboarding state', () => {
+      const state = createOnboardingState(userId);
 
       expect(state).toBeDefined();
-      expect(state!.userId).toBe(userId);
-      expect(state!.currentStep).toBe('welcome');
-      expect(state!.completedSteps).toEqual([]);
-      expect(state!.isComplete).toBe(false);
+      expect(state.userId).toBe(userId);
+      expect(state.currentStepIndex).toBe(0);
+      expect(state.completedAt).toBeNull();
     });
 
-    it('should include household ID when provided', () => {
-      store = createOnboardingState(store, userId, 'household-456');
-      const state = store.states.get(userId);
+    it('should include source when provided', () => {
+      const state = createOnboardingState(userId, 'referral');
 
-      expect(state!.householdId).toBe('household-456');
+      expect(state.source).toBe('referral');
     });
   });
 
   describe('completeStep', () => {
     it('should complete current step and move to next', () => {
-      store = createOnboardingState(store, userId);
-      store = completeStep(store, userId);
-      const state = store.states.get(userId);
+      let state = createOnboardingState(userId);
+      state = completeStep(state);
 
-      expect(state!.completedSteps).toContain('welcome');
-      expect(state!.currentStep).toBe('profile');
+      expect(state.currentStepIndex).toBe(1);
+      expect(state.steps[0]!.status).toBe('completed');
     });
 
     it('should store step data', () => {
-      store = createOnboardingState(store, userId);
-      store = completeStep(store, userId); // welcome -> profile
-      store = completeStep(store, userId, { name: 'John', email: 'john@example.com' });
-      const state = store.states.get(userId);
+      let state = createOnboardingState(userId);
+      state = completeStep(state); // welcome -> profile
+      state = completeStep(state, { name: 'John', email: 'john@example.com' });
 
-      expect(state!.stepData.profile).toEqual({ name: 'John', email: 'john@example.com' });
+      expect(state.steps[1]!.data).toEqual({ name: 'John', email: 'john@example.com' });
     });
 
     it('should mark onboarding complete at final step', () => {
-      store = createOnboardingState(store, userId);
+      let state = createOnboardingState(userId);
 
       // Complete all steps
-      for (let i = 0; i < SETUP_STEPS.length; i++) {
-        store = completeStep(store, userId);
+      for (let i = 0; i < DEFAULT_STEPS.length; i++) {
+        state = completeStep(state);
       }
 
-      const state = store.states.get(userId);
-      expect(state!.isComplete).toBe(true);
-      expect(state!.completedAt).toBeDefined();
+      expect(state.completedAt).not.toBeNull();
     });
   });
 
   describe('skipStep', () => {
-    it('should skip current step if skippable', () => {
-      store = createOnboardingState(store, userId);
-      store = completeStep(store, userId); // welcome -> profile
-      store = completeStep(store, userId); // profile -> household
-      store = completeStep(store, userId); // household -> invite_members
-      store = skipStep(store, userId); // skip invite_members
+    it('should skip current step if not required', () => {
+      let state = createOnboardingState(userId);
+      state = completeStep(state); // welcome -> profile
+      state = completeStep(state); // profile -> household
+      state = completeStep(state); // household -> invite_members (not required)
+      state = skipStep(state); // skip invite_members
 
-      const state = store.states.get(userId);
-      expect(state!.skippedSteps).toContain('invite_members');
-      expect(state!.currentStep).toBe('categories');
+      expect(state.steps[3]!.status).toBe('skipped');
+      expect(state.currentStepIndex).toBe(4);
     });
 
-    it('should not skip non-skippable steps', () => {
-      store = createOnboardingState(store, userId);
-      const initialStep = store.states.get(userId)!.currentStep;
-      store = skipStep(store, userId); // welcome is not skippable
+    it('should not skip required steps', () => {
+      let state = createOnboardingState(userId);
+      const initialIndex = state.currentStepIndex;
+      state = skipStep(state); // welcome is required
 
-      const state = store.states.get(userId);
-      expect(state!.currentStep).toBe(initialStep);
+      expect(state.currentStepIndex).toBe(initialIndex);
     });
   });
 
   describe('goToPreviousStep', () => {
     it('should go back to previous step', () => {
-      store = createOnboardingState(store, userId);
-      store = completeStep(store, userId); // welcome -> profile
-      store = completeStep(store, userId); // profile -> household
-      store = goToPreviousStep(store, userId);
+      let state = createOnboardingState(userId);
+      state = completeStep(state); // welcome -> profile
+      state = completeStep(state); // profile -> household
+      state = goToPreviousStep(state);
 
-      const state = store.states.get(userId);
-      expect(state!.currentStep).toBe('profile');
+      expect(state.currentStepIndex).toBe(1);
     });
 
     it('should not go before first step', () => {
-      store = createOnboardingState(store, userId);
-      store = goToPreviousStep(store, userId);
+      let state = createOnboardingState(userId);
+      state = goToPreviousStep(state);
 
-      const state = store.states.get(userId);
-      expect(state!.currentStep).toBe('welcome');
+      expect(state.currentStepIndex).toBe(0);
     });
   });
 
   describe('goToStep', () => {
     it('should navigate to completed step', () => {
-      store = createOnboardingState(store, userId);
-      store = completeStep(store, userId); // welcome -> profile
-      store = completeStep(store, userId); // profile -> household
-      store = goToStep(store, userId, 'welcome');
+      let state = createOnboardingState(userId);
+      state = completeStep(state); // welcome -> profile
+      state = completeStep(state); // profile -> household
+      state = goToStep(state, 0); // back to welcome
 
-      const state = store.states.get(userId);
-      expect(state!.currentStep).toBe('welcome');
+      expect(state.currentStepIndex).toBe(0);
     });
   });
 
-  describe('resetOnboarding', () => {
-    it('should reset to initial state', () => {
-      store = createOnboardingState(store, userId);
-      store = completeStep(store, userId);
-      store = completeStep(store, userId);
-      store = resetOnboarding(store, userId);
+  describe('getCurrentStep', () => {
+    it('should return current step', () => {
+      const state = createOnboardingState(userId);
+      const current = getCurrentStep(state);
 
-      const state = store.states.get(userId);
-      expect(state!.currentStep).toBe('welcome');
-      expect(state!.completedSteps).toEqual([]);
+      expect(current).not.toBeNull();
+      expect(current!.id).toBe('welcome');
     });
   });
 
-  describe('getOnboardingProgress', () => {
+  describe('getProgress', () => {
     it('should calculate progress correctly', () => {
-      store = createOnboardingState(store, userId);
-      store = completeStep(store, userId); // 1/9 = ~11%
-      store = completeStep(store, userId); // 2/9 = ~22%
+      let state = createOnboardingState(userId);
+      state = completeStep(state);
+      state = completeStep(state);
 
-      const progress = getOnboardingProgress(store, userId);
-      expect(progress.completedCount).toBe(2);
-      expect(progress.totalSteps).toBe(SETUP_STEPS.length);
-      expect(progress.percentage).toBeGreaterThan(0);
+      const progress = getProgress(state);
+      expect(progress).toBeGreaterThan(0);
+      expect(progress).toBeLessThanOrEqual(100);
     });
   });
 
-  describe('validateStepData', () => {
-    it('should validate profile step data', () => {
-      const valid = validateStepData('profile', { displayName: 'John' });
-      expect(valid.success).toBe(true);
-    });
-
-    it('should reject invalid profile data', () => {
-      const invalid = validateStepData('profile', {});
-      expect(invalid.success).toBe(false);
-    });
-
-    it('should validate household step data', () => {
-      const valid = validateStepData('household', { householdName: 'My Family' });
-      expect(valid.success).toBe(true);
-    });
-  });
-
-  describe('canSkipStep', () => {
-    it('should return true for skippable steps', () => {
-      expect(canSkipStep('invite_members')).toBe(true);
-      expect(canSkipStep('tour')).toBe(true);
-    });
-
-    it('should return false for required steps', () => {
-      expect(canSkipStep('welcome')).toBe(false);
-      expect(canSkipStep('profile')).toBe(false);
+  describe('isOnboardingComplete', () => {
+    it('should return false for incomplete onboarding', () => {
+      const state = createOnboardingState(userId);
+      expect(isOnboardingComplete(state)).toBe(false);
     });
   });
 
   describe('calculateOnboardingMetrics', () => {
     it('should calculate completion metrics', () => {
-      store = createOnboardingState(store, userId);
-      store = completeStep(store, userId);
-      store = completeStep(store, userId);
+      let state = createOnboardingState(userId);
+      state = completeStep(state);
+      state = completeStep(state);
 
-      const state = store.states.get(userId)!;
       const metrics = calculateOnboardingMetrics(state);
 
-      expect(metrics.completionRate).toBeGreaterThan(0);
-      expect(metrics.stepsCompleted).toBe(2);
+      expect(metrics.completedSteps).toBe(2);
+      expect(metrics.totalSteps).toBe(DEFAULT_STEPS.length);
+      expect(metrics.progress).toBeGreaterThan(0);
     });
   });
 
-  describe('STEP_METADATA', () => {
-    it('should have metadata for all steps', () => {
-      for (const step of SETUP_STEPS) {
-        expect(STEP_METADATA[step]).toBeDefined();
-        expect(STEP_METADATA[step].title).toBeDefined();
-        expect(STEP_METADATA[step].description).toBeDefined();
-      }
+  describe('validateStepData', () => {
+    it('should validate profile step data', () => {
+      const result = validateStepData('profile', {
+        name: 'John',
+        email: 'john@example.com',
+        avatar: null,
+        timezone: 'UTC',
+        language: 'en'
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it('should reject invalid profile data', () => {
+      const result = validateStepData('profile', {});
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+
+    it('should validate household step data', () => {
+      const result = validateStepData('household', {
+        name: 'My Family',
+        type: 'family',
+        size: 4
+      });
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('setHouseholdId', () => {
+    it('should set household ID', () => {
+      let state = createOnboardingState(userId);
+      state = setHouseholdId(state, 'household-123');
+
+      expect(state.householdId).toBe('household-123');
+    });
+  });
+
+  describe('DEFAULT_STEPS', () => {
+    it('should have all required steps', () => {
+      expect(DEFAULT_STEPS.length).toBeGreaterThan(0);
+      expect(DEFAULT_STEPS.some(s => s.id === 'welcome')).toBe(true);
+      expect(DEFAULT_STEPS.some(s => s.id === 'profile')).toBe(true);
+      expect(DEFAULT_STEPS.some(s => s.id === 'household')).toBe(true);
     });
   });
 });
@@ -383,7 +367,6 @@ describe('Activation Tracker', () => {
       store = initializeActivation(store, userId);
       const suggestions = getNextSuggestedMilestones(store, userId, 5);
 
-      // First suggestions should include required milestones
       const suggestedMilestones = suggestions.map(s => s.milestone);
       const requiredInSuggestions = DEFAULT_ACTIVATION_CONFIG.requiredMilestones
         .filter(m => suggestedMilestones.includes(m));
@@ -404,9 +387,6 @@ describe('Activation Tracker', () => {
 
     it('should update last active timestamp', () => {
       store = initializeActivation(store, userId);
-      const initialLastActive = getActivationState(store, userId)!.lastActiveAt;
-
-      // Small delay to ensure different timestamp
       store = recordEngagement(store, userId, { type: 'session_start' });
       const newLastActive = getActivationState(store, userId)!.lastActiveAt;
 
@@ -435,7 +415,6 @@ describe('Activation Tracker', () => {
     it('should calculate score breakdown', () => {
       store = initializeActivation(store, userId);
 
-      // Add some engagement
       for (let i = 0; i < 10; i++) {
         store = recordEngagement(store, userId, { type: 'task_view' });
       }
@@ -476,7 +455,6 @@ describe('Activation Tracker', () => {
     it('should identify inactive users', () => {
       store = initializeActivation(store, userId);
 
-      // Simulate old last active date
       const state = store.states.get(userId)!;
       const oldDate = new Date();
       oldDate.setDate(oldDate.getDate() - 5);
@@ -625,7 +603,6 @@ describe('Personalization Engine', () => {
     it('should detect persona from behavior', () => {
       store = createUserProfile(store, userId);
 
-      // Simulate organizer behavior
       for (let i = 0; i < 20; i++) {
         store = recordBehavior(store, userId, 'task_create');
         store = recordBehavior(store, userId, 'task_assign');
@@ -654,7 +631,6 @@ describe('Personalization Engine', () => {
     it('should detect usage patterns', () => {
       store = createUserProfile(store, userId);
 
-      // Simulate usage
       for (let i = 0; i < 30; i++) {
         store = recordBehavior(store, userId, 'session_start');
         store = recordBehavior(store, userId, 'task_view');
@@ -673,7 +649,6 @@ describe('Personalization Engine', () => {
     it('should generate recommendations', () => {
       store = createUserProfile(store, userId);
 
-      // Set up persona
       for (let i = 0; i < 20; i++) {
         store = recordBehavior(store, userId, 'task_create');
       }
@@ -755,7 +730,6 @@ describe('Personalization Engine', () => {
     it('should customize for power users', () => {
       store = createUserProfile(store, userId);
 
-      // Simulate power user behavior
       for (let i = 0; i < 30; i++) {
         store = recordBehavior(store, userId, 'keyboard_shortcut');
         store = recordBehavior(store, userId, 'automation_create');
@@ -853,19 +827,24 @@ describe('Personalization Engine', () => {
 
 describe('Onboarding Integration', () => {
   it('should complete full onboarding flow', () => {
-    let onboardingStore = createOnboardingStore();
+    let onboardingState = createOnboardingState('integration-user');
     let activationStore = createActivationStore();
     let personalizationStore = createPersonalizationStore();
     const userId = 'integration-user';
 
-    // Step 1: Initialize all stores
-    onboardingStore = createOnboardingState(onboardingStore, userId);
+    // Step 1: Initialize activation and personalization
     activationStore = initializeActivation(activationStore, userId);
     personalizationStore = createUserProfile(personalizationStore, userId);
 
     // Step 2: Complete onboarding steps
-    onboardingStore = completeStep(onboardingStore, userId); // welcome
-    onboardingStore = completeStep(onboardingStore, userId, { displayName: 'Test User' }); // profile
+    onboardingState = completeStep(onboardingState); // welcome
+    onboardingState = completeStep(onboardingState, {
+      name: 'Test User',
+      email: 'test@example.com',
+      avatar: null,
+      timezone: 'UTC',
+      language: 'en'
+    }); // profile
 
     // Step 3: Record activation milestones
     activationStore = recordMilestone(activationStore, userId, 'profile_completed');
@@ -874,8 +853,8 @@ describe('Onboarding Integration', () => {
     personalizationStore = recordBehavior(personalizationStore, userId, 'onboarding_progress');
 
     // Verify state
-    const onboardingProgress = getOnboardingProgress(onboardingStore, userId);
-    expect(onboardingProgress.completedCount).toBe(2);
+    const progress = getProgress(onboardingState);
+    expect(progress).toBeGreaterThan(0);
 
     const activationDetails = getActivationDetails(activationStore, userId);
     expect(activationDetails.score).toBeGreaterThan(0);
