@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { isRedirectError } from "next/dist/client/components/redirect-error"
 import { getUserId } from "@/lib/auth/actions"
 import { query, queryOne, insert, transaction, setCurrentUser } from "@/lib/aws/database"
 import { onboardingWizardSchema } from "@/lib/validations/onboarding"
@@ -139,11 +140,11 @@ export async function completeOnboarding(
     revalidatePath("/", "layout")
     redirect("/dashboard")
   } catch (error) {
-    const err = error as Error
-    // Check for redirect (Next.js throws this as an error)
-    if (err.message === "NEXT_REDIRECT") {
+    // Re-throw redirect errors - they are NOT real errors!
+    if (isRedirectError(error)) {
       throw error
     }
+    const err = error as Error
     return {
       success: false,
       error: err.message || "Erreur lors de la création du foyer",

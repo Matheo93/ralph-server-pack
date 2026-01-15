@@ -29,8 +29,8 @@ export default function SignupPage() {
                 <Clock className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-foreground">Configuration en 2 minutes</p>
-                <p className="text-sm text-muted-foreground">Commencez immédiatement</p>
+                <p className="font-medium text-foreground">Prêt en 2 minutes</p>
+                <p className="text-sm text-muted-foreground">Commencez à souffler dès maintenant</p>
               </div>
             </div>
 
@@ -39,8 +39,8 @@ export default function SignupPage() {
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="font-medium text-foreground">Invitez votre partenaire</p>
-                <p className="text-sm text-muted-foreground">Partagez la gestion familiale</p>
+                <p className="font-medium text-foreground">Fini le "c'est toujours moi"</p>
+                <p className="text-sm text-muted-foreground">Partagez équitablement avec votre partenaire</p>
               </div>
             </div>
 

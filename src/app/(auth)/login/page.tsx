@@ -65,7 +65,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           {/* Trust badge */}
           <div className="mt-10 flex items-center gap-2 text-sm text-muted-foreground">
             <Shield className="w-4 h-4" />
-            <span>Données sécurisées • RGPD compliant</span>
+            <span>Vos données restent 100% privées</span>
           </div>
         </div>
       </div>
