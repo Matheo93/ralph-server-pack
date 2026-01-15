@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 17: Polish, Performance & Production Readiness
+# TODO CURRENT - Sprint 18: Security Hardening, i18n & Advanced Features
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,169 +10,175 @@
 ---
 
 ## Sprint Goal
-Toutes les features principales du MASTER_PROMPT sont implementees. Ce sprint se concentre sur:
-- Performance optimization (Lighthouse 100)
-- Test coverage augmentation
-- UX polish et micro-interactions
-- Production monitoring et observability
-- Mobile PWA enhancements
+Sprint 17 a couvert performance, monitoring, PWA et UX. Sprint 18 se concentre sur:
+- Security hardening (OWASP Top 10)
+- Internationalisation complete (i18n)
+- Tests E2E critiques
+- Features avancees manquantes
+- Documentation API
 
 ---
 
 ## PRE-REQUIS
-- [x] 0.1 Verifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [x] 0.2 Verifier que les tests passent: `bun test src/tests/`
+- [ ] 0.1 Verifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [ ] 0.2 Verifier que les tests passent: `bun test src/tests/`
 
 ---
 
-## Phase 1: Performance Optimization
+## Phase 1: Security Hardening (OWASP Top 10)
 
-- [x] 1.1 Creer `src/lib/performance/bundle-analyzer.ts`:
-  - Analyse des chunks Next.js
-  - Detection des imports lourds
-  - Suggestions d'optimisation
+- [ ] 1.1 Creer `src/lib/security/csrf-protection.ts`:
+  - Double-submit cookie pattern
+  - Token generation et validation
+  - Middleware integration
 
-- [x] 1.2 Creer `src/lib/performance/image-optimization.ts`:
-  - Lazy loading images
-  - Responsive srcset
-  - WebP/AVIF fallbacks
+- [ ] 1.2 Creer `src/lib/security/input-validation.ts`:
+  - XSS sanitization avancee
+  - SQL injection prevention (double-check Supabase)
+  - File upload validation stricte
 
-- [x] 1.3 Creer `src/lib/performance/critical-css.ts`:
-  - Extraction CSS critique
-  - Inline above-the-fold styles
-  - Deferred non-critical CSS
+- [ ] 1.3 Creer `src/lib/security/rate-limiter-advanced.ts`:
+  - Sliding window algorithm
+  - Per-user et per-IP limits
+  - Adaptive rate limiting (augmente apres echecs)
 
-- [x] 1.4 Optimiser les Server Components:
-  - Audit composants avec 'use client'
-  - Cree server-component-analyzer.ts avec patterns et best practices
-  - Reduire bundle client
+- [ ] 1.4 Creer `src/lib/security/session-management.ts`:
+  - Session fixation prevention
+  - Concurrent session limits
+  - Force logout capability
 
-- [x] 1.5 Tests performance (54 tests):
-  - Bundle size assertions
-  - Image optimization tests
-  - Critical CSS tests
-  - Server component analyzer tests
-
----
-
-## Phase 2: Test Coverage Augmentation
-
-- [x] 2.1 Tests E2E Playwright `e2e/auth.spec.ts` (existaient deja)
-
-- [x] 2.2 Tests E2E `e2e/onboarding.spec.ts` (existaient deja)
-
-- [x] 2.3 Tests E2E `e2e/tasks.spec.ts` (existaient deja)
-
-- [x] 2.4 Cree tests integration `src/tests/integration/full-flow.test.ts`:
-  - 46 tests: User journey complet, Multi-user scenarios, Edge cases
-
-- [x] 2.5 Coverage augmentee:
-  - 1535 tests totaux (100+ nouveaux)
-  - Integration tests pour tous les schemas
+- [ ] 1.5 Tests security (30+ tests):
+  - CSRF protection tests
+  - XSS prevention tests
+  - Rate limiting tests
+  - Session management tests
 
 ---
 
-## Phase 3: UX Polish & Micro-interactions
+## Phase 2: Internationalisation Complete (i18n)
 
-- [x] 3.1 Creer `src/components/custom/ConfettiCelebration.tsx`:
-  - Animation streak milestone
-  - Task completion celebration
-  - Weekly goal reached
+- [ ] 2.1 Creer `src/i18n/messages/en.ts`:
+  - Toutes les traductions anglaises
+  - Format coherent avec fr.ts existant
+  - Pluralisation correcte
 
-- [x] 3.2 Creer `src/components/custom/HapticFeedback.tsx`:
-  - Vibration patterns mobile
-  - Feedback tactile swipe
-  - Success/error patterns
+- [ ] 2.2 Creer `src/i18n/messages/es.ts`:
+  - Traductions espagnoles completes
+  - Adaptations culturelles (dates, nombres)
 
-- [x] 3.3 Creer `src/components/custom/ProgressRing.tsx`:
-  - Circular progress animee
-  - Weekly completion
-  - Monthly stats
+- [ ] 2.3 Creer `src/i18n/messages/de.ts`:
+  - Traductions allemandes completes
+  - Gestion des cas grammaticaux
 
-- [x] 3.4 Ameliorer transitions pages:
-  - Shared element transitions
-  - Smooth page navigation
-  - Loading states elegants
+- [ ] 2.4 Creer `src/lib/i18n/date-formatter.ts`:
+  - Formatage dates par locale
+  - Jours de la semaine localises
+  - Periodes relatives ("il y a 2 jours")
 
-- [x] 3.5 Tests UX (59 tests):
-  - Animation timing
-  - Accessibility motion-reduce
-  - Mobile responsiveness
-
----
-
-## Phase 4: Production Monitoring & Observability
-
-- [x] 4.1 Creer `src/lib/monitoring/metrics.ts`:
-  - Custom metrics collection
-  - Performance marks
-  - User timing API
-
-- [x] 4.2 Creer `src/lib/monitoring/tracing.ts`:
-  - Distributed tracing
-  - Request correlation
-  - Span management
-
-- [x] 4.3 Creer `src/lib/monitoring/health-checks.ts`:
-  - Database connectivity
-  - External services status
-  - Dependency health
-
-- [x] 4.4 Creer `src/app/api/metrics/route.ts`:
-  - Prometheus format export
-  - Custom business metrics
-  - SLI/SLO tracking
-
-- [x] 4.5 Tests monitoring (64 tests):
-  - Metrics collection
-  - Tracing correlation
-  - Health check scenarios
+- [ ] 2.5 Tests i18n (25+ tests):
+  - Toutes les langues chargent
+  - Pluralisation correcte
+  - Formatage dates par locale
+  - Fallback vers francais
 
 ---
 
-## Phase 5: Mobile PWA Enhancements
+## Phase 3: Tests E2E Critiques
 
-- [x] 5.1 Ameliorer `public/manifest.json`:
-  - Screenshots pour install
-  - Shortcuts actions rapides
-  - Share target config
-  - Protocol handlers
-  - Launch handler
+- [ ] 3.1 Creer `e2e/full-user-journey.spec.ts`:
+  - Signup -> Onboarding -> First task -> Streak
+  - Test complet 10+ etapes
+  - Screenshots automatiques
 
-- [x] 5.2 Creer `src/lib/pwa/background-sync.ts`:
-  - Offline task creation
-  - Sync queue management
-  - Conflict resolution
+- [ ] 3.2 Creer `e2e/payment-flow.spec.ts`:
+  - Stripe checkout simulation
+  - Subscription upgrade/downgrade
+  - Billing portal access
 
-- [x] 5.3 Creer `src/lib/pwa/push-subscription.ts`:
-  - Web Push subscription
-  - Permission flow
-  - Token refresh
+- [ ] 3.3 Creer `e2e/co-parent-invite.spec.ts`:
+  - Invitation envoyee
+  - Token valide
+  - Acceptation et acces foyer
 
-- [x] 5.4 Creer `src/components/custom/UpdatePrompt.tsx`:
-  - Service worker update
-  - Graceful reload
-  - Cache invalidation
-  - Install prompt
-  - Notification permission prompt
+- [ ] 3.4 Creer `e2e/vocal-task-creation.spec.ts`:
+  - Enregistrement audio mock
+  - Transcription et analyse
+  - Creation tache automatique
 
-- [x] 5.5 Tests PWA (53 tests):
-  - Offline scenarios
-  - Background sync
-  - Push notifications
-  - Manifest config
-  - Service worker update
+- [ ] 3.5 Creer `e2e/offline-sync.spec.ts`:
+  - Creation offline
+  - Synchronisation au retour online
+  - Conflit resolution
 
 ---
 
-## Definition of Done Sprint 17
-- [x] Performance: Performance optimization modules created
-- [x] Coverage: > 80% sur code critique (1711 tests)
-- [x] E2E: Tous les user journeys testes
-- [x] PWA: Installable et fonctionnel offline
-- [x] Build production OK: `bunx tsc --noEmit && bun run build`
-- [x] Tous les tests passent: `bun test src/tests/`
-- [x] 276 nouveaux tests (54 perf + 46 integration + 59 UX + 64 monitoring + 53 PWA)
+## Phase 4: Features Avancees
+
+- [ ] 4.1 Creer `src/lib/services/smart-scheduler.ts`:
+  - Prediction meilleur moment pour taches
+  - Learning sur patterns utilisateur
+  - Suggestions horaires
+
+- [ ] 4.2 Creer `src/lib/services/family-insights.ts`:
+  - Statistiques mensuelles
+  - Trends charge mentale
+  - Comparaison semaine precedente
+
+- [ ] 4.3 Creer `src/components/custom/WeeklyReport.tsx`:
+  - Recap hebdomadaire
+  - Graphiques completion
+  - Points amelioration
+
+- [ ] 4.4 Creer `src/lib/services/task-prioritization.ts`:
+  - Algorithme scoring avance
+  - Urgence vs importance
+  - Deadlines implicites
+
+- [ ] 4.5 Tests features avancees (30+ tests):
+  - Smart scheduler tests
+  - Family insights tests
+  - Task prioritization tests
+
+---
+
+## Phase 5: Documentation & API
+
+- [ ] 5.1 Ameliorer `src/app/api/docs/route.ts`:
+  - OpenAPI 3.1 complet
+  - Tous les endpoints documentes
+  - Exemples pour chaque route
+
+- [ ] 5.2 Creer `src/lib/api/error-responses.ts`:
+  - Error codes standardises
+  - Messages localises
+  - Documentation erreurs
+
+- [ ] 5.3 Creer `src/lib/api/versioning.ts`:
+  - Support API v1 et v2
+  - Deprecation warnings
+  - Migration guides
+
+- [ ] 5.4 Creer `src/app/api/v2/` structure:
+  - Routes v2 avec breaking changes
+  - Meilleure pagination
+  - Filtering avance
+
+- [ ] 5.5 Tests API (25+ tests):
+  - OpenAPI validation
+  - Error responses tests
+  - Versioning tests
+
+---
+
+## Definition of Done Sprint 18
+- [ ] Security: OWASP Top 10 couvert
+- [ ] i18n: 4 langues supportees (fr, en, es, de)
+- [ ] E2E: User journeys critiques testes
+- [ ] Features: Smart scheduler et insights
+- [ ] API: Documentation complete OpenAPI 3.1
+- [ ] Build production OK: `bunx tsc --noEmit && bun run build`
+- [ ] Tous les tests passent: `bun test src/tests/`
+- [ ] 110+ nouveaux tests (30 security + 25 i18n + 30 features + 25 API)
 
 ---
 
