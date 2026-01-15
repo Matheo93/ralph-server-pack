@@ -15,29 +15,31 @@ Améliorer le système de notifications push (Firebase), compléter la timeline 
 ---
 
 ## PRÉ-REQUIS
-- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [ ] 0.2 Vérifier que les tests passent: `bun test src/tests/`
+- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [x] 0.2 Vérifier que les tests passent: `bun test src/tests/`
 
 ---
 
-## Phase 1: Notifications Push Firebase
+## Phase 1: Notifications Push Firebase ✅
 
-- [ ] 1.1 Améliorer `src/lib/firebase/notifications.ts`:
+- [x] 1.1 Améliorer `src/lib/firebase/messaging.ts`:
   - Intégrer Firebase Admin SDK pour push
-  - Types de notifications: task_reminder, streak_risk, charge_alert
+  - Types de notifications: task_reminder, streak_risk, charge_alert, deadline_warning, task_completed, milestone
   - Multi-device support (tokens par user)
+  - Fonctions: sendStreakRiskPush, sendTaskCompletedPush, sendMilestonePush, sendDeadlineWarningPush, sendBatchNotifications
 
-- [ ] 1.2 Créer `src/lib/services/notification-scheduler.ts`:
+- [x] 1.2 Créer `src/lib/services/notification-scheduler.ts`:
   - Planifier les rappels selon deadline
   - Rappel J-1, J-0, H-3 pour tâches critiques
   - Agrégation des notifications (pas de spam)
+  - Fonctions: scheduleTaskNotifications, processScheduledNotifications, scheduleStreakRiskNotifications, scheduleChargeAlertNotifications
 
-- [ ] 1.3 Améliorer API `src/app/api/notifications/`:
+- [x] 1.3 Améliorer API `src/app/api/notifications/`:
   - /send endpoint pour push manuel
   - /schedule pour planification
   - /preferences pour paramétrage user
 
-- [ ] 1.4 Tests notifications push (≥20 tests)
+- [x] 1.4 Tests notifications push (59 tests - ≥20 requis)
 
 ---
 
