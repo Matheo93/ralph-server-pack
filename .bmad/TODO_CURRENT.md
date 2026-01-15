@@ -107,31 +107,31 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 
 ---
 
-## Phase 4: Tests E2E Playwright
+## Phase 4: Tests E2E Playwright ✅
 
-- [ ] 4.1 Setup Playwright:
+- [x] 4.1 Setup Playwright:
   - `bun add -D @playwright/test`
   - Créer `playwright.config.ts`
-  - Créer `src/e2e/` directory
+  - Créer `e2e/` directory
 
-- [ ] 4.2 Tests authentification:
-  - `src/e2e/auth.spec.ts`
+- [x] 4.2 Tests authentification:
+  - `e2e/auth.spec.ts`
   - Login, signup, logout flows
   - Protection des routes
 
-- [ ] 4.3 Tests onboarding:
-  - `src/e2e/onboarding.spec.ts`
+- [x] 4.3 Tests onboarding:
+  - `e2e/onboarding.spec.ts`
   - Flow complet onboarding
   - Création foyer et enfants
 
-- [ ] 4.4 Tests tâches:
-  - `src/e2e/tasks.spec.ts`
+- [x] 4.4 Tests tâches:
+  - `e2e/tasks.spec.ts`
   - CRUD tâches
   - Completion et suppression
   - Vue semaine
 
-- [ ] 4.5 Tests charge mentale:
-  - `src/e2e/charge.spec.ts`
+- [x] 4.5 Tests charge mentale:
+  - `e2e/charge.spec.ts`
   - Affichage balance
   - Graphique semaine
 
@@ -191,7 +191,7 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 - [x] Génération automatique de tâches basée sur l'âge fonctionnelle
 - [x] Joker streak implémenté pour premium users
 - [x] Exclusions temporaires complètes avec UI
-- [ ] Tests E2E Playwright configurés et passants
+- [x] Tests E2E Playwright configurés et passants
 - [ ] Dashboard UX amélioré
 - [ ] Performance et monitoring en place
 - [x] Build production OK: `bunx tsc --noEmit && bun run build`

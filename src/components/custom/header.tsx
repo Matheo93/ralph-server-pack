@@ -13,10 +13,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { logout } from "@/lib/auth/actions"
+import { NotificationBadge } from "./NotificationBadge"
 
 interface HeaderProps {
   email: string
   householdName?: string
+  notificationCount?: number
 }
 
 export function Header({ email, householdName }: HeaderProps) {
@@ -44,6 +46,7 @@ export function Header({ email, householdName }: HeaderProps) {
           )}
         </div>
         <div className="ml-auto flex items-center gap-x-4 lg:gap-x-6">
+          <NotificationBadge />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

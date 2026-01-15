@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils/index"
 interface TaskCardProps {
   task: TaskListItem
   onPostpone?: (taskId: string) => void
+  compact?: boolean
 }
 
 function formatDeadline(deadline: string | null): string {
@@ -57,7 +58,7 @@ function isOverdue(deadline: string | null): boolean {
   return date < today
 }
 
-function TaskCardInner({ task, onPostpone }: TaskCardProps) {
+function TaskCardInner({ task, onPostpone, compact = false }: TaskCardProps) {
   const [isPending, startTransition] = useTransition()
   const [showActions, setShowActions] = useState(false)
   const [justCompleted, setJustCompleted] = useState(false)
@@ -120,10 +121,10 @@ function TaskCardInner({ task, onPostpone }: TaskCardProps) {
           justCompleted && "ring-2 ring-green-500 ring-offset-2"
         )}
       >
-      <CardHeader className="pb-2">
+      <CardHeader className={cn("pb-2", compact && "py-2")}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-3 flex-1 min-w-0">
-            {task.category_code && (
+            {task.category_code && !compact && (
               <TaskCategoryIcon
                 code={task.category_code}
                 color={task.category_color}
@@ -133,7 +134,8 @@ function TaskCardInner({ task, onPostpone }: TaskCardProps) {
               <Link href={`/tasks/${task.id}`}>
                 <CardTitle
                   className={cn(
-                    "text-base hover:underline cursor-pointer",
+                    "hover:underline cursor-pointer",
+                    compact ? "text-sm" : "text-base",
                     isDone && "line-through",
                     isCancelled && "line-through text-muted-foreground"
                   )}
@@ -141,25 +143,27 @@ function TaskCardInner({ task, onPostpone }: TaskCardProps) {
                   {task.title}
                 </CardTitle>
               </Link>
-              <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                {task.child_name && (
-                  <Badge variant="outline" className="text-xs">
-                    {task.child_name}
-                  </Badge>
-                )}
-                <span
-                  className={cn(
-                    "text-xs text-muted-foreground",
-                    overdue && !isDone && !isCancelled && "text-red-600 font-medium"
+              {!compact && (
+                <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                  {task.child_name && (
+                    <Badge variant="outline" className="text-xs">
+                      {task.child_name}
+                    </Badge>
                   )}
-                >
-                  {formatDeadline(task.deadline)}
-                </span>
-              </div>
+                  <span
+                    className={cn(
+                      "text-xs text-muted-foreground",
+                      overdue && !isDone && !isCancelled && "text-red-600 font-medium"
+                    )}
+                  >
+                    {formatDeadline(task.deadline)}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <TaskPriorityBadge priority={task.priority} />
+            {!compact && <TaskPriorityBadge priority={task.priority} />}
             {task.is_critical && (
               <Badge variant="destructive" className="text-xs">
                 Critique
@@ -169,7 +173,7 @@ function TaskCardInner({ task, onPostpone }: TaskCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
+      <CardContent className={cn("pt-0", compact && "pb-2")}>
         {!isDone && !isCancelled ? (
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -261,7 +265,7 @@ function TaskCardInner({ task, onPostpone }: TaskCardProps) {
 
 // Memoize TaskCard to prevent re-renders when parent updates but task hasn't changed
 export const TaskCard = memo(TaskCardInner, (prevProps, nextProps) => {
-  // Custom comparison: only re-render if task data or onPostpone reference changed
+  // Custom comparison: only re-render if task data or props changed
   return (
     prevProps.task.id === nextProps.task.id &&
     prevProps.task.status === nextProps.task.status &&
@@ -269,6 +273,7 @@ export const TaskCard = memo(TaskCardInner, (prevProps, nextProps) => {
     prevProps.task.deadline === nextProps.task.deadline &&
     prevProps.task.priority === nextProps.task.priority &&
     prevProps.task.is_critical === nextProps.task.is_critical &&
-    prevProps.onPostpone === nextProps.onPostpone
+    prevProps.onPostpone === nextProps.onPostpone &&
+    prevProps.compact === nextProps.compact
   )
 })
