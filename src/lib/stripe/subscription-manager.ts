@@ -61,7 +61,7 @@ export const SubscriptionSchema = z.object({
   canceledAt: z.date().nullable(),
   pausedAt: z.date().nullable(),
   resumeAt: z.date().nullable(),
-  metadata: z.record(z.string()).default({}),
+  metadata: z.record(z.string(), z.string()).default({}),
   createdAt: z.date(),
   updatedAt: z.date(),
 })

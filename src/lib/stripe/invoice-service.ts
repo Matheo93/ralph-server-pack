@@ -39,7 +39,7 @@ export const LineItemSchema = z.object({
   periodStart: z.date().nullable(),
   periodEnd: z.date().nullable(),
   proration: z.boolean().default(false),
-  metadata: z.record(z.string()).default({}),
+  metadata: z.record(z.string(), z.string()).default({}),
 })
 export type LineItem = z.infer<typeof LineItemSchema>
 
@@ -117,7 +117,7 @@ export const InvoiceSchema = z.object({
   // Metadata
   description: z.string().nullable(),
   footer: z.string().nullable(),
-  metadata: z.record(z.string()).default({}),
+  metadata: z.record(z.string(), z.string()).default({}),
 
   // Timestamps
   createdAt: z.date(),
