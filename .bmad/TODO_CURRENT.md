@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 14: Task Catalogue & i18n
+# TODO CURRENT - Sprint 15: Mobile & Payments
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,7 +10,7 @@
 ---
 
 ## Sprint Goal
-Implémenter le catalogue de tâches automatiques (génération selon âge enfant), le système de jokers premium, et préparer l'internationalisation.
+Préparer l'intégration mobile Flutter, améliorer les notifications push, et renforcer l'intégration Stripe pour le paiement.
 
 ---
 
@@ -20,136 +20,120 @@ Implémenter le catalogue de tâches automatiques (génération selon âge enfan
 
 ---
 
-## Phase 1: Task Catalogue System
+## Phase 1: Mobile API Preparation
 
-- [ ] 1.1 Créer `src/lib/services/task-catalogue.ts`:
-  - getTasksForChildAge() - Tâches selon l'âge
-  - getSeasonalTasks() - Tâches selon la période (rentrée, Noël, etc.)
-  - generateAutomaticTasks() - Génération hebdomadaire
-  - getCatalogueCategories() - Liste des catégories
+- [ ] 1.1 Créer `src/lib/services/mobile-api.ts`:
+  - Device token registration
+  - Mobile session management
+  - API response formatting for mobile
+  - Rate limiting helpers
 
-- [ ] 1.2 Créer table catalogue_tasks:
-  ```sql
-  CREATE TABLE catalogue_tasks (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title_fr TEXT NOT NULL,
-    title_en TEXT,
-    description_fr TEXT,
-    category_code TEXT NOT NULL,
-    min_age_months INT,
-    max_age_months INT,
-    period TEXT[], -- ['september', 'january']
-    recurrence TEXT, -- yearly, monthly, once
-    typical_deadline_days INT DEFAULT 7,
-    charge_weight INT DEFAULT 3,
-    country_codes TEXT[] DEFAULT '{ALL}'
-  );
-  ```
+- [ ] 1.2 Créer API endpoints mobiles:
+  - `src/app/api/mobile/register-device/route.ts`
+  - `src/app/api/mobile/sync/route.ts` - Offline sync
+  - `src/app/api/mobile/health/route.ts` - Health check
 
-- [ ] 1.3 Seed catalogue initial (20+ tâches):
-  - Rentrée scolaire (septembre)
-  - Vaccins par âge
-  - Inscriptions activités
-  - Paperasse CAF/impôts
-  - Anniversaires enfants
-
-- [ ] 1.4 Créer API endpoints:
-  - `src/app/api/catalogue/route.ts` - Liste du catalogue
-  - `src/app/api/catalogue/suggestions/route.ts` - Suggestions personnalisées
-
-- [ ] 1.5 Tests catalogue (≥15 tests)
+- [ ] 1.3 Tests mobile API (≥10 tests)
 
 ---
 
-## Phase 2: Joker System (Premium Feature)
+## Phase 2: Push Notifications Enhancement
 
-- [ ] 2.1 Créer `src/lib/services/joker.ts`:
-  - useJoker() - Utiliser un joker pour sauver le streak
-  - getJokerStatus() - Nombre restant
-  - resetMonthlyJokers() - Reset mensuel
-  - checkJokerEligibility() - Peut-on utiliser un joker?
+- [ ] 2.1 Améliorer `src/lib/services/notifications.ts`:
+  - Firebase Cloud Messaging (FCM) integration
+  - APNs integration (iOS)
+  - Notification queuing
+  - Retry mechanism
 
-- [ ] 2.2 Ajouter champs household:
-  - jokers_available INT DEFAULT 0
-  - joker_last_used_at TIMESTAMP
-  - joker_reset_at TIMESTAMP
+- [ ] 2.2 Créer notification templates:
+  - Daily reminder
+  - Deadline approaching
+  - Streak at risk
+  - Balance alert
+  - Weekly summary
 
-- [ ] 2.3 Créer composants UI:
-  - `src/components/custom/JokerButton.tsx`
-  - `src/components/custom/JokerModal.tsx`
-  - `src/components/custom/StreakRecovery.tsx`
+- [ ] 2.3 Créer API endpoints:
+  - `src/app/api/notifications/subscribe/route.ts`
+  - `src/app/api/notifications/preferences/route.ts`
 
-- [ ] 2.4 Tests joker (≥10 tests)
-
----
-
-## Phase 3: Internationalization Setup
-
-- [ ] 3.1 Installer et configurer next-intl:
-  - next-intl package
-  - Middleware pour locale detection
-  - Structure messages/fr.json, messages/en.json
-
-- [ ] 3.2 Créer dictionnaires:
-  - common.json - Mots communs
-  - tasks.json - Tâches et catégories
-  - notifications.json - Messages notifications
-  - errors.json - Messages d'erreur
-
-- [ ] 3.3 Migrer composants principaux:
-  - Dashboard
-  - TaskCard
-  - Navigation
-  - Forms
-
-- [ ] 3.4 Tests i18n (≥10 tests)
+- [ ] 2.4 Tests notifications (≥10 tests)
 
 ---
 
-## Phase 4: Balance Alerts Enhancement
+## Phase 3: Stripe Payments Enhancement
 
-- [ ] 4.1 Améliorer `src/lib/services/charge-balance.ts`:
-  - Alertes automatiques > 60/40
-  - Suggestions rééquilibrage
-  - Rapport hebdomadaire
+- [ ] 3.1 Améliorer intégration Stripe:
+  - Webhook handling improvements
+  - Trial period management
+  - Subscription upgrades/downgrades
+  - Invoice handling
 
-- [ ] 4.2 Créer notifications balance:
-  - Email résumé hebdomadaire
-  - Push si déséquilibre critique
-  - In-app banners
+- [ ] 3.2 Créer customer portal endpoint:
+  - `src/app/api/billing/portal/route.ts`
+  - `src/app/api/billing/invoices/route.ts`
 
-- [ ] 4.3 Créer composants:
-  - `src/components/custom/BalanceAlert.tsx`
-  - `src/components/custom/WeeklyReport.tsx`
+- [ ] 3.3 Créer composants billing:
+  - `src/components/custom/PricingCard.tsx`
+  - `src/components/custom/SubscriptionStatus.tsx`
+  - `src/components/custom/InvoiceList.tsx`
 
-- [ ] 4.4 Tests balance (≥10 tests)
-
----
-
-## Phase 5: PDF Export
-
-- [ ] 5.1 Installer react-pdf ou jspdf
-- [ ] 5.2 Créer `src/lib/services/pdf-export.ts`:
-  - exportWeeklyReport() - Rapport semaine
-  - exportMonthlyReport() - Rapport mois
-  - exportChildHistory() - Historique enfant
-
-- [ ] 5.3 Créer API endpoint:
-  - `src/app/api/export/pdf/route.ts`
-
-- [ ] 5.4 Tests export (≥5 tests)
+- [ ] 3.4 Tests payments (≥10 tests)
 
 ---
 
-## Definition of Done Sprint 14
-- [ ] Catalogue de tâches automatiques fonctionnel
-- [ ] Système de jokers implémenté
-- [ ] i18n setup complet (FR/EN)
-- [ ] Alertes balance automatiques
-- [ ] Export PDF disponible
+## Phase 4: Landing Page Improvements
+
+- [ ] 4.1 Améliorer landing page:
+  - Hero section avec animation
+  - Feature showcase
+  - Testimonials section
+  - FAQ section
+  - Pricing section
+
+- [ ] 4.2 Créer composants landing:
+  - `src/components/landing/Hero.tsx`
+  - `src/components/landing/Features.tsx`
+  - `src/components/landing/Pricing.tsx`
+  - `src/components/landing/FAQ.tsx`
+
+- [ ] 4.3 SEO improvements:
+  - Meta tags dynamiques
+  - Structured data (JSON-LD)
+  - OpenGraph images
+
+- [ ] 4.4 Tests landing (≥5 tests)
+
+---
+
+## Phase 5: API Documentation
+
+- [ ] 5.1 Créer documentation OpenAPI:
+  - Schema definitions
+  - Endpoint documentation
+  - Authentication docs
+
+- [ ] 5.2 Créer `src/lib/openapi/schema.ts`:
+  - Request/response types
+  - Error codes
+  - Rate limits
+
+- [ ] 5.3 Créer `/api/docs/route.ts`:
+  - OpenAPI JSON endpoint
+  - API explorer (optionnel)
+
+- [ ] 5.4 Tests documentation (≥5 tests)
+
+---
+
+## Definition of Done Sprint 15
+- [ ] APIs prêtes pour mobile Flutter
+- [ ] Push notifications FCM/APNs
+- [ ] Stripe customer portal
+- [ ] Landing page améliorée
+- [ ] Documentation API OpenAPI
 - [ ] Build production OK: `bunx tsc --noEmit && bun run build`
 - [ ] Tous les tests passent: `bun test src/tests/`
-- [ ] ≥50 nouveaux tests
+- [ ] ≥40 nouveaux tests
 
 ---
 
