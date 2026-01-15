@@ -695,3 +695,91 @@ export function getAgeBracket(
   if (ageMonths <= AGE_BRACKETS.LYCEE.max) return AGE_BRACKETS.LYCEE
   return null
 }
+
+/**
+ * Get templates for a specific age bracket by name
+ */
+export function getTemplatesForAgeBracket(
+  bracketName: keyof typeof AGE_BRACKETS
+): TaskTemplate[] {
+  const bracket = AGE_BRACKETS[bracketName]
+  return ALL_TEMPLATES.filter(
+    (t) => t.ageMinMonths <= bracket.max && t.ageMaxMonths >= bracket.min
+  )
+}
+
+/**
+ * Calculate total weight for a list of templates
+ */
+export function calculateTotalWeight(templates: TaskTemplate[]): number {
+  return templates.reduce((sum, t) => sum + t.weight, 0)
+}
+
+/**
+ * Get templates by priority level
+ */
+export function getPriorityTemplates(
+  priority: TaskTemplate["priority"]
+): TaskTemplate[] {
+  return ALL_TEMPLATES.filter((t) => t.priority === priority)
+}
+
+/**
+ * Filter templates that are active for a specific age
+ */
+export function filterActiveTemplates(ageInMonths: number): TaskTemplate[] {
+  return ALL_TEMPLATES.filter(
+    (t) => ageInMonths >= t.ageMinMonths && ageInMonths <= t.ageMaxMonths
+  )
+}
+
+/**
+ * Get upcoming template deadlines for a child
+ */
+export function getUpcomingDeadlines(
+  ageInMonths: number,
+  currentMonth: number = new Date().getMonth() + 1,
+  lookAheadMonths: number = 3
+): TaskTemplate[] {
+  const activeTemplates = filterActiveTemplates(ageInMonths)
+
+  // Get templates that trigger within the look-ahead window
+  const upcomingTemplates: TaskTemplate[] = []
+
+  for (let i = 0; i < lookAheadMonths; i++) {
+    const targetMonth = ((currentMonth - 1 + i) % 12) + 1
+    const monthTemplates = activeTemplates.filter(
+      (t) => t.triggerMonth === targetMonth
+    )
+    upcomingTemplates.push(...monthTemplates)
+  }
+
+  return upcomingTemplates
+}
+
+/**
+ * Get template weight by category
+ */
+export function getWeightByCategory(): Record<string, number> {
+  const categoryWeights: Record<string, number> = {}
+
+  for (const template of ALL_TEMPLATES) {
+    const current = categoryWeights[template.category] ?? 0
+    categoryWeights[template.category] = current + template.weight
+  }
+
+  return categoryWeights
+}
+
+/**
+ * Get count of templates per age bracket
+ */
+export function getTemplateCountsByBracket(): Record<keyof typeof AGE_BRACKETS, number> {
+  return {
+    BABY: getTemplatesForAgeBracket("BABY").length,
+    MATERNELLE: getTemplatesForAgeBracket("MATERNELLE").length,
+    PRIMAIRE: getTemplatesForAgeBracket("PRIMAIRE").length,
+    COLLEGE: getTemplatesForAgeBracket("COLLEGE").length,
+    LYCEE: getTemplatesForAgeBracket("LYCEE").length,
+  }
+}
