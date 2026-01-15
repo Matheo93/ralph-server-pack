@@ -1,4 +1,4 @@
-# TODO CURRENT - Sprint 12: Payment, Templates & Streak Enhancement
+# TODO CURRENT - Sprint 13: Notifications, Timeline & AI Enhancement
 
 ## INSTRUCTIONS CRITIQUES
 **NE POSE JAMAIS DE QUESTIONS - CONTINUE AUTOMATIQUEMENT**
@@ -10,7 +10,7 @@
 ---
 
 ## Sprint Goal
-Implémenter le système de paiement Stripe (4€/mois), le catalogue de tâches automatiques par âge, et améliorer le système de streak pour l'engagement utilisateur.
+Implémenter le système de notifications push complet, la timeline par enfant, et améliorer l'analyse sémantique des commandes vocales avec LLM.
 
 ---
 
@@ -20,131 +20,122 @@ Implémenter le système de paiement Stripe (4€/mois), le catalogue de tâches
 
 ---
 
-## Phase 1: Stripe Payment Integration
+## Phase 1: Push Notifications System
 
-- [ ] 1.1 Créer `src/lib/stripe/client.ts`:
-  - Configuration Stripe SDK
-  - Types pour plans et subscriptions
-  - Helper functions
+- [ ] 1.1 Créer `src/lib/services/push-notifications.ts`:
+  - sendPushNotification() - Envoyer via FCM/APNs
+  - scheduleNotification() - Planifier pour plus tard
+  - cancelScheduledNotification() - Annuler
+  - getNotificationHistory() - Historique par user
 
 - [ ] 1.2 Créer API endpoints:
-  - `src/app/api/billing/checkout/route.ts` - Create checkout session
-  - `src/app/api/billing/portal/route.ts` - Customer portal
-  - `src/app/api/billing/webhook/route.ts` - Handle webhooks
-  - `src/app/api/billing/status/route.ts` - Subscription status
+  - `src/app/api/notifications/push/route.ts` - Send push
+  - `src/app/api/notifications/schedule/route.ts` - Schedule
+  - `src/app/api/notifications/preferences/route.ts` - User prefs
 
-- [ ] 1.3 Créer `src/lib/services/subscription.ts`:
-  - checkSubscriptionStatus()
-  - handleSubscriptionUpdated()
-  - checkTrialExpiration()
-  - grantTrialExtension()
+- [ ] 1.3 Améliorer `src/lib/services/notifications.ts`:
+  - Intégrer push avec notifications existantes
+  - Batch sending pour groupes
+  - Rate limiting
 
-- [ ] 1.4 Améliorer `src/app/(dashboard)/settings/billing/page.tsx`:
-  - Current plan display
-  - Upgrade/downgrade options
-  - Payment history
-  - Cancel subscription
+- [ ] 1.4 Créer cron job pour notifications planifiées:
+  - `src/app/api/cron/notifications/route.ts`
+  - Vérification deadlines
+  - Alertes streak en danger
 
-- [ ] 1.5 Tests paiement (≥15 tests)
+- [ ] 1.5 Tests notifications (≥15 tests)
 
 ---
 
-## Phase 2: Task Templates (Catalogue Automatique)
+## Phase 2: Child Timeline
 
-- [ ] 2.1 Créer `src/lib/data/task-templates.ts`:
-  - Templates par âge (0-3, 3-6, 6-11, 11-15, 15-18)
-  - Templates par période (rentrée, vacances, etc.)
-  - Poids charge par type
+- [ ] 2.1 Créer `src/lib/services/timeline.ts`:
+  - getChildTimeline() - Historique complet par enfant
+  - getUpcomingEvents() - Événements à venir
+  - getMilestones() - Jalons importants (vaccins, école)
+  - generateTimelineReport() - Export PDF/JSON
 
-- [ ] 2.2 Créer `src/lib/services/template-engine.ts`:
-  - generateTasksForChild() - Génère tâches selon âge
-  - generateSeasonalTasks() - Tâches par période
-  - checkUpcomingDeadlines() - Alertes proactives
-  - calculateTaskWeight() - Poids pour répartition
+- [ ] 2.2 Créer API endpoints:
+  - `src/app/api/children/[id]/timeline/route.ts`
+  - `src/app/api/children/[id]/milestones/route.ts`
 
-- [ ] 2.3 Créer `src/app/api/templates/` endpoints:
-  - GET /generate - Generate tasks for household
-  - POST /customize - Customize template preferences
-  - GET /upcoming - Get upcoming auto-generated tasks
+- [ ] 2.3 Créer composants timeline:
+  - `src/components/custom/ChildTimeline.tsx` - Vue chronologique
+  - `src/components/custom/MilestoneCard.tsx` - Carte milestone
+  - `src/components/custom/TimelineFilter.tsx` - Filtres
 
-- [ ] 2.4 Créer `src/components/custom/TaskTemplates.tsx`:
-  - Preview des tâches à générer
-  - Toggle on/off par catégorie
-  - Personnalisation délais
+- [ ] 2.4 Créer page timeline:
+  - `src/app/(dashboard)/children/[id]/timeline/page.tsx`
 
-- [ ] 2.5 Tests templates (≥20 tests)
+- [ ] 2.5 Tests timeline (≥15 tests)
 
 ---
 
-## Phase 3: Streak System Enhancement
+## Phase 3: AI/LLM Vocal Analysis Enhancement
 
-- [ ] 3.1 Améliorer `src/lib/services/streak.ts`:
-  - calculateStreak() - Calcul streak foyer
-  - checkStreakRisk() - Alerte si streak en danger
-  - useJoker() - Utiliser joker (premium)
-  - getStreakHistory() - Historique
-  - getStreakRewards() - Badges/récompenses
+- [ ] 3.1 Créer `src/lib/services/llm-analyzer.ts`:
+  - analyzeVocalCommand() - Analyse sémantique améliorée
+  - extractEntities() - Extraction enfant, date, action
+  - detectUrgency() - Calcul urgence
+  - suggestCategory() - Suggestion catégorie
 
-- [ ] 3.2 Créer composants streak:
-  - `src/components/custom/StreakBadge.tsx` - Affichage streak
-  - `src/components/custom/StreakRiskAlert.tsx` - Alerte
-  - `src/components/custom/DailyValidation.tsx` - Swipe tâches
+- [ ] 3.2 Améliorer pipeline vocal:
+  - Meilleur parsing dates ("lundi prochain", "dans 3 jours")
+  - Détection multi-enfants
+  - Gestion ambiguïtés
 
-- [ ] 3.3 Intégrer streak dans dashboard:
-  - Affichage proéminent du streak
-  - Animation célébration milestones
-  - Notification push streak risk
+- [ ] 3.3 Créer `src/lib/services/smart-suggestions.ts`:
+  - suggestTasks() - Suggestions intelligentes
+  - predictDeadline() - Prédiction deadline
+  - detectPatterns() - Patterns utilisateur
 
-- [ ] 3.4 Tests streak (≥15 tests)
-
----
-
-## Phase 4: RGPD & Export
-
-- [ ] 4.1 Créer `src/lib/services/gdpr.ts`:
-  - exportUserData() - Export JSON/PDF
-  - deleteUserData() - Suppression complète
-  - anonymizeData() - Anonymisation
-  - generateDataReport() - Rapport données
-
-- [ ] 4.2 Créer API endpoints:
-  - `src/app/api/gdpr/export/route.ts`
-  - `src/app/api/gdpr/delete/route.ts`
-  - `src/app/api/gdpr/anonymize/route.ts`
-
-- [ ] 4.3 Améliorer `src/app/(dashboard)/settings/privacy/page.tsx`:
-  - Export data button
-  - Delete account with confirmation
-  - Data retention info
-
-- [ ] 4.4 Tests RGPD (≥10 tests)
+- [ ] 3.4 Tests AI (≥20 tests)
 
 ---
 
-## Phase 5: Performance & Polish
+## Phase 4: Dashboard Enhancements
 
-- [ ] 5.1 Optimiser queries database:
-  - Index critiques
-  - Queries N+1
-  - Connection pooling
+- [ ] 4.1 Améliorer page dashboard:
+  - Widget streak plus visible
+  - Notifications non lues
+  - Quick actions
 
-- [ ] 5.2 Améliorer UX responsive:
-  - Mobile navigation
-  - Touch gestures
-  - Loading states
+- [ ] 4.2 Créer composants widgets:
+  - `src/components/custom/DashboardWidgets.tsx`
+  - `src/components/custom/QuickActions.tsx`
+  - `src/components/custom/NotificationBadge.tsx`
 
-- [ ] 5.3 Final testing:
-  - Integration tests
-  - Performance benchmarks
-  - Accessibility audit
+- [ ] 4.3 Mobile responsive polish:
+  - Bottom navigation
+  - Swipe actions
+  - Pull to refresh
+
+- [ ] 4.4 Tests dashboard (≥10 tests)
 
 ---
 
-## Definition of Done Sprint 12
-- [ ] Stripe paiement fonctionnel (checkout, portal, webhooks)
-- [ ] Catalogue tâches automatiques par âge
-- [ ] Système streak complet avec joker
-- [ ] Export RGPD fonctionnel
+## Phase 5: Real-time Updates
+
+- [ ] 5.1 Créer `src/lib/services/realtime.ts`:
+  - subscribeToHousehold() - WebSocket/SSE
+  - broadcastUpdate() - Diffuser changements
+  - handleReconnect() - Gestion reconnexion
+
+- [ ] 5.2 Intégrer real-time dans UI:
+  - Tasks list auto-update
+  - Notification bell live
+  - Charge balance live
+
+- [ ] 5.3 Tests realtime (≥10 tests)
+
+---
+
+## Definition of Done Sprint 13
+- [ ] Push notifications fonctionnelles
+- [ ] Timeline enfant avec historique
+- [ ] Analyse vocale améliorée avec LLM
+- [ ] Dashboard enrichi
+- [ ] Real-time updates
 - [ ] Build production OK: `bunx tsc --noEmit && bun run build`
 - [ ] Tous les tests passent: `bun test src/tests/`
 
