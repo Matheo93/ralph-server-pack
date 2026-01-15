@@ -9,12 +9,15 @@ import { getUserId } from "@/lib/auth/actions"
 import { query, queryOne, setCurrentUser } from "@/lib/aws/database"
 import {
   createAgeRuleStore,
+  initializeFrenchMilestones,
   getMilestonesForAge,
   getUpcomingMilestones,
   getMissedMilestones,
+  type AgeMilestone,
 } from "@/lib/catalog/age-rules"
 
-const ageRuleStore = createAgeRuleStore()
+// Initialize store with French milestones
+const ageRuleStore = initializeFrenchMilestones()
 
 /**
  * GET /api/catalog/milestones
@@ -32,7 +35,7 @@ export async function GET(request: NextRequest) {
   const childId = searchParams.get("childId")
   const includeUpcoming = searchParams.get("upcoming") !== "false"
   const includeMissed = searchParams.get("missed") === "true"
-  const lookAheadDays = Math.min(parseInt(searchParams.get("days") ?? "90"), 365)
+  const lookAheadMonths = Math.min(parseInt(searchParams.get("months") ?? "6"), 24)
 
   // Get user's household
   const membership = await queryOne<{ household_id: string }>(`
@@ -82,35 +85,36 @@ export async function GET(request: NextRequest) {
     WHERE household_id = $1
   `, [householdId])
 
-  const completedSet = new Set(
-    completedMilestones.map(m => `${m.child_id}-${m.milestone_id}`)
-  )
+  // Group completed by child
+  const completedByChild = new Map<string, Set<string>>()
+  for (const m of completedMilestones) {
+    if (!completedByChild.has(m.child_id)) {
+      completedByChild.set(m.child_id, new Set())
+    }
+    completedByChild.get(m.child_id)!.add(m.milestone_id)
+  }
+
+  const formatMilestone = (m: AgeMilestone, isCompleted: boolean) => ({
+    id: m.id,
+    title: m.name['fr'] ?? m.name['en'] ?? Object.values(m.name)[0] ?? '',
+    description: m.description['fr'] ?? m.description['en'] ?? Object.values(m.description)[0] ?? '',
+    type: m.type,
+    category: m.type === 'vaccine' || m.type === 'health_checkup' ? 'sante' :
+              m.type === 'registration' || m.type === 'transition' ? 'ecole' :
+              'administratif',
+    ageMonths: m.ageMonths,
+    priority: m.priority,
+    mandatory: m.mandatory,
+    isCompleted,
+  })
 
   const response: Array<{
     childId: string
     childName: string
     ageInMonths: number
-    current: Array<{
-      id: string
-      title: string
-      category: string
-      ageMonths: number
-      isCompleted: boolean
-    }>
-    upcoming: Array<{
-      id: string
-      title: string
-      category: string
-      ageMonths: number
-      daysUntil: number
-    }>
-    missed: Array<{
-      id: string
-      title: string
-      category: string
-      ageMonths: number
-      daysSince: number
-    }>
+    current: Array<ReturnType<typeof formatMilestone> & { daysRemaining?: number }>
+    upcoming: Array<ReturnType<typeof formatMilestone> & { daysUntil: number }>
+    missed: Array<ReturnType<typeof formatMilestone> & { daysSince: number }>
   }> = []
 
   for (const child of children) {
@@ -119,6 +123,8 @@ export async function GET(request: NextRequest) {
     const ageInMonths = Math.floor(
       (now.getTime() - birthDate.getTime()) / (30.44 * 24 * 60 * 60 * 1000)
     )
+
+    const childCompleted = completedByChild.get(child.id) ?? new Set<string>()
 
     const childResponse: typeof response[number] = {
       childId: child.id,
@@ -130,29 +136,29 @@ export async function GET(request: NextRequest) {
     }
 
     // Get current milestones
-    const currentMilestones = getMilestonesForAge(ageRuleStore, ageInMonths)
-    childResponse.current = currentMilestones.map(m => ({
-      id: m.id,
-      title: m.title['fr'] ?? m.title['en'] ?? Object.values(m.title)[0] ?? '',
-      category: m.category,
-      ageMonths: m.ageMonths,
-      isCompleted: completedSet.has(`${child.id}-${m.id}`),
-    }))
+    const currentMilestones = getMilestonesForAge(ageRuleStore, ageInMonths, 'FR')
+    childResponse.current = currentMilestones.map(m => {
+      const milestoneDate = new Date(birthDate)
+      milestoneDate.setMonth(milestoneDate.getMonth() + m.ageMonths)
+      const daysRemaining = Math.ceil((milestoneDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+
+      return {
+        ...formatMilestone(m, childCompleted.has(m.id)),
+        daysRemaining: daysRemaining > 0 ? daysRemaining : undefined,
+      }
+    })
 
     // Get upcoming milestones
     if (includeUpcoming) {
-      const upcoming = getUpcomingMilestones(ageRuleStore, birthDate, lookAheadDays)
+      const upcoming = getUpcomingMilestones(ageRuleStore, ageInMonths, lookAheadMonths, 'FR')
       childResponse.upcoming = upcoming
-        .filter(m => !completedSet.has(`${child.id}-${m.id}`))
+        .filter(m => !childCompleted.has(m.id))
         .map(m => {
           const milestoneDate = new Date(birthDate)
           milestoneDate.setMonth(milestoneDate.getMonth() + m.ageMonths)
           const daysUntil = Math.ceil((milestoneDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
           return {
-            id: m.id,
-            title: m.title['fr'] ?? m.title['en'] ?? Object.values(m.title)[0] ?? '',
-            category: m.category,
-            ageMonths: m.ageMonths,
+            ...formatMilestone(m, false),
             daysUntil,
           }
         })
@@ -160,21 +166,16 @@ export async function GET(request: NextRequest) {
 
     // Get missed milestones
     if (includeMissed) {
-      const missed = getMissedMilestones(ageRuleStore, birthDate, ageInMonths)
-      childResponse.missed = missed
-        .filter(m => !completedSet.has(`${child.id}-${m.id}`))
-        .map(m => {
-          const milestoneDate = new Date(birthDate)
-          milestoneDate.setMonth(milestoneDate.getMonth() + m.ageMonths)
-          const daysSince = Math.ceil((now.getTime() - milestoneDate.getTime()) / (24 * 60 * 60 * 1000))
-          return {
-            id: m.id,
-            title: m.title['fr'] ?? m.title['en'] ?? Object.values(m.title)[0] ?? '',
-            category: m.category,
-            ageMonths: m.ageMonths,
-            daysSince,
-          }
-        })
+      const missed = getMissedMilestones(ageRuleStore, ageInMonths, childCompleted, 'FR')
+      childResponse.missed = missed.map(m => {
+        const milestoneDate = new Date(birthDate)
+        milestoneDate.setMonth(milestoneDate.getMonth() + m.ageMonths)
+        const daysSince = Math.ceil((now.getTime() - milestoneDate.getTime()) / (24 * 60 * 60 * 1000))
+        return {
+          ...formatMilestone(m, false),
+          daysSince,
+        }
+      })
     }
 
     response.push(childResponse)
