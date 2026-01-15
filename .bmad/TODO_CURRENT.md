@@ -15,8 +15,8 @@ Implémenter la génération automatique de tâches basée sur l'âge des enfant
 ---
 
 ## PRÉ-REQUIS
-- [ ] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
-- [ ] 0.2 Vérifier que les tests passent: `bun test src/tests/`
+- [x] 0.1 Vérifier que le build passe: `bunx tsc --noEmit && bun run build`
+- [x] 0.2 Vérifier que les tests passent: `bun test src/tests/`
 
 ---
 
