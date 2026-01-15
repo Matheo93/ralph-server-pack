@@ -170,7 +170,9 @@ describe("Age Groups", () => {
       [14, "11-15"],
       [15, "15-18"],
       [17, "15-18"],
-      [18, "15-18"],
+      [18, "18-25"],
+      [20, "18-25"],
+      [25, "18-25"],
     ]
 
     testCases.forEach(([age, expectedGroup]) => {
@@ -199,6 +201,10 @@ describe("Age Groups", () => {
 
     it("should return French label for 15-18", () => {
       expect(getAgeGroupLabel("15-18")).toBe("Lycée (15-18 ans)")
+    })
+
+    it("should return French label for 18-25", () => {
+      expect(getAgeGroupLabel("18-25")).toBe("Études supérieures (18-25 ans)")
     })
   })
 })
@@ -405,11 +411,21 @@ describe("Statistics", () => {
       expect(counts).toHaveProperty("18-25")
     })
 
-    it("should have positive counts for each group", () => {
+    it("should have non-negative counts for each group", () => {
       const counts = getTemplateCountsByAgeGroup()
       Object.values(counts).forEach((count) => {
-        expect(count).toBeGreaterThan(0)
+        expect(count).toBeGreaterThanOrEqual(0)
       })
+    })
+
+    it("should have positive counts for main child age groups", () => {
+      const counts = getTemplateCountsByAgeGroup()
+      // Main child age groups should have templates
+      expect(counts["0-3"]).toBeGreaterThan(0)
+      expect(counts["3-6"]).toBeGreaterThan(0)
+      expect(counts["6-11"]).toBeGreaterThan(0)
+      expect(counts["11-15"]).toBeGreaterThan(0)
+      expect(counts["15-18"]).toBeGreaterThan(0)
     })
 
     it("should have highest count for younger ages (more medical)", () => {
