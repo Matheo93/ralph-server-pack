@@ -42,7 +42,6 @@ export default async function DashboardPage() {
     subscription_status: string
   } | null
 
-  const pendingTodayCount = todayTasks.filter((t) => t.status === "pending").length
   const criticalCount = todayTasks.filter((t) => t.is_critical).length
   const hasAnyPendingTasks = taskCounts.total > 0
 
@@ -253,35 +252,6 @@ export default async function DashboardPage() {
           {balance && balance.members.length < 2 && (
             <ChargeBalance balance={balance} />
           )}
-
-          {/* Quick actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Actions rapides</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Link href="/tasks/new" className="block">
-                <Button variant="outline" className="w-full justify-start">
-                  + Nouvelle tâche
-                </Button>
-              </Link>
-              <Link href="/children" className="block">
-                <Button variant="ghost" className="w-full justify-start">
-                  Gérer les enfants
-                </Button>
-              </Link>
-              <Link href="/tasks" className="block">
-                <Button variant="ghost" className="w-full justify-start">
-                  Toutes les tâches
-                </Button>
-              </Link>
-              <Link href="/charge" className="block">
-                <Button variant="ghost" className="w-full justify-start">
-                  Analyse charge mentale
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
         </div>
       </div>
 
