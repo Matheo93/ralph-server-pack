@@ -1,48 +1,95 @@
-import { MetadataRoute } from "next"
+import type { MetadataRoute } from "next"
 
-const BASE_URL = process.env["NEXT_PUBLIC_APP_URL"] || "https://familyload.app"
+const BASE_URL = process.env["NEXT_PUBLIC_APP_URL"] ?? "https://familyload.fr"
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        allow: ["/", "/login", "/signup", "/privacy", "/terms"],
         disallow: [
-          // Protected routes
+          // Routes protégées (authentification requise)
           "/dashboard",
+          "/dashboard/*",
           "/tasks",
+          "/tasks/*",
           "/children",
+          "/children/*",
           "/charge",
+          "/charge/*",
           "/settings",
+          "/settings/*",
           "/onboarding",
+          "/onboarding/*",
           "/invite",
+          "/invite/*",
           "/callback",
-          // API routes
+          "/callback/*",
+          // Routes API
           "/api/",
-          // Static and generated files
+          "/api/*",
+          // Fichiers système Next.js
           "/_next/",
-          "/icons/",
+          "/_next/*",
         ],
       },
       {
-        // Specific rules for search engines
+        // Règles spécifiques pour Googlebot (crawl optimisé)
         userAgent: "Googlebot",
-        allow: "/",
+        allow: ["/", "/login", "/signup", "/privacy", "/terms"],
         disallow: [
           "/api/",
+          "/api/*",
           "/_next/",
+          "/_next/*",
           "/dashboard",
+          "/dashboard/*",
           "/tasks",
+          "/tasks/*",
           "/children",
+          "/children/*",
           "/charge",
+          "/charge/*",
           "/settings",
+          "/settings/*",
           "/onboarding",
+          "/onboarding/*",
           "/invite",
+          "/invite/*",
           "/callback",
+          "/callback/*",
+        ],
+      },
+      {
+        // Règles pour Bingbot
+        userAgent: "Bingbot",
+        allow: ["/", "/login", "/signup", "/privacy", "/terms"],
+        disallow: [
+          "/api/",
+          "/api/*",
+          "/_next/",
+          "/_next/*",
+          "/dashboard",
+          "/dashboard/*",
+          "/tasks",
+          "/tasks/*",
+          "/children",
+          "/children/*",
+          "/charge",
+          "/charge/*",
+          "/settings",
+          "/settings/*",
+          "/onboarding",
+          "/onboarding/*",
+          "/invite",
+          "/invite/*",
+          "/callback",
+          "/callback/*",
         ],
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,
+    host: BASE_URL,
   }
 }

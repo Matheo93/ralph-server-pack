@@ -1,16 +1,18 @@
 {
-  "name": "FamilyLoad - Assistant de charge mentale familiale",
+  "id": "familyload-pwa",
+  "name": "FamilyLoad - Gérez la charge mentale parentale en famille",
   "short_name": "FamilyLoad",
-  "description": "Dis ce que tu dois faire. On s'en souvient. On te le rappelle. On le repartit.",
-  "start_url": "/dashboard",
+  "description": "Application d'organisation familiale pour réduire la charge mentale parentale. Créez des tâches à la voix, partagez-les entre co-parents et visualisez la répartition équitable.",
+  "start_url": "/dashboard?source=pwa",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#3b82f6",
   "scope": "/",
-  "lang": "fr",
+  "lang": "fr-FR",
   "dir": "ltr",
-  "categories": ["productivity", "lifestyle", "utilities"],
+  "categories": ["productivity", "lifestyle", "utilities", "family"],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "icons": [
     {
       "src": "/icons/icon-72.png",
@@ -67,36 +69,36 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Dashboard FamilyLoad"
+      "label": "Dashboard FamilyLoad - Vue d'ensemble de vos tâches familiales"
     },
     {
       "src": "/screenshots/mobile.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Vue mobile FamilyLoad"
+      "label": "FamilyLoad sur mobile - Gérez vos tâches partout"
     }
   ],
   "shortcuts": [
     {
-      "name": "Nouvelle tache",
-      "short_name": "Tache",
-      "description": "Creer une nouvelle tache",
-      "url": "/tasks/new",
+      "name": "Nouvelle tâche",
+      "short_name": "Tâche",
+      "description": "Créer une nouvelle tâche familiale",
+      "url": "/tasks/new?source=shortcut",
       "icons": [{ "src": "/icons/shortcut-task.png", "sizes": "96x96" }]
     },
     {
-      "name": "Aujourd'hui",
-      "short_name": "Today",
-      "description": "Voir les taches du jour",
-      "url": "/tasks/today",
+      "name": "Tâches du jour",
+      "short_name": "Aujourd'hui",
+      "description": "Voir les tâches à faire aujourd'hui",
+      "url": "/tasks/today?source=shortcut",
       "icons": [{ "src": "/icons/shortcut-today.png", "sizes": "96x96" }]
     },
     {
       "name": "Charge mentale",
       "short_name": "Charge",
-      "description": "Analyse de la charge mentale",
-      "url": "/charge",
+      "description": "Visualiser la répartition de la charge mentale",
+      "url": "/charge?source=shortcut",
       "icons": [{ "src": "/icons/shortcut-charge.png", "sizes": "96x96" }]
     }
   ],
@@ -121,5 +123,9 @@
   "handle_links": "preferred",
   "launch_handler": {
     "client_mode": "navigate-existing"
-  }
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "display_override": ["window-controls-overlay", "standalone", "browser"]
 }

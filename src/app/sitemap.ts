@@ -1,17 +1,23 @@
-import { MetadataRoute } from "next"
+import type { MetadataRoute } from "next"
 
-const BASE_URL = process.env["NEXT_PUBLIC_APP_URL"] || "https://familyload.app"
+const BASE_URL = process.env["NEXT_PUBLIC_APP_URL"] ?? "https://familyload.fr"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const currentDate = new Date()
+  const currentDate = new Date().toISOString()
 
-  // Public pages that should be indexed
+  // Pages publiques principales avec priorité SEO optimisée
   const publicPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
       lastModified: currentDate,
       changeFrequency: "weekly",
-      priority: 1,
+      priority: 1.0,
+    },
+    {
+      url: `${BASE_URL}/signup`,
+      lastModified: currentDate,
+      changeFrequency: "monthly",
+      priority: 0.9,
     },
     {
       url: `${BASE_URL}/login`,
@@ -19,15 +25,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
-    {
-      url: `${BASE_URL}/signup`,
-      lastModified: currentDate,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
   ]
 
-  // Add legal pages if they exist
+  // Pages légales
   const legalPages: MetadataRoute.Sitemap = [
     {
       url: `${BASE_URL}/privacy`,
@@ -43,5 +43,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
-  return [...publicPages, ...legalPages]
+  // Sections importantes de la landing page (ancres pour SEO)
+  const landingSections: MetadataRoute.Sitemap = [
+    {
+      url: `${BASE_URL}/#features`,
+      lastModified: currentDate,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/#pricing`,
+      lastModified: currentDate,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/#testimonials`,
+      lastModified: currentDate,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${BASE_URL}/#faq`,
+      lastModified: currentDate,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+  ]
+
+  return [...publicPages, ...legalPages, ...landingSections]
 }
