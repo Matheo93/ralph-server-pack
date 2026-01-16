@@ -8,6 +8,7 @@ import {
   getChargeHistory,
   getChargeByCategory,
 } from "@/lib/services/charge"
+import { canUseFeature } from "@/lib/services/subscription"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -31,14 +32,16 @@ export default async function ChargePage() {
     redirect("/onboarding")
   }
 
-  const [balance, weekChartData, chargeHistory, categoryData] = await Promise.all([
+  const householdData = household.households as { id: string; name: string } | null
+  const householdId = householdData?.id ?? ""
+
+  const [balance, weekChartData, chargeHistory, categoryData, isPremium] = await Promise.all([
     getHouseholdBalance(),
     getWeeklyChartData(),
     getChargeHistory(),
     getChargeByCategory(),
+    canUseFeature(householdId, "pdf_export"),
   ])
-
-  const householdData = household.households as { name: string } | null
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -68,7 +71,7 @@ export default async function ChargePage() {
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0">
-            <ExportButtons />
+            <ExportButtons isPremium={isPremium} />
             <Link href="/dashboard">
               <Button variant="outline" className="border-amber-200 hover:bg-amber-50">Retour</Button>
             </Link>
