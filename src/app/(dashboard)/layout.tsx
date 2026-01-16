@@ -14,6 +14,7 @@ import { KeyboardShortcutsHelp } from "@/components/custom/KeyboardShortcutsHelp
 import { OfflineIndicator } from "@/components/custom/OfflineIndicator"
 import { PageTransitionProvider, PageWrapper } from "@/components/custom/PageTransition"
 import { MagicNotepad } from "@/components/custom/MagicNotepad"
+import { CoachMarksProvider } from "@/components/custom/CoachMarks"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -50,6 +51,7 @@ export default async function DashboardLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <QueryProvider>
+        <CoachMarksProvider>
         <PageTransitionProvider>
           <SkipLinks />
           <div className="min-h-screen bg-background">
@@ -92,6 +94,7 @@ export default async function DashboardLayout({
             <OfflineIndicator showOnlineStatus />
           </div>
         </PageTransitionProvider>
+        </CoachMarksProvider>
       </QueryProvider>
     </NextIntlClientProvider>
   )
