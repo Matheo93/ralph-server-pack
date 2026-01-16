@@ -1,34 +1,38 @@
-# CLAUDE.md - Instructions RALPH
+# CLAUDE.md - 2 BUGS RESTANTS À CORRIGER
 
-## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
+## 🔴 BUG 1: MICRO NE DEMANDE PAS LA PERMISSION 🔴
 
-✅ Tous les bugs corrigés!
+Le micro ne demande JAMAIS la permission à l'utilisateur!
 
----
+**PROBLÈME**: Quand on clique sur le bouton dictée, rien ne se passe.
+Le navigateur devrait afficher une popup demandant l'accès au micro.
 
-## APRÈS CHAQUE CORRECTION, EXÉCUTE:
-```bash
-node test-auto.js
+**SOLUTION**:
+```javascript
+// Avant d'utiliser Web Speech API, demander la permission
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+// Cela déclenche la popup de permission du navigateur
 ```
 
+Fichier à modifier: chercher dans components/ le hook useSpeechRecognition ou similaire.
+
 ---
 
-## FEATURES À IMPLÉMENTER
+## 🔴 BUG 2: 3 BOUTONS EN BAS À DROITE DU DASHBOARD 🔴
 
-✅ 1. Animation landing page (style entraide-souverainiste) - ScrollReveal animations
-✅ 2. Suggestions quand dashboard vide (Chat rapide / Templates) - EmptySuggestions component
-✅ 3. Smooth scroll (html { scroll-behavior: smooth; }) - Already in globals.css
-✅ 4. PWA complète (manifest.json, service worker, icônes) - Already implemented
-✅ 5. Enfant relié aux tâches (filtrer, afficher sur tâches) - TaskFilters + TaskCard
+Sur le dashboard, il y a ENCORE 3 boutons flottants en bas à droite:
+- Un bouton "+"
+- Un bouton "Vue semaine" ou calendrier
+- Un autre bouton
+
+**SOLUTION**: Les fusionner en UN SEUL FAB avec un menu
 
 ---
 
 ## WORKFLOW
-1. git pull
-2. Corriger UN bug
-3. bun run build
-4. node test-auto.js
-5. Si OK: git commit && git push
-6. Recommencer
 
-⚠️ NE JAMAIS COMMIT SANS TESTER!
+1. Corriger UN bug
+2. `bun run build`
+3. `node test-auto.js`
+4. `git commit && git push`
+5. Recommencer
