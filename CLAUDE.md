@@ -2,10 +2,7 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Dashboard not properly loaded
-❌ Settings household issues
-  ❌ Dashboard: Not properly loaded
-  ❌ Settings household: Content not found
+❌ Children error: Navigation timeout of 30000 ms exceeded
 
 ---
 
