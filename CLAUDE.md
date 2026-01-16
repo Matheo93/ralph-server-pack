@@ -25,14 +25,40 @@
 
 ---
 
-## PROCHAINES ÉTAPES
+## SPRINT 2: AMÉLIORATIONS (TERMINÉ)
 
-Les 4 priorités initiales sont terminées. Suggestions pour la suite:
+### Tests E2E MagicNotepad (TERMINÉ)
+- e2e/magic-notepad.spec.ts: Tests complets
+- Tests FAB, open/close, speech-to-text, classification
+- Tests création de tâches et gestion d'erreurs
+- Mock SpeechRecognition API
 
-1. **Tests E2E** - Ajouter tests Playwright pour MagicNotepad
-2. **Optimisation performance** - Lazy loading des composants lourds
-3. **Analytics** - Tracking de l'usage des features
-4. **Offline mode** - PWA avec cache des tâches
+### Optimisation Performance (TERMINÉ)
+- src/components/lazy/index.tsx: Lazy loading wrappers
+- src/hooks/usePreloadComponents.ts: Preloading hooks
+- Strategies: onIdle, onHover, onVisible, immediate
+- 15+ composants avec lazy loading
+
+### Analytics Feature Tracking (TERMINÉ)
+- src/hooks/useFeatureTracking.ts: Hook de tracking
+- Tracking automatique durée et interactions
+- Events prédéfinis: task, vocal, magicNotepad, onboarding
+- Hooks spécialisés pour chaque feature
+
+### Offline Mode PWA (TERMINÉ)
+- src/lib/offline/task-store.ts: IndexedDB store
+- src/hooks/useOfflineTasks.ts: Hook offline-first
+- Queue de mutations pour sync
+- Auto-sync et sync on reconnect
+
+---
+
+## PROCHAINES SUGGESTIONS
+
+1. **Dashboard Widgets** - Widgets personnalisables
+2. **Gamification** - Badges et récompenses
+3. **Calendar Integration** - Sync Google/Apple Calendar
+4. **Reports** - Export PDF des statistiques
 
 ---
 
