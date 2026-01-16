@@ -218,7 +218,20 @@ export async function getChildren() {
   if (!membership) return []
 
   const children = await query<Child>(`
-    SELECT *
+    SELECT
+      id,
+      household_id,
+      first_name,
+      to_char(birthdate, 'YYYY-MM-DD') as birthdate,
+      gender,
+      school_name,
+      school_level,
+      school_class,
+      tags,
+      avatar_url,
+      is_active,
+      created_at::text as created_at,
+      updated_at::text as updated_at
     FROM children
     WHERE household_id = $1
       AND is_active = true
@@ -244,7 +257,20 @@ export async function getChild(childId: string) {
   if (!membership) return null
 
   const child = await queryOne<Child>(`
-    SELECT *
+    SELECT
+      id,
+      household_id,
+      first_name,
+      to_char(birthdate, 'YYYY-MM-DD') as birthdate,
+      gender,
+      school_name,
+      school_level,
+      school_class,
+      tags,
+      avatar_url,
+      is_active,
+      created_at::text as created_at,
+      updated_at::text as updated_at
     FROM children
     WHERE id = $1
       AND household_id = $2

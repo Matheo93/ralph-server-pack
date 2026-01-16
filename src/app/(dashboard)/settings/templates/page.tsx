@@ -50,9 +50,9 @@ async function getTemplatesData(): Promise<{
 
   // Get children
   const childrenData = await query<Child>(`
-    SELECT id, first_name, birthdate
+    SELECT id, first_name, to_char(birthdate, 'YYYY-MM-DD') as birthdate
     FROM children
-    WHERE household_id = $1
+    WHERE household_id = $1 AND is_active = true
     ORDER BY birthdate DESC
   `, [householdId])
 
