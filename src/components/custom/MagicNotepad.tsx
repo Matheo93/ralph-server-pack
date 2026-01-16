@@ -221,7 +221,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
   const handleClassify = useCallback(async () => {
     const text = textInput.trim()
     if (!text) {
-      setError("Ecrivez ou dictez quelque chose d'abord")
+      setError("Écrivez ou dictez quelque chose d'abord")
       return
     }
 
@@ -238,7 +238,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
         setState("reviewing")
         haptic.success()
       } else {
-        setError(result.error ?? "Aucune tache detectee")
+        setError(result.error ?? "Aucune tâche détectée")
         setState("error")
         haptic.error()
       }
@@ -263,7 +263,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
   const handleCreateTasks = useCallback(async () => {
     const tasksToCreate = classifiedTasks.filter((_, i) => selectedTasks.has(i))
     if (tasksToCreate.length === 0) {
-      setError("Selectionnez au moins une tache")
+      setError("Sélectionnez au moins une tâche")
       return
     }
 
@@ -478,7 +478,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                     {/* Task count */}
                     <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
                       <p className="text-xs text-muted-foreground">
-                        {classifiedTasks.length} tache{classifiedTasks.length > 1 ? "s" : ""} detectee{classifiedTasks.length > 1 ? "s" : ""}
+                        {classifiedTasks.length} tâche{classifiedTasks.length > 1 ? "s" : ""} détectée{classifiedTasks.length > 1 ? "s" : ""}
                       </p>
                     </div>
 
@@ -563,7 +563,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                         ) : (
                           <>
                             <CheckIcon className="w-4 h-4 mr-1.5" />
-                            <span>Creer ({selectedTasks.size})</span>
+                            <span>Créer ({selectedTasks.size})</span>
                           </>
                         )}
                       </Button>
@@ -580,7 +580,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                 {state === "creating" && (
                   <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
                     <LoadingSpinner className="w-12 h-12 text-purple-500" />
-                    <p className="text-sm text-muted-foreground">Creation des taches...</p>
+                    <p className="text-sm text-muted-foreground">Création des tâches...</p>
                   </div>
                 )}
 
@@ -595,7 +595,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                     >
                       <CheckIcon className="w-8 h-8 text-green-600" />
                     </motion.div>
-                    <p className="text-sm font-medium text-green-600">Taches creees avec succes!</p>
+                    <p className="text-sm font-medium text-green-600">Tâches créées avec succès !</p>
                   </div>
                 )}
 
@@ -614,7 +614,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                         setState("typing")
                       }}
                     >
-                      Reessayer
+                      Réessayer
                     </Button>
                   </div>
                 )}

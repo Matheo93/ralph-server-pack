@@ -100,8 +100,8 @@ export function DailyValidation({
             <CardTitle className="text-lg">Validation quotidienne</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
               {allCriticalDone
-                ? "Toutes les taches critiques sont faites !"
-                : `${completedCritical}/${totalCritical} tache${totalCritical > 1 ? "s" : ""} critique${totalCritical > 1 ? "s" : ""}`}
+                ? "Toutes les tâches critiques sont faites !"
+                : `${completedCritical}/${totalCritical} tâche${totalCritical > 1 ? "s" : ""} critique${totalCritical > 1 ? "s" : ""}`}
             </p>
           </div>
           <Button
@@ -150,7 +150,7 @@ export function DailyValidation({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium text-red-600 dark:text-red-400">
                 <AlertCircle className="h-4 w-4" />
-                <span>Taches critiques ({totalCritical})</span>
+                <span>Tâches critiques ({totalCritical})</span>
               </div>
               {criticalTasks.map((task) => (
                 <TaskItem
@@ -168,7 +168,7 @@ export function DailyValidation({
             <div className="mt-4 space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Clock className="h-4 w-4" />
-                <span>Autres taches ({totalRegular})</span>
+                <span>Autres tâches ({totalRegular})</span>
               </div>
               {regularTasks.map((task) => (
                 <TaskItem
@@ -198,7 +198,7 @@ export function DailyValidation({
                 ) : (
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4" />
-                    Valider toutes les taches restantes
+                    Valider toutes les tâches restantes
                   </span>
                 )}
               </Button>
@@ -212,7 +212,7 @@ export function DailyValidation({
                 {currentStreak >= 30 ? "🔥" : currentStreak >= 7 ? "⭐" : "✨"}
               </div>
               <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                Toutes les taches du jour sont terminees !
+                Toutes les tâches du jour sont terminées !
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Streak: {currentStreak} jour{currentStreak > 1 ? "s" : ""}
@@ -224,8 +224,8 @@ export function DailyValidation({
           {tasks.length === 0 && (
             <div className="py-6 text-center text-muted-foreground">
               <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Pas de taches pour aujourd'hui</p>
-              <p className="text-xs mt-1">Profitez de votre journee !</p>
+              <p className="text-sm">Pas de tâches pour aujourd&apos;hui</p>
+              <p className="text-xs mt-1">Profitez de votre journée !</p>
             </div>
           )}
         </CardContent>
@@ -272,7 +272,7 @@ function TaskItem({ task, onComplete, isLoading }: TaskItemProps) {
             : "border-gray-300 hover:border-gray-400",
           (task.isCompleted || isLoading) && "cursor-not-allowed opacity-70"
         )}
-        aria-label={task.isCompleted ? "Tache terminee" : "Marquer comme terminee"}
+        aria-label={task.isCompleted ? "Tâche terminée" : "Marquer comme terminée"}
       >
         {task.isCompleted && (
           <CheckCircle2 className="h-3.5 w-3.5" />

@@ -122,7 +122,7 @@ export function TemplateCard({
                 disabled={isDisabled}
               >
                 <Plus className="w-4 h-4" />
-                <span className="sr-only">Creer une tache</span>
+                <span className="sr-only">Créer une tâche</span>
               </Button>
             </div>
           </div>
@@ -147,12 +147,12 @@ export function TemplateCard({
             )}
             {isDisabled && (
               <Badge variant="outline" className="text-xs text-muted-foreground">
-                Desactive
+                Désactivé
               </Badge>
             )}
             {!isDisabled && (
               <span className="text-xs text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                Cliquez pour creer une tache
+                Cliquez pour créer une tâche
               </span>
             )}
           </div>

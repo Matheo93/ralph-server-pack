@@ -44,7 +44,7 @@ export function QuickActions({ className }: QuickActionsProps) {
   const actions = [
     {
       id: "new-task",
-      label: "Nouvelle tache",
+      label: "Nouvelle tâche",
       href: "/tasks/new",
       icon: PlusIcon,
       color: "bg-blue-500 hover:bg-blue-600",
@@ -58,7 +58,7 @@ export function QuickActions({ className }: QuickActionsProps) {
     },
     {
       id: "all-tasks",
-      label: "Toutes les taches",
+      label: "Toutes les tâches",
       href: "/tasks",
       icon: ListIcon,
       color: "bg-orange-500 hover:bg-orange-600",

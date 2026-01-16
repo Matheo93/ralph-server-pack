@@ -121,11 +121,11 @@ export function StreakMilestones({
         <div className="pt-4 border-t">
           {unlockedCount === 0 ? (
             <p className="text-sm text-muted-foreground text-center">
-              Completez des taches critiques chaque jour pour debloquer des badges !
+              Complétez des tâches critiques chaque jour pour débloquer des badges !
             </p>
           ) : unlockedCount === MILESTONES.length ? (
             <p className="text-sm text-center text-amber-600 font-medium">
-              Felicitations ! Vous avez debloque tous les badges !
+              Félicitations ! Vous avez débloqué tous les badges !
             </p>
           ) : (
             <p className="text-sm text-muted-foreground text-center">

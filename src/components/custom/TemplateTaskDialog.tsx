@@ -138,7 +138,7 @@ export function TemplateTaskDialog({
         onOpenChange(false)
         form.reset()
       } else {
-        setError(result.error ?? "Erreur lors de la creation de la tache")
+        setError(result.error ?? "Erreur lors de la création de la tâche")
       }
     })
   }
@@ -149,9 +149,9 @@ export function TemplateTaskDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Creer une tache</DialogTitle>
+          <DialogTitle>Créer une tâche</DialogTitle>
           <DialogDescription>
-            Personnalisez la tache avant de la creer
+            Personnalisez la tâche avant de la créer
           </DialogDescription>
         </DialogHeader>
 
@@ -212,14 +212,14 @@ export function TemplateTaskDialog({
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Priorite</FormLabel>
+                    <FormLabel>Priorité</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Priorite" />
+                          <SelectValue placeholder="Priorité" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -248,7 +248,7 @@ export function TemplateTaskDialog({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selectionner un enfant" />
+                          <SelectValue placeholder="Sélectionner un enfant" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -288,10 +288,10 @@ export function TemplateTaskDialog({
                 {isPending ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creation...
+                    Création...
                   </>
                 ) : (
-                  "Creer la tache"
+                  "Créer la tâche"
                 )}
               </Button>
             </DialogFooter>

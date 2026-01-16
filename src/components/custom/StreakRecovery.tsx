@@ -129,15 +129,15 @@ export function StreakRecovery({
         <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
           <p className="text-sm text-red-700 dark:text-red-300">
             {daysOverdue === 1 ? (
-              <>Aucune tache terminee hier</>
+              <>Aucune tâche terminée hier</>
             ) : (
               <>
-                Pas d&apos;activite depuis <strong>{daysOverdue} jours</strong>
+                Pas d&apos;activité depuis <strong>{daysOverdue} jours</strong>
               </>
             )}
           </p>
           <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-            Completez une tache aujourd&apos;hui ou utilisez votre joker pour sauver votre streak.
+            Complétez une tâche aujourd&apos;hui ou utilisez votre joker pour sauver votre streak.
           </p>
         </div>
 
@@ -155,11 +155,11 @@ export function StreakRecovery({
               <span className="text-4xl">🃏</span>
               <div>
                 <p className="font-semibold text-amber-800 dark:text-amber-200">
-                  {canUseJoker ? "Joker disponible !" : "Joker deja utilise"}
+                  {canUseJoker ? "Joker disponible !" : "Joker déjà utilisé"}
                 </p>
                 <p className="text-sm text-amber-700 dark:text-amber-300">
                   {canUseJoker
-                    ? "Utilisez-le pour sauver votre streak sans completer de tache."
+                    ? "Utilisez-le pour sauver votre streak sans compléter de tâche."
                     : "Vous pourrez utiliser votre prochain joker le mois prochain."}
                 </p>
               </div>
@@ -171,10 +171,10 @@ export function StreakRecovery({
               <span className="text-4xl opacity-50">🃏</span>
               <div>
                 <p className="font-semibold text-gray-700 dark:text-gray-300">
-                  Fonctionnalite Premium
+                  Fonctionnalité Premium
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Passez a Premium pour debloquer 1 joker par mois.
+                  Passez à Premium pour débloquer 1 joker par mois.
                 </p>
               </div>
             </div>
@@ -205,8 +205,8 @@ export function StreakRecovery({
 
         <p className="text-xs text-center text-muted-foreground px-4">
           {canUseJoker
-            ? "Le joker preserve votre streak pour aujourd'hui. Vous n'aurez pas besoin de completer une tache."
-            : "Completez une tache avant minuit pour continuer votre streak."}
+            ? "Le joker préserve votre streak pour aujourd&apos;hui. Vous n&apos;aurez pas besoin de compléter une tâche."
+            : "Complétez une tâche avant minuit pour continuer votre streak."}
         </p>
       </CardFooter>
     </Card>
