@@ -1,8 +1,21 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Conditions Générales d'Utilisation | FamilyLoad",
-  description: "Consultez les conditions générales d'utilisation de FamilyLoad.",
+  title: "Conditions Générales d'Utilisation",
+  description: "Conditions générales d'utilisation de FamilyLoad. Informations sur les abonnements, la période d'essai gratuite de 14 jours, vos droits et obligations.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/terms",
+  },
+  openGraph: {
+    title: "CGU - Conditions Générales d'Utilisation - FamilyLoad",
+    description: "Conditions d'utilisation de l'application FamilyLoad. Abonnements, essai gratuit et modalités de service.",
+    type: "website",
+    url: "/terms",
+  },
 }
 
 export default function TermsPage() {

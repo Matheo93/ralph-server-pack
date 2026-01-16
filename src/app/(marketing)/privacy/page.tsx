@@ -1,8 +1,21 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Politique de Confidentialité | FamilyLoad",
-  description: "Découvrez comment FamilyLoad protège vos données personnelles et celles de votre famille.",
+  title: "Politique de Confidentialité",
+  description: "Politique de confidentialité de FamilyLoad. Découvrez comment nous protégeons vos données personnelles et celles de votre famille. Conformité RGPD, chiffrement des données, droits d'accès.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/privacy",
+  },
+  openGraph: {
+    title: "Politique de Confidentialité - FamilyLoad",
+    description: "Comment FamilyLoad protège la vie privée de votre famille. Conformité RGPD et sécurité des données.",
+    type: "website",
+    url: "/privacy",
+  },
 }
 
 export default function PrivacyPage() {

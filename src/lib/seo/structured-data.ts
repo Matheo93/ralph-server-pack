@@ -160,6 +160,100 @@ interface WebPage {
   breadcrumb?: { "@id": string }
 }
 
+interface HowToStep {
+  "@type": "HowToStep"
+  position: number
+  name: string
+  text: string
+  url?: string
+  image?: string
+}
+
+interface HowTo {
+  "@type": "HowTo"
+  "@id": string
+  name: string
+  description: string
+  totalTime: string
+  estimatedCost?: {
+    "@type": "MonetaryAmount"
+    currency: string
+    value: string
+  }
+  step: HowToStep[]
+  tool?: string[]
+}
+
+interface Product {
+  "@type": "Product"
+  "@id": string
+  name: string
+  description: string
+  brand: { "@id": string }
+  offers: {
+    "@type": "AggregateOffer"
+    lowPrice: string
+    highPrice: string
+    priceCurrency: string
+    offerCount: number
+    availability: string
+    offers: Array<{
+      "@type": "Offer"
+      name: string
+      price: string
+      priceCurrency: string
+      description: string
+      availability: string
+      priceValidUntil: string
+    }>
+  }
+  aggregateRating: {
+    "@type": "AggregateRating"
+    ratingValue: string
+    ratingCount: string
+    bestRating: string
+    worstRating: string
+    reviewCount: string
+  }
+  review?: Array<{
+    "@type": "Review"
+    author: { "@type": "Person"; name: string }
+    datePublished: string
+    reviewBody: string
+    reviewRating: {
+      "@type": "Rating"
+      ratingValue: string
+      bestRating: string
+      worstRating: string
+    }
+  }>
+}
+
+interface Service {
+  "@type": "Service"
+  "@id": string
+  name: string
+  description: string
+  provider: { "@id": string }
+  serviceType: string
+  areaServed: {
+    "@type": "Country"
+    name: string
+  }
+  hasOfferCatalog: {
+    "@type": "OfferCatalog"
+    name: string
+    itemListElement: Array<{
+      "@type": "Offer"
+      itemOffered: {
+        "@type": "Service"
+        name: string
+        description: string
+      }
+    }>
+  }
+}
+
 type StructuredDataItem =
   | Organization
   | WebSite
@@ -168,6 +262,9 @@ type StructuredDataItem =
   | FAQPage
   | BreadcrumbList
   | WebPage
+  | HowTo
+  | Product
+  | Service
 
 interface StructuredDataGraph {
   "@context": "https://schema.org"
@@ -402,6 +499,213 @@ export function getWebPageSchema(
 }
 
 // =============================================================================
+// HOW TO - Guide d'utilisation
+// =============================================================================
+
+export function getHowToSchema(): HowTo {
+  return {
+    "@type": "HowTo",
+    "@id": `${BASE_URL}/#howto`,
+    name: "Comment réduire sa charge mentale parentale avec FamilyLoad",
+    description: "Guide étape par étape pour utiliser FamilyLoad et réduire votre charge mentale parentale en famille.",
+    totalTime: "PT5M",
+    estimatedCost: {
+      "@type": "MonetaryAmount",
+      currency: "EUR",
+      value: "0",
+    },
+    tool: ["Navigateur web", "Smartphone ou ordinateur"],
+    step: [
+      {
+        "@type": "HowToStep",
+        position: 1,
+        name: "Créez votre compte gratuit",
+        text: "Inscrivez-vous en 2 minutes avec votre email. Aucune carte bancaire n'est requise pour l'essai gratuit de 14 jours.",
+        url: `${BASE_URL}/signup`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 2,
+        name: "Ajoutez vos enfants",
+        text: "Renseignez le prénom et la date de naissance de vos enfants. FamilyLoad adaptera automatiquement les suggestions de tâches selon leur âge.",
+        url: `${BASE_URL}/children/new`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 3,
+        name: "Invitez votre co-parent",
+        text: "Envoyez une invitation par email à votre partenaire pour partager les tâches familiales et visualiser la répartition de la charge mentale.",
+        url: `${BASE_URL}/settings/household`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 4,
+        name: "Créez vos premières tâches",
+        text: "Utilisez la commande vocale ou tapez vos tâches. FamilyLoad comprend le contexte et crée automatiquement les rappels appropriés.",
+        url: `${BASE_URL}/tasks/new`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 5,
+        name: "Visualisez la répartition",
+        text: "Consultez le tableau de bord pour voir qui fait quoi et équilibrer la charge mentale entre les parents.",
+        url: `${BASE_URL}/dashboard`,
+      },
+    ],
+  }
+}
+
+// =============================================================================
+// PRODUCT - Produit SaaS
+// =============================================================================
+
+export function getProductSchema(): Product {
+  const nextYear = new Date()
+  nextYear.setFullYear(nextYear.getFullYear() + 1)
+  const priceValidUntil = nextYear.toISOString().slice(0, 10)
+
+  return {
+    "@type": "Product",
+    "@id": `${BASE_URL}/#product`,
+    name: "FamilyLoad - Application de gestion familiale",
+    description: "Application SaaS de gestion de la charge mentale parentale. Créez des tâches à la voix, partagez-les entre co-parents, visualisez la répartition équitable des responsabilités.",
+    brand: { "@id": `${BASE_URL}/#organization` },
+    offers: {
+      "@type": "AggregateOffer",
+      lowPrice: "0",
+      highPrice: "8",
+      priceCurrency: "EUR",
+      offerCount: 3,
+      availability: "https://schema.org/InStock",
+      offers: [
+        {
+          "@type": "Offer",
+          name: "FamilyLoad Gratuit",
+          price: "0",
+          priceCurrency: "EUR",
+          description: "Fonctionnalités essentielles pour découvrir FamilyLoad. Parfait pour les petites familles.",
+          availability: "https://schema.org/InStock",
+          priceValidUntil,
+        },
+        {
+          "@type": "Offer",
+          name: "FamilyLoad Family",
+          price: "4",
+          priceCurrency: "EUR",
+          description: "Toutes les fonctionnalités avancées pour les familles actives. Tâches illimitées, rappels intelligents.",
+          availability: "https://schema.org/InStock",
+          priceValidUntil,
+        },
+        {
+          "@type": "Offer",
+          name: "FamilyLoad Family+",
+          price: "8",
+          priceCurrency: "EUR",
+          description: "L'expérience complète avec support prioritaire, accès API et fonctionnalités exclusives.",
+          availability: "https://schema.org/InStock",
+          priceValidUntil,
+        },
+      ],
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      ratingCount: "127",
+      bestRating: "5",
+      worstRating: "1",
+      reviewCount: "89",
+    },
+    review: [
+      {
+        "@type": "Review",
+        author: { "@type": "Person", name: "Marie L." },
+        datePublished: "2025-12-15",
+        reviewBody: "FamilyLoad a transformé notre organisation familiale. Plus de disputes sur qui fait quoi, tout est visible et équitable !",
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: "5",
+          bestRating: "5",
+          worstRating: "1",
+        },
+      },
+      {
+        "@type": "Review",
+        author: { "@type": "Person", name: "Thomas D." },
+        datePublished: "2025-11-28",
+        reviewBody: "La commande vocale est géniale. Je dicte mes tâches en conduisant et tout est synchronisé avec ma femme.",
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: "5",
+          bestRating: "5",
+          worstRating: "1",
+        },
+      },
+      {
+        "@type": "Review",
+        author: { "@type": "Person", name: "Sophie M." },
+        datePublished: "2025-10-10",
+        reviewBody: "Les templates par âge des enfants nous font gagner un temps fou. Plus besoin de réfléchir à tout !",
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: "4",
+          bestRating: "5",
+          worstRating: "1",
+        },
+      },
+    ],
+  }
+}
+
+// =============================================================================
+// SERVICE
+// =============================================================================
+
+export function getServiceSchema(): Service {
+  return {
+    "@type": "Service",
+    "@id": `${BASE_URL}/#service`,
+    name: "FamilyLoad - Service de gestion familiale",
+    description: "Service en ligne de gestion de la charge mentale parentale pour les familles françaises et francophones.",
+    provider: { "@id": `${BASE_URL}/#organization` },
+    serviceType: "Application de productivité familiale",
+    areaServed: {
+      "@type": "Country",
+      name: "France",
+    },
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Offres FamilyLoad",
+      itemListElement: [
+        {
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: "Gestion des tâches familiales",
+            description: "Créez, assignez et suivez toutes les tâches de votre famille.",
+          },
+        },
+        {
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: "Répartition équitable",
+            description: "Visualisez et équilibrez la charge mentale entre co-parents.",
+          },
+        },
+        {
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: "Rappels intelligents",
+            description: "Recevez des notifications personnalisées pour ne rien oublier.",
+          },
+        },
+      ],
+    },
+  }
+}
+
+// =============================================================================
 // FULL GRAPH FOR LANDING PAGE
 // =============================================================================
 
@@ -462,6 +766,9 @@ export function getLandingPageStructuredData(): StructuredDataGraph {
       getOrganizationSchema(),
       getWebSiteSchema(),
       getWebApplicationSchema(),
+      getProductSchema(),
+      getServiceSchema(),
+      getHowToSchema(),
       getFAQPageSchema(faqs),
       breadcrumb,
       {

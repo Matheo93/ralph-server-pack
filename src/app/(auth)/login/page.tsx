@@ -1,5 +1,24 @@
+import { Metadata } from "next"
 import { AuthForm } from "@/components/custom/auth-form"
 import { CheckCircle2, Heart, Shield, Sparkles } from "lucide-react"
+
+export const metadata: Metadata = {
+  title: "Connexion",
+  description: "Connectez-vous à FamilyLoad pour gérer votre charge mentale parentale. Accédez à vos tâches familiales, rappels et répartition équitable entre co-parents.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/login",
+  },
+  openGraph: {
+    title: "Connexion à FamilyLoad",
+    description: "Connectez-vous pour retrouver votre tableau de bord familial et gérer vos tâches quotidiennes.",
+    type: "website",
+    url: "/login",
+  },
+}
 
 interface LoginPageProps {
   searchParams: Promise<{ magic?: string }>

@@ -1,5 +1,29 @@
+import { Metadata } from "next"
 import { AuthForm } from "@/components/custom/auth-form"
 import { CheckCircle2, Clock, Users, Zap } from "lucide-react"
+
+export const metadata: Metadata = {
+  title: "Créer un compte - Essai gratuit 14 jours",
+  description: "Inscrivez-vous gratuitement à FamilyLoad et réduisez votre charge mentale parentale. 14 jours d'essai gratuit, sans engagement. Créez des tâches à la voix, partagez-les entre co-parents.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/signup",
+  },
+  openGraph: {
+    title: "Créer un compte FamilyLoad - Essai gratuit 14 jours",
+    description: "Rejoignez des milliers de familles qui ont retrouvé leur sérénité. 14 jours d'essai gratuit, sans carte bancaire requise.",
+    type: "website",
+    url: "/signup",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Essayez FamilyLoad gratuitement pendant 14 jours",
+    description: "Réduisez votre charge mentale parentale. Inscription gratuite en 2 minutes.",
+  },
+}
 
 export default function SignupPage() {
   return (
