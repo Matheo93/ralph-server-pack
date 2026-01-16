@@ -149,6 +149,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
     state: speechState,
     transcript,
     interimTranscript,
+    error: speechError,
     isSupported: isSpeechSupported,
     startListening,
     stopListening,
@@ -157,6 +158,9 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
     language: "fr-FR",
     continuous: true,
     interimResults: true,
+    onError: (err) => {
+      setError(err)
+    },
   })
 
   // Sync transcript with text input
@@ -405,27 +409,27 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
 
                     {/* Actions */}
                     <div className="flex items-center gap-2">
-                      {/* Mic button */}
-                      {isSpeechSupported && (
-                        <Button
-                          size="sm"
-                          variant={isListening ? "destructive" : "outline"}
-                          onClick={isListening ? handleStopVoice : handleStartVoice}
-                          className="flex items-center gap-1.5"
-                        >
-                          {isListening ? (
-                            <>
-                              <StopIcon className="w-4 h-4" />
-                              <span>Stop</span>
-                            </>
-                          ) : (
-                            <>
-                              <MicrophoneIcon className="w-4 h-4" />
-                              <span>Dicter</span>
-                            </>
-                          )}
-                        </Button>
-                      )}
+                      {/* Mic button - Always show, with error state if not supported */}
+                      <Button
+                        size="sm"
+                        variant={isListening ? "destructive" : "outline"}
+                        onClick={isListening ? handleStopVoice : handleStartVoice}
+                        disabled={!isSpeechSupported}
+                        className="flex items-center gap-1.5"
+                        title={!isSpeechSupported ? "La reconnaissance vocale n'est pas supportée sur ce navigateur (utilisez Chrome)" : undefined}
+                      >
+                        {isListening ? (
+                          <>
+                            <StopIcon className="w-4 h-4" />
+                            <span>Stop</span>
+                          </>
+                        ) : (
+                          <>
+                            <MicrophoneIcon className="w-4 h-4" />
+                            <span>Dicter</span>
+                          </>
+                        )}
+                      </Button>
 
                       {/* Classify button */}
                       <Button
