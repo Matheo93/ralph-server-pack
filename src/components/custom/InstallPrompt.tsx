@@ -17,6 +17,17 @@ interface BeforeInstallPromptEvent extends Event {
 const DISMISSED_KEY = "pwa-install-dismissed"
 const DISMISSED_DURATION = 7 * 24 * 60 * 60 * 1000 // 7 days
 
+// Register service worker
+function registerServiceWorker() {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+    return
+  }
+
+  navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch((error) => {
+    console.error("Service worker registration failed:", error)
+  })
+}
+
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
@@ -25,6 +36,9 @@ export function InstallPrompt() {
   const [showIOSInstructions, setShowIOSInstructions] = useState(false)
 
   useEffect(() => {
+    // Register service worker
+    registerServiceWorker()
+
     // Check if already installed
     if (window.matchMedia("(display-mode: standalone)").matches) {
       setIsInstalled(true)
