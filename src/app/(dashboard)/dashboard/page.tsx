@@ -13,6 +13,7 @@ import { StreakCounter } from "@/components/custom/StreakCounter"
 import { ChargeBalance } from "@/components/custom/ChargeBalance"
 import { ChargeWeekChart } from "@/components/custom/ChargeWeekChart"
 import { ChargeHistoryCard } from "@/components/custom/ChargeHistoryCard"
+import { InviteCoParentCTA } from "@/components/custom/InviteCoParentCTA"
 
 // Force dynamic rendering to ensure fresh data on each request
 export const dynamic = "force-dynamic"
@@ -155,6 +156,11 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* CTA Invite co-parent - Only shown if single parent */}
+      {balance && balance.members.length < 2 && (
+        <InviteCoParentCTA className="mb-8" />
+      )}
 
       {/* Tâches en retard */}
       {overdueTasks.length > 0 && (
