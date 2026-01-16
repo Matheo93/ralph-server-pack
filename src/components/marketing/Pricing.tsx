@@ -2,18 +2,54 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Check, Sparkles, Shield, Heart } from "lucide-react"
+import { Check, X, Sparkles, Shield, Crown, Zap } from "lucide-react"
 import { ScrollReveal } from "./ScrollReveal"
 
-const features = [
-  { text: "Tâches vocales illimitées", highlight: true },
-  { text: "Tous les templates automatiques", highlight: false },
-  { text: "Répartition équitable entre parents", highlight: true },
-  { text: "Jusqu'à 10 enfants", highlight: false },
-  { text: "Historique complet", highlight: false },
-  { text: "Notifications personnalisées", highlight: false },
-  { text: "Support prioritaire", highlight: false },
-  { text: "Nouveautés en avant-première", highlight: false },
+const plans = [
+  {
+    name: "Gratuit",
+    price: "0€",
+    period: "pour toujours",
+    description: "Pour découvrir FamilyLoad",
+    highlight: false,
+    cta: "Commencer gratuitement",
+    ctaLink: "/signup",
+    features: [
+      { text: "Jusqu'à 2 enfants", included: true },
+      { text: "5 commandes vocales/jour", included: true },
+      { text: "Historique 7 jours", included: true },
+      { text: "Tâches manuelles illimitées", included: true },
+      { text: "Répartition charge mentale", included: true },
+      { text: "Tâches automatiques", included: false },
+      { text: "Export PDF", included: false },
+      { text: "Joker streak mensuel", included: false },
+      { text: "Support prioritaire", included: false },
+    ],
+  },
+  {
+    name: "Premium",
+    price: "2,99€",
+    originalPrice: "4,99€",
+    period: "/mois",
+    yearlyPrice: "24,99€/an",
+    yearlySavings: "Économisez 40%",
+    description: "Pour les familles actives",
+    highlight: true,
+    badge: "Le plus populaire",
+    cta: "Essai gratuit 14 jours",
+    ctaLink: "/signup?plan=premium",
+    features: [
+      { text: "Enfants illimités", included: true, highlight: true },
+      { text: "Commandes vocales illimitées", included: true, highlight: true },
+      { text: "Historique complet", included: true },
+      { text: "Tâches manuelles illimitées", included: true },
+      { text: "Répartition charge mentale", included: true },
+      { text: "Tâches automatiques par âge", included: true, highlight: true },
+      { text: "Export PDF détaillé", included: true },
+      { text: "1 Joker streak/mois", included: true },
+      { text: "Support prioritaire 24h", included: true },
+    ],
+  },
 ]
 
 export function Pricing() {
@@ -21,86 +57,153 @@ export function Pricing() {
     <section id="pricing" className="py-20 md:py-28 bg-gradient-to-b from-background via-secondary/20 to-background">
       <div className="container">
         <ScrollReveal>
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
-            <Sparkles className="w-4 h-4" />
-            Tarif unique
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Un prix simple et transparent
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Pas de surprise, pas de frais cachés. Un seul abonnement pour toute la famille.
-          </p>
-        </div>
-        </ScrollReveal>
-
-        <ScrollReveal scale delay={0.2}>
-        <div className="max-w-md mx-auto">
-          <div className="relative rounded-3xl border-2 border-primary bg-gradient-to-br from-white to-accent/20 p-8 shadow-2xl shadow-primary/10">
-            {/* Popular badge */}
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-              <span className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30">
-                <Heart className="w-4 h-4 fill-current" />
-                Prix de lancement
-              </span>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <Sparkles className="w-4 h-4" />
+              Tarifs simples
             </div>
-
-            {/* Price */}
-            <div className="text-center mb-8 pt-6">
-              <div className="flex items-baseline justify-center gap-1">
-                <span className="text-6xl font-bold text-primary">4€</span>
-                <span className="text-xl text-muted-foreground">/mois</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Facturation mensuelle • Annulable à tout moment
-              </p>
-              <div className="mt-4 flex items-center justify-center gap-2">
-                <span className="text-sm line-through text-muted-foreground/60">9,99€</span>
-                <span className="px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs font-semibold">-60%</span>
-              </div>
-            </div>
-
-            {/* Features */}
-            <ul className="space-y-3 mb-8">
-              {features.map((feature, index) => (
-                <li key={index} className={`flex items-center gap-3 ${feature.highlight ? 'font-medium' : ''}`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${feature.highlight ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
-                    <Check className="h-3.5 w-3.5" />
-                  </div>
-                  <span className="text-sm">{feature.text}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* CTA */}
-            <Button size="lg" className="w-full text-base bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25" asChild>
-              <Link href="/signup">
-                Essayer gratuitement 14 jours
-              </Link>
-            </Button>
-
-            <p className="text-xs text-center text-muted-foreground mt-4 flex items-center justify-center gap-1">
-              <Shield className="w-3 h-3" />
-              Aucune carte bancaire requise pour l&apos;essai
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Choisissez votre formule
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Commencez gratuitement, passez Premium quand vous êtes prêt.
+              <br />
+              <span className="text-primary font-medium">Aucune carte bancaire requise pour l&apos;essai.</span>
             </p>
           </div>
-        </div>
         </ScrollReveal>
 
-        {/* Money back guarantee */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {plans.map((plan, index) => (
+            <ScrollReveal key={plan.name} scale delay={index * 0.15}>
+              <div
+                className={`relative rounded-3xl p-8 h-full flex flex-col ${
+                  plan.highlight
+                    ? "border-2 border-primary bg-gradient-to-br from-white to-primary/5 shadow-2xl shadow-primary/10"
+                    : "border border-border bg-card"
+                }`}
+              >
+                {/* Badge */}
+                {plan.badge && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <span className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30">
+                      <Crown className="w-4 h-4" />
+                      {plan.badge}
+                    </span>
+                  </div>
+                )}
+
+                {/* Header */}
+                <div className={`text-center mb-8 ${plan.badge ? "pt-4" : ""}`}>
+                  <h3 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2">
+                    {plan.highlight && <Zap className="w-5 h-5 text-primary" />}
+                    {plan.name}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-4">{plan.description}</p>
+
+                  {/* Price */}
+                  <div className="flex items-baseline justify-center gap-1">
+                    {plan.originalPrice && (
+                      <span className="text-lg line-through text-muted-foreground/60 mr-2">
+                        {plan.originalPrice}
+                      </span>
+                    )}
+                    <span className={`text-5xl font-bold ${plan.highlight ? "text-primary" : ""}`}>
+                      {plan.price}
+                    </span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </div>
+
+                  {/* Yearly option */}
+                  {plan.yearlyPrice && (
+                    <div className="mt-3 flex items-center justify-center gap-2">
+                      <span className="text-sm text-muted-foreground">ou {plan.yearlyPrice}</span>
+                      <span className="px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs font-semibold">
+                        {plan.yearlySavings}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Features */}
+                <ul className="space-y-3 mb-8 flex-grow">
+                  {plan.features.map((feature, i) => (
+                    <li
+                      key={i}
+                      className={`flex items-center gap-3 ${
+                        feature.highlight ? "font-medium" : ""
+                      } ${!feature.included ? "text-muted-foreground/60" : ""}`}
+                    >
+                      <div
+                        className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          feature.included
+                            ? feature.highlight
+                              ? "bg-primary text-white"
+                              : "bg-primary/10 text-primary"
+                            : "bg-muted text-muted-foreground/40"
+                        }`}
+                      >
+                        {feature.included ? (
+                          <Check className="h-3.5 w-3.5" />
+                        ) : (
+                          <X className="h-3.5 w-3.5" />
+                        )}
+                      </div>
+                      <span className="text-sm">{feature.text}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA */}
+                <Button
+                  size="lg"
+                  className={`w-full text-base ${
+                    plan.highlight
+                      ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+                      : "bg-secondary hover:bg-secondary/80"
+                  }`}
+                  variant={plan.highlight ? "default" : "secondary"}
+                  asChild
+                >
+                  <Link href={plan.ctaLink}>{plan.cta}</Link>
+                </Button>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+
+        {/* Trust badges */}
         <ScrollReveal delay={0.4}>
-        <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200">
-            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-              <Check className="w-5 h-5 text-green-600" />
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Shield className="w-4 h-4 text-green-600" />
+              <span>Paiement sécurisé</span>
             </div>
-            <div className="text-left">
-              <p className="font-semibold">Satisfait ou remboursé</p>
-              <p className="text-sm text-green-600">Pendant 30 jours, sans condition</p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Check className="w-4 h-4 text-green-600" />
+              <span>Annulation à tout moment</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Sparkles className="w-4 h-4 text-green-600" />
+              <span>Satisfait ou remboursé 30j</span>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
+
+        {/* FAQ teaser */}
+        <ScrollReveal delay={0.5}>
+          <div className="mt-16 text-center">
+            <p className="text-muted-foreground">
+              Des questions ?{" "}
+              <Link href="#faq" className="text-primary hover:underline font-medium">
+                Consultez notre FAQ
+              </Link>{" "}
+              ou{" "}
+              <Link href="mailto:contact@familyload.app" className="text-primary hover:underline font-medium">
+                contactez-nous
+              </Link>
+            </p>
+          </div>
         </ScrollReveal>
       </div>
     </section>
