@@ -16,6 +16,10 @@ import { ChargeHistoryCard } from "@/components/custom/ChargeHistoryCard"
 import { VocalRecorder } from "@/components/custom/VocalRecorder"
 import { QuickActions } from "@/components/custom/QuickActions"
 
+// Force dynamic rendering to ensure fresh data on each request
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export default async function DashboardPage() {
   const [children, membership, todayTasks, weekTasks, overdueTasks, unscheduledTasks, taskCounts, balance, weekChartData, chargeHistory] =
     await Promise.all([
