@@ -2,11 +2,10 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Landing page error: net::ERR_CONNECTION_REFUSED at http://localhost:3000
-❌ Dashboard error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/dashboard
-❌ Settings household error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/settings/household
-❌ Children error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/children
-  ❌ Landing page: net::ERR_CONNECTION_REFUSED at http://localhost:3000
+❌ Dashboard not properly loaded
+❌ Settings household issues
+  ❌ Dashboard: Not properly loaded
+  ❌ Settings household: Content not found
 
 ---
 
