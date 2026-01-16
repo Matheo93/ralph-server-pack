@@ -196,6 +196,53 @@ export async function getHouseholdMembers(householdId: string) {
   }))
 }
 
+// Get members of current user's household (without needing householdId)
+export async function getCurrentHouseholdMembers(): Promise<
+  Array<{
+    user_id: string
+    user_name: string | null
+    user_email: string
+    role: string
+    avatar_url: string | null
+  }>
+> {
+  const userId = await getUserId()
+  if (!userId) return []
+
+  await setCurrentUser(userId)
+
+  // First get user's household
+  const membership = await queryOne<{ household_id: string }>(`
+    SELECT household_id
+    FROM household_members
+    WHERE user_id = $1 AND is_active = true
+  `, [userId])
+
+  if (!membership) return []
+
+  interface MemberResult {
+    user_id: string
+    user_name: string | null
+    user_email: string
+    role: string
+    avatar_url: string | null
+  }
+
+  const members = await query<MemberResult>(`
+    SELECT
+      hm.user_id,
+      u.name as user_name,
+      u.email as user_email,
+      hm.role,
+      u.avatar_url
+    FROM household_members hm
+    LEFT JOIN users u ON u.id = hm.user_id
+    WHERE hm.household_id = $1 AND hm.is_active = true
+  `, [membership.household_id])
+
+  return members
+}
+
 export async function inviteCoParent(
   data: InvitationInput
 ): Promise<ActionResult<{ invitationId: string; token: string }>> {
