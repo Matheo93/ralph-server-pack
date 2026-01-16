@@ -1,35 +1,40 @@
-# CLAUDE.md - Instructions RALPH
+# CLAUDE.md - BUGS URGENTS À CORRIGER
 
-## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
+## 🔴 BUGS CRITIQUES - CORRIGER MAINTENANT 🔴
 
-❌ Age calculation bug detected!
-  ❌ Children: Age calculation bug
+### 1. ❌ MICRO NE DEMANDE PAS LA PERMISSION
+Le micro ne demande JAMAIS la permission à l'utilisateur!
+- Ajouter navigator.mediaDevices.getUserMedia() pour demander accès
+- Afficher popup de permission du navigateur
+- Gérer le cas où l'utilisateur refuse
+
+### 2. ❌ 3 BOUTONS EN BAS À DROITE À FUSIONNER
+Sur le dashboard, il y a ENCORE 3 boutons en bas à droite:
+- "+" (bleu)
+- "Vue semaine" ou autre
+- Un autre bouton
+
+ILS DOIVENT ÊTRE FUSIONNÉS EN UN SEUL!
+Solution: Un seul FAB qui ouvre un menu
 
 ---
 
-## APRÈS CHAQUE CORRECTION, EXÉCUTE:
+## AUTRES FEATURES À FAIRE
+
+1. Traduction 100% français
+2. PWA / App mobile installable
+3. Enfant relié aux tâches (pas juste une donnée)
+4. Suggestions si dashboard vide
+5. Animation landing page
+
+---
+
+## TEST OBLIGATOIRE
+
 ```bash
 node test-auto.js
 ```
 
----
+Après CHAQUE changement!
 
-## FEATURES À IMPLÉMENTER
-
-1. Animation landing page (style entraide-souverainiste)
-2. Suggestions quand dashboard vide (Chat rapide / Templates)
-3. Smooth scroll (html { scroll-behavior: smooth; })
-4. PWA complète (manifest.json, service worker, icônes)
-5. Enfant relié aux tâches (filtrer, afficher sur tâches)
-
----
-
-## WORKFLOW
-1. git pull
-2. Corriger UN bug
-3. bun run build
-4. node test-auto.js
-5. Si OK: git commit && git push
-6. Recommencer
-
-⚠️ NE JAMAIS COMMIT SANS TESTER!
+⚠️ NE T'ARRÊTE JAMAIS!
