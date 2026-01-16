@@ -43,7 +43,9 @@ export default async function ChildrenPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {children.map((child) => (
-            <ChildCard key={child.id} child={child} />
+            <Link key={child.id} href={`/children/${child.id}`} className="block">
+              <ChildCard child={child} />
+            </Link>
           ))}
         </div>
       )}

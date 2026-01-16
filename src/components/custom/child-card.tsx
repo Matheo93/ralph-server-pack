@@ -39,7 +39,7 @@ export function ChildCard({ child }: ChildCardProps) {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full hover:border-primary/50 hover:shadow-md transition-all">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div>
@@ -53,7 +53,7 @@ export function ChildCard({ child }: ChildCardProps) {
               )}
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             <Link href={`/children/${child.id}/edit`}>
               <Button variant="outline" size="sm">
                 Modifier
@@ -82,7 +82,7 @@ export function ChildCard({ child }: ChildCardProps) {
         )}
 
         {showConfirm ? (
-          <div className="flex items-center gap-2 pt-2 border-t">
+          <div className="flex items-center gap-2 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
             <p className="text-sm text-destructive flex-1">
               Supprimer {child.first_name} ?
             </p>
@@ -104,7 +104,7 @@ export function ChildCard({ child }: ChildCardProps) {
             </Button>
           </div>
         ) : (
-          <div className="pt-2 border-t">
+          <div className="pt-2 border-t" onClick={(e) => e.stopPropagation()}>
             <Button
               variant="ghost"
               size="sm"
