@@ -271,5 +271,31 @@
     "new": "Nouveau",
     "improved": "Ameliore",
     "beta": "Beta"
+  },
+  "pushNotifications": {
+    "title": "Restez informe!",
+    "description": "Recevez des rappels pour ne jamais oublier vos taches",
+    "enable": "Activer",
+    "later": "Plus tard",
+    "activating": "Activation...",
+    "compact": {
+      "title": "Activer les notifications",
+      "description": "Rappels de taches et streak"
+    },
+    "features": {
+      "streak": {
+        "title": "Rappels de streak",
+        "description": "Ne perdez pas votre serie"
+      },
+      "tasks": {
+        "title": "Rappels de taches",
+        "description": "Avant chaque deadline"
+      },
+      "encouragements": {
+        "title": "Encouragements",
+        "description": "Bravo quand vous progressez"
+      }
+    },
+    "footer": "Vous pourrez desactiver les notifications a tout moment dans les parametres"
   }
 }

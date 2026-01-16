@@ -15,6 +15,7 @@ import { OfflineIndicator } from "@/components/custom/OfflineIndicator"
 import { PageTransitionProvider, PageWrapper } from "@/components/custom/PageTransition"
 import { MagicNotepad } from "@/components/custom/MagicNotepad"
 import { CoachMarksProvider } from "@/components/custom/CoachMarks"
+import { PushPermissionPrompt } from "@/components/custom/PushPermissionPrompt"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -92,6 +93,7 @@ export default async function DashboardLayout({
             <InstallPrompt />
             <KeyboardShortcutsHelp />
             <OfflineIndicator showOnlineStatus />
+            <PushPermissionPrompt compact showAfterMs={10000} />
           </div>
         </PageTransitionProvider>
         </CoachMarksProvider>

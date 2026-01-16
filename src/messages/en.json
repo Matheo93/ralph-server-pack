@@ -271,5 +271,31 @@
     "new": "New",
     "improved": "Improved",
     "beta": "Beta"
+  },
+  "pushNotifications": {
+    "title": "Stay informed!",
+    "description": "Get reminders so you never forget your tasks",
+    "enable": "Enable",
+    "later": "Later",
+    "activating": "Activating...",
+    "compact": {
+      "title": "Enable notifications",
+      "description": "Task and streak reminders"
+    },
+    "features": {
+      "streak": {
+        "title": "Streak reminders",
+        "description": "Don't lose your streak"
+      },
+      "tasks": {
+        "title": "Task reminders",
+        "description": "Before each deadline"
+      },
+      "encouragements": {
+        "title": "Encouragements",
+        "description": "Congrats when you make progress"
+      }
+    },
+    "footer": "You can disable notifications at any time in settings"
   }
 }
