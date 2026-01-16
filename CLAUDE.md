@@ -2,10 +2,11 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Dashboard not properly loaded
-❌ Settings household issues
-  ❌ Dashboard: Not properly loaded
-  ❌ Settings household: Content not found
+❌ Landing page error: Navigation timeout of 30000 ms exceeded
+❌ Dashboard error: Navigation timeout of 30000 ms exceeded
+❌ Settings household error: Navigating frame was detached
+❌ Children error: Attempted to use detached Frame '2BA097B2D35D693BDF1F33180C14CBAC'.
+  ❌ Landing page: Navigation timeout of 30000 ms exceeded
 
 ---
 
