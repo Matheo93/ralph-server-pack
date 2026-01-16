@@ -4,6 +4,7 @@ import { query, queryOne, setCurrentUser } from "@/lib/aws/database"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { HouseholdSettings } from "@/components/custom/HouseholdSettings"
+import { InviteForm } from "@/components/custom/invite-form"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -152,19 +153,7 @@ export default async function HouseholdSettingsPage() {
 
         {/* Invite */}
         {isAdmin && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Inviter un co-parent</CardTitle>
-              <CardDescription>
-                Envoyez une invitation par email pour ajouter un membre au foyer
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Cette fonctionnalité sera bientôt disponible.
-              </p>
-            </CardContent>
-          </Card>
+          <InviteForm />
         )}
 
         {/* Stats */}
