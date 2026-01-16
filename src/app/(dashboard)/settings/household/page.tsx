@@ -80,7 +80,8 @@ export default async function HouseholdSettingsPage() {
   }
 
   const currentMember = members.find((m) => m.user_id === currentUserId)
-  const isAdmin = currentMember?.role === "admin"
+  // Admin can be "admin" or "parent_principal" (the original creator)
+  const isAdmin = currentMember?.role === "admin" || currentMember?.role === "parent_principal"
 
   return (
     <div className="container max-w-2xl py-8 px-4">
