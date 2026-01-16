@@ -803,6 +803,99 @@ export async function cancelRecurringSeries(
 }
 
 // ============================================================
+// GET UNSCHEDULED TASKS (no deadline)
+// ============================================================
+
+export async function getUnscheduledTasks(): Promise<TaskListItem[]> {
+  const userId = await getUserId()
+  if (!userId) return []
+
+  const membership = await getHouseholdForUser(userId)
+  if (!membership) return []
+
+  const tasks = await query<TaskListItem>(`
+    SELECT
+      t.id,
+      t.title,
+      t.status,
+      t.priority,
+      t.deadline::text,
+      t.deadline_flexible,
+      t.is_critical,
+      t.load_weight,
+      t.child_id,
+      c.first_name as child_name,
+      t.assigned_to,
+      NULL as assigned_name,
+      tc.code as category_code,
+      tc.name_fr as category_name,
+      tc.color as category_color,
+      tc.icon as category_icon,
+      t.created_at::text
+    FROM tasks t
+    LEFT JOIN children c ON t.child_id = c.id
+    LEFT JOIN task_categories tc ON t.category_id = tc.id
+    WHERE t.household_id = $1
+      AND t.deadline IS NULL
+      AND t.status IN ('pending', 'postponed')
+    ORDER BY
+      t.is_critical DESC,
+      CASE t.priority
+        WHEN 'critical' THEN 1
+        WHEN 'high' THEN 2
+        WHEN 'normal' THEN 3
+        WHEN 'low' THEN 4
+      END,
+      t.created_at DESC
+  `, [membership.household_id])
+
+  return tasks
+}
+
+// ============================================================
+// GET ALL PENDING TASKS COUNT (for dashboard)
+// ============================================================
+
+export async function getAllPendingTasksCount(): Promise<{
+  total: number
+  today: number
+  week: number
+  overdue: number
+  unscheduled: number
+}> {
+  const userId = await getUserId()
+  if (!userId) return { total: 0, today: 0, week: 0, overdue: 0, unscheduled: 0 }
+
+  const membership = await getHouseholdForUser(userId)
+  if (!membership) return { total: 0, today: 0, week: 0, overdue: 0, unscheduled: 0 }
+
+  const result = await queryOne<{
+    total: string
+    today: string
+    week: string
+    overdue: string
+    unscheduled: string
+  }>(`
+    SELECT
+      COUNT(*) FILTER (WHERE status IN ('pending', 'postponed')) as total,
+      COUNT(*) FILTER (WHERE status IN ('pending', 'postponed') AND deadline::date = CURRENT_DATE) as today,
+      COUNT(*) FILTER (WHERE status IN ('pending', 'postponed') AND deadline::date >= CURRENT_DATE AND deadline::date <= CURRENT_DATE + INTERVAL '7 days') as week,
+      COUNT(*) FILTER (WHERE status = 'pending' AND deadline::date < CURRENT_DATE) as overdue,
+      COUNT(*) FILTER (WHERE status IN ('pending', 'postponed') AND deadline IS NULL) as unscheduled
+    FROM tasks
+    WHERE household_id = $1
+  `, [membership.household_id])
+
+  return {
+    total: parseInt(result?.total ?? "0", 10),
+    today: parseInt(result?.today ?? "0", 10),
+    week: parseInt(result?.week ?? "0", 10),
+    overdue: parseInt(result?.overdue ?? "0", 10),
+    unscheduled: parseInt(result?.unscheduled ?? "0", 10),
+  }
+}
+
+// ============================================================
 // GET RECURRING TASKS
 // ============================================================
 

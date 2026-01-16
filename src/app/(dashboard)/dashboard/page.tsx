@@ -1,13 +1,14 @@
 import Link from "next/link"
 import { getChildren } from "@/lib/actions/children"
 import { getHousehold } from "@/lib/actions/household"
-import { getTodayTasks, getWeekTasks, getOverdueTasks } from "@/lib/actions/tasks"
+import { getTodayTasks, getWeekTasks, getOverdueTasks, getUnscheduledTasks, getAllPendingTasksCount } from "@/lib/actions/tasks"
 import { getHouseholdBalance, getWeeklyChartData, getChargeHistory } from "@/lib/services/charge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DashboardToday } from "@/components/custom/DashboardToday"
 import { DashboardWeek } from "@/components/custom/DashboardWeek"
+import { DashboardUnscheduled } from "@/components/custom/DashboardUnscheduled"
 import { StreakCounter } from "@/components/custom/StreakCounter"
 import { ChargeBalance } from "@/components/custom/ChargeBalance"
 import { ChargeWeekChart } from "@/components/custom/ChargeWeekChart"
@@ -16,13 +17,15 @@ import { VocalRecorder } from "@/components/custom/VocalRecorder"
 import { QuickActions } from "@/components/custom/QuickActions"
 
 export default async function DashboardPage() {
-  const [children, membership, todayTasks, weekTasks, overdueTasks, balance, weekChartData, chargeHistory] =
+  const [children, membership, todayTasks, weekTasks, overdueTasks, unscheduledTasks, taskCounts, balance, weekChartData, chargeHistory] =
     await Promise.all([
       getChildren(),
       getHousehold(),
       getTodayTasks(),
       getWeekTasks(),
       getOverdueTasks(),
+      getUnscheduledTasks(),
+      getAllPendingTasksCount(),
       getHouseholdBalance(),
       getWeeklyChartData(),
       getChargeHistory(),
@@ -37,6 +40,7 @@ export default async function DashboardPage() {
 
   const pendingTodayCount = todayTasks.filter((t) => t.status === "pending").length
   const criticalCount = todayTasks.filter((t) => t.is_critical).length
+  const hasAnyPendingTasks = taskCounts.total > 0
 
   return (
     <div className="container mx-auto px-4 pb-24">
@@ -58,17 +62,22 @@ export default async function DashboardPage() {
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <CardDescription className="text-foreground/70 font-medium">Aujourd&apos;hui</CardDescription>
+              <CardDescription className="text-foreground/70 font-medium">Total actif</CardDescription>
             </div>
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-primary">{pendingTodayCount}</span>
-              <span className="text-muted-foreground">à faire</span>
+              <span className="text-3xl font-bold text-primary">{taskCounts.total}</span>
+              <span className="text-muted-foreground">tâche{taskCounts.total > 1 ? "s" : ""}</span>
             </div>
+            {taskCounts.unscheduled > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                dont {taskCounts.unscheduled} sans date
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -216,7 +225,11 @@ export default async function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Colonne principale - Tâches du jour */}
         <div className="lg:col-span-2 space-y-6">
-          <DashboardToday tasks={todayTasks} />
+          <DashboardToday tasks={todayTasks} hasAnyPendingTasks={hasAnyPendingTasks} />
+
+          {unscheduledTasks.length > 0 && (
+            <DashboardUnscheduled tasks={unscheduledTasks} />
+          )}
 
           <DashboardWeek tasks={weekTasks} />
         </div>
