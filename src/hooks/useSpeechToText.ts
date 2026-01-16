@@ -117,7 +117,9 @@ export function useSpeechToText(
   const [transcript, setTranscript] = useState("")
   const [interimTranscript, setInterimTranscript] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const [isSupported, setIsSupported] = useState(false)
+  // Default to true so button is shown, will be updated after mount
+  const [isSupported, setIsSupported] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
 
   const recognitionRef = useRef<SpeechRecognitionInterface | null>(null)
   const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -128,10 +130,13 @@ export function useSpeechToText(
     stateRef.current = state
   }, [state])
 
-  // Check browser support
+  // Check browser support after mount
   useEffect(() => {
+    setIsMounted(true)
     const SpeechRecognitionAPI =
-      window.SpeechRecognition || window.webkitSpeechRecognition
+      typeof window !== "undefined"
+        ? window.SpeechRecognition || window.webkitSpeechRecognition
+        : undefined
     setIsSupported(!!SpeechRecognitionAPI)
   }, [])
 
