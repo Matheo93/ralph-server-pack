@@ -228,7 +228,7 @@ export default async function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Colonne principale - Tâches du jour */}
         <div className="lg:col-span-2 space-y-6">
-          <DashboardToday tasks={todayTasks} hasAnyPendingTasks={hasAnyPendingTasks} />
+          <DashboardToday tasks={todayTasks} hasAnyPendingTasks={hasAnyPendingTasks} hasChildren={children.length > 0} />
 
           {unscheduledTasks.length > 0 && (
             <DashboardUnscheduled tasks={unscheduledTasks} />

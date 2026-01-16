@@ -1,7 +1,8 @@
 "use client"
 
-import { useMemo, memo } from "react"
+import { useMemo, memo, useCallback } from "react"
 import { TaskCard } from "./TaskCard"
+import { EmptySuggestions } from "./EmptySuggestions"
 import type { TaskListItem } from "@/types/task"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +12,7 @@ interface DashboardTodayProps {
   tasks: TaskListItem[]
   onPostpone?: (taskId: string) => void
   hasAnyPendingTasks?: boolean
+  hasChildren?: boolean
 }
 
 // Priority order for sorting
@@ -26,7 +28,12 @@ interface TaskGroup {
   tasks: TaskListItem[]
 }
 
-function DashboardTodayInner({ tasks, onPostpone, hasAnyPendingTasks = false }: DashboardTodayProps) {
+function DashboardTodayInner({ tasks, onPostpone, hasAnyPendingTasks = false, hasChildren = false }: DashboardTodayProps) {
+  // Callback to trigger vocal recorder
+  const handleVocalClick = useCallback(() => {
+    // Dispatch custom event to trigger VocalRecorder
+    window.dispatchEvent(new CustomEvent("openVocalRecorder"))
+  }, [])
   // Memoize filtered and grouped task lists
   const { pendingTasks, overdueTasks, tasksByChild, criticalCount, overdueCount } = useMemo(() => {
     const now = new Date()
@@ -95,41 +102,9 @@ function DashboardTodayInner({ tasks, onPostpone, hasAnyPendingTasks = false }: 
   if (pendingTasks.length === 0) {
     // Only show "Bravo" if there are truly NO pending tasks anywhere
     if (!hasAnyPendingTasks) {
+      // Show suggestions when dashboard is completely empty
       return (
-        <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50/50">
-          <CardContent className="py-12">
-            <div className="text-center">
-              {/* Illustrated empty state */}
-              <div className="relative w-32 h-32 mx-auto mb-4">
-                <svg viewBox="0 0 128 128" className="w-full h-full">
-                  {/* Background circle */}
-                  <circle cx="64" cy="64" r="56" fill="#dcfce7" />
-                  {/* Checkmark */}
-                  <circle cx="64" cy="64" r="40" fill="#22c55e" />
-                  <path d="M48 64 L60 76 L80 52" stroke="white" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                  {/* Sparkles */}
-                  <g fill="#fbbf24">
-                    <polygon transform="translate(100, 24) scale(0.8)" points="6,0 7.5,4.5 12,4.5 8.5,7.5 10,12 6,9 2,12 3.5,7.5 0,4.5 4.5,4.5" />
-                    <polygon transform="translate(16, 32) scale(0.6)" points="6,0 7.5,4.5 12,4.5 8.5,7.5 10,12 6,9 2,12 3.5,7.5 0,4.5 4.5,4.5" />
-                    <polygon transform="translate(108, 80) scale(0.5)" points="6,0 7.5,4.5 12,4.5 8.5,7.5 10,12 6,9 2,12 3.5,7.5 0,4.5 4.5,4.5" />
-                  </g>
-                  {/* Confetti */}
-                  <circle cx="24" cy="64" r="4" fill="#f97316" opacity="0.7" />
-                  <circle cx="104" cy="48" r="3" fill="#3b82f6" opacity="0.6" />
-                  <circle cx="96" cy="100" r="5" fill="#8b5cf6" opacity="0.5" />
-                </svg>
-              </div>
-              <p className="text-xl font-bold text-green-700 mb-2">Bravo, tout est fait !</p>
-              <p className="text-green-600 mb-4">
-                Aucune tâche pour aujourd&apos;hui. Profitez de ce moment en famille !
-              </p>
-              <div className="flex items-center justify-center gap-2 text-sm text-green-600/80">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Vous êtes à jour</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <EmptySuggestions hasChildren={hasChildren} onVocalClick={handleVocalClick} />
       )
     }
 
