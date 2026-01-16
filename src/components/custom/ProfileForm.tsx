@@ -62,8 +62,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
       if (result.success) {
         setSuccess(true)
-        router.refresh()
-        setTimeout(() => setSuccess(false), 3000)
+        // Écrire le cookie locale pour next-intl
+        document.cookie = `locale=${language};path=/;max-age=31536000;SameSite=Lax`
+        // Forcer un rechargement complet pour appliquer la nouvelle locale
+        window.location.reload()
       } else {
         setError(result.error ?? "Une erreur est survenue")
       }
