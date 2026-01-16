@@ -1,55 +1,47 @@
-# CLAUDE.md - TRANSITION LANDING → LOGIN
+# CLAUDE.md - 2 FEATURES À IMPLÉMENTER
 
-## 🎯 À IMPLÉMENTER MAINTENANT
+## 🎯 FEATURE 1: TRANSITION LANDING → LOGIN
+Transition fluide quand on clique sur "Connexion" ou "Essai gratuit"
+- Fade out de la landing
+- Fade in de la page login
 
-Quand l'utilisateur clique sur "Connexion" ou "Essai gratuit" sur la landing page, il faut une **transition fluide** vers la page de login/signup.
+## 🎯 FEATURE 2: ONBOARDING TUTORIAL (PREMIÈRE CONNEXION)
 
-### PROBLÈME ACTUEL
-- Clic sur bouton → changement de page brutal
-- Pas d'animation de sortie de la landing
-- Pas d'animation d'entrée sur login
+Quand un utilisateur crée son compte et se connecte pour la PREMIÈRE FOIS:
 
-### SOLUTION
+### 1. Animation de bienvenue
+- "Bienvenue sur FamilyLoad!" avec animation sympa
+- Confettis ou effet "wow"
 
-1. **Ajouter framer-motion sur la landing page** (src/app/(marketing)/page.tsx ou layout.tsx)
+### 2. Tutorial interactif (optionnel)
+Proposer à l'utilisateur: "Voulez-vous une visite guidée?"
+- Oui → Lance le tuto
+- Non → Aller directement au dashboard
 
-2. **Animation de sortie** quand on clique sur Connexion/Essai gratuit:
-```tsx
-// Fade out + slide up de la landing
-exit={{ opacity: 0, y: -50 }}
-transition={{ duration: 0.4 }}
+### 3. Le tuto présente les fonctionnalités:
+- Étape 1: "Voici votre tableau de bord" (highlight du dashboard)
+- Étape 2: "Ajoutez vos enfants ici" (highlight menu Enfants)
+- Étape 3: "Créez des tâches facilement" (highlight bouton +)
+- Étape 4: "Utilisez la commande vocale" (highlight micro)
+- Étape 5: "Analysez votre charge mentale" (highlight Charge mentale)
+
+### LIBRAIRIE RECOMMANDÉE: react-joyride
+```bash
+bun add react-joyride
 ```
 
-3. **Animation d'entrée** sur la page login:
+### STOCKAGE
+Utiliser localStorage ou la DB pour savoir si l'user a déjà vu le tuto:
 ```tsx
-// Fade in + slide up
-initial={{ opacity: 0, y: 30 }}
-animate={{ opacity: 1, y: 0 }}
-transition={{ duration: 0.4, delay: 0.1 }}
+localStorage.getItem('hasSeenOnboarding')
 ```
 
-4. **OU utiliser View Transitions API** (plus moderne):
-```tsx
-// Dans le lien
-<Link href="/login" onClick={(e) => {
-  e.preventDefault()
-  document.startViewTransition(() => {
-    router.push('/login')
-  })
-}}>
-```
-
-### FICHIERS À MODIFIER
-- src/app/(marketing)/page.tsx - Landing page
-- src/app/(marketing)/layout.tsx - Layout marketing
-- src/app/(auth)/login/page.tsx - Page login
-- src/app/(auth)/layout.tsx - Layout auth
-
-### TEST
-Aller sur la landing, cliquer "Connexion" ou "Essai gratuit" → transition smooth
+### FICHIERS À CRÉER
+- src/components/custom/OnboardingTutorial.tsx
+- src/components/custom/WelcomeAnimation.tsx
 
 ### COMMIT
 ```bash
-git commit -m "feat(ui): add smooth transitions from landing to auth pages"
+git commit -m "feat(onboarding): add welcome animation and tutorial for new users"
 git push
 ```
