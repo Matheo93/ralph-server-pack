@@ -195,7 +195,7 @@ export async function getHouseholdMembers(householdId: string) {
 
 export async function inviteCoParent(
   data: InvitationInput
-): Promise<ActionResult<{ invitationId: string }>> {
+): Promise<ActionResult<{ invitationId: string; token: string }>> {
   const validation = invitationSchema.safeParse(data)
   if (!validation.success) {
     const issues = validation.error.issues
@@ -282,10 +282,11 @@ export async function inviteCoParent(
   }
 
   revalidatePath("/dashboard/settings")
+  revalidatePath("/settings/household")
 
   return {
     success: true,
-    data: { invitationId: invitation.id },
+    data: { invitationId: invitation.id, token },
   }
 }
 
