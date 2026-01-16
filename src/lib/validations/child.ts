@@ -41,8 +41,15 @@ export type ChildInput = z.infer<typeof childSchema>
 export type UpdateChildInput = z.infer<typeof updateChildSchema>
 
 // Helper to calculate age from birthdate
-export function calculateAge(birthdate: string): number {
+export function calculateAge(birthdate: string | null | undefined): number {
+  // Handle invalid or missing birthdate
+  if (!birthdate) return 0
+
   const birth = new Date(birthdate)
+
+  // Check for invalid date (e.g., Invalid Date from bad parsing)
+  if (isNaN(birth.getTime())) return 0
+
   const today = new Date()
   let age = today.getFullYear() - birth.getFullYear()
   const monthDiff = today.getMonth() - birth.getMonth()
@@ -50,6 +57,9 @@ export function calculateAge(birthdate: string): number {
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
     age--
   }
+
+  // Sanity check: age should be reasonable (0-150 years)
+  if (age < 0 || age > 150) return 0
 
   return age
 }
