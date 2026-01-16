@@ -327,3 +327,72 @@ Le dashboard affiche des données **INCOHÉRENTES** avec la page Tâches.
 3. Le message "Bravo" ne doit s'afficher QUE si vraiment 0 tâches actives
 
 **FIXER IMMÉDIATEMENT - L'APP EST INUTILISABLE SINON**
+
+---
+
+## 🚨 BUGS MULTIPLES SIGNALÉS
+
+**Date**: 2026-01-16 03:05 UTC
+
+### BUG 3: Calcul d'âge enfant cassé
+**Chemin**: Enfants > Ajouter un enfant
+**Problème**: 
+- Date entrée: 05/15/2018
+- Âge affiché: "-78490 an" ❌
+- Erreur: "La date doit être dans le passé" alors qu'elle L'EST
+**Cause probable**: Bug de parsing de date ou timezone
+
+### BUG 4: Micro (dictée) ne fonctionne pas dans MagicNotepad
+**Chemin**: Bouton MagicNotepad > Dicter
+**Problème**: Le bouton "Dicter" ne fait rien ou ne démarre pas la reconnaissance vocale
+**À vérifier**:
+- Permissions microphone demandées ?
+- Web Speech API activée ?
+- HTTPS requis pour le micro (OK avec Cloudflare)
+
+### Récapitulatif des bugs critiques:
+1. ✅ Dashboard non synchronisé avec les tâches - **CORRIGÉ** (commit 0cd060f)
+2. ✅ Invitation co-parent ne fonctionne pas - **CORRIGÉ** (commits ba9712f, 488acb3)
+3. ✅ Templates non modifiables (pas de popup pré-remplie) - **CORRIGÉ** (commit 5edca68)
+4. ✅ Calcul d'âge enfant cassé - **CORRIGÉ** (commit be174c4)
+5. ✅ Micro/dictée ne fonctionne pas - **CORRIGÉ** (commit 9c7b255)
+
+**TOUS LES 5 BUGS ONT ÉTÉ CORRIGÉS LE 2026-01-16**
+
+---
+
+## ✅ BUGS CRITIQUES - TOUS CORRIGÉS (2026-01-16)
+
+### BUG 1: Dashboard non synchronisé avec les tâches - CORRIGÉ
+**Commit**: 0cd060f
+**Solution**: Ajouté getAllPendingTasksCount() et getUnscheduledTasks(), nouveau composant DashboardUnscheduled
+
+### BUG 2: Invitation co-parent ne fonctionne pas - CORRIGÉ
+**Commits**: ba9712f, 488acb3
+**Solution**: Le formulaire affiche maintenant le lien d'invitation avec bouton copier et envoi par email
+
+### BUG 3: Templates non modifiables - CORRIGÉ
+**Commit**: 5edca68
+**Solution**: Nouveau composant TemplateTaskDialog, clic sur template ouvre popup pré-rempli pour créer la tâche
+
+### BUG 4: Calcul de l'âge des enfants cassé - CORRIGÉ
+**Commit**: be174c4
+**Solution**: Utilisation de to_char(birthdate, 'YYYY-MM-DD') dans les requêtes PostgreSQL pour format cohérent
+
+### BUG 5: Micro/Dictée ne fonctionne pas dans MagicNotepad - CORRIGÉ
+**Commit**: 9c7b255
+**Solution**: isSupported initialisé à true par défaut pour SSR, vérifié après mount côté client
+
+
+### BUG 6: Ajout enfant crash (NOUVEAU - TypeError)
+**Priorité**: CRITIQUE
+**Symptôme**: Cliquer sur "Ajouter un enfant" provoque une erreur:
+```
+TypeError: Cannot read properties of undefined (reading 'logs')
+```
+**Reproduction**:
+1. Aller sur /children
+2. Cliquer sur "Ajouter un enfant"
+3. Page d'erreur s'affiche
+**Fix attendu**: Vérifier le code d'ajout d'enfant, probablement un objet non initialisé
+
