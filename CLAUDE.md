@@ -384,15 +384,22 @@ Le dashboard affiche des données **INCOHÉRENTES** avec la page Tâches.
 **Solution**: isSupported initialisé à true par défaut pour SSR, vérifié après mount côté client
 
 
-### BUG 6: Ajout enfant crash (NOUVEAU - TypeError)
+### BUG 6: Ajout enfant crash (TypeError reading 'logs')
 **Priorité**: CRITIQUE
+**Statut**: À INVESTIGUER - L'erreur n'a pas été reproduite dans le code source actuel
 **Symptôme**: Cliquer sur "Ajouter un enfant" provoque une erreur:
 ```
 TypeError: Cannot read properties of undefined (reading 'logs')
 ```
-**Reproduction**:
-1. Aller sur /children
-2. Cliquer sur "Ajouter un enfant"
-3. Page d'erreur s'affiche
-**Fix attendu**: Vérifier le code d'ajout d'enfant, probablement un objet non initialisé
+**Investigation**:
+- Le code source (child-form.tsx, children.ts) ne contient aucune référence à `.logs`
+- Le formulaire ChildForm et les actions fonctionnent correctement côté serveur
+- L'erreur pourrait venir d'un état client spécifique ou d'une extension navigateur
+- À tester manuellement avec la console ouverte pour identifier la source
+
+
+### BUG 7: Template Dialog crash (Select.Item empty value) - ✅ CORRIGÉ
+**Commit**: a0bfe7d (2026-01-16)
+**Solution**: Remplacé `value=""` par `value="none"` et ajouté conversion dans onChange.
+Également filtré les enfants sans ID valide pour éviter des erreurs similaires.
 
