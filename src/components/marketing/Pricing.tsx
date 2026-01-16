@@ -127,17 +127,19 @@ export function Pricing() {
 
                 {/* Features */}
                 <ul className="space-y-3 mb-8 flex-grow">
-                  {plan.features.map((feature, i) => (
+                  {plan.features.map((feature, i) => {
+                    const isHighlighted = "highlight" in feature && feature.highlight
+                    return (
                     <li
                       key={i}
                       className={`flex items-center gap-3 ${
-                        feature.highlight ? "font-medium" : ""
+                        isHighlighted ? "font-medium" : ""
                       } ${!feature.included ? "text-muted-foreground/60" : ""}`}
                     >
                       <div
                         className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                           feature.included
-                            ? feature.highlight
+                            ? isHighlighted
                               ? "bg-primary text-white"
                               : "bg-primary/10 text-primary"
                             : "bg-muted text-muted-foreground/40"
@@ -151,7 +153,7 @@ export function Pricing() {
                       </div>
                       <span className="text-sm">{feature.text}</span>
                     </li>
-                  ))}
+                  )})}
                 </ul>
 
                 {/* CTA */}

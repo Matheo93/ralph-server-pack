@@ -7,7 +7,9 @@ import { getTasks, getTaskCategories } from "@/lib/actions/tasks"
 import { getChildren } from "@/lib/actions/children"
 import { TaskList } from "@/components/custom/TaskList"
 import { TaskFilters } from "@/components/custom/TaskFilters"
+import { TemplateSelector } from "@/components/custom/TemplateSelector"
 import { Button } from "@/components/ui/button"
+import { FileText } from "lucide-react"
 
 interface PageProps {
   searchParams: Promise<{
@@ -55,15 +57,21 @@ export default async function TasksPage({ searchParams }: PageProps) {
             {tasks.length} tâche{tasks.length > 1 ? "s" : ""} à gérer
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href="/tasks/today">
             <Button variant="outline" size="sm" className="sm:h-10 sm:px-4 sm:py-2">
               Aujourd&apos;hui
             </Button>
           </Link>
+          <TemplateSelector>
+            <Button variant="outline" size="sm" className="sm:h-10 sm:px-4 sm:py-2">
+              <FileText className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Templates</span>
+            </Button>
+          </TemplateSelector>
           <Link href="/tasks/new">
             <Button size="sm" className="sm:h-10 sm:px-4 sm:py-2">
-              Nouvelle tâche
+              Nouvelle tache
             </Button>
           </Link>
         </div>
