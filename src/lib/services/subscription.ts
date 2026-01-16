@@ -38,15 +38,9 @@ export interface PremiumFeature {
 
 export const PREMIUM_FEATURES: PremiumFeature[] = [
   {
-    id: "unlimited_children",
-    name: "Enfants illimités",
-    description: "Ajoutez autant d'enfants que vous le souhaitez",
-    requiresPremium: true,
-  },
-  {
-    id: "auto_tasks",
-    name: "Tâches automatiques",
-    description: "Génération automatique de tâches selon l'âge",
+    id: "magic_chat",
+    name: "Chat Magique IA",
+    description: "Assistant IA pour gérer vos tâches familiales",
     requiresPremium: true,
   },
   {
@@ -59,6 +53,12 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
     id: "full_history",
     name: "Historique complet",
     description: "Accédez à tout l'historique de votre foyer",
+    requiresPremium: true,
+  },
+  {
+    id: "advanced_stats",
+    name: "Statistiques avancées",
+    description: "Analyses détaillées de la charge mentale",
     requiresPremium: true,
   },
   {
@@ -81,12 +81,14 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
   },
 ]
 
-// Free plan limits
+// Free plan limits - Enfants ILLIMITÉS, limitations sur fonctionnalités à valeur ajoutée
 export const FREE_PLAN_LIMITS = {
-  maxChildren: 2,
+  maxChildren: Infinity, // Enfants illimités même en gratuit
   maxVoiceCommandsPerDay: 5,
+  maxMagicChatMessagesPerDay: 0, // Chat magique = Premium only
   historyDays: 7,
-  canUseAutoTasks: false,
+  canUseMagicChat: false,
+  canUseAdvancedStats: false,
   canUseStreakJoker: false,
   canExportPdf: false,
 }
@@ -199,6 +201,21 @@ export async function canAddChild(householdId: string): Promise<{
     allowed: currentCount < FREE_PLAN_LIMITS.maxChildren,
     currentCount,
     maxCount: FREE_PLAN_LIMITS.maxChildren,
+  }
+}
+
+/**
+ * Check if household can use Magic Chat
+ */
+export async function canUseMagicChat(householdId: string): Promise<{
+  allowed: boolean
+  isPremium: boolean
+}> {
+  const subscription = await getHouseholdSubscription(householdId)
+
+  return {
+    allowed: subscription.isPremium,
+    isPremium: subscription.isPremium,
   }
 }
 

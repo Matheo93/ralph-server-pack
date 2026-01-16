@@ -17,6 +17,7 @@ import { UnifiedFAB } from "@/components/custom/UnifiedFAB"
 import { CoachMarksProvider } from "@/components/custom/CoachMarks"
 import { PushPermissionPrompt } from "@/components/custom/PushPermissionPrompt"
 import { OnboardingTutorial } from "@/components/custom/OnboardingTutorial"
+import { MagicChat } from "@/components/custom/MagicChat"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -125,6 +126,10 @@ export default async function DashboardLayout({
             <OfflineIndicator showOnlineStatus />
             <PushPermissionPrompt compact showAfterMs={10000} />
             <OnboardingTutorial />
+            <MagicChat
+              isPremium={isPremium}
+              householdId={household?.id ?? ""}
+            />
           </div>
         </PageTransitionProvider>
         </CoachMarksProvider>
