@@ -116,6 +116,7 @@ export async function getHousehold() {
     streak_current: number
     streak_best: number
     subscription_status: string
+    subscription_ends_at: string | null
   }
 
   const membership = await queryOne<MembershipResult>(`
@@ -127,7 +128,8 @@ export async function getHousehold() {
       h.timezone,
       h.streak_current,
       h.streak_best,
-      h.subscription_status
+      h.subscription_status,
+      h.subscription_ends_at
     FROM household_members hm
     JOIN households h ON h.id = hm.household_id
     WHERE hm.user_id = $1 AND hm.is_active = true
@@ -146,6 +148,7 @@ export async function getHousehold() {
       streak_current: membership.streak_current,
       streak_best: membership.streak_best,
       subscription_status: membership.subscription_status,
+      subscription_ends_at: membership.subscription_ends_at,
     },
   }
 }
