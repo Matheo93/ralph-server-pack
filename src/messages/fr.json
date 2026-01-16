@@ -215,5 +215,61 @@
     "thisWeek": "Cette semaine",
     "nextWeek": "Semaine prochaine",
     "daysAgo": "Il y a {count} jours"
+  },
+  "magicNotepad": {
+    "title": "Carnet Magique",
+    "placeholder": "Dictez ou ecrivez vos notes...",
+    "dictate": "Dicter",
+    "stop": "Stop",
+    "classify": "Classer",
+    "analyzing": "Analyse...",
+    "classifying": "Classification en cours...",
+    "creating": "Creation des taches...",
+    "success": "Taches creees avec succes!",
+    "error": "Une erreur est survenue",
+    "retry": "Reessayer",
+    "back": "Retour",
+    "create": "Creer",
+    "tasksDetected": "{count} tache{count, plural, =1 {} other {s}} detectee{count, plural, =1 {} other {s}}",
+    "selectAtLeastOne": "Selectionnez au moins une tache",
+    "writeOrDictate": "Ecrivez ou dictez quelque chose d'abord",
+    "listening": "Ecoute..."
+  },
+  "coachMarks": {
+    "step": "{current} / {total}",
+    "skip": "Passer",
+    "previous": "Precedent",
+    "next": "Suivant",
+    "finish": "Terminer",
+    "guide": "Guide",
+    "stats": {
+      "title": "Vos statistiques",
+      "description": "Voyez en un coup d'oeil vos taches du jour, les retards, et la situation de votre famille."
+    },
+    "magicNotepad": {
+      "title": "Le Carnet Magique",
+      "description": "Dictez ou ecrivez vos notes - l'IA les transforme automatiquement en taches classees!"
+    },
+    "todayTasks": {
+      "title": "Taches du jour",
+      "description": "Votre liste de taches prioritaires. Cochez-les pour maintenir votre streak!"
+    },
+    "streak": {
+      "title": "Votre Streak",
+      "description": "Completez vos taches critiques chaque jour pour augmenter votre streak!"
+    }
+  },
+  "quickActions": {
+    "hint": "Actions rapides",
+    "newTask": "Nouvelle tache",
+    "weekView": "Vue semaine",
+    "allTasks": "Toutes les taches",
+    "open": "Ouvrir les actions rapides",
+    "close": "Fermer les actions rapides"
+  },
+  "featureBadge": {
+    "new": "Nouveau",
+    "improved": "Ameliore",
+    "beta": "Beta"
   }
 }

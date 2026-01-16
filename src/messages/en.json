@@ -215,5 +215,61 @@
     "thisWeek": "This week",
     "nextWeek": "Next week",
     "daysAgo": "{count} days ago"
+  },
+  "magicNotepad": {
+    "title": "Magic Notepad",
+    "placeholder": "Dictate or write your notes...",
+    "dictate": "Dictate",
+    "stop": "Stop",
+    "classify": "Classify",
+    "analyzing": "Analyzing...",
+    "classifying": "Classifying...",
+    "creating": "Creating tasks...",
+    "success": "Tasks created successfully!",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "back": "Back",
+    "create": "Create",
+    "tasksDetected": "{count} task{count, plural, =1 {} other {s}} detected",
+    "selectAtLeastOne": "Select at least one task",
+    "writeOrDictate": "Write or dictate something first",
+    "listening": "Listening..."
+  },
+  "coachMarks": {
+    "step": "{current} / {total}",
+    "skip": "Skip",
+    "previous": "Previous",
+    "next": "Next",
+    "finish": "Finish",
+    "guide": "Guide",
+    "stats": {
+      "title": "Your statistics",
+      "description": "See at a glance your tasks for today, delays, and your family's situation."
+    },
+    "magicNotepad": {
+      "title": "Magic Notepad",
+      "description": "Dictate or write your notes - AI automatically transforms them into classified tasks!"
+    },
+    "todayTasks": {
+      "title": "Today's tasks",
+      "description": "Your priority task list. Check them off to maintain your streak!"
+    },
+    "streak": {
+      "title": "Your Streak",
+      "description": "Complete your critical tasks every day to increase your streak!"
+    }
+  },
+  "quickActions": {
+    "hint": "Quick actions",
+    "newTask": "New task",
+    "weekView": "Week view",
+    "allTasks": "All tasks",
+    "open": "Open quick actions",
+    "close": "Close quick actions"
+  },
+  "featureBadge": {
+    "new": "New",
+    "improved": "Improved",
+    "beta": "Beta"
   }
 }
