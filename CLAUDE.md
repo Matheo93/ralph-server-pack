@@ -2,11 +2,11 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Landing page error: Navigation timeout of 30000 ms exceeded
-❌ Dashboard error: Navigation timeout of 30000 ms exceeded
-❌ Settings household error: Navigating frame was detached
-❌ Children error: Attempted to use detached Frame '2BA097B2D35D693BDF1F33180C14CBAC'.
-  ❌ Landing page: Navigation timeout of 30000 ms exceeded
+❌ Landing page error: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com
+❌ Dashboard error: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com/dashboard
+❌ Settings household error: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com/settings/household
+❌ Children error: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com/children
+  ❌ Landing page: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com
 
 ---
 
