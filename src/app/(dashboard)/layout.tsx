@@ -44,8 +44,27 @@ export default async function DashboardLayout({
     timezone: string
     streak_current: number
     streak_best: number
-    subscription_status: string
+    subscription_status: string | null
+    subscription_ends_at: string | null
   } | null
+
+  // Calculate premium status
+  const now = new Date()
+  const subscriptionEndsAt = household?.subscription_ends_at
+    ? new Date(household.subscription_ends_at)
+    : null
+  const subscriptionStatus = household?.subscription_status ?? null
+  const isTrialing = subscriptionStatus === "trial" || subscriptionStatus === "trialing"
+  const isActiveSubscription = subscriptionStatus === "active" || isTrialing
+  const isPremium = isActiveSubscription && subscriptionEndsAt !== null && subscriptionEndsAt > now
+
+  let daysRemaining: number | null = null
+  if (subscriptionEndsAt) {
+    daysRemaining = Math.ceil(
+      (subscriptionEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    )
+    if (daysRemaining < 0) daysRemaining = 0
+  }
 
   const locale = await getLocale()
   const messages = await getMessages()
@@ -57,7 +76,11 @@ export default async function DashboardLayout({
         <PageTransitionProvider>
           <SkipLinks />
           <div className="min-h-screen bg-background">
-            <Sidebar />
+            <Sidebar
+              isPremium={isPremium}
+              isTrialing={isTrialing}
+              daysRemaining={daysRemaining}
+            />
             <div className="lg:pl-64">
               <header
                 id="navigation"
@@ -79,7 +102,13 @@ export default async function DashboardLayout({
                     )}
                   </div>
                   <div className="ml-auto flex items-center">
-                    <Header email={user.email ?? ""} householdName={household?.name} />
+                    <Header
+                      email={user.email ?? ""}
+                      householdName={household?.name}
+                      isPremium={isPremium}
+                      isTrialing={isTrialing}
+                      daysRemaining={daysRemaining}
+                    />
                   </div>
                 </div>
               </header>

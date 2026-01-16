@@ -14,14 +14,24 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { logout } from "@/lib/auth/actions"
 import { NotificationBadge } from "./NotificationBadge"
+import { PremiumBadge } from "./PremiumBadge"
 
 interface HeaderProps {
   email: string
   householdName?: string
   notificationCount?: number
+  isPremium?: boolean
+  isTrialing?: boolean
+  daysRemaining?: number | null
 }
 
-export function Header({ email, householdName }: HeaderProps) {
+export function Header({
+  email,
+  householdName,
+  isPremium = false,
+  isTrialing = false,
+  daysRemaining,
+}: HeaderProps) {
   const [isPending, startTransition] = useTransition()
 
   const handleLogout = () => {
@@ -46,6 +56,12 @@ export function Header({ email, householdName }: HeaderProps) {
           )}
         </div>
         <div className="ml-auto flex items-center gap-x-4 lg:gap-x-6">
+          <PremiumBadge
+            isPremium={isPremium}
+            isTrialing={isTrialing}
+            daysRemaining={daysRemaining}
+            variant={isPremium ? "compact" : "full"}
+          />
           <NotificationBadge />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

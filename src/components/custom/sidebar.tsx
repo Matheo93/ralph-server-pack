@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Home, Users, CheckSquare, Scale, Settings, Sparkles } from "lucide-react"
+import { PremiumBadge } from "./PremiumBadge"
 
 const navigation = [
   {
@@ -49,7 +50,17 @@ const navigation = [
   },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  isPremium?: boolean
+  isTrialing?: boolean
+  daysRemaining?: number | null
+}
+
+export function Sidebar({
+  isPremium = false,
+  isTrialing = false,
+  daysRemaining,
+}: SidebarProps) {
   const pathname = usePathname()
 
   return (
@@ -117,22 +128,13 @@ export function Sidebar() {
             })}
           </nav>
 
-          {/* Bottom section - Quick tip */}
-          <div className="px-3 pb-4">
-            <div className="rounded-xl bg-gradient-to-br from-primary/10 to-accent/20 p-4 border border-primary/10">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm">💡</span>
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-foreground mb-1">Astuce du jour</p>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Utilisez la commande vocale pour ajouter des tâches rapidement !
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Bottom section - Premium badge or upgrade CTA */}
+          <PremiumBadge
+            isPremium={isPremium}
+            isTrialing={isTrialing}
+            daysRemaining={daysRemaining}
+            variant="sidebar"
+          />
         </div>
       </div>
     </aside>
