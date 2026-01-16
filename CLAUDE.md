@@ -15,11 +15,11 @@ node test-auto.js
 
 ## FEATURES À IMPLÉMENTER
 
-1. Animation landing page (style entraide-souverainiste)
-2. Suggestions quand dashboard vide (Chat rapide / Templates)
-3. Smooth scroll (html { scroll-behavior: smooth; })
-4. PWA complète (manifest.json, service worker, icônes)
-5. Enfant relié aux tâches (filtrer, afficher sur tâches)
+✅ 1. Animation landing page (style entraide-souverainiste) - ScrollReveal animations
+✅ 2. Suggestions quand dashboard vide (Chat rapide / Templates) - EmptySuggestions component
+✅ 3. Smooth scroll (html { scroll-behavior: smooth; }) - Already in globals.css
+✅ 4. PWA complète (manifest.json, service worker, icônes) - Already implemented
+✅ 5. Enfant relié aux tâches (filtrer, afficher sur tâches) - TaskFilters + TaskCard
 
 ---
 
