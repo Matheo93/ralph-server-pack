@@ -81,3 +81,15 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```bash
 npx tsc --noEmit && npm run build
 ```
+
+---
+
+## ✅ BUG i18n - CORRIGÉ
+
+**Date fix**: 2026-01-16
+**Commit**: fix(i18n): persist locale cookie on profile language change
+
+**Solution appliquée**:
+- ProfileForm écrit maintenant le cookie `locale` après sauvegarde réussie
+- Force un `window.location.reload()` pour appliquer la nouvelle locale
+- La langue est sauvée en DB ET dans le cookie que next-intl lit
