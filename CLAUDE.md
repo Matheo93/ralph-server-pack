@@ -2,11 +2,9 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Landing page error: Navigation timeout of 30000 ms exceeded
-❌ Dashboard not properly loaded
-❌ Settings household issues
-  ❌ Landing page: Navigation timeout of 30000 ms exceeded
-  ❌ Dashboard: Not properly loaded
+❌ Settings household error: Navigation timeout of 30000 ms exceeded
+❌ Children error: Navigation timeout of 30000 ms exceeded
+  ❌ Settings household: Navigation timeout of 30000 ms exceeded
 
 ---
 
