@@ -73,7 +73,7 @@ export function InviteForm() {
       <CardHeader className="space-y-1">
         <CardTitle className="text-xl font-bold">Inviter un co-parent</CardTitle>
         <CardDescription>
-          Invitez une personne a rejoindre votre foyer pour partager la charge
+          Invitez une personne à rejoindre votre foyer pour partager la charge
           mentale
         </CardDescription>
       </CardHeader>
@@ -84,7 +84,7 @@ export function InviteForm() {
               <div className="flex items-center gap-2 mb-3">
                 <Check className="w-5 h-5 text-green-600" />
                 <p className="font-medium text-green-700 dark:text-green-400">
-                  Invitation creee avec succes !
+                  Invitation créée avec succès !
                 </p>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
@@ -154,7 +154,7 @@ export function InviteForm() {
                       />
                     </FormControl>
                     <FormDescription>
-                      L&apos;adresse email de la personne a inviter
+                      L&apos;adresse email de la personne à inviter
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -177,8 +177,8 @@ export function InviteForm() {
                       </select>
                     </FormControl>
                     <FormDescription>
-                      Les co-parents ont les memes droits, les tiers ont un acces
-                      limite
+                      Les co-parents ont les mêmes droits, les tiers ont un accès
+                      limité
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -189,7 +189,7 @@ export function InviteForm() {
 
               <Button type="submit" className="w-full" disabled={isPending}>
                 <LinkIcon className="w-4 h-4 mr-2" />
-                {isPending ? "Creation..." : "Creer le lien d'invitation"}
+                {isPending ? "Création..." : "Créer le lien d'invitation"}
               </Button>
             </form>
           </Form>

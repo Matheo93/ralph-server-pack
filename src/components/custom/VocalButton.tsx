@@ -165,7 +165,7 @@ export function VocalButton({
               size="lg"
               onClick={handleClick}
               disabled={isProcessing || state === "confirming"}
-              aria-label={isRecording ? "Arreter l'enregistrement" : stateLabels[state]}
+              aria-label={isRecording ? "Arrêter l'enregistrement" : stateLabels[state]}
               aria-busy={isProcessing}
               aria-pressed={isRecording}
               className={cn(

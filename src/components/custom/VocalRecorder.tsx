@@ -81,11 +81,11 @@ export function VocalRecorder({ onSuccess, className }: VocalRecorderProps) {
                 <div className="flex justify-center gap-2">
                   <Button onClick={reset} variant="outline">
                     <RefreshCw className="h-4 w-4 mr-2" />
-                    Reessayer
+                    Réessayer
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Verifiez que votre microphone est bien connecte et autorise.
+                  Vérifiez que votre microphone est bien connecté et autorisé.
                 </p>
               </motion.div>
             </CardContent>
