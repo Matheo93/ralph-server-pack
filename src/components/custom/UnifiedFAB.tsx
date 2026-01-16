@@ -707,6 +707,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
 
         <Button
           size="lg"
+          data-tour="fab-button"
           className={cn(
             "relative rounded-full shadow-lg w-14 h-14 p-0 transition-all duration-200",
             mode !== "closed"

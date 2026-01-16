@@ -12,6 +12,7 @@ const navigation = [
     icon: Home,
     color: "text-primary",
     bgActive: "bg-primary/10",
+    tourId: "nav-dashboard",
   },
   {
     name: "Enfants",
@@ -19,6 +20,7 @@ const navigation = [
     icon: Users,
     color: "text-blue-500",
     bgActive: "bg-blue-50",
+    tourId: "nav-children",
   },
   {
     name: "Tâches",
@@ -26,6 +28,7 @@ const navigation = [
     icon: CheckSquare,
     color: "text-green-500",
     bgActive: "bg-green-50",
+    tourId: "nav-tasks",
   },
   {
     name: "Charge mentale",
@@ -34,6 +37,7 @@ const navigation = [
     color: "text-amber-500",
     bgActive: "bg-amber-50",
     highlight: true,
+    tourId: "nav-charge",
   },
   {
     name: "Paramètres",
@@ -41,6 +45,7 @@ const navigation = [
     icon: Settings,
     color: "text-slate-500",
     bgActive: "bg-slate-50",
+    tourId: "nav-settings",
   },
 ]
 
@@ -75,6 +80,7 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
+                  data-tour={item.tourId}
                   className={cn(
                     "group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200",
                     isActive

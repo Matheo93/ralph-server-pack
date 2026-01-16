@@ -1,6 +1,6 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { IntroAnimation } from "@/components/custom/IntroAnimation"
+import { MarketingHeader } from "@/components/custom/MarketingHeader"
 
 export default function MarketingLayout({
   children,
@@ -10,50 +10,8 @@ export default function MarketingLayout({
   return (
     <IntroAnimation>
     <div className="min-h-screen flex flex-col">
-      {/* Marketing Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">F</span>
-            </div>
-            <span className="font-semibold text-xl">FamilyLoad</span>
-          </Link>
-
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
-            <Link
-              href="#features"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Fonctionnalités
-            </Link>
-            <Link
-              href="#pricing"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Tarifs
-            </Link>
-            <Link
-              href="#testimonials"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Témoignages
-            </Link>
-          </nav>
-
-          {/* CTA Buttons */}
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link href="/login">Connexion</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/signup">Essai gratuit</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      {/* Marketing Header with smooth transitions */}
+      <MarketingHeader />
 
       {/* Main Content */}
       <main className="flex-1">{children}</main>

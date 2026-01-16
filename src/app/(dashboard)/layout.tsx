@@ -16,6 +16,7 @@ import { PageTransitionProvider, PageWrapper } from "@/components/custom/PageTra
 import { UnifiedFAB } from "@/components/custom/UnifiedFAB"
 import { CoachMarksProvider } from "@/components/custom/CoachMarks"
 import { PushPermissionPrompt } from "@/components/custom/PushPermissionPrompt"
+import { OnboardingTutorial } from "@/components/custom/OnboardingTutorial"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -72,7 +73,7 @@ export default async function DashboardLayout({
                       </span>
                     )}
                     {household && household.streak_current > 0 && (
-                      <span className="text-sm font-medium text-orange-500" aria-label={`Streak de ${household.streak_current} jours`}>
+                      <span data-tour="header-streak" className="text-sm font-medium text-orange-500" aria-label={`Streak de ${household.streak_current} jours`}>
                         {household.streak_current} jour{household.streak_current > 1 ? "s" : ""} de suite
                       </span>
                     )}
@@ -94,6 +95,7 @@ export default async function DashboardLayout({
             <KeyboardShortcutsHelp />
             <OfflineIndicator showOnlineStatus />
             <PushPermissionPrompt compact showAfterMs={10000} />
+            <OnboardingTutorial />
           </div>
         </PageTransitionProvider>
         </CoachMarksProvider>
