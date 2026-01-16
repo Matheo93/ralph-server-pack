@@ -1,49 +1,35 @@
-# CLAUDE.md - TOUS LES BUGS CORRIGES
+# CLAUDE.md - Instructions RALPH
 
-## BUG 1: MICRO NE DEMANDE PAS LA PERMISSION - CORRIGE
+## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-Le hook `useVocalRecording.ts` demande maintenant correctement la permission microphone avec des messages d'erreur explicites:
-- "Microphone non autorise. Veuillez autoriser l'acces au micro dans les parametres du navigateur."
-- "Aucun microphone detecte sur cet appareil."
-
-Le hook `useSpeechToText.ts` avait deja cette fonctionnalite.
+❌ Settings household error: Navigation timeout of 30000 ms exceeded
+  ❌ Settings household: Navigation timeout of 30000 ms exceeded
 
 ---
 
-## BUG 2: 3 BOUTONS EN BAS A DROITE DU DASHBOARD - CORRIGE
-
-Les 3 composants (QuickActions, MagicNotepad, VocalRecorder) ont ete fusionnes en UN SEUL composant `UnifiedFAB.tsx`:
-- Un bouton principal qui ouvre un menu
-- Actions: Nouvelle tache, Carnet Magique (avec dictee vocale), Vue semaine, Toutes les taches
-- Le carnet magique permet de dicter ou ecrire des notes et les classifier en taches avec l'IA
+## APRÈS CHAQUE CORRECTION, EXÉCUTE:
+```bash
+node test-auto.js
+```
 
 ---
 
-## BUG 3: ANIMATION D'INTRO LANDING PAGE - CORRIGE
+## FEATURES À IMPLÉMENTER
 
-Le composant `IntroAnimation.tsx` affiche une animation d'intro pour les nouveaux visiteurs:
-- Logo anime avec effet de glow
-- Titre "FamilyLoad" avec gradient
-- Tagline "Liberez votre charge mentale"
-- Stocke dans localStorage pour ne montrer qu'une fois
-- Transition fluide vers la landing page
-
----
-
-## COMMITS EFFECTUES
-
-1. `fix: merge FAB buttons into single UnifiedFAB component`
-2. `feat(marketing): add intro animation for first-time visitors`
+1. Animation landing page (style entraide-souverainiste)
+2. Suggestions quand dashboard vide (Chat rapide / Templates)
+3. Smooth scroll (html { scroll-behavior: smooth; })
+4. PWA complète (manifest.json, service worker, icônes)
+5. Enfant relié aux tâches (filtrer, afficher sur tâches)
 
 ---
 
-## STACK
+## WORKFLOW
+1. git pull
+2. Corriger UN bug
+3. bun run build
+4. node test-auto.js
+5. Si OK: git commit && git push
+6. Recommencer
 
-| Layer | Tech |
-|-------|------|
-| Runtime | Bun |
-| Framework | Next.js 15 App Router |
-| Database | Supabase (PostgreSQL + Auth + RLS) |
-| Styling | Tailwind v4 + shadcn/ui |
-| Validation | Zod |
-| Tests | Vitest + Playwright |
+⚠️ NE JAMAIS COMMIT SANS TESTER!
