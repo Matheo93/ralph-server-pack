@@ -65,14 +65,14 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/dashboard.png",
+      "src": "/screenshots/dashboard",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Dashboard FamilyLoad - Vue d'ensemble de vos tâches familiales"
     },
     {
-      "src": "/screenshots/mobile.png",
+      "src": "/screenshots/mobile",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",

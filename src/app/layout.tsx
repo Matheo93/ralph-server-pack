@@ -44,12 +44,16 @@ export const metadata: Metadata = {
     "parentalité partagée",
     "co-parentalité",
     "application familiale",
+    "gestion familiale",
+    "planification famille",
+    "organisation parentale",
   ],
   authors: [{ name: "FamilyLoad", url: BASE_URL }],
   creator: "FamilyLoad",
   publisher: "FamilyLoad",
   manifest: "/manifest.json",
   category: "productivity",
+  classification: "Business/Productivity",
   applicationName: "FamilyLoad",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
@@ -57,6 +61,12 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "FamilyLoad",
+    startupImage: [
+      {
+        url: "/icons/apple-touch-icon.png",
+        media: "(device-width: 320px) and (device-height: 568px)",
+      },
+    ],
   },
   formatDetection: {
     telephone: false,
@@ -82,6 +92,15 @@ export const metadata: Metadata = {
       "Réduisez votre charge mentale parentale. Créez des tâches à la voix, partagez-les et visualisez qui fait quoi. Essai gratuit 14 jours.",
     locale: "fr_FR",
     url: BASE_URL,
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "FamilyLoad - Gérez la charge mentale parentale en famille",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -90,13 +109,23 @@ export const metadata: Metadata = {
       "Réduisez votre charge mentale. Créez des tâches à la voix, partagez-les entre co-parents. Essai gratuit.",
     creator: "@familyload",
     site: "@familyload",
+    images: [
+      {
+        url: "/twitter-image",
+        width: 1200,
+        height: 630,
+        alt: "FamilyLoad - Gérez la charge mentale parentale",
+      },
+    ],
   },
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
+      noimageindex: false,
       "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -106,14 +135,21 @@ export const metadata: Metadata = {
     canonical: BASE_URL,
     languages: {
       "fr-FR": BASE_URL,
+      "fr": BASE_URL,
     },
   },
   verification: {
     google: process.env["GOOGLE_SITE_VERIFICATION"],
+    yandex: process.env["YANDEX_VERIFICATION"],
+    other: {
+      "msvalidate.01": process.env["BING_VERIFICATION"] ?? "",
+    },
   },
   other: {
     "apple-mobile-web-app-capable": "yes",
     "mobile-web-app-capable": "yes",
+    "msapplication-TileColor": "#3b82f6",
+    "msapplication-config": "/browserconfig.xml",
   },
 }
 
