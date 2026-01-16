@@ -2,11 +2,7 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Dashboard error: Navigation timeout of 30000 ms exceeded
-❌ Settings household error: Navigating frame was detached
-❌ Children error: Attempted to use detached Frame 'C7E9E53ECBA8F091B04735CF6C20EEED'.
-  ❌ Dashboard: Navigation timeout of 30000 ms exceeded
-  ❌ Settings household: Navigating frame was detached
+❌ Children error: Navigation timeout of 30000 ms exceeded
 
 ---
 
