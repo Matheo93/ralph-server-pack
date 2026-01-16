@@ -16,6 +16,8 @@ import {
   Home,
   Users,
   CheckSquare,
+  Calendar,
+  ShoppingCart,
   BarChart3,
   Settings,
   Menu,
@@ -27,7 +29,9 @@ import {
 const navigation = [
   { name: "Tableau de bord", href: "/dashboard", icon: Home },
   { name: "Enfants", href: "/children", icon: Users },
-  { name: "Tâches", href: "/tasks", icon: CheckSquare },
+  { name: "Taches", href: "/tasks", icon: CheckSquare },
+  { name: "Calendrier", href: "/calendar", icon: Calendar },
+  { name: "Courses", href: "/shopping", icon: ShoppingCart },
   { name: "Charge mentale", href: "/charge", icon: BarChart3 },
 ]
 

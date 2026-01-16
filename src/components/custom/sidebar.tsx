@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, Users, CheckSquare, Scale, Settings, Sparkles } from "lucide-react"
+import { Home, Users, CheckSquare, Calendar, ShoppingCart, Scale, Settings, Sparkles } from "lucide-react"
 import { PremiumBadge } from "./PremiumBadge"
 
 const navigation = [
@@ -24,12 +24,28 @@ const navigation = [
     tourId: "nav-children",
   },
   {
-    name: "Tâches",
+    name: "Taches",
     href: "/tasks",
     icon: CheckSquare,
     color: "text-green-500",
     bgActive: "bg-green-50",
     tourId: "nav-tasks",
+  },
+  {
+    name: "Calendrier",
+    href: "/calendar",
+    icon: Calendar,
+    color: "text-indigo-500",
+    bgActive: "bg-indigo-50",
+    tourId: "nav-calendar",
+  },
+  {
+    name: "Courses",
+    href: "/shopping",
+    icon: ShoppingCart,
+    color: "text-pink-500",
+    bgActive: "bg-pink-50",
+    tourId: "nav-shopping",
   },
   {
     name: "Charge mentale",
