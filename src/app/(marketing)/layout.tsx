@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { IntroAnimation } from "@/components/custom/IntroAnimation"
 
 export default function MarketingLayout({
   children,
@@ -7,6 +8,7 @@ export default function MarketingLayout({
   children: React.ReactNode
 }) {
   return (
+    <IntroAnimation>
     <div className="min-h-screen flex flex-col">
       {/* Marketing Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -135,5 +137,6 @@ export default function MarketingLayout({
         </div>
       </footer>
     </div>
+    </IntroAnimation>
   )
 }
