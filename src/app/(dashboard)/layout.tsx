@@ -13,6 +13,7 @@ import { SkipLinks } from "@/components/custom/SkipLinks"
 import { KeyboardShortcutsHelp } from "@/components/custom/KeyboardShortcutsHelp"
 import { OfflineIndicator } from "@/components/custom/OfflineIndicator"
 import { PageTransitionProvider, PageWrapper } from "@/components/custom/PageTransition"
+import { MagicNotepad } from "@/components/custom/MagicNotepad"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -85,6 +86,7 @@ export default async function DashboardLayout({
               </main>
             </div>
             <BottomNav />
+            <MagicNotepad />
             <InstallPrompt />
             <KeyboardShortcutsHelp />
             <OfflineIndicator showOnlineStatus />
