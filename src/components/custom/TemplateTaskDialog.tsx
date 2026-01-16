@@ -181,7 +181,7 @@ export function TemplateTaskDialog({
                     <Textarea
                       {...field}
                       rows={2}
-                      placeholder="Details supplementaires..."
+                      placeholder="Détails supplémentaires..."
                     />
                   </FormControl>
                   <FormMessage />

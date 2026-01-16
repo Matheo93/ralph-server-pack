@@ -26,18 +26,18 @@ export default async function RecurringTasksPage() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Taches recurrentes</h1>
+          <h1 className="text-3xl font-bold">Tâches récurrentes</h1>
           <p className="text-muted-foreground">
-            {recurringTasks.length} tache{recurringTasks.length > 1 ? "s" : ""} programmee
+            {recurringTasks.length} tâche{recurringTasks.length > 1 ? "s" : ""} programmée
             {recurringTasks.length > 1 ? "s" : ""}
           </p>
         </div>
         <div className="flex gap-2">
           <Link href="/tasks">
-            <Button variant="outline">Toutes les taches</Button>
+            <Button variant="outline">Toutes les tâches</Button>
           </Link>
           <Link href="/tasks/new">
-            <Button>Nouvelle tache</Button>
+            <Button>Nouvelle tâche</Button>
           </Link>
         </div>
       </div>
@@ -47,10 +47,10 @@ export default async function RecurringTasksPage() {
           <CardContent className="py-12">
             <div className="text-center space-y-4">
               <p className="text-muted-foreground">
-                Vous n&apos;avez pas encore de taches recurrentes.
+                Vous n&apos;avez pas encore de tâches récurrentes.
               </p>
               <Link href="/tasks/new">
-                <Button>Creer une tache recurrente</Button>
+                <Button>Créer une tâche récurrente</Button>
               </Link>
             </div>
           </CardContent>
@@ -98,7 +98,7 @@ export default async function RecurringTasksPage() {
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Poids: {task.load_weight}</span>
                     <span>
-                      Priorite:{" "}
+                      Priorité:{" "}
                       {task.priority === "critical"
                         ? "Critique"
                         : task.priority === "high"
@@ -135,7 +135,7 @@ interface RecurrenceRule {
 }
 
 function getRecurrenceLabel(rule: RecurrenceRule | null): string {
-  if (!rule) return "Non recurrent"
+  if (!rule) return "Non récurrent"
 
   const { frequency, interval, byDayOfWeek, byDayOfMonth } = rule
   const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]

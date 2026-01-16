@@ -176,7 +176,7 @@ export function ExclusionForm({
             Annuler
           </Button>
           <Button onClick={handleSubmit} disabled={isPending}>
-            {isPending ? "Enregistrement..." : "Creer l'exclusion"}
+            {isPending ? "Enregistrement..." : "Créer l'exclusion"}
           </Button>
         </DialogFooter>
       </DialogContent>

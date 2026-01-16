@@ -142,7 +142,7 @@ export function TemplateCard({
             )}
             {template.cron_rule && (
               <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-950/30">
-                Recurrent
+                Récurrent
               </Badge>
             )}
             {isDisabled && (

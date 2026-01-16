@@ -192,7 +192,7 @@ export function TaskForm({
     <Card>
       <CardHeader>
         <CardTitle>
-          {mode === "edit" ? "Modifier la tache" : "Nouvelle tache"}
+          {mode === "edit" ? "Modifier la tâche" : "Nouvelle tâche"}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -224,7 +224,7 @@ export function TaskForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, description: e.target.value }))
               }
-              placeholder="Details supplementaires..."
+              placeholder="Détails supplémentaires..."
               rows={3}
             />
           </div>
@@ -232,7 +232,7 @@ export function TaskForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {children.length > 0 && (
               <div className="space-y-2">
-                <Label>Enfant concerne</Label>
+                <Label>Enfant concerné</Label>
                 <Select
                   value={formData.child_id || "none"}
                   onValueChange={(v) =>
@@ -243,7 +243,7 @@ export function TaskForm({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selectionner un enfant" />
+                    <SelectValue placeholder="Sélectionner un enfant" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Aucun enfant</SelectItem>
@@ -259,7 +259,7 @@ export function TaskForm({
 
             {categories.length > 0 && (
               <div className="space-y-2">
-                <Label>Categorie</Label>
+                <Label>Catégorie</Label>
                 <Select
                   value={formData.category_id || "none"}
                   onValueChange={(v) =>
@@ -270,10 +270,10 @@ export function TaskForm({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selectionner une categorie" />
+                    <SelectValue placeholder="Sélectionner une catégorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Aucune categorie</SelectItem>
+                    <SelectItem value="none">Aucune catégorie</SelectItem>
                     {categories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id}>
                         {cat.name_fr}
@@ -285,7 +285,7 @@ export function TaskForm({
             )}
 
             <div className="space-y-2">
-              <Label>Priorite</Label>
+              <Label>Priorité</Label>
               <Select
                 value={formData.priority}
                 onValueChange={(v) =>
@@ -545,7 +545,7 @@ export function TaskForm({
                 }
                 className="rounded"
               />
-              <span className="text-sm">Tache critique (casse le streak)</span>
+              <span className="text-sm">Tâche critique (casse le streak)</span>
             </label>
           </div>
 
@@ -563,7 +563,7 @@ export function TaskForm({
                 ? "..."
                 : mode === "edit"
                   ? "Enregistrer"
-                  : "Creer la tache"}
+                  : "Créer la tâche"}
             </Button>
           </div>
         </form>
