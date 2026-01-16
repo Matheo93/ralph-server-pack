@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-const BASE_URL = 'https://gather-cage-helping-candles.trycloudflare.com';
+const BASE_URL = process.env.TEST_URL || 'http://localhost:3000';
 const TEST_EMAIL = 'M_beuve@outlook.com';
 const TEST_PASSWORD = 'Matheoau1';
 
