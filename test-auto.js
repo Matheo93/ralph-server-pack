@@ -95,9 +95,11 @@ async function runTests() {
     
     if (bodyText.includes('Enfant') || bodyText.includes('ans')) {
       console.log('✅ Children page loaded');
-      // Check age calculation
-      if (bodyText.includes('-78490') || bodyText.includes('-')) {
-        console.log('❌ Age calculation bug detected!');
+      // Check age calculation - look for negative ages like "-5 ans" or huge negative numbers
+      const negativeAgeMatch = bodyText.match(/-\d+\s*ans?/g);
+      const hugeNegative = bodyText.match(/-\d{4,}/g);
+      if (negativeAgeMatch || hugeNegative) {
+        console.log('❌ Age calculation bug detected!', negativeAgeMatch || hugeNegative);
         errors.push('Children: Age calculation bug');
       }
     }
