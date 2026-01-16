@@ -41,12 +41,12 @@ const STATUS_CONFIG: Record<Invoice["status"], {
   icon: React.ElementType
 }> = {
   paid: {
-    label: "Payee",
+    label: "Payée",
     variant: "default",
     icon: CheckCircle2,
   },
   failed: {
-    label: "Echec",
+    label: "Échec",
     variant: "destructive",
     icon: XCircle,
   },
@@ -56,7 +56,7 @@ const STATUS_CONFIG: Record<Invoice["status"], {
     icon: Clock,
   },
   void: {
-    label: "Annulee",
+    label: "Annulée",
     variant: "outline",
     icon: XCircle,
   },

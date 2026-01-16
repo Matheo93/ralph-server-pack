@@ -330,7 +330,7 @@ export function PushPermissionPrompt({
               </div>
 
               <p className="text-xs text-center text-muted-foreground">
-                Vous pourrez desactiver les notifications a tout moment dans les parametres
+                Vous pourrez désactiver les notifications à tout moment dans les paramètres
               </p>
             </CardContent>
           </Card>

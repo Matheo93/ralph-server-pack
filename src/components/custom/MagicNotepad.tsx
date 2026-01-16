@@ -385,7 +385,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                           setTextInput(e.target.value)
                           if (state === "idle") setState("typing")
                         }}
-                        placeholder="Dictez ou ecrivez vos notes..."
+                        placeholder="Dictez ou écrivez vos notes..."
                         className={cn(
                           "min-h-[150px] resize-none text-sm",
                           "border-gray-200 dark:border-gray-700",
@@ -402,7 +402,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
                           </span>
-                          <span className="text-xs">Ecoute...</span>
+                          <span className="text-xs">Écoute...</span>
                         </div>
                       )}
                     </div>

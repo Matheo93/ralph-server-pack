@@ -26,34 +26,34 @@ interface OnboardingTutorialProps {
 const tutorialSteps: Step[] = [
   {
     target: "#main-content",
-    content: "Voici votre tableau de bord. Vous y trouverez un apercu de toutes vos taches et de votre charge mentale.",
+    content: "Voici votre tableau de bord. Vous y trouverez un aperçu de toutes vos tâches et de votre charge mentale.",
     placement: "center",
     disableBeacon: true,
     title: "Tableau de bord",
   },
   {
     target: '[data-tour="nav-children"]',
-    content: "Ajoutez vos enfants ici pour personnaliser les taches selon leur age et leurs activites.",
+    content: "Ajoutez vos enfants ici pour personnaliser les tâches selon leur âge et leurs activités.",
     placement: "right",
     title: "Vos enfants",
   },
   {
     target: '[data-tour="fab-button"]',
-    content: "Creez facilement de nouvelles taches en cliquant sur ce bouton. Vous pouvez aussi utiliser la commande vocale !",
+    content: "Créez facilement de nouvelles tâches en cliquant sur ce bouton. Vous pouvez aussi utiliser la commande vocale !",
     placement: "top",
-    title: "Ajouter une tache",
+    title: "Ajouter une tâche",
   },
   {
     target: '[data-tour="nav-charge"]',
-    content: "Analysez la repartition de la charge mentale entre les parents pour un meilleur equilibre.",
+    content: "Analysez la répartition de la charge mentale entre les parents pour un meilleur équilibre.",
     placement: "right",
     title: "Charge mentale",
   },
   {
     target: '[data-tour="header-streak"]',
-    content: "Maintenez votre serie en completant vos taches chaque jour. Plus la serie est longue, plus vous progressez !",
+    content: "Maintenez votre série en complétant vos tâches chaque jour. Plus la série est longue, plus vous progressez !",
     placement: "bottom",
-    title: "Votre serie",
+    title: "Votre série",
   },
 ]
 
@@ -61,22 +61,22 @@ const tutorialSteps: Step[] = [
 const fallbackSteps: Step[] = [
   {
     target: "body",
-    content: "Bienvenue dans FamilyLoad ! Cette application vous aide a gerer la charge mentale parentale de maniere equilibree.",
+    content: "Bienvenue dans FamilyLoad ! Cette application vous aide à gérer la charge mentale parentale de manière équilibrée.",
     placement: "center",
     disableBeacon: true,
     title: "Bienvenue !",
   },
   {
     target: "body",
-    content: "Commencez par ajouter vos enfants depuis le menu lateral, puis creez vos premieres taches.",
+    content: "Commencez par ajouter vos enfants depuis le menu latéral, puis créez vos premières tâches.",
     placement: "center",
     title: "Premiers pas",
   },
   {
     target: "body",
-    content: "Utilisez le bouton + en bas a droite pour creer rapidement des taches, ou utilisez la commande vocale.",
+    content: "Utilisez le bouton + en bas à droite pour créer rapidement des tâches, ou utilisez la commande vocale.",
     placement: "center",
-    title: "Creer des taches",
+    title: "Créer des tâches",
   },
 ]
 

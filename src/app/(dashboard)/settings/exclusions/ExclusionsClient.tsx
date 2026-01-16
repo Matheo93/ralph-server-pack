@@ -130,7 +130,7 @@ export function ExclusionsClient({
             <EmptyState
               variant="calendar"
               title="Aucune exclusion"
-              description="Les exclusions temporaires permettent d'exclure un membre de l'assignation des taches pendant une periode (voyage, maladie, etc.)."
+              description="Les exclusions temporaires permettent d'exclure un membre de l'assignation des tâches pendant une période (voyage, maladie, etc.)."
             />
             <div className="flex justify-center mt-4">
               <ExclusionForm members={members} onSuccess={handleSuccess} />

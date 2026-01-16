@@ -179,7 +179,7 @@ export const FAMILYLOAD_PLANS: PricingPlan[] = [
     features: [
       "1 foyer",
       "2 utilisateurs",
-      "Taches illimitees",
+      "Tâches illimitées",
       "Rappels par email",
     ],
   },

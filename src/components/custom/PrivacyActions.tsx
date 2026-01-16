@@ -64,8 +64,8 @@ export function PrivacyActions({ action }: PrivacyActionsProps) {
   }
 
   const handleDelete = async () => {
-    if (confirmationText !== "DELETE MY ACCOUNT") {
-      setError("Veuillez saisir 'DELETE MY ACCOUNT' pour confirmer")
+    if (confirmationText !== "SUPPRIMER MON COMPTE") {
+      setError("Veuillez saisir 'SUPPRIMER MON COMPTE' pour confirmer")
       return
     }
 
@@ -139,13 +139,13 @@ export function PrivacyActions({ action }: PrivacyActionsProps) {
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="confirmation">
-              Pour confirmer, saisissez <strong>DELETE MY ACCOUNT</strong>
+              Pour confirmer, saisissez <strong>SUPPRIMER MON COMPTE</strong>
             </Label>
             <Input
               id="confirmation"
               value={confirmationText}
               onChange={(e) => setConfirmationText(e.target.value)}
-              placeholder="DELETE MY ACCOUNT"
+              placeholder="SUPPRIMER MON COMPTE"
               disabled={isLoading}
             />
           </div>
@@ -162,7 +162,7 @@ export function PrivacyActions({ action }: PrivacyActionsProps) {
           <Button
             variant="destructive"
             onClick={handleDelete}
-            disabled={isLoading || confirmationText !== "DELETE MY ACCOUNT"}
+            disabled={isLoading || confirmationText !== "SUPPRIMER MON COMPTE"}
           >
             {isLoading ? (
               <>

@@ -7,8 +7,8 @@ import { SettingsNav } from "@/components/custom/SettingsNav"
 import { ExclusionsClient } from "./ExclusionsClient"
 
 export const metadata: Metadata = {
-  title: "Exclusions temporaires - Parametres",
-  description: "Gerer les exclusions temporaires des membres du foyer",
+  title: "Exclusions temporaires - Paramètres",
+  description: "Gérer les exclusions temporaires des membres du foyer",
 }
 
 interface HouseholdMember {

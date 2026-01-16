@@ -357,12 +357,12 @@ export function MonthlyStatsRing({
     {
       progress: Math.min(100, tasksCompleted),
       color: DEFAULT_COLORS.primary,
-      label: "Taches",
+      label: "Tâches",
     },
     {
       progress: normalizedBalance,
       color: DEFAULT_COLORS.success,
-      label: "Equilibre",
+      label: "Équilibre",
     },
     {
       progress: streakProgress,

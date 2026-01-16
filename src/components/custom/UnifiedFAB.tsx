@@ -170,7 +170,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
   const actions = [
     {
       id: "new-task",
-      label: "Nouvelle tache",
+      label: "Nouvelle tâche",
       href: "/tasks/new",
       icon: PlusIcon,
       color: "bg-blue-500 hover:bg-blue-600",
@@ -200,7 +200,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
     },
     {
       id: "all-tasks",
-      label: "Toutes les taches",
+      label: "Toutes les tâches",
       href: "/tasks",
       icon: ListIcon,
       color: "bg-orange-500 hover:bg-orange-600",
@@ -263,7 +263,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
         setNotepadState("reviewing")
         haptic.success()
       } else {
-        setError(result.error ?? "Aucune tache detectee")
+        setError(result.error ?? "Aucune tâche détectée")
         setNotepadState("error")
         haptic.error()
       }
@@ -294,7 +294,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
   const handleCreateTasks = useCallback(async () => {
     const tasksToCreate = classifiedTasks.filter((_, i) => selectedTasks.has(i))
     if (tasksToCreate.length === 0) {
-      setError("Selectionnez au moins une tache")
+      setError("Sélectionnez au moins une tâche")
       return
     }
 
@@ -459,7 +459,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                         setTextInput(e.target.value)
                         if (notepadState === "idle") setNotepadState("typing")
                       }}
-                      placeholder="Dictez ou ecrivez vos notes..."
+                      placeholder="Dictez ou écrivez vos notes..."
                       className={cn(
                         "min-h-[150px] resize-none text-sm",
                         "border-gray-200 dark:border-gray-700",
@@ -476,7 +476,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
                         </span>
-                        <span className="text-xs">Ecoute...</span>
+                        <span className="text-xs">Écoute...</span>
                       </div>
                     )}
                   </div>
@@ -490,7 +490,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                       onClick={isListening ? handleStopVoice : handleStartVoice}
                       disabled={!isSpeechSupported}
                       className="flex items-center gap-1.5"
-                      title={!isSpeechSupported ? "La reconnaissance vocale n'est pas supportee sur ce navigateur (utilisez Chrome)" : undefined}
+                      title={!isSpeechSupported ? "La reconnaissance vocale n'est pas supportée sur ce navigateur (utilisez Chrome)" : undefined}
                     >
                       {isListening ? (
                         <>
@@ -552,7 +552,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                   {/* Task count */}
                   <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
                     <p className="text-xs text-muted-foreground">
-                      {classifiedTasks.length} tache{classifiedTasks.length > 1 ? "s" : ""} detectee{classifiedTasks.length > 1 ? "s" : ""}
+                      {classifiedTasks.length} tâche{classifiedTasks.length > 1 ? "s" : ""} détectée{classifiedTasks.length > 1 ? "s" : ""}
                     </p>
                   </div>
 
@@ -667,7 +667,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                   >
                     <CheckIcon className="w-8 h-8 text-green-600" />
                   </motion.div>
-                  <p className="text-sm font-medium text-green-600">Taches creees avec succes !</p>
+                  <p className="text-sm font-medium text-green-600">Tâches créées avec succès !</p>
                 </div>
               )}
 

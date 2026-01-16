@@ -52,14 +52,14 @@ export function BillingContent({ household, subscription }: BillingContentProps)
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Failed to create checkout session")
+        throw new Error(data.error ?? "Erreur lors de la création de la session de paiement")
       }
 
       if (data.url) {
         window.location.href = data.url
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      setError(err instanceof Error ? err.message : "Une erreur est survenue")
     } finally {
       setIsLoading(false)
     }
@@ -78,14 +78,14 @@ export function BillingContent({ household, subscription }: BillingContentProps)
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Failed to create portal session")
+        throw new Error(data.error ?? "Erreur lors de la création du portail de gestion")
       }
 
       if (data.url) {
         window.location.href = data.url
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      setError(err instanceof Error ? err.message : "Une erreur est survenue")
     } finally {
       setIsLoading(false)
     }
