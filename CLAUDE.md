@@ -3,7 +3,6 @@
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
 ❌ Settings household error: Navigation timeout of 30000 ms exceeded
-❌ Children error: Navigation timeout of 30000 ms exceeded
   ❌ Settings household: Navigation timeout of 30000 ms exceeded
 
 ---
