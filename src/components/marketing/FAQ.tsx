@@ -1,3 +1,5 @@
+"use client"
+
 /**
  * FAQ Section Component
  *
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/accordion"
 import { HelpCircle, Mail, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ScrollReveal, StaggerContainer, StaggerItem } from "./ScrollReveal"
 
 interface FAQItem {
   question: string
@@ -66,6 +69,7 @@ export function FAQ() {
   return (
     <section id="faq" className="py-20 md:py-28 bg-gradient-to-b from-background to-accent/10">
       <div className="container">
+        <ScrollReveal>
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <HelpCircle className="w-4 h-4" />
@@ -79,12 +83,13 @@ export function FAQ() {
             Vous ne trouvez pas la réponse ? Contactez-nous.
           </p>
         </div>
+        </ScrollReveal>
 
-        <div className="max-w-3xl mx-auto">
+        <StaggerContainer stagger={0.08} className="max-w-3xl mx-auto">
           <Accordion type="single" collapsible className="w-full space-y-3">
             {faqs.map((faq, index) => (
+              <StaggerItem key={index}>
               <AccordionItem
-                key={index}
                 value={`item-${index}`}
                 className="bg-white rounded-xl border-2 border-border/50 px-6 data-[state=open]:border-primary/30 data-[state=open]:shadow-md transition-all"
               >
@@ -95,11 +100,13 @@ export function FAQ() {
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
+              </StaggerItem>
             ))}
           </Accordion>
-        </div>
+        </StaggerContainer>
 
         {/* Contact CTA */}
+        <ScrollReveal delay={0.3} scale>
         <div className="mt-16 max-w-xl mx-auto">
           <div className="rounded-2xl bg-gradient-to-r from-primary/5 via-accent/20 to-primary/5 border border-primary/10 p-8 text-center">
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -117,6 +124,7 @@ export function FAQ() {
             </Button>
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
   )

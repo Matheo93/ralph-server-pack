@@ -196,10 +196,10 @@ export function useSpeechToText(
       }
 
       const errorMessages: Record<string, string> = {
-        "not-allowed": "Microphone non autorise. Veuillez autoriser l'acces au micro.",
-        "no-speech": "Aucune parole detectee. Essayez de parler plus fort.",
-        "audio-capture": "Impossible d'acceder au microphone.",
-        network: "Erreur reseau. Verifiez votre connexion.",
+        "not-allowed": "Microphone non autorisé. Veuillez autoriser l'accès au micro.",
+        "no-speech": "Aucune parole détectée. Essayez de parler plus fort.",
+        "audio-capture": "Impossible d'accéder au microphone.",
+        network: "Erreur réseau. Vérifiez votre connexion.",
       }
 
       const errorMessage =
@@ -228,10 +228,29 @@ export function useSpeechToText(
     return recognition
   }, [language, continuous, interimResults, onResult, onError])
 
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     if (!isSupported) {
-      setError("La reconnaissance vocale n'est pas supportee par ce navigateur.")
+      setError("La reconnaissance vocale n'est pas supportée par ce navigateur.")
       setState("error")
+      return
+    }
+
+    // Request microphone permission explicitly first
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      // Stop the stream immediately - we just needed to trigger the permission prompt
+      stream.getTracks().forEach((track) => track.stop())
+    } catch (err) {
+      const permError = err as Error
+      if (permError.name === "NotAllowedError" || permError.name === "PermissionDeniedError") {
+        setError("Microphone non autorisé. Veuillez autoriser l'accès au micro dans les paramètres du navigateur.")
+      } else if (permError.name === "NotFoundError") {
+        setError("Aucun microphone détecté sur cet appareil.")
+      } else {
+        setError("Impossible d'accéder au microphone: " + permError.message)
+      }
+      setState("error")
+      onError?.(error ?? "Erreur microphone")
       return
     }
 
@@ -262,10 +281,10 @@ export function useSpeechToText(
     try {
       recognition.start()
     } catch {
-      setError("Erreur au demarrage de la reconnaissance vocale.")
+      setError("Erreur au démarrage de la reconnaissance vocale.")
       setState("error")
     }
-  }, [isSupported, initRecognition])
+  }, [isSupported, initRecognition, onError, error])
 
   const stopListening = useCallback(() => {
     // Clear any pending restart

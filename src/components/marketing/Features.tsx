@@ -1,4 +1,7 @@
+"use client"
+
 import { Mic, Sparkles, BarChart3, Bell, Clock, Users, Zap, Shield, Heart } from "lucide-react"
+import { ScrollReveal, StaggerContainer, StaggerItem } from "./ScrollReveal"
 
 const features = [
   {
@@ -40,6 +43,7 @@ export function Features() {
   return (
     <section id="features" className="py-20 md:py-28 bg-gradient-to-b from-background via-accent/10 to-background">
       <div className="container">
+        <ScrollReveal>
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <Sparkles className="w-4 h-4" />
@@ -53,11 +57,12 @@ export function Features() {
             de profiter pleinement de votre vie de famille.
           </p>
         </div>
+        </ScrollReveal>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <StaggerContainer stagger={0.15} className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {features.map((feature, index) => (
+            <StaggerItem key={index}>
             <div
-              key={index}
               className={`relative p-6 rounded-2xl bg-white border-2 ${feature.borderColor} shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
             >
               {/* Icon */}
@@ -72,18 +77,20 @@ export function Features() {
               {/* Decorative corner */}
               <div className={`absolute top-0 right-0 w-20 h-20 ${feature.color.replace('text-', 'bg-').split(' ')[0]} opacity-5 rounded-bl-full`} />
             </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
 
         {/* Additional features list */}
+        <ScrollReveal delay={0.2}>
         <div className="mt-20 max-w-4xl mx-auto">
           <h3 className="text-xl font-semibold text-center mb-8">
             Et aussi...
           </h3>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <StaggerContainer stagger={0.08} className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {additionalFeatures.map((feature, index) => (
+              <StaggerItem key={index}>
               <div
-                key={index}
                 className="flex items-center gap-4 p-4 rounded-xl bg-white border shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className={`w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center ${feature.color}`}>
@@ -91,11 +98,14 @@ export function Features() {
                 </div>
                 <span className="text-sm font-medium">{feature.label}</span>
               </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
+        </ScrollReveal>
 
         {/* USP highlight - Charge mentale */}
+        <ScrollReveal scale delay={0.1}>
         <div className="mt-20 max-w-4xl mx-auto">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary/80 text-white p-8 md:p-12">
             {/* Background pattern */}
@@ -131,6 +141,7 @@ export function Features() {
             <div className="absolute -top-10 -left-10 w-32 h-32 rounded-full bg-white/5" />
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
   )

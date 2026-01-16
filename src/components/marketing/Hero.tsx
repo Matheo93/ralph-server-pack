@@ -1,7 +1,10 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, CheckCircle2, Heart, Users, Sparkles } from "lucide-react"
 import { AnimatedFamilyIllustration } from "./AnimatedFamilyIllustration"
+import { ScrollReveal, StaggerContainer, StaggerItem } from "./ScrollReveal"
 
 export function Hero() {
   return (
@@ -19,6 +22,7 @@ export function Hero() {
           {/* Left column - Text content */}
           <div className="text-center lg:text-left">
             {/* Badge */}
+            <ScrollReveal delay={0.1}>
             <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-primary/15 text-primary text-sm font-semibold border border-primary/20">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
@@ -26,8 +30,10 @@ export function Hero() {
               </span>
               Essai gratuit 14 jours - Sans carte bancaire
             </div>
+            </ScrollReveal>
 
             {/* Headline */}
+            <ScrollReveal delay={0.2}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-foreground">
               Libérez votre{" "}
               <span className="text-primary relative">
@@ -39,16 +45,20 @@ export function Hero() {
               <br />
               <span className="text-primary/80">parentale</span>
             </h1>
+            </ScrollReveal>
 
             {/* Subheadline - Problem/Solution */}
+            <ScrollReveal delay={0.3}>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0">
               Les parents portent en moyenne{" "}
               <strong className="text-foreground font-semibold">60% de la charge mentale</strong>{" "}
               familiale. FamilyLoad automatise et répartit équitablement les tâches
               parentales grâce à l&apos;IA vocale.
             </p>
+            </ScrollReveal>
 
             {/* CTA Buttons - More prominent */}
+            <ScrollReveal delay={0.4}>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
               <Button size="lg" asChild className="text-base h-14 px-8 bg-primary hover:bg-primary/90 shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:scale-105">
                 <Link href="/signup">
@@ -60,8 +70,10 @@ export function Hero() {
                 <Link href="#features">Découvrir les fonctionnalités</Link>
               </Button>
             </div>
+            </ScrollReveal>
 
             {/* Trust indicators - More emotional, less corporate */}
+            <ScrollReveal delay={0.5}>
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Heart className="h-5 w-5 text-primary fill-primary/20" />
@@ -76,9 +88,11 @@ export function Hero() {
                 <span>Vos données restent les vôtres</span>
               </div>
             </div>
+            </ScrollReveal>
           </div>
 
           {/* Right column - Illustration */}
+          <ScrollReveal direction="right" delay={0.3} distance={60}>
           <div className="relative">
             {/* Family illustration container */}
             <div className="relative mx-auto max-w-md lg:max-w-none">
@@ -127,9 +141,11 @@ export function Hero() {
               <div className="absolute -z-20 -top-8 -right-8 w-full h-full rounded-3xl bg-secondary/10 transform rotate-6" />
             </div>
           </div>
+          </ScrollReveal>
         </div>
 
         {/* Stats section */}
+        <ScrollReveal delay={0.4}>
         <div className="mt-20 pt-12 border-t border-border/50">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
@@ -179,6 +195,7 @@ export function Hero() {
             </div>
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
   )

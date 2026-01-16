@@ -1,6 +1,9 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Check, Sparkles, Shield, Heart } from "lucide-react"
+import { ScrollReveal } from "./ScrollReveal"
 
 const features = [
   { text: "Tâches vocales illimitées", highlight: true },
@@ -17,6 +20,7 @@ export function Pricing() {
   return (
     <section id="pricing" className="py-20 md:py-28 bg-gradient-to-b from-background via-secondary/20 to-background">
       <div className="container">
+        <ScrollReveal>
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <Sparkles className="w-4 h-4" />
@@ -29,7 +33,9 @@ export function Pricing() {
             Pas de surprise, pas de frais cachés. Un seul abonnement pour toute la famille.
           </p>
         </div>
+        </ScrollReveal>
 
+        <ScrollReveal scale delay={0.2}>
         <div className="max-w-md mx-auto">
           <div className="relative rounded-3xl border-2 border-primary bg-gradient-to-br from-white to-accent/20 p-8 shadow-2xl shadow-primary/10">
             {/* Popular badge */}
@@ -80,8 +86,10 @@ export function Pricing() {
             </p>
           </div>
         </div>
+        </ScrollReveal>
 
         {/* Money back guarantee */}
+        <ScrollReveal delay={0.4}>
         <div className="mt-12 text-center">
           <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border border-green-200">
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
@@ -93,6 +101,7 @@ export function Pricing() {
             </div>
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
   )

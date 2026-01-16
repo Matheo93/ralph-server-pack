@@ -1,4 +1,7 @@
+"use client"
+
 import { Star, Quote, Heart, Users, CheckCircle, Clock } from "lucide-react"
+import { ScrollReveal, StaggerContainer, StaggerItem } from "./ScrollReveal"
 
 const testimonials = [
   {
@@ -47,6 +50,7 @@ export function Testimonials() {
   return (
     <section id="testimonials" className="py-20 md:py-28 bg-gradient-to-b from-accent/20 via-background to-accent/10">
       <div className="container">
+        <ScrollReveal>
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
             <Heart className="w-4 h-4 fill-current" />
@@ -59,11 +63,12 @@ export function Testimonials() {
             Découvrez comment FamilyLoad a transformé le quotidien de ces familles.
           </p>
         </div>
+        </ScrollReveal>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <StaggerContainer stagger={0.15} className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {testimonials.map((testimonial, index) => (
+            <StaggerItem key={index}>
             <div
-              key={index}
               className={`relative p-6 rounded-2xl bg-white border-2 ${testimonial.borderColor} shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
             >
               {/* Quote icon */}
@@ -112,10 +117,12 @@ export function Testimonials() {
                 </div>
               </div>
             </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
 
         {/* Trust stats */}
+        <ScrollReveal delay={0.2}>
         <div className="mt-20 py-10 px-8 rounded-3xl bg-gradient-to-r from-primary/5 via-accent/30 to-primary/5 border border-primary/10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
             {stats.map((stat, index) => {
@@ -132,6 +139,7 @@ export function Testimonials() {
             })}
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
   )
