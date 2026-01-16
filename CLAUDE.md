@@ -1,36 +1,64 @@
-# CLAUDE.md - TÂCHES RESTANTES
+# CLAUDE.md - SEO PRIORITÉ MAXIMALE
 
-## ✅ FEATURES TERMINÉES
-- Transition landing → login (OK)
-- Onboarding tutorial avec react-joyride (OK)
-- PWA installable (OK)
+## ✅ TERMINÉ
+- Transition landing → login
+- Onboarding tutorial avec react-joyride
+- Traduction 100% français
+- PWA installable
 
-## 🎯 TÂCHE PRIORITAIRE: TRADUCTION 100% FRANÇAIS
+## 🎯 TÂCHE PRIORITAIRE: SEO - TOP RÉFÉRENCEMENT GOOGLE
 
-Vérifier et corriger TOUS les textes en anglais dans l'application:
+L'objectif est d'avoir le MEILLEUR référencement possible sur Google.
 
-### À VÉRIFIER:
-1. Tutorial joyride - le bouton "Next (Step 1 of 4)" doit être "Suivant (Étape 1 sur 4)"
-2. Messages d'erreur
-3. Placeholders des inputs
-4. Boutons et labels
-5. Toasts et notifications
+### 1. MÉTADONNÉES (src/app/layout.tsx et pages)
+- Title optimisé avec mots-clés
+- Meta description accrocheuse (150-160 caractères)
+- Open Graph complet (og:title, og:description, og:image, og:url)
+- Twitter Card (twitter:card, twitter:title, twitter:description, twitter:image)
+- Canonical URLs
 
-### FICHIERS À VÉRIFIER:
-- src/components/custom/OnboardingTutorial.tsx (locale joyride)
-- src/components/custom/*.tsx
-- src/app/**/*.tsx
+### 2. STRUCTURED DATA (JSON-LD)
+Ajouter dans src/components/seo/JsonLd.tsx:
+- Organization schema
+- WebApplication schema
+- FAQ schema (pour la section FAQ)
+- BreadcrumbList schema
+- SoftwareApplication schema
+
+### 3. FICHIERS SEO RACINE (public/)
+- robots.txt optimisé
+- sitemap.xml dynamique
+- manifest.json complet
+
+### 4. PERFORMANCE SEO
+- Images avec alt text descriptif
+- Lazy loading des images
+- Preconnect/Preload pour ressources critiques
+- Core Web Vitals optimisés
+
+### 5. CONTENU SEO
+- H1/H2/H3 hiérarchie correcte
+- Mots-clés: "charge mentale parentale", "organisation famille", "tâches familiales", "application parents"
+- URLs propres et descriptives
+
+### 6. ACCESSIBILITÉ (aide le SEO)
+- aria-labels sur les boutons/liens
+- Skip to content link
+- Focus visible
+
+### FICHIERS À CRÉER/MODIFIER:
+- src/app/layout.tsx (metadata)
+- src/app/page.tsx (metadata spécifique)
+- src/components/seo/JsonLd.tsx
+- src/app/sitemap.ts (Next.js sitemap)
+- src/app/robots.ts (Next.js robots)
+- public/manifest.json
 
 ### COMMIT
 ```bash
-git commit -m "fix(i18n): translate all remaining English texts to French"
+git add -A
+git commit -m "feat(seo): implement comprehensive SEO optimization for top Google ranking"
 git push
 ```
 
-## 🎯 TÂCHE 2: AMÉLIORER LES SUGGESTIONS
-
-Quand l'utilisateur n'a pas de tâche pour aujourd'hui, proposer des suggestions:
-- "Ajouter une tâche ménagère"
-- "Planifier une activité avec les enfants"
-- "Rappel médical"
-
+## OBJECTIF LIGHTHOUSE SEO: 100/100
