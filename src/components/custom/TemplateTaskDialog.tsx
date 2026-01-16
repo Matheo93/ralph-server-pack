@@ -243,8 +243,8 @@ export function TemplateTaskDialog({
                   <FormItem>
                     <FormLabel>Enfant (optionnel)</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      onValueChange={(value) => field.onChange(value === "none" ? undefined : value)}
+                      defaultValue={field.value ?? "none"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -252,8 +252,8 @@ export function TemplateTaskDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Aucun</SelectItem>
-                        {children.map((child) => (
+                        <SelectItem value="none">Aucun</SelectItem>
+                        {children.filter((child) => child.id).map((child) => (
                           <SelectItem key={child.id} value={child.id}>
                             {child.first_name}
                           </SelectItem>
