@@ -1,7 +1,4 @@
-import { Hero, Features, Pricing, Testimonials, FAQ } from "@/components/marketing"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { Hero, Features, Pricing, Testimonials, FAQ, FinalCTA } from "@/components/marketing"
 
 export default function MarketingPage() {
   return (
@@ -61,17 +58,7 @@ export default function MarketingPage() {
                   Rejoignez des milliers de parents qui ont retrouvé leur sérénité grâce à FamilyLoad.
                   Commencez votre essai gratuit dès maintenant.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button size="lg" asChild className="text-base bg-white text-primary hover:bg-white/90 shadow-lg">
-                    <Link href="/signup">
-                      Créer mon compte gratuit
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="outline" asChild className="text-base border-2 border-white/30 bg-transparent text-white hover:bg-white/10">
-                    <Link href="/login">J&apos;ai déjà un compte</Link>
-                  </Button>
-                </div>
+                <FinalCTA />
 
                 <p className="text-sm text-white/70 mt-6">
                   Aucune carte bancaire requise • Annulation à tout moment

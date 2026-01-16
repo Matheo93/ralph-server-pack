@@ -1,10 +1,9 @@
 "use client"
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, CheckCircle2, Heart, Users, Sparkles } from "lucide-react"
+import { CheckCircle2, Heart, Users, Sparkles } from "lucide-react"
 import { AnimatedFamilyIllustration } from "./AnimatedFamilyIllustration"
-import { ScrollReveal, StaggerContainer, StaggerItem } from "./ScrollReveal"
+import { ScrollReveal } from "./ScrollReveal"
+import { HeroCTA } from "./HeroCTA"
 
 export function Hero() {
   return (
@@ -57,19 +56,9 @@ export function Hero() {
             </p>
             </ScrollReveal>
 
-            {/* CTA Buttons - More prominent */}
+            {/* CTA Buttons - More prominent with smooth transitions */}
             <ScrollReveal delay={0.4}>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
-              <Button size="lg" asChild className="text-base h-14 px-8 bg-primary hover:bg-primary/90 shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:scale-105">
-                <Link href="/signup">
-                  Commencer gratuitement
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="text-base h-14 px-8 border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
-                <Link href="#features">Découvrir les fonctionnalités</Link>
-              </Button>
-            </div>
+              <HeroCTA />
             </ScrollReveal>
 
             {/* Trust indicators - More emotional, less corporate */}
