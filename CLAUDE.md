@@ -1,35 +1,36 @@
-# CLAUDE.md - Instructions RALPH
+# CLAUDE.md - TÂCHES RESTANTES
 
-## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
+## ✅ FEATURES TERMINÉES
+- Transition landing → login (OK)
+- Onboarding tutorial avec react-joyride (OK)
+- PWA installable (OK)
 
-❌ Landing page error: Navigation timeout of 30000 ms exceeded
-  ❌ Landing page: Navigation timeout of 30000 ms exceeded
+## 🎯 TÂCHE PRIORITAIRE: TRADUCTION 100% FRANÇAIS
 
----
+Vérifier et corriger TOUS les textes en anglais dans l'application:
 
-## APRÈS CHAQUE CORRECTION, EXÉCUTE:
+### À VÉRIFIER:
+1. Tutorial joyride - le bouton "Next (Step 1 of 4)" doit être "Suivant (Étape 1 sur 4)"
+2. Messages d'erreur
+3. Placeholders des inputs
+4. Boutons et labels
+5. Toasts et notifications
+
+### FICHIERS À VÉRIFIER:
+- src/components/custom/OnboardingTutorial.tsx (locale joyride)
+- src/components/custom/*.tsx
+- src/app/**/*.tsx
+
+### COMMIT
 ```bash
-node test-auto.js
+git commit -m "fix(i18n): translate all remaining English texts to French"
+git push
 ```
 
----
+## 🎯 TÂCHE 2: AMÉLIORER LES SUGGESTIONS
 
-## FEATURES À IMPLÉMENTER
+Quand l'utilisateur n'a pas de tâche pour aujourd'hui, proposer des suggestions:
+- "Ajouter une tâche ménagère"
+- "Planifier une activité avec les enfants"
+- "Rappel médical"
 
-1. Animation landing page (style entraide-souverainiste)
-2. Suggestions quand dashboard vide (Chat rapide / Templates)
-3. Smooth scroll (html { scroll-behavior: smooth; })
-4. PWA complète (manifest.json, service worker, icônes)
-5. Enfant relié aux tâches (filtrer, afficher sur tâches)
-
----
-
-## WORKFLOW
-1. git pull
-2. Corriger UN bug
-3. bun run build
-4. node test-auto.js
-5. Si OK: git commit && git push
-6. Recommencer
-
-⚠️ NE JAMAIS COMMIT SANS TESTER!
