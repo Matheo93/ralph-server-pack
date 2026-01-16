@@ -103,8 +103,8 @@ export function EventFormDialog({
           all_day: allDay,
           event_type: eventType,
           recurrence,
-          assigned_to: assignedTo || null,
-          child_id: childId || null,
+          assigned_to: assignedTo === "none" ? null : (assignedTo || null),
+          child_id: childId === "none" ? null : (childId || null),
           location: location || null,
           color,
         })
@@ -123,8 +123,8 @@ export function EventFormDialog({
           all_day: allDay,
           event_type: eventType,
           recurrence,
-          assigned_to: assignedTo || null,
-          child_id: childId || null,
+          assigned_to: assignedTo === "none" ? null : (assignedTo || null),
+          child_id: childId === "none" ? null : (childId || null),
           location: location || null,
           color,
           reminder_minutes: 30,
@@ -269,12 +269,12 @@ export function EventFormDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="assigned_to">Assigne a</Label>
-              <Select name="assigned_to" defaultValue={event?.assigned_to || ""}>
+              <Select name="assigned_to" defaultValue={event?.assigned_to || "none"}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selectionner..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Personne</SelectItem>
+                  <SelectItem value="none">Personne</SelectItem>
                   {householdMembers.map((member) => (
                     <SelectItem key={member.user_id} value={member.user_id}>
                       {member.name || "Membre"}
@@ -286,12 +286,12 @@ export function EventFormDialog({
 
             <div className="space-y-2">
               <Label htmlFor="child_id">Enfant concerne</Label>
-              <Select name="child_id" defaultValue={event?.child_id || ""}>
+              <Select name="child_id" defaultValue={event?.child_id || "none"}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selectionner..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Aucun</SelectItem>
+                  <SelectItem value="none">Aucun</SelectItem>
                   {children.map((child) => (
                     <SelectItem key={child.id} value={child.id}>
                       {child.first_name}
