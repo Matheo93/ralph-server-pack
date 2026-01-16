@@ -66,7 +66,25 @@ export function useVocalRecording(): UseVocalRecordingResult {
     reset()
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      // Check browser support first
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Votre navigateur ne supporte pas l'enregistrement audio")
+      }
+
+      // Request microphone permission - this will trigger the browser permission popup
+      let stream: MediaStream
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      } catch (permErr) {
+        const error = permErr as Error
+        if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
+          throw new Error("Microphone non autorisé. Veuillez autoriser l'accès au micro dans les paramètres du navigateur.")
+        } else if (error.name === "NotFoundError") {
+          throw new Error("Aucun microphone détecté sur cet appareil.")
+        } else {
+          throw new Error("Impossible d'accéder au microphone: " + error.message)
+        }
+      }
 
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: "audio/webm",

@@ -13,7 +13,7 @@ import { SkipLinks } from "@/components/custom/SkipLinks"
 import { KeyboardShortcutsHelp } from "@/components/custom/KeyboardShortcutsHelp"
 import { OfflineIndicator } from "@/components/custom/OfflineIndicator"
 import { PageTransitionProvider, PageWrapper } from "@/components/custom/PageTransition"
-import { MagicNotepad } from "@/components/custom/MagicNotepad"
+import { UnifiedFAB } from "@/components/custom/UnifiedFAB"
 import { CoachMarksProvider } from "@/components/custom/CoachMarks"
 import { PushPermissionPrompt } from "@/components/custom/PushPermissionPrompt"
 
@@ -89,7 +89,7 @@ export default async function DashboardLayout({
               </main>
             </div>
             <BottomNav />
-            <MagicNotepad />
+            <UnifiedFAB />
             <InstallPrompt />
             <KeyboardShortcutsHelp />
             <OfflineIndicator showOnlineStatus />

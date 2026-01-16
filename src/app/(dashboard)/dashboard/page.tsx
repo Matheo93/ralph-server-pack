@@ -13,8 +13,6 @@ import { StreakCounter } from "@/components/custom/StreakCounter"
 import { ChargeBalance } from "@/components/custom/ChargeBalance"
 import { ChargeWeekChart } from "@/components/custom/ChargeWeekChart"
 import { ChargeHistoryCard } from "@/components/custom/ChargeHistoryCard"
-import { VocalRecorder } from "@/components/custom/VocalRecorder"
-import { QuickActions } from "@/components/custom/QuickActions"
 
 // Force dynamic rendering to ensure fresh data on each request
 export const dynamic = "force-dynamic"
@@ -255,13 +253,6 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Bouton vocal (invisible, triggered by QuickActions) */}
-      <div className="hidden">
-        <VocalRecorder />
-      </div>
-
-      {/* Boutons d'actions rapides flottants */}
-      <QuickActions />
     </div>
   )
 }
