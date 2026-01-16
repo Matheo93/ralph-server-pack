@@ -56,3 +56,5 @@ next-env.d.ts
 
 # Lighthouse reports
 lighthouse-*.json
+.playwright-mcp/
+nohup.out
