@@ -46,6 +46,8 @@ export interface StreakConfig {
   isPremium: boolean
   /** Days between joker resets (default: 7) */
   jokerResetDays: number
+  /** Reference date for "today" (for testing, defaults to new Date()) */
+  referenceDate?: Date
 }
 
 // =============================================================================
@@ -136,7 +138,7 @@ export function calculateStreak(
   completedDates: Date[],
   config: Partial<StreakConfig> = {}
 ): StreakStatus {
-  const { gracePeriodHours = 4, isPremium = false, jokerResetDays = 7 } = config
+  const { gracePeriodHours = 4, isPremium = false, jokerResetDays = 7, referenceDate } = config
 
   if (completedDates.length === 0) {
     return {
@@ -164,7 +166,8 @@ export function calculateStreak(
     }
   }
 
-  const now = new Date()
+  // Use referenceDate if provided, otherwise use current time
+  const now = referenceDate ?? new Date()
   const today = getStreakDate(now, gracePeriodHours)
   const lastCompletedDate = uniqueDates[0] ?? null
 
@@ -359,15 +362,25 @@ export function buildStreakHistory(
   daysBack: number = 30,
   config: Partial<StreakConfig> = {}
 ): StreakHistory {
-  const { minTasksPerDay = 1, gracePeriodHours = 4 } = config
+  const { minTasksPerDay = 1, gracePeriodHours = 4, referenceDate } = config
 
   const days: DailyProgress[] = []
-  const today = getStreakDate(new Date(), gracePeriodHours)
+  const now = referenceDate ?? new Date()
+  const today = getStreakDate(now, gracePeriodHours)
+
+  // Helper to create consistent date key (YYYY-MM-DD in local time)
+  const getDateKey = (d: Date): string => {
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, "0")
+    const day = String(d.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+  }
 
   // Create map of completions by date
   const completionMap = new Map<string, { count: number; jokerUsed: boolean }>()
   for (const completion of completions) {
-    const dateKey = getStreakDate(completion.date, gracePeriodHours).toISOString()
+    const streakDate = getStreakDate(completion.date, gracePeriodHours)
+    const dateKey = getDateKey(streakDate)
     const existing = completionMap.get(dateKey)
     completionMap.set(dateKey, {
       count: (existing?.count ?? 0) + completion.count,
@@ -380,7 +393,7 @@ export function buildStreakHistory(
     const date = new Date(today)
     date.setDate(date.getDate() - i)
 
-    const dateKey = date.toISOString()
+    const dateKey = getDateKey(date)
     const dayData = completionMap.get(dateKey)
 
     days.push({

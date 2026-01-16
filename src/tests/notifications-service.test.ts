@@ -7,7 +7,7 @@
  * - Notification templates
  */
 
-import { describe, it, expect, beforeEach } from "bun:test"
+import { describe, it, expect, beforeEach } from "vitest"
 
 // Push Service imports
 import {

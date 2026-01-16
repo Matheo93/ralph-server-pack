@@ -8,7 +8,7 @@
  * - Notification center
  */
 
-import { describe, it, expect, beforeEach } from "bun:test"
+import { describe, it, expect, beforeEach } from "vitest"
 
 // WebSocket Manager imports
 import {

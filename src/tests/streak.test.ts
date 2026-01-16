@@ -93,7 +93,7 @@ describe("Streak Calculation", () => {
     const today = new Date()
     today.setHours(12, 0, 0, 0)
 
-    const status = calculateStreak([today])
+    const status = calculateStreak([today], { referenceDate: today })
 
     expect(status.currentStreak).toBe(1)
     expect(status.isActive).toBe(true)
@@ -110,7 +110,7 @@ describe("Streak Calculation", () => {
       dates.push(d)
     }
 
-    const status = calculateStreak(dates)
+    const status = calculateStreak(dates, { referenceDate: now })
 
     expect(status.currentStreak).toBe(5)
     expect(status.isActive).toBe(true)
@@ -153,7 +153,7 @@ describe("Streak Calculation", () => {
       dates.push(d)
     }
 
-    const status = calculateStreak(dates)
+    const status = calculateStreak(dates, { referenceDate: now })
 
     expect(status.currentStreak).toBe(3)
     expect(status.longestStreak).toBe(5)
@@ -315,7 +315,7 @@ describe("Streak History", () => {
       { date: new Date(now.getTime() - 86400000), count: 1 },
     ]
 
-    const history = buildStreakHistory(completions, 7, { minTasksPerDay: 1 })
+    const history = buildStreakHistory(completions, 7, { minTasksPerDay: 1, referenceDate: now })
 
     expect(history.totalDaysCompleted).toBe(2)
   })
@@ -329,7 +329,7 @@ describe("Streak History", () => {
       { date: new Date(now.getTime() - 86400000), count: 3 },
     ]
 
-    const history = buildStreakHistory(completions, 2)
+    const history = buildStreakHistory(completions, 2, { referenceDate: now })
 
     expect(history.averageTasksPerDay).toBe(4)
   })

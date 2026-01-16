@@ -8,7 +8,7 @@
  * - Delegation engine
  */
 
-import { describe, it, expect, beforeEach } from "bun:test"
+import { describe, it, expect, beforeEach } from "vitest"
 
 // Fairness Algorithm imports
 import {

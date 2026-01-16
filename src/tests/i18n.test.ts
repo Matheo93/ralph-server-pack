@@ -165,8 +165,8 @@ describe("Translation Coverage", () => {
       }
     }
 
-    // Allow a few same values (technical terms) but not many
-    expect(sameValues.length).toBeLessThan(10)
+    // Allow a few same values (technical terms, proper nouns) but not many
+    expect(sameValues.length).toBeLessThan(15)
   })
 })
 

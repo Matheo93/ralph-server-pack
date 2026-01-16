@@ -7,7 +7,7 @@
  * - Report generator (weekly/monthly reports)
  */
 
-import { describe, it, expect } from "bun:test"
+import { describe, it, expect } from "vitest"
 import {
   // Fairness Calculator
   calculateGini,

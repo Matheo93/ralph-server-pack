@@ -10,7 +10,7 @@
  * Total: 60+ tests
  */
 
-import { describe, it, expect, beforeEach } from "bun:test"
+import { describe, it, expect, beforeEach } from "vitest"
 
 // =============================================================================
 // AUDIO PROCESSOR IMPORTS

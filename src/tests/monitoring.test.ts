@@ -254,9 +254,10 @@ describe("Metrics Module", () => {
   describe("Timer Utility", () => {
     it("should measure elapsed time", async () => {
       const timer = new Timer()
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise(resolve => setTimeout(resolve, 15))
       const elapsed = timer.elapsed()
-      expect(elapsed).toBeGreaterThanOrEqual(10)
+      // Allow small timing variance in CI environments
+      expect(elapsed).toBeGreaterThanOrEqual(9)
     })
 
     it("should measure elapsed time in seconds", async () => {

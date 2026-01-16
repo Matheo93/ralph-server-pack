@@ -93,3 +93,237 @@ npx tsc --noEmit && npm run build
 - ProfileForm écrit maintenant le cookie `locale` après sauvegarde réussie
 - Force un `window.location.reload()` pour appliquer la nouvelle locale
 - La langue est sauvée en DB ET dans le cookie que next-intl lit
+
+---
+
+## 🎨 REFACTORING UX - PRIORITÉ HAUTE (Demande utilisateur)
+
+**Date**: 2026-01-16 02:45 UTC
+**Feature**: Fusion des widgets dans le bouton MagicNotepad
+
+### Problème actuel:
+Le dashboard est surchargé avec trop d'éléments éparpillés:
+- "Vous êtes à jour"
+- Calendrier semaine (Ven 16 - Jeu 22)
+- Streak du foyer (0 jours)
+- Historique (4 semaines)
+- Charge mentale (déséquilibre, pourcentages)
+- Actions rapides (Nouvelle tâche, Gérer enfants, Toutes les tâches, Analyse)
+
+### Solution demandée:
+**Fusionner TOUT dans le bouton violet/gradient en bas à droite (MagicNotepad)**
+
+Le bouton devient un "Hub" qui ouvre un panneau/modal avec:
+1. **Onglet Carnet** - Notes + Classification IA (existant)
+2. **Onglet Actions** - Nouvelle tâche, Vue semaine, Toutes les tâches
+3. **Onglet Stats** - Streak, Historique, Charge mentale
+
+### Comportement souhaité:
+- Clic sur le bouton → ouvre un panneau glissant depuis la droite
+- Navigation par onglets ou swipe
+- Le dashboard principal devient MINIMAL (juste les 4 cards stats + message "Bravo")
+
+### Wireframe:
+```
++---------------------------+
+|  ✨ Hub FamilyLoad    [X] |
++---------------------------+
+| [Carnet] [Actions] [Stats]|
++---------------------------+
+|                           |
+|  (Contenu de l'onglet)    |
+|                           |
++---------------------------+
+```
+
+### Avantages:
+- Dashboard épuré
+- Toutes les actions dans un seul endroit
+- Meilleure découvrabilité
+- UX mobile optimale
+
+**IMPLÉMENTER CETTE REFONTE**
+
+---
+
+## 📝 AMÉLIORATION MagicNotepad - Ajouter un titre
+
+**Date**: 2026-01-16 02:55 UTC
+
+### Demande:
+Ajouter un **titre** au-dessus du champ de saisie dans le MagicNotepad (petit chat).
+
+### Exemple:
+```
++---------------------------+
+|  ✨ Carnet Magique    [X] |
++---------------------------+
+|  📝 Mes notes du jour     |  <-- NOUVEAU TITRE ICI
++---------------------------+
+|                           |
+|  [Zone de texte]          |
+|                           |
++---------------------------+
+| [Dicter]    [Classer]     |
++---------------------------+
+```
+
+### Comportement:
+- Titre stylé, peut-être avec une icône 📝
+- Donne du contexte à l'utilisateur
+- Peut être "Mes notes", "Quoi de neuf ?", ou personnalisable
+
+**À IMPLÉMENTER**
+
+---
+
+## ❓ CLARIFICATION - Calcul de la Charge Mentale
+
+**Date**: 2026-01-16 02:55 UTC
+**Question utilisateur**: "Je ne comprends pas l'onglet charge mentale. Comment il est calculé ? Forcément vu que tu ajoutes tout sur ton compte la charge ne peut qu'augmenter."
+
+### Comportement attendu:
+La charge mentale doit être un indicateur **dynamique** qui:
+1. **AUGMENTE** quand on ajoute des tâches non complétées
+2. **DIMINUE** quand on complète des tâches
+3. Reflète l'**équilibre** entre les membres du foyer
+
+### Calcul suggéré:
+```
+Charge actuelle = SUM(load_weight) des tâches NON COMPLÉTÉES assignées à l'utilisateur
+Équilibre = Comparaison entre charges de tous les membres du foyer
+```
+
+### Affichage:
+- Si je suis à 60% et mon partenaire à 40% → "Déséquilibré"
+- Si nous sommes à 50%/50% → "Équilibré"
+- Quand je complète une tâche → ma charge diminue en temps réel
+
+### Vérifier:
+1. Le calcul prend-il bien en compte UNIQUEMENT les tâches status != 'completed' ?
+2. Le % affiché est-il relatif aux autres membres ?
+3. La mise à jour est-elle en temps réel après complétion ?
+
+**À VÉRIFIER ET DOCUMENTER**
+
+---
+
+## 🎯 PROBLÈME UX MAJEUR - Découvrabilité des fonctionnalités
+
+**Date**: 2026-01-16 02:58 UTC
+**Problème**: "La belle chambre au 3ème étage" - Les meilleures features sont cachées !
+
+### Fonctionnalités CACHÉES dans Paramètres:
+- **Profil** - Langue, préférences
+- **Foyer** - Membres, invitations (CRITIQUE pour le partage!)
+- **Préférences** - Assignation par catégorie
+- **Notifications** - Rappels et alertes
+- **Templates** - Tâches automatiques (SUPER UTILE!)
+- **Confidentialité** - Données et sécurité
+
+### Le problème:
+L'utilisateur doit:
+1. Cliquer sur "Paramètres" dans la sidebar (personne ne fait ça)
+2. Découvrir par hasard ces fonctionnalités
+3. Ne jamais utiliser Templates, Invitations, etc.
+
+### Solution proposée - Hub avec accès rapide:
+
+Le bouton MagicNotepad devient un **Hub central** avec:
+```
++--------------------------------+
+|  ✨ Hub FamilyLoad         [X] |
++--------------------------------+
+| [📝 Notes] [⚡ Actions] [⚙️ Plus] |
++--------------------------------+
+
+Onglet "Plus" / "Raccourcis":
+- 👥 Inviter un membre
+- 🔄 Créer un template
+- 🔔 Gérer notifications
+- 🌍 Changer la langue
+- 📊 Voir mes stats
++--------------------------------+
+```
+
+### Avantages:
+- Plus besoin d'aller dans Paramètres
+- Les features clés sont à 1 clic
+- Onboarding naturel
+- UX mobile-first
+
+**PRIORITÉ MAXIMALE - IMPLÉMENTER**
+
+---
+
+## 🚨 BUGS SIGNALÉS PAR UTILISATEUR
+
+**Date**: 2026-01-16 03:00 UTC
+
+### BUG 1: Inviter un co-parent ne fonctionne pas
+**Chemin**: Paramètres > Foyer > Membres et invitations
+**Problème**: L'invitation ne fonctionne pas (détails à investiguer)
+**Impact**: CRITIQUE - Impossible de partager le foyer avec le partenaire
+
+### BUG 2: Templates non modifiables
+**Chemin**: Paramètres > Templates
+**Problème actuel**: On ne peut pas copier/modifier un template
+**Comportement attendu**: 
+1. Cliquer sur un template
+2. Une popup s'ouvre avec les champs PRÉ-REMPLIS
+3. L'utilisateur peut MODIFIER les valeurs avant de créer la tâche
+   - Ex: Template dit "dans 12 mois" → utilisateur change à "dans 8 mois"
+4. Bouton "Créer cette tâche" pour valider
+
+### Exemple d'UX souhaitée pour Templates:
+```
++----------------------------------+
+|  📋 Vaccination annuelle      [X]|
++----------------------------------+
+| Titre: [Vaccination annuelle   ] |
+| Date:  [Dans 8 mois          v] | ← Modifiable!
+| Enfant: [Emma                v] |
+| Priorité: [Normale           v] |
++----------------------------------+
+| [Annuler]    [Créer la tâche]   |
++----------------------------------+
+```
+
+**À FIXER EN PRIORITÉ**
+
+---
+
+## 🚨🚨 BUG CRITIQUE - Dashboard non synchronisé avec les tâches
+
+**Date**: 2026-01-16 03:02 UTC
+**Sévérité**: CRITIQUE
+
+### Problème:
+Le dashboard affiche des données **INCOHÉRENTES** avec la page Tâches.
+
+### Reproduction:
+1. Page Tâches → affiche "3 tâches à gérer"
+   - Payer la facture EDF
+   - Faire les devoirs
+   - Acheter du lait
+2. Dashboard → affiche:
+   - "Aujourd'hui: 0 à faire" ❌
+   - "Cette semaine: 0 tâches" ❌
+   - "Bravo, tout est fait !" ❌
+
+### Impact:
+- L'utilisateur pense qu'il n'a rien à faire
+- Les compteurs sont FAUX
+- Perte de confiance dans l'app
+
+### Cause probable:
+1. Les tâches créées via MagicNotepad n'ont pas de `deadline` → pas comptées dans "Aujourd'hui"
+2. Le compteur "Cette semaine" ne compte que les tâches avec deadline dans la semaine
+3. Les tâches "Sans date" ne sont comptées nulle part sur le dashboard
+
+### Solution:
+1. Ajouter un compteur "Tâches sans date" ou "À planifier"
+2. OU inclure les tâches sans date dans "À faire"
+3. Le message "Bravo" ne doit s'afficher QUE si vraiment 0 tâches actives
+
+**FIXER IMMÉDIATEMENT - L'APP EST INUTILISABLE SINON**

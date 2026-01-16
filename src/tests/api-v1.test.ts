@@ -8,10 +8,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { NextRequest } from "next/server"
 
-// Mock database module
-const mockQuery = vi.fn()
-const mockQueryOne = vi.fn()
-const mockSetCurrentUser = vi.fn()
+// Mock database module using vi.hoisted to ensure proper initialization order
+const { mockQuery, mockQueryOne, mockSetCurrentUser } = vi.hoisted(() => ({
+  mockQuery: vi.fn(),
+  mockQueryOne: vi.fn(),
+  mockSetCurrentUser: vi.fn(),
+}))
 
 vi.mock("@/lib/aws/database", () => ({
   query: mockQuery,

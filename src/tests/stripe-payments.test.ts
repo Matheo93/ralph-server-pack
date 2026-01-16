@@ -7,45 +7,49 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest"
 
-// Mock database
-vi.mock("@/lib/aws/database", () => ({
-  query: vi.fn(),
-  queryOne: vi.fn(),
-  setCurrentUser: vi.fn(),
+// Create mock stripe object using vi.hoisted
+const { mockStripeClient, mockQuery, mockQueryOne } = vi.hoisted(() => ({
+  mockQuery: vi.fn(),
+  mockQueryOne: vi.fn(),
+  mockStripeClient: {
+    subscriptions: {
+      retrieve: vi.fn(),
+      update: vi.fn(),
+      list: vi.fn(),
+    },
+    customers: {
+      create: vi.fn(),
+      retrieve: vi.fn(),
+    },
+    checkout: {
+      sessions: {
+        create: vi.fn(),
+      },
+    },
+    billingPortal: {
+      sessions: {
+        create: vi.fn(),
+      },
+    },
+    invoices: {
+      list: vi.fn(),
+      createPreview: vi.fn(),
+    },
+    paymentMethods: {
+      retrieve: vi.fn(),
+    },
+    webhooks: {
+      constructEvent: vi.fn(),
+    },
+  },
 }))
 
-// Create mock stripe object
-const mockStripeClient = {
-  subscriptions: {
-    retrieve: vi.fn(),
-    update: vi.fn(),
-    list: vi.fn(),
-  },
-  customers: {
-    create: vi.fn(),
-    retrieve: vi.fn(),
-  },
-  checkout: {
-    sessions: {
-      create: vi.fn(),
-    },
-  },
-  billingPortal: {
-    sessions: {
-      create: vi.fn(),
-    },
-  },
-  invoices: {
-    list: vi.fn(),
-    createPreview: vi.fn(),
-  },
-  paymentMethods: {
-    retrieve: vi.fn(),
-  },
-  webhooks: {
-    constructEvent: vi.fn(),
-  },
-}
+// Mock database
+vi.mock("@/lib/aws/database", () => ({
+  query: mockQuery,
+  queryOne: mockQueryOne,
+  setCurrentUser: vi.fn(),
+}))
 
 // Inline the real implementations to avoid mock pollution
 // This must match src/lib/stripe/client.ts exactly
@@ -110,9 +114,8 @@ import {
   getPaymentMethod,
 } from "@/lib/stripe/checkout"
 
-const mockQuery = query as ReturnType<typeof vi.fn>
-const mockQueryOne = queryOne as ReturnType<typeof vi.fn>
-const mockStripe = stripe as unknown as typeof mockStripeClient
+// Use mockStripeClient directly as mockStripe for tests
+const mockStripe = mockStripeClient
 
 describe("Stripe Webhooks", () => {
   beforeEach(() => {
@@ -513,8 +516,9 @@ describe("Map Stripe Status", () => {
 })
 
 describe("Pricing Configuration", () => {
-  it("should have correct price configuration", () => {
-    const { PRICE_CONFIG } = require("@/lib/stripe/client")
+  it("should have correct price configuration", async () => {
+    // Use dynamic import to get mocked values
+    const { PRICE_CONFIG } = await import("@/lib/stripe/client")
 
     expect(PRICE_CONFIG.amount).toBe(400)
     expect(PRICE_CONFIG.currency).toBe("eur")
