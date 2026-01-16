@@ -1,38 +1,20 @@
-# CLAUDE.md - Instructions RALPH
+# CLAUDE.md - FEATURES RESTANTES
 
-## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
+## À VÉRIFIER/IMPLÉMENTER
 
-❌ Landing page error: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com
-❌ Dashboard error: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com/dashboard
-❌ Settings household error: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com/settings/household
-❌ Children error: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com/children
-  ❌ Landing page: net::ERR_NAME_NOT_RESOLVED at https://gather-cage-helping-candles.trycloudflare.com
+### 1. ❓ MICRO - DEMANDE DE PERMISSION
+Le micro doit demander la permission au navigateur.
+Tester sur https://quality-cartridges-tom-sandy.trycloudflare.com
 
----
+### 2. ❓ ENFANT LIÉ AUX TÂCHES  
+L'enfant doit être vraiment relié:
+- Filtrer tâches par enfant
+- Voir les tâches d'un enfant spécifique
 
-## APRÈS CHAQUE CORRECTION, EXÉCUTE:
-```bash
-node test-auto.js
-```
-
----
-
-## FEATURES À IMPLÉMENTER
-
-1. Animation landing page (style entraide-souverainiste)
-2. Suggestions quand dashboard vide (Chat rapide / Templates)
-3. Smooth scroll (html { scroll-behavior: smooth; })
-4. PWA complète (manifest.json, service worker, icônes)
-5. Enfant relié aux tâches (filtrer, afficher sur tâches)
-
----
+### 3. ❓ PWA INSTALLABLE
+Vérifier que l'app est installable sur mobile.
 
 ## WORKFLOW
-1. git pull
-2. Corriger UN bug
-3. bun run build
-4. node test-auto.js
-5. Si OK: git commit && git push
-6. Recommencer
-
-⚠️ NE JAMAIS COMMIT SANS TESTER!
+1. Tester avec Puppeteer: `node test-auto.js`
+2. Corriger si nécessaire
+3. `git commit && git push`
