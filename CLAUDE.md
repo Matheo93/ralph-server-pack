@@ -2,11 +2,11 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Dashboard error: Navigation timeout of 30000 ms exceeded
-❌ Settings household error: Navigating frame was detached
-❌ Children error: Attempted to use detached Frame 'AA9185773FEDA762CE3FE046B8CC0651'.
-  ❌ Dashboard: Navigation timeout of 30000 ms exceeded
-  ❌ Settings household: Navigating frame was detached
+❌ Landing page error: net::ERR_CONNECTION_REFUSED at http://localhost:3000
+❌ Dashboard error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/dashboard
+❌ Settings household error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/settings/household
+❌ Children error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/children
+  ❌ Landing page: net::ERR_CONNECTION_REFUSED at http://localhost:3000
 
 ---
 
