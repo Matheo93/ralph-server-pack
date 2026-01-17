@@ -245,4 +245,12 @@ Pas de nouveau commit détecté dans familyload.
 
 ---
 
-*Dernière mise à jour: 2026-01-17 - Boucle 7*
+## Boucle 8 - Stable (après 35 min)
+
+**Mémoire:** 81% (335/415 MB) - Légère hausse, stable
+**Pages testées:** /signup ✅
+**Nouveaux commits:** Non
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 8*
