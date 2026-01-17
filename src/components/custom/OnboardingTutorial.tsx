@@ -2,17 +2,15 @@
 
 /**
  * OnboardingTutorial - Interactive tutorial for new users
- * Uses react-joyride to guide users through the app features
+ * Simple custom implementation for React 19 compatibility
  */
 
 import { useState, useEffect, useCallback } from "react"
-import dynamic from "next/dynamic"
 import { motion, AnimatePresence } from "framer-motion"
 import { WelcomeAnimation } from "./WelcomeAnimation"
-import type { CallBackProps, Step, Styles } from "react-joyride"
-
-// Dynamic import to avoid SSR issues
-const Joyride = dynamic(() => import("react-joyride"), { ssr: false })
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ChevronLeft, ChevronRight, X } from "lucide-react"
 
 const STORAGE_KEY = "familyload_onboarding_completed"
 const FIRST_LOGIN_KEY = "familyload_is_first_login"
@@ -22,110 +20,43 @@ interface OnboardingTutorialProps {
   isFirstLogin?: boolean
 }
 
-// Tutorial steps
-const tutorialSteps: Step[] = [
-  {
-    target: "#main-content",
-    content: "Voici votre tableau de bord. Vous y trouverez un aperçu de toutes vos tâches et de votre charge mentale.",
-    placement: "center",
-    disableBeacon: true,
-    title: "Tableau de bord",
-  },
-  {
-    target: '[data-tour="nav-children"]',
-    content: "Ajoutez vos enfants ici pour personnaliser les tâches selon leur âge et leurs activités.",
-    placement: "right",
-    title: "Vos enfants",
-  },
-  {
-    target: '[data-tour="fab-button"]',
-    content: "Créez facilement de nouvelles tâches en cliquant sur ce bouton. Vous pouvez aussi utiliser la commande vocale !",
-    placement: "top",
-    title: "Ajouter une tâche",
-  },
-  {
-    target: '[data-tour="nav-charge"]',
-    content: "Analysez la répartition de la charge mentale entre les parents pour un meilleur équilibre.",
-    placement: "right",
-    title: "Charge mentale",
-  },
-  {
-    target: '[data-tour="header-streak"]',
-    content: "Maintenez votre série en complétant vos tâches chaque jour. Plus la série est longue, plus vous progressez !",
-    placement: "bottom",
-    title: "Votre série",
-  },
-]
-
-// Fallback steps if elements not found
-const fallbackSteps: Step[] = [
-  {
-    target: "body",
-    content: "Bienvenue dans FamilyLoad ! Cette application vous aide à gérer la charge mentale parentale de manière équilibrée.",
-    placement: "center",
-    disableBeacon: true,
-    title: "Bienvenue !",
-  },
-  {
-    target: "body",
-    content: "Commencez par ajouter vos enfants depuis le menu latéral, puis créez vos premières tâches.",
-    placement: "center",
-    title: "Premiers pas",
-  },
-  {
-    target: "body",
-    content: "Utilisez le bouton + en bas à droite pour créer rapidement des tâches, ou utilisez la commande vocale.",
-    placement: "center",
-    title: "Créer des tâches",
-  },
-]
-
-// Custom styles for the tutorial
-const joyrideStyles: Partial<Styles> = {
-  options: {
-    primaryColor: "hsl(var(--primary))",
-    zIndex: 10000,
-    arrowColor: "hsl(var(--card))",
-    backgroundColor: "hsl(var(--card))",
-    textColor: "hsl(var(--card-foreground))",
-    overlayColor: "rgba(0, 0, 0, 0.5)",
-  },
-  tooltip: {
-    borderRadius: 12,
-    padding: 20,
-  },
-  tooltipTitle: {
-    fontSize: 18,
-    fontWeight: 600,
-    marginBottom: 8,
-  },
-  tooltipContent: {
-    fontSize: 14,
-    lineHeight: 1.6,
-  },
-  buttonNext: {
-    backgroundColor: "hsl(var(--primary))",
-    borderRadius: 8,
-    padding: "10px 20px",
-    fontSize: 14,
-    fontWeight: 500,
-  },
-  buttonBack: {
-    color: "hsl(var(--muted-foreground))",
-    marginRight: 10,
-  },
-  buttonSkip: {
-    color: "hsl(var(--muted-foreground))",
-  },
-  spotlight: {
-    borderRadius: 8,
-  },
+interface TutorialStep {
+  title: string
+  content: string
+  target?: string
 }
+
+// Tutorial steps
+const tutorialSteps: TutorialStep[] = [
+  {
+    title: "Tableau de bord",
+    content: "Voici votre tableau de bord. Vous y trouverez un apercu de toutes vos taches et de votre charge mentale.",
+  },
+  {
+    title: "Vos enfants",
+    content: "Ajoutez vos enfants depuis le menu lateral pour personnaliser les taches selon leur age et leurs activites.",
+    target: '[data-tour="nav-children"]',
+  },
+  {
+    title: "Ajouter une tache",
+    content: "Creez facilement de nouvelles taches avec le bouton + en bas a droite. Vous pouvez aussi utiliser la commande vocale !",
+    target: '[data-tour="fab-button"]',
+  },
+  {
+    title: "Charge mentale",
+    content: "Analysez la repartition de la charge mentale entre les parents pour un meilleur equilibre.",
+    target: '[data-tour="nav-charge"]',
+  },
+  {
+    title: "Votre serie",
+    content: "Maintenez votre serie en completant vos taches chaque jour. Plus la serie est longue, plus vous progressez !",
+    target: '[data-tour="header-streak"]',
+  },
+]
 
 export function OnboardingTutorial({ userName, isFirstLogin }: OnboardingTutorialProps) {
   const [showWelcome, setShowWelcome] = useState(false)
   const [runTutorial, setRunTutorial] = useState(false)
-  const [steps, setSteps] = useState<Step[]>([])
   const [stepIndex, setStepIndex] = useState(0)
   const [isMounted, setIsMounted] = useState(false)
 
@@ -146,37 +77,6 @@ export function OnboardingTutorial({ userName, isFirstLogin }: OnboardingTutoria
     }
   }, [isFirstLogin])
 
-  // Check which elements exist and create appropriate steps
-  useEffect(() => {
-    if (!runTutorial) return
-
-    const checkElements = () => {
-      const availableSteps: Step[] = []
-
-      tutorialSteps.forEach((step) => {
-        if (step.target === "body" || step.target === "#main-content") {
-          availableSteps.push(step)
-        } else {
-          const element = document.querySelector(step.target as string)
-          if (element) {
-            availableSteps.push(step)
-          }
-        }
-      })
-
-      // If no specific elements found, use fallback
-      if (availableSteps.length <= 1) {
-        setSteps(fallbackSteps)
-      } else {
-        setSteps(availableSteps)
-      }
-    }
-
-    // Wait a bit for DOM to be ready
-    const timer = setTimeout(checkElements, 500)
-    return () => clearTimeout(timer)
-  }, [runTutorial])
-
   const handleWelcomeComplete = useCallback(() => {
     setShowWelcome(false)
     setRunTutorial(true)
@@ -187,24 +87,32 @@ export function OnboardingTutorial({ userName, isFirstLogin }: OnboardingTutoria
     localStorage.setItem(STORAGE_KEY, "true")
   }, [])
 
-  const handleJoyrideCallback = useCallback((data: CallBackProps) => {
-    const { status, index, type } = data
-
-    if (type === "step:after") {
-      setStepIndex(index + 1)
-    }
-
-    // Tutorial finished or skipped
-    if (status === "finished" || status === "skipped") {
+  const handleNext = useCallback(() => {
+    if (stepIndex < tutorialSteps.length - 1) {
+      setStepIndex(stepIndex + 1)
+    } else {
       setRunTutorial(false)
       localStorage.setItem(STORAGE_KEY, "true")
     }
+  }, [stepIndex])
+
+  const handleBack = useCallback(() => {
+    if (stepIndex > 0) {
+      setStepIndex(stepIndex - 1)
+    }
+  }, [stepIndex])
+
+  const handleSkip = useCallback(() => {
+    setRunTutorial(false)
+    localStorage.setItem(STORAGE_KEY, "true")
   }, [])
 
   // Don't render until mounted (avoid hydration issues)
   if (!isMounted) {
     return null
   }
+
+  const currentStep = tutorialSteps[stepIndex]
 
   return (
     <>
@@ -219,29 +127,83 @@ export function OnboardingTutorial({ userName, isFirstLogin }: OnboardingTutoria
         )}
       </AnimatePresence>
 
-      {/* Joyride Tutorial */}
-      {runTutorial && steps.length > 0 && (
-        <Joyride
-          steps={steps}
-          stepIndex={stepIndex}
-          run={runTutorial}
-          continuous
-          showSkipButton
-          showProgress
-          callback={handleJoyrideCallback}
-          styles={joyrideStyles}
-          locale={{
-            back: "Retour",
-            close: "Fermer",
-            last: "Terminer",
-            next: "Suivant",
-            skip: "Passer",
-          }}
-          floaterProps={{
-            disableAnimation: false,
-          }}
-        />
-      )}
+      {/* Tutorial Dialog */}
+      <AnimatePresence>
+        {runTutorial && currentStep && (
+          <>
+            {/* Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-[9999]"
+              onClick={handleSkip}
+            />
+
+            {/* Tutorial Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[10000] w-[90vw] max-w-md"
+            >
+              <Card className="shadow-2xl">
+                <CardHeader className="relative pb-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-2"
+                    onClick={handleSkip}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <CardTitle className="text-lg">{currentStep.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground">{currentStep.content}</p>
+
+                  {/* Progress dots */}
+                  <div className="flex items-center justify-center gap-1.5 py-2">
+                    {tutorialSteps.map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={`h-2 w-2 rounded-full transition-colors ${
+                          idx === stepIndex
+                            ? "bg-primary"
+                            : idx < stepIndex
+                            ? "bg-primary/50"
+                            : "bg-muted"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Navigation */}
+                  <div className="flex items-center justify-between">
+                    <Button
+                      variant="ghost"
+                      onClick={handleBack}
+                      disabled={stepIndex === 0}
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Retour
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {stepIndex + 1} / {tutorialSteps.length}
+                    </span>
+                    <Button onClick={handleNext}>
+                      {stepIndex === tutorialSteps.length - 1 ? "Terminer" : "Suivant"}
+                      {stepIndex < tutorialSteps.length - 1 && (
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   )
 }

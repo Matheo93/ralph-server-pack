@@ -55,7 +55,6 @@
     "react-day-picker": "^9.13.0",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
-    "react-joyride": "^2.9.3",
     "stripe": "^20.1.2",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.5"
