@@ -2,11 +2,11 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Landing page error: Protocol error (Runtime.callFunctionOn): Target closed
-❌ Dashboard error: Attempted to use detached Frame '09525CD0289BB4E451C382D50F918EB6'.
-❌ Settings household error: Attempted to use detached Frame '09525CD0289BB4E451C382D50F918EB6'.
-❌ Children error: Attempted to use detached Frame '09525CD0289BB4E451C382D50F918EB6'.
-  ❌ Landing page: Protocol error (Runtime.callFunctionOn): Target closed
+❌ Dashboard error: Navigation timeout of 30000 ms exceeded
+❌ Settings household error: Navigating frame was detached
+❌ Children error: Attempted to use detached Frame 'AA9185773FEDA762CE3FE046B8CC0651'.
+  ❌ Dashboard: Navigation timeout of 30000 ms exceeded
+  ❌ Settings household: Navigating frame was detached
 
 ---
 
