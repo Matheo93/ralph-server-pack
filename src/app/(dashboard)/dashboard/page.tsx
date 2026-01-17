@@ -3,6 +3,7 @@ import { getChildren } from "@/lib/actions/children"
 import { getHousehold } from "@/lib/actions/household"
 import { getTodayTasks, getWeekTasks, getOverdueTasks, getUnscheduledTasks, getAllPendingTasksCount } from "@/lib/actions/tasks"
 import { getHouseholdBalance, getWeeklyChartData, getChargeHistory } from "@/lib/services/charge"
+import { getKidsPendingCounts } from "@/lib/actions/kids-notifications"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,13 +15,14 @@ import { ChargeBalance } from "@/components/custom/ChargeBalance"
 import { ChargeWeekChart } from "@/components/custom/ChargeWeekChart"
 import { ChargeHistoryCard } from "@/components/custom/ChargeHistoryCard"
 import { InviteCoParentCTA } from "@/components/custom/InviteCoParentCTA"
+import { KidsPendingBanner } from "@/components/custom/KidsPendingBanner"
 
 // Force dynamic rendering to ensure fresh data on each request
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 export default async function DashboardPage() {
-  const [children, membership, todayTasks, weekTasks, overdueTasks, unscheduledTasks, taskCounts, balance, weekChartData, chargeHistory] =
+  const [children, membership, todayTasks, weekTasks, overdueTasks, unscheduledTasks, taskCounts, balance, weekChartData, chargeHistory, kidsPending] =
     await Promise.all([
       getChildren(),
       getHousehold(),
@@ -32,6 +34,7 @@ export default async function DashboardPage() {
       getHouseholdBalance(),
       getWeeklyChartData(),
       getChargeHistory(),
+      getKidsPendingCounts(),
     ])
 
   const household = membership?.households as {
@@ -156,6 +159,16 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Kids pending notifications */}
+      {kidsPending.total > 0 && (
+        <div className="mb-8">
+          <KidsPendingBanner
+            pendingProofs={kidsPending.pendingProofs}
+            pendingRedemptions={kidsPending.pendingRedemptions}
+          />
+        </div>
+      )}
 
       {/* CTA Invite co-parent - Only shown if single parent */}
       {balance && balance.members.length < 2 && (
