@@ -76,16 +76,18 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold text-primary">{taskCounts.total}</span>
-              <span className="text-muted-foreground">tâche{taskCounts.total > 1 ? "s" : ""}</span>
+              <span className="text-muted-foreground">tâche{taskCounts.total > 1 ? "s" : ""} en cours</span>
             </div>
             {taskCounts.unscheduled > 0 && (
               <Link href="/tasks?filter=unscheduled" className="text-xs text-orange-600 hover:text-orange-700 mt-1 inline-flex items-center gap-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                {taskCounts.unscheduled === 1
-                  ? "1 tâche à planifier"
-                  : `${taskCounts.unscheduled} tâches à planifier`}
+                {taskCounts.unscheduled === taskCounts.total
+                  ? `${taskCounts.unscheduled === 1 ? "À planifier" : "Toutes à planifier"}`
+                  : taskCounts.unscheduled === 1
+                    ? "1 à planifier"
+                    : `${taskCounts.unscheduled} à planifier`}
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
