@@ -432,4 +432,39 @@ Note: Serveur continue de répondre malgré mémoire critique à 97%.
 
 ---
 
-*Dernière mise à jour: 2026-01-17 - Boucle 19*
+## [INCIDENT] Boucle 20 - CRASH + RESTART
+
+**Heure:** 2026-01-17 05:10 UTC
+
+### Événement
+🔴 **SERVEUR CRASHÉ** - ERR_CONNECTION_REFUSED
+- Cause probable: Mémoire critique à 97% (boucle 19)
+- PM2 montrait aucun processus actif
+
+### Action
+✅ **RESTART via PM2** - `pm2 start "bun run dev"`
+- Serveur redémarré avec succès
+- Status HTTP 200 confirmé
+
+### État Après Restart
+```json
+{
+  "status": "degraded",
+  "memory": "86% (162/188 MB)",
+  "database": "ok (43ms)",
+  "redis": "ok"
+}
+```
+
+### Pages Testées Après Restart
+- / (Landing): ✅
+- /signup: ✅
+
+### Conclusion
+- La mémoire à 97% a finalement causé un crash
+- Le restart a résolu le problème
+- Mémoire redescendue à 86%
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 20 (CRASH + RESTART)*
