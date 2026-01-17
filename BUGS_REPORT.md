@@ -149,4 +149,32 @@ Pas de nouveau commit détecté dans familyload.
 
 ---
 
-*Dernière mise à jour: 2026-01-17 - Boucle 3*
+## [URGENT] Boucle 4 - Mémoire CRITIQUE (après 15 min)
+
+**Heure:** ~15 min après premier test
+
+### API Health - STATUS UNHEALTHY
+```json
+{
+  "status": "unhealthy",
+  "checks": {
+    "database": {"status": "ok", "latency": 82},
+    "redis": {"status": "ok"},
+    "memory": {"status": "error", "message": "Memory critical: 217MB / 228MB (95%)"}
+  }
+}
+```
+
+### Action Requise
+- **MEMORY LEAK potentiel** ou charge excessive
+- Mémoire passée de 90% à 95% en 5 minutes
+- Le serveur Next.js peut planter si ça continue
+
+### Recommandation
+1. Vérifier les processus avec `pm2 monit` ou `top`
+2. Considérer restart du serveur: `pm2 restart all`
+3. Investiguer cause du leak mémoire
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 4 [URGENT]*
