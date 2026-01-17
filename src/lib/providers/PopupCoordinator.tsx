@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react"
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react"
 
 /**
  * PopupCoordinator - Coordinates multiple popups/prompts to avoid overwhelming users
@@ -12,8 +12,9 @@ import { createContext, useContext, useState, useCallback, ReactNode, useEffect 
  *
  * Rules:
  * - Only one popup visible at a time
- * - Delay between popups (5 seconds minimum)
- * - User dismissal respected
+ * - Minimum delay between popups (30 seconds)
+ * - User dismissal respected (saved to localStorage for 7 days)
+ * - Initial delay of 60 seconds before showing any popup
  */
 
 type PopupType = "push-notification" | "pwa-install" | "invite-coparent"
@@ -33,8 +34,8 @@ interface PopupCoordinatorContextValue {
 
 const PopupCoordinatorContext = createContext<PopupCoordinatorContextValue | null>(null)
 
-const POPUP_DELAY_MS = 15000 // 15 seconds between popups - give user time to focus on content
-const INITIAL_DELAY_MS = 30000 // 30 seconds initial delay before showing any popup
+const POPUP_DELAY_MS = 45000 // 45 seconds between popups (more breathing room)
+const INITIAL_DELAY_MS = 90000 // 90 seconds initial delay (let user settle in first)
 const STORAGE_PREFIX = "familyload_popup_"
 
 // Priority order - lower index = higher priority
@@ -54,8 +55,9 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
     queue: [],
     dismissed: new Set()
   })
-  const [lastDismissTime, setLastDismissTime] = useState<number>(0)
+  const [lastPopupTime, setLastPopupTime] = useState<number>(0) // Track when a popup was shown
   const [isInitialized, setIsInitialized] = useState(false)
+  const processingRef = useRef(false) // Prevent race conditions
 
   // Load dismissed state from localStorage and set initial delay
   useEffect(() => {
@@ -77,7 +79,6 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
     setState(prev => ({ ...prev, dismissed }))
 
     // Initial delay before allowing any popups to show
-    // This gives the user time to see the page content first
     const initTimer = setTimeout(() => {
       setIsInitialized(true)
     }, INITIAL_DELAY_MS)
@@ -87,18 +88,31 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
 
   // Process queue when current popup is null and enough time has passed
   useEffect(() => {
-    // Don't process queue until initialized (initial delay passed)
+    // Don't process queue until initialized
     if (!isInitialized) return
     if (state.currentPopup !== null || state.queue.length === 0) return
+    if (processingRef.current) return // Prevent race conditions
 
-    const timeSinceLastDismiss = Date.now() - lastDismissTime
-    const delay = lastDismissTime === 0 ? 0 : Math.max(0, POPUP_DELAY_MS - timeSinceLastDismiss)
+    const timeSinceLastPopup = Date.now() - lastPopupTime
+    // Always enforce the delay, even for the first popup after initialization
+    const delay = lastPopupTime === 0
+      ? 0 // First popup after init shows immediately
+      : Math.max(0, POPUP_DELAY_MS - timeSinceLastPopup)
+
+    processingRef.current = true
 
     const timer = setTimeout(() => {
       setState(prev => {
         // Get next popup from queue that isn't dismissed
         const nextPopup = prev.queue.find(p => !prev.dismissed.has(p))
-        if (!nextPopup) return { ...prev, queue: [] }
+        if (!nextPopup) {
+          processingRef.current = false
+          return { ...prev, queue: [] }
+        }
+
+        // Record when this popup was shown
+        setLastPopupTime(Date.now())
+        processingRef.current = false
 
         return {
           ...prev,
@@ -108,8 +122,11 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
       })
     }, delay)
 
-    return () => clearTimeout(timer)
-  }, [state.currentPopup, state.queue, lastDismissTime, isInitialized])
+    return () => {
+      clearTimeout(timer)
+      processingRef.current = false
+    }
+  }, [state.currentPopup, state.queue, lastPopupTime, isInitialized])
 
   const requestPopup = useCallback((type: PopupType) => {
     setState(prev => {
@@ -119,19 +136,26 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
       // Don't add if already showing or in queue
       if (prev.currentPopup === type || prev.queue.includes(type)) return prev
 
-      // If no current popup AND initialized, show immediately
-      if (prev.currentPopup === null && isInitialized) {
+      // If no current popup AND initialized AND no recent popup, show immediately
+      const timeSinceLastPopup = Date.now() - lastPopupTime
+      const canShowNow = prev.currentPopup === null &&
+                         isInitialized &&
+                         prev.queue.length === 0 &&
+                         (lastPopupTime === 0 || timeSinceLastPopup >= POPUP_DELAY_MS)
+
+      if (canShowNow) {
+        setLastPopupTime(Date.now())
         return { ...prev, currentPopup: type }
       }
 
-      // Add to queue in priority order (will be processed when initialized)
+      // Add to queue in priority order
       const newQueue = [...prev.queue, type].sort(
         (a, b) => POPUP_PRIORITY.indexOf(a) - POPUP_PRIORITY.indexOf(b)
       )
 
       return { ...prev, queue: newQueue }
     })
-  }, [isInitialized])
+  }, [isInitialized, lastPopupTime])
 
   const dismissPopup = useCallback((type: PopupType, permanent = true) => {
     setState(prev => {
@@ -154,7 +178,7 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
         dismissed: newDismissed
       }
     })
-    setLastDismissTime(Date.now())
+    setLastPopupTime(Date.now())
   }, [])
 
   const isPopupAllowed = useCallback((type: PopupType) => {
