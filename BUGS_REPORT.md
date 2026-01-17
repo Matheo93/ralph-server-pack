@@ -177,4 +177,31 @@ Pas de nouveau commit détecté dans familyload.
 
 ---
 
-*Dernière mise à jour: 2026-01-17 - Boucle 4 [URGENT]*
+## Boucle 5 - Monitoring continu (après 20 min)
+
+**Heure:** ~20 min après premier test
+
+### API Health
+```json
+{
+  "status": "unhealthy",
+  "checks": {
+    "database": {"status": "ok", "latency": 34},
+    "memory": {"status": "error", "message": "Memory critical: 463MB / 501MB (93%)"}
+  }
+}
+```
+
+### Observation
+- La mémoire totale a augmenté (501MB vs 228MB précédemment)
+- Le pourcentage est passé de 95% à 93%
+- Le serveur répond toujours normalement
+- Beaucoup de Fast Refresh (HMR) dans les logs - normal en dev mode
+
+### Pages toujours OK
+- / (Landing): ✅
+- Serveur répond bien malgré status "unhealthy"
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 5*
