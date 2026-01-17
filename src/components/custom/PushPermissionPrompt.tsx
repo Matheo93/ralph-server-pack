@@ -117,7 +117,7 @@ export function PushPermissionPrompt({
     if (permission === "default") {
       const timer = setTimeout(() => {
         popupCoordinator.requestPopup("push-notification")
-      }, 60000) // 60 seconds - first popup (highest priority), coordinator handles sequencing
+      }, 300000) // 5 minutes - first popup (highest priority), coordinator handles sequencing
       return () => clearTimeout(timer)
     }
   }, [showAfterMs, popupCoordinator])
