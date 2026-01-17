@@ -41,8 +41,8 @@ const suggestions: Suggestion[] = [
     description: "Utilisez des modèles pré-configurés",
     icon: FileText,
     href: "/settings/templates",
-    color: "text-purple-600",
-    bgColor: "bg-purple-100",
+    color: "text-slate-600",
+    bgColor: "bg-slate-100",
   },
   {
     id: "new-task",

@@ -182,7 +182,7 @@ export function ChildTimeline({
         <StatCard
           label="Points"
           value={stats.totalPoints}
-          color="text-purple-600"
+          color="text-amber-600"
           icon={<TrendingUp className="h-4 w-4" />}
         />
       </div>
@@ -586,9 +586,9 @@ function TimelineItem({ task }: { task: TimelineTask }) {
 function EventItem({ event }: { event: TimelineEvent }) {
   const typeStyles = {
     milestone: {
-      bg: "bg-purple-50",
-      border: "border-purple-200",
-      icon: <Sparkles className="h-4 w-4 text-purple-500" />,
+      bg: "bg-amber-50",
+      border: "border-amber-200",
+      icon: <Sparkles className="h-4 w-4 text-amber-500" />,
     },
     vaccination: {
       bg: "bg-red-50",

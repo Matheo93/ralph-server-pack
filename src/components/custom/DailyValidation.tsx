@@ -38,7 +38,7 @@ export interface DailyValidationProps {
 const CATEGORY_COLORS: Record<string, string> = {
   ecole: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
   sante: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-  administratif: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+  administratif: "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200",
   quotidien: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
   social: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
   activites: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",

@@ -71,7 +71,7 @@ export default async function TasksPage({ searchParams }: PageProps) {
           </TemplateSelector>
           <Link href="/tasks/new">
             <Button size="sm" className="sm:h-10 sm:px-4 sm:py-2">
-              Nouvelle tache
+              Nouvelle tâche
             </Button>
           </Link>
         </div>

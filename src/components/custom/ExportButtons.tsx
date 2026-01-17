@@ -26,7 +26,7 @@ type PeriodType = "week" | "month" | "quarter"
 type ExportType = "charge" | "tasks-history"
 
 const PERIOD_LABELS: Record<PeriodType, string> = {
-  week: "Derniere semaine",
+  week: "Dernière semaine",
   month: "Dernier mois",
   quarter: "Dernier trimestre",
 }
@@ -137,7 +137,7 @@ export function ExportButtons({ className, isPremium = false }: ExportButtonsPro
 
           <DropdownMenuLabel className="flex items-center">
             <ClipboardList className="mr-2 h-4 w-4" />
-            Historique des Taches
+            Historique des Tâches
           </DropdownMenuLabel>
           {(["week", "month", "quarter"] as const).map((period) => (
             <DropdownMenuItem
@@ -166,7 +166,7 @@ export function ExportButtons({ className, isPremium = false }: ExportButtonsPro
               Export PDF
             </DialogTitle>
             <DialogDescription className="text-center">
-              L&apos;export PDF est une fonctionnalite Premium. Exportez vos rapports de charge mentale et l&apos;historique des taches en PDF.
+              L&apos;export PDF est une fonctionnalité Premium. Exportez vos rapports de charge mentale et l&apos;historique des tâches en PDF.
             </DialogDescription>
           </DialogHeader>
 

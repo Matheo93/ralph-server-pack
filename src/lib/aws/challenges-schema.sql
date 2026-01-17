@@ -1,10 +1,10 @@
 -- ============================================================
--- FAMILYLOAD CHALLENGES - Systeme de Defis/Quetes XP
--- Tables pour challenges personnalises et templates
+-- FAMILYLOAD CHALLENGES - Système de Défis/Quêtes XP
+-- Tables pour challenges personnalisés et templates
 -- ============================================================
 
 -- ============================================================
--- CHALLENGE TEMPLATES (Templates predefinis)
+-- CHALLENGE TEMPLATES (Templates prédéfinis)
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS challenge_templates (
@@ -36,19 +36,19 @@ CREATE TABLE IF NOT EXISTS challenge_templates (
 -- Insert templates de base
 INSERT INTO challenge_templates (slug, name_fr, name_en, description_fr, description_en, icon, trigger_type, trigger_task_keyword, required_count, timeframe_days, reward_xp, difficulty, sort_order) VALUES
 ('chambre_impeccable', 'Chambre Impeccable', 'Spotless Room', 'Range ta chambre 3 fois cette semaine', 'Clean your room 3 times this week', '🛏️', 'task_any', 'chambre,ranger,room,clean', 3, 7, 75, 'easy', 1),
-('rat_bibliotheque', 'Rat de Bibliotheque', 'Bookworm', 'Lis 5 fois cette semaine', 'Read 5 times this week', '📚', 'task_any', 'lire,lecture,read,book', 5, 7, 100, 'medium', 2),
-('sourire_eclatant', 'Sourire Eclatant', 'Sparkling Smile', 'Brosse tes dents 14 fois en une semaine (matin et soir)', 'Brush your teeth 14 times in a week (morning and evening)', '🦷', 'task_any', 'dents,teeth,brosse,brush', 14, 7, 150, 'medium', 3),
+('rat_bibliotheque', 'Rat de Bibliothèque', 'Bookworm', 'Lis 5 fois cette semaine', 'Read 5 times this week', '📚', 'task_any', 'lire,lecture,read,book', 5, 7, 100, 'medium', 2),
+('sourire_eclatant', 'Sourire Éclatant', 'Sparkling Smile', 'Brosse tes dents 14 fois en une semaine (matin et soir)', 'Brush your teeth 14 times in a week (morning and evening)', '🦷', 'task_any', 'dents,teeth,brosse,brush', 14, 7, 150, 'medium', 3),
 ('chef_cuistot', 'Chef Cuistot', 'Little Chef', 'Aide a la cuisine 3 fois', 'Help in the kitchen 3 times', '🍽️', 'task_any', 'cuisine,kitchen,cook,repas', 3, 14, 100, 'medium', 4),
 ('ami_animaux', 'Ami des Animaux', 'Pet Pal', 'Promene le chien ou nourris les animaux 7 fois', 'Walk the dog or feed pets 7 times', '🐕', 'task_any', 'chien,dog,animal,pet,promener,walk', 7, 14, 125, 'medium', 5),
-('super_helper', 'Super Helper', 'Super Helper', 'Complete 10 taches de n''importe quel type', 'Complete 10 tasks of any type', '🦸', 'task_any', NULL, 10, 7, 200, 'hard', 6),
+('super_helper', 'Super Helper', 'Super Helper', 'Complète 10 tâches de n''importe quel type', 'Complete 10 tasks of any type', '🦸', 'task_any', NULL, 10, 7, 200, 'hard', 6),
 ('devoir_champion', 'Champion des Devoirs', 'Homework Champion', 'Fais tes devoirs 5 jours de suite', 'Do your homework 5 days in a row', '📝', 'task_any', 'devoir,homework,ecole,school', 5, 7, 150, 'hard', 7),
 ('eco_warrior', 'Eco Warrior', 'Eco Warrior', 'Participe au tri ou recyclage 5 fois', 'Help with sorting or recycling 5 times', '♻️', 'task_any', 'tri,recycle,poubelle,trash', 5, 14, 100, 'medium', 8),
 ('rangement_expert', 'Expert du Rangement', 'Tidying Expert', 'Range ou nettoie 7 fois', 'Tidy or clean 7 times', '🧹', 'task_any', 'ranger,nettoyer,clean,tidy', 7, 14, 125, 'medium', 9),
-('early_bird', 'Leve-tot', 'Early Bird', 'Complete une tache avant 9h, 5 fois', 'Complete a task before 9am, 5 times', '🌅', 'task_any', NULL, 5, 7, 100, 'hard', 10)
+('early_bird', 'Lève-tôt', 'Early Bird', 'Complète une tâche avant 9h, 5 fois', 'Complete a task before 9am, 5 times', '🌅', 'task_any', NULL, 5, 7, 100, 'hard', 10)
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================
--- CHALLENGES (Defis actifs/completes)
+-- CHALLENGES (Défis actifs/complétés)
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS challenges (
@@ -220,7 +220,7 @@ CREATE TRIGGER challenge_progress_updated_at
 -- FUNCTIONS
 -- ============================================================
 
--- Fonction pour verifier si une tache correspond a un challenge
+-- Fonction pour vérifier si une tâche correspond à un challenge
 CREATE OR REPLACE FUNCTION check_task_matches_challenge(
     p_task_title TEXT,
     p_task_category_code VARCHAR(50),

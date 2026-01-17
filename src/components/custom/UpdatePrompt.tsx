@@ -426,7 +426,7 @@ export function NotificationPrompt({
               Activer les notifications
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Recevez des rappels pour vos taches et les mises a jour de votre famille.
+              Recevez des rappels pour vos tâches et les mises à jour de votre famille.
             </p>
             <div className="flex gap-2 mt-3">
               <Button size="sm" onClick={handleAllow}>

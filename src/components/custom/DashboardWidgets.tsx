@@ -67,9 +67,9 @@ interface StreakWidgetProps {
 export function StreakWidget({ streak, className }: StreakWidgetProps) {
   const streakColor = useMemo(() => {
     if (streak.isAtRisk) return "text-orange-500"
-    if (streak.current >= 30) return "text-purple-500"
+    if (streak.current >= 30) return "text-amber-500"
     if (streak.current >= 14) return "text-blue-500"
-    if (streak.current >= 7) return "text-green-500"
+    if (streak.current >= 7) return "text-emerald-500"
     return "text-muted-foreground"
   }, [streak])
 

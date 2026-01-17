@@ -28,18 +28,18 @@ import { cn } from "@/lib/utils/index"
 import { FileText, Search, ChevronRight } from "lucide-react"
 
 const CATEGORIES = [
-  { value: "all", label: "Toutes les categories" },
-  { value: "ecole", label: "Ecole" },
-  { value: "sante", label: "Sante" },
+  { value: "all", label: "Toutes les catégories" },
+  { value: "ecole", label: "École" },
+  { value: "sante", label: "Santé" },
   { value: "administratif", label: "Administratif" },
   { value: "quotidien", label: "Quotidien" },
   { value: "social", label: "Social" },
-  { value: "activites", label: "Activites" },
+  { value: "activites", label: "Activités" },
   { value: "logistique", label: "Logistique" },
 ]
 
 const AGE_GROUPS = [
-  { value: "all", label: "Tous les ages" },
+  { value: "all", label: "Tous les âges" },
   { value: "0-3", label: "0-3 ans" },
   { value: "3-6", label: "3-6 ans" },
   { value: "6-11", label: "6-11 ans" },
@@ -48,7 +48,7 @@ const AGE_GROUPS = [
 ]
 
 function getWeightLabel(weight: number): string {
-  if (weight <= 2) return "Leger"
+  if (weight <= 2) return "Léger"
   if (weight <= 4) return "Moyen"
   if (weight <= 6) return "Important"
   return "Lourd"
@@ -150,9 +150,9 @@ export function TemplateSelector({ children, className }: TemplateSelectorProps)
         </SheetTrigger>
         <SheetContent side="right" className="w-full sm:max-w-lg">
           <SheetHeader>
-            <SheetTitle>Templates de taches</SheetTitle>
+            <SheetTitle>Templates de tâches</SheetTitle>
             <SheetDescription>
-              Choisissez un template pour creer une tache rapidement
+              Choisissez un template pour créer une tâche rapidement
             </SheetDescription>
           </SheetHeader>
 

@@ -326,7 +326,7 @@ export function WeeklyProgressRing({
       progress={progress}
       size={size}
       label="Cette semaine"
-      sublabel={`${completed}/${total} taches`}
+      sublabel={`${completed}/${total} tâches`}
       color={progress >= 100 ? DEFAULT_COLORS.success : DEFAULT_COLORS.primary}
       className={className}
     />
@@ -376,7 +376,7 @@ export function MonthlyStatsRing({
       <MultiProgressRing rings={rings} size={150} />
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-lg font-bold">{tasksCompleted}</span>
-        <span className="text-xs text-muted-foreground">taches ce mois</span>
+        <span className="text-xs text-muted-foreground">tâches ce mois</span>
       </div>
     </div>
   )

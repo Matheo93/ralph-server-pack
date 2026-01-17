@@ -104,9 +104,11 @@ export function TemplateTaskDialog({
   // Reset form when template changes
   useEffect(() => {
     if (template && open) {
-      const defaultDeadline = template.days_before_deadline
-        ? getDefaultDeadline(template.days_before_deadline)
-        : ""
+      // Use days_before_deadline if defined (including 0), otherwise default to 7 days
+      const daysFromNow = template.days_before_deadline !== undefined && template.days_before_deadline !== null
+        ? template.days_before_deadline
+        : 7
+      const defaultDeadline = getDefaultDeadline(daysFromNow)
 
       form.reset({
         title: template.title,

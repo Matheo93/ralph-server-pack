@@ -32,9 +32,9 @@ export default async function NewTaskPage() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Nouvelle tache</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Nouvelle tâche</h1>
             <p className="text-muted-foreground text-sm sm:text-base">
-              Creez une nouvelle tache manuellement
+              Créez une nouvelle tâche manuellement
             </p>
           </div>
           <div className="flex gap-2">

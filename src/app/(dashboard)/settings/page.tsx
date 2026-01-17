@@ -45,9 +45,9 @@ const SETTINGS_SECTIONS = [
     description: "Rappels et alertes",
     href: "/settings/notifications",
     icon: Bell,
-    color: "text-purple-500",
-    bgColor: "bg-purple-50 dark:bg-purple-950/30",
-    borderColor: "border-purple-200 dark:border-purple-800",
+    color: "text-sky-500",
+    bgColor: "bg-sky-50 dark:bg-sky-950/30",
+    borderColor: "border-sky-200 dark:border-sky-800",
   },
   {
     title: "Templates",

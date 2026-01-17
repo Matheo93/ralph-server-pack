@@ -189,7 +189,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
         haptic.mediumTap()
       },
       icon: SparklesIcon,
-      color: "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600",
+      color: "bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-pink-600",
     },
     {
       id: "week-view",
@@ -430,7 +430,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
             className="absolute bottom-16 right-0 w-[350px] max-h-[500px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+            <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-sky-500 to-teal-500 text-white">
               <div className="flex items-center gap-2">
                 <SparklesIcon className="w-5 h-5" />
                 <span className="font-semibold text-sm">Carnet Magique</span>
@@ -463,18 +463,18 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                       className={cn(
                         "min-h-[150px] resize-none text-sm",
                         "border-gray-200 dark:border-gray-700",
-                        "focus:ring-purple-500 focus:border-purple-500",
-                        isListening && "bg-purple-50 dark:bg-purple-900/20"
+                        "focus:ring-sky-500 focus:border-sky-500",
+                        isListening && "bg-sky-50 dark:bg-sky-900/20"
                       )}
                       disabled={isListening}
                     />
 
                     {/* Listening indicator */}
                     {isListening && (
-                      <div className="absolute bottom-2 right-2 flex items-center gap-1.5 text-purple-600">
+                      <div className="absolute bottom-2 right-2 flex items-center gap-1.5 text-sky-600">
                         <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500" />
                         </span>
                         <span className="text-xs">Écoute...</span>
                       </div>
@@ -510,7 +510,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                       size="sm"
                       onClick={handleClassify}
                       disabled={!textInput.trim() || isListening || isProcessing}
-                      className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                      className="flex-1 bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-pink-600 text-white"
                     >
                       {isPending ? (
                         <>
@@ -540,7 +540,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                     animate={{ rotate: 360 }}
                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   >
-                    <SparklesIcon className="w-12 h-12 text-purple-500" />
+                    <SparklesIcon className="w-12 h-12 text-sky-500" />
                   </motion.div>
                   <p className="text-sm text-muted-foreground">Classification en cours...</p>
                 </div>
@@ -566,7 +566,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                         className={cn(
                           "p-3 rounded-lg border transition-colors cursor-pointer",
                           selectedTasks.has(index)
-                            ? "border-purple-300 bg-purple-50 dark:border-purple-700 dark:bg-purple-900/30"
+                            ? "border-sky-300 bg-sky-50 dark:border-sky-700 dark:bg-sky-900/30"
                             : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
                         )}
                         onClick={() => toggleTaskSelection(index)}
@@ -577,7 +577,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                             className={cn(
                               "mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
                               selectedTasks.has(index)
-                                ? "border-purple-500 bg-purple-500"
+                                ? "border-sky-500 bg-sky-500"
                                 : "border-gray-300 dark:border-gray-600"
                             )}
                           >
@@ -625,7 +625,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                       size="sm"
                       onClick={handleCreateTasks}
                       disabled={selectedTasks.size === 0 || isPending}
-                      className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                      className="flex-1 bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-pink-600 text-white"
                     >
                       {isPending ? (
                         <>
@@ -651,8 +651,8 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
               {/* Creating State */}
               {notepadState === "creating" && (
                 <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
-                  <LoadingSpinner className="w-12 h-12 text-purple-500" />
-                  <p className="text-sm text-muted-foreground">Creation des taches...</p>
+                  <LoadingSpinner className="w-12 h-12 text-sky-500" />
+                  <p className="text-sm text-muted-foreground">Création des tâches...</p>
                 </div>
               )}
 
@@ -686,7 +686,7 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                       setNotepadState("typing")
                     }}
                   >
-                    Reessayer
+                    Réessayer
                   </Button>
                 </div>
               )}

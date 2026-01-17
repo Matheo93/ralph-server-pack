@@ -179,7 +179,7 @@ export function VocalFeedback({
             )}
 
             <div className="flex items-center gap-2">
-              <FolderOpen className="h-5 w-5 text-purple-500 flex-shrink-0" />
+              <FolderOpen className="h-5 w-5 text-slate-500 flex-shrink-0" />
               <div className="flex-1">
                 <p>{categories.find(c => c.code === analysis.category)?.name ?? analysis.category}</p>
                 {analysis.confidence_details && (

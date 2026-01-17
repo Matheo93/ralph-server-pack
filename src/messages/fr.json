@@ -218,77 +218,77 @@
   },
   "magicNotepad": {
     "title": "Carnet Magique",
-    "placeholder": "Dictez ou ecrivez vos notes...",
+    "placeholder": "Dictez ou écrivez vos notes...",
     "dictate": "Dicter",
     "stop": "Stop",
     "classify": "Classer",
     "analyzing": "Analyse...",
     "classifying": "Classification en cours...",
-    "creating": "Creation des taches...",
-    "success": "Taches creees avec succes!",
+    "creating": "Création des tâches...",
+    "success": "Tâches créées avec succès!",
     "error": "Une erreur est survenue",
-    "retry": "Reessayer",
+    "retry": "Réessayer",
     "back": "Retour",
-    "create": "Creer",
-    "tasksDetected": "{count} tache{count, plural, =1 {} other {s}} detectee{count, plural, =1 {} other {s}}",
-    "selectAtLeastOne": "Selectionnez au moins une tache",
-    "writeOrDictate": "Ecrivez ou dictez quelque chose d'abord",
-    "listening": "Ecoute..."
+    "create": "Créer",
+    "tasksDetected": "{count} tâche{count, plural, =1 {} other {s}} détectée{count, plural, =1 {} other {s}}",
+    "selectAtLeastOne": "Sélectionnez au moins une tâche",
+    "writeOrDictate": "Écrivez ou dictez quelque chose d'abord",
+    "listening": "Écoute..."
   },
   "coachMarks": {
     "step": "{current} / {total}",
     "skip": "Passer",
-    "previous": "Precedent",
+    "previous": "Précédent",
     "next": "Suivant",
     "finish": "Terminer",
     "guide": "Guide",
     "stats": {
       "title": "Vos statistiques",
-      "description": "Voyez en un coup d'oeil vos taches du jour, les retards, et la situation de votre famille."
+      "description": "Voyez en un coup d'œil vos tâches du jour, les retards, et la situation de votre famille."
     },
     "magicNotepad": {
       "title": "Le Carnet Magique",
-      "description": "Dictez ou ecrivez vos notes - l'IA les transforme automatiquement en taches classees!"
+      "description": "Dictez ou écrivez vos notes - l'IA les transforme automatiquement en tâches classées!"
     },
     "todayTasks": {
-      "title": "Taches du jour",
-      "description": "Votre liste de taches prioritaires. Cochez-les pour maintenir votre streak!"
+      "title": "Tâches du jour",
+      "description": "Votre liste de tâches prioritaires. Cochez-les pour maintenir votre streak!"
     },
     "streak": {
       "title": "Votre Streak",
-      "description": "Completez vos taches critiques chaque jour pour augmenter votre streak!"
+      "description": "Complétez vos tâches critiques chaque jour pour augmenter votre streak!"
     }
   },
   "quickActions": {
     "hint": "Actions rapides",
-    "newTask": "Nouvelle tache",
+    "newTask": "Nouvelle tâche",
     "weekView": "Vue semaine",
-    "allTasks": "Toutes les taches",
+    "allTasks": "Toutes les tâches",
     "open": "Ouvrir les actions rapides",
     "close": "Fermer les actions rapides"
   },
   "featureBadge": {
     "new": "Nouveau",
-    "improved": "Ameliore",
-    "beta": "Beta"
+    "improved": "Amélioré",
+    "beta": "Bêta"
   },
   "pushNotifications": {
-    "title": "Restez informe!",
-    "description": "Recevez des rappels pour ne jamais oublier vos taches",
+    "title": "Restez informé!",
+    "description": "Recevez des rappels pour ne jamais oublier vos tâches",
     "enable": "Activer",
     "later": "Plus tard",
     "activating": "Activation...",
     "compact": {
       "title": "Activer les notifications",
-      "description": "Rappels de taches et streak"
+      "description": "Rappels de tâches et streak"
     },
     "features": {
       "streak": {
         "title": "Rappels de streak",
-        "description": "Ne perdez pas votre serie"
+        "description": "Ne perdez pas votre série"
       },
       "tasks": {
-        "title": "Rappels de taches",
+        "title": "Rappels de tâches",
         "description": "Avant chaque deadline"
       },
       "encouragements": {
@@ -296,6 +296,6 @@
         "description": "Bravo quand vous progressez"
       }
     },
-    "footer": "Vous pourrez desactiver les notifications a tout moment dans les parametres"
+    "footer": "Vous pourrez désactiver les notifications à tout moment dans les paramètres"
   }
 }

@@ -86,8 +86,33 @@ export default async function KidsChildLayout({ children, params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 pb-24">
-      {children}
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 pb-24 relative overflow-hidden">
+      {/* Decorative floating elements - makes UI more playful */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+        {/* Floating bubbles with different animation speeds */}
+        <div className="absolute top-20 left-10 w-16 h-16 bg-gradient-to-br from-yellow-300/40 to-orange-300/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3s', animationDelay: '0s' }} />
+        <div className="absolute top-40 right-8 w-12 h-12 bg-gradient-to-br from-pink-300/40 to-rose-300/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+        <div className="absolute bottom-60 left-6 w-10 h-10 bg-gradient-to-br from-orange-300/40 to-amber-300/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3.5s', animationDelay: '1s' }} />
+        <div className="absolute top-1/2 right-4 w-8 h-8 bg-gradient-to-br from-teal-300/40 to-cyan-300/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '4s', animationDelay: '1.5s' }} />
+        <div className="absolute bottom-40 right-1/4 w-14 h-14 bg-gradient-to-br from-purple-300/30 to-violet-300/30 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3.8s', animationDelay: '2s' }} />
+        <div className="absolute top-1/3 left-1/4 w-6 h-6 bg-gradient-to-br from-green-300/40 to-emerald-300/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '2.8s', animationDelay: '0.3s' }} />
+
+        {/* Decorative stars and sparkles - more of them! */}
+        <div className="absolute top-32 right-16 text-3xl opacity-30 animate-pulse">✨</div>
+        <div className="absolute bottom-48 right-20 text-2xl opacity-30 animate-pulse" style={{ animationDelay: '0.5s' }}>⭐</div>
+        <div className="absolute top-60 left-4 text-2xl opacity-30 animate-pulse" style={{ animationDelay: '1s' }}>🌟</div>
+        <div className="absolute bottom-96 left-1/3 text-xl opacity-20 animate-pulse" style={{ animationDelay: '1.5s' }}>🎈</div>
+        <div className="absolute top-80 right-1/3 text-2xl opacity-25 animate-pulse" style={{ animationDelay: '0.8s' }}>💫</div>
+        <div className="absolute bottom-72 left-8 text-xl opacity-25 animate-pulse" style={{ animationDelay: '1.2s' }}>🌈</div>
+        <div className="absolute top-48 left-1/3 text-xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}>🎉</div>
+        <div className="absolute bottom-32 right-12 text-lg opacity-20 animate-pulse" style={{ animationDelay: '0.7s' }}>🦋</div>
+      </div>
+
+      {/* Main content with relative z-index */}
+      <div className="relative z-10">
+        {children}
+      </div>
+
       <KidsBottomNav
         childId={childId}
         pendingTasksCount={pendingTasksCount}

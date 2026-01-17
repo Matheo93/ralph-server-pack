@@ -17,6 +17,7 @@ interface TaskCardProps {
   task: TaskListItem
   onPostpone?: (taskId: string) => void
   compact?: boolean
+  showScheduleHint?: boolean
 }
 
 function formatDeadline(deadline: string | null): string {
@@ -58,7 +59,7 @@ function isOverdue(deadline: string | null): boolean {
   return date < today
 }
 
-function TaskCardInner({ task, onPostpone, compact = false }: TaskCardProps) {
+function TaskCardInner({ task, onPostpone, compact = false, showScheduleHint = false }: TaskCardProps) {
   const [isPending, startTransition] = useTransition()
   const [showActions, setShowActions] = useState(false)
   const [justCompleted, setJustCompleted] = useState(false)
@@ -103,6 +104,7 @@ function TaskCardInner({ task, onPostpone, compact = false }: TaskCardProps) {
   const overdue = isOverdue(task.deadline)
   const isDone = task.status === "done"
   const isCancelled = task.status === "cancelled"
+  const hasNoDate = !task.deadline
 
   return (
     <motion.div
@@ -118,6 +120,7 @@ function TaskCardInner({ task, onPostpone, compact = false }: TaskCardProps) {
           isDone && "opacity-60 bg-muted/50",
           isCancelled && "opacity-40 bg-muted/30",
           overdue && !isDone && !isCancelled && "border-red-300 bg-red-50/50 dark:bg-red-950/20",
+          showScheduleHint && hasNoDate && !isDone && !isCancelled && "border-orange-200 hover:border-orange-300",
           justCompleted && "ring-2 ring-green-500 ring-offset-2"
         )}
       >

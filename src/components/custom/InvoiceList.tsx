@@ -66,7 +66,7 @@ const STATUS_CONFIG: Record<Invoice["status"], {
     icon: FileText,
   },
   uncollectible: {
-    label: "Irrecuperable",
+    label: "Irrécupérable",
     variant: "destructive",
     icon: AlertTriangle,
   },
@@ -86,7 +86,7 @@ export function InvoiceList({ className }: InvoiceListProps) {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Erreur lors de la recuperation des factures")
+        throw new Error(data.error ?? "Erreur lors de la récupération des factures")
       }
 
       setInvoices(data.invoices ?? [])
@@ -169,7 +169,7 @@ export function InvoiceList({ className }: InvoiceListProps) {
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button variant="outline" onClick={fetchInvoices}>
               <RefreshCw className="mr-2 h-4 w-4" />
-              Reessayer
+              Réessayer
             </Button>
           </div>
         </CardContent>
@@ -269,7 +269,7 @@ function InvoiceItem({ invoice, formatAmount, formatDate, formatPeriod }: Invoic
         <div className="flex gap-2">
           {invoice.invoicePdf && (
             <Button variant="ghost" size="icon" asChild>
-              <a href={invoice.invoicePdf} target="_blank" rel="noopener noreferrer" title="Telecharger PDF">
+              <a href={invoice.invoicePdf} target="_blank" rel="noopener noreferrer" title="Télécharger PDF">
                 <Download className="h-4 w-4" />
               </a>
             </Button>
@@ -312,7 +312,7 @@ export function InvoiceSummary({
   return (
     <div className={cn("flex items-center justify-between p-4 bg-muted rounded-lg", className)}>
       <div>
-        <p className="text-sm text-muted-foreground">Total paye</p>
+        <p className="text-sm text-muted-foreground">Total payé</p>
         <p className="text-2xl font-bold">{formatAmount(totalPaid)}</p>
       </div>
       <div className="text-right">

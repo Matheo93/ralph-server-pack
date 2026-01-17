@@ -38,8 +38,8 @@ interface ChildTask {
 const schoolLevelLabels: Record<string, string> = {
   maternelle: "Maternelle",
   primaire: "Primaire",
-  college: "College",
-  lycee: "Lycee",
+  college: "Collège",
+  lycee: "Lycée",
 }
 
 export default async function ChildDetailPage({ params }: PageProps) {
@@ -137,7 +137,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
             {child.gender && (
               <span className="flex items-center gap-1">
                 <User className="h-4 w-4" />
-                {child.gender === "M" ? "Garcon" : "Fille"}
+                {child.gender === "M" ? "Garçon" : "Fille"}
               </span>
             )}
             {child.birthdate && (
@@ -158,7 +158,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
               <span>
                 {child.school_level && schoolLevelLabels[child.school_level]}
                 {child.school_class && ` - ${child.school_class}`}
-                {child.school_name && ` a ${child.school_name}`}
+                {child.school_name && ` à ${child.school_name}`}
               </span>
             </div>
           )}
@@ -191,7 +191,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{pendingTasks.length}</p>
-            <p className="text-xs text-muted-foreground">tache{pendingTasks.length > 1 ? "s" : ""} a faire</p>
+            <p className="text-xs text-muted-foreground">tâche{pendingTasks.length > 1 ? "s" : ""} à faire</p>
           </CardContent>
         </Card>
 
@@ -199,7 +199,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4" />
-              Completees
+              Complétées
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -217,7 +217,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{completedThisWeek.length}</p>
-            <p className="text-xs text-muted-foreground">completee{completedThisWeek.length > 1 ? "s" : ""}</p>
+            <p className="text-xs text-muted-foreground">complétée{completedThisWeek.length > 1 ? "s" : ""}</p>
           </CardContent>
         </Card>
 
@@ -225,7 +225,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              Taux completion
+              Taux complétion
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -243,7 +243,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <ListTodo className="h-5 w-5" />
-                Taches en cours
+                Tâches en cours
               </span>
               <Badge variant="secondary">{pendingTasks.length}</Badge>
             </CardTitle>
@@ -251,7 +251,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
           <CardContent>
             {pendingTasks.length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-4">
-                Aucune tache en cours pour {child.first_name}
+                Aucune tâche en cours pour {child.first_name}
               </p>
             ) : (
               <div className="space-y-3">
@@ -266,7 +266,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
                         <p className="font-medium text-sm truncate">{task.title}</p>
                         {task.deadline && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            Echeance: {new Date(task.deadline).toLocaleDateString("fr-FR")}
+                            Échéance : {new Date(task.deadline).toLocaleDateString("fr-FR")}
                           </p>
                         )}
                       </div>
@@ -281,7 +281,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
                 {pendingTasks.length > 5 && (
                   <Link href={`/tasks?child_id=${id}`}>
                     <Button variant="ghost" size="sm" className="w-full">
-                      Voir les {pendingTasks.length - 5} autres taches
+                      Voir les {pendingTasks.length - 5} autres tâches
                     </Button>
                   </Link>
                 )}
@@ -290,7 +290,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
             <div className="mt-4 pt-4 border-t">
               <Button asChild className="w-full" size="sm">
                 <Link href={`/tasks/new?child_id=${id}`}>
-                  Ajouter une tache pour {child.first_name}
+                  Ajouter une tâche pour {child.first_name}
                 </Link>
               </Button>
             </div>
@@ -303,7 +303,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
-                Dernieres taches completees
+                Dernières tâches complétées
               </span>
               <Badge variant="secondary">{completedTasks.length}</Badge>
             </CardTitle>
@@ -311,7 +311,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
           <CardContent>
             {completedTasks.length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-4">
-                Aucune tache completee pour {child.first_name}
+                Aucune tâche complétée pour {child.first_name}
               </p>
             ) : (
               <div className="space-y-3">
@@ -328,7 +328,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
                         </p>
                         {task.completed_at && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            Completee le {new Date(task.completed_at).toLocaleDateString("fr-FR")}
+                            Complétée le {new Date(task.completed_at).toLocaleDateString("fr-FR")}
                           </p>
                         )}
                       </div>
@@ -339,7 +339,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
                 {completedTasks.length > 5 && (
                   <Link href={`/tasks?child_id=${id}&status=done`}>
                     <Button variant="ghost" size="sm" className="w-full">
-                      Voir les {completedTasks.length - 5} autres taches completees
+                      Voir les {completedTasks.length - 5} autres tâches complétées
                     </Button>
                   </Link>
                 )}
@@ -359,7 +359,7 @@ export default async function ChildDetailPage({ params }: PageProps) {
             <Button variant="outline" size="sm" asChild>
               <Link href={`/tasks?child_id=${id}`}>
                 <ListTodo className="mr-2 h-4 w-4" />
-                Toutes les taches
+                Toutes les tâches
               </Link>
             </Button>
             <Button variant="outline" size="sm" asChild>

@@ -30,8 +30,8 @@ const testimonials = [
     name: "Marie L.",
     role: "Famille recomposée",
     avatar: "M",
-    avatarBg: "bg-gradient-to-br from-purple-400 to-violet-500",
-    borderColor: "border-purple-200",
+    avatarBg: "bg-gradient-to-br from-sky-400 to-teal-500",
+    borderColor: "border-sky-200",
     quote:
       "Avec 4 enfants de 2 foyers différents, c'était le chaos. FamilyLoad nous permet de tout coordonner sans stress. Les templates automatiques sont géniaux !",
     rating: 5,

@@ -106,14 +106,14 @@ export function ProfileCard({
 
         {/* Rang */}
         {totalSiblings > 1 && (
-          <div className="bg-purple-50 rounded-xl p-3 text-center">
+          <div className="bg-amber-50 rounded-xl p-3 text-center">
             <div className="text-2xl mb-1">
               {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '📊'}
             </div>
-            <div className="text-lg font-bold text-purple-600">
+            <div className="text-lg font-bold text-amber-600">
               #{rank}
             </div>
-            <div className="text-xs text-purple-500">Rang</div>
+            <div className="text-xs text-amber-500">Rang</div>
           </div>
         )}
 

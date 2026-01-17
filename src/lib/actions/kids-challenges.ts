@@ -23,13 +23,13 @@ export interface ActionResult<T = void> {
 // ============================================================
 
 /**
- * Recupere les defis actifs de l'enfant connecte
+ * Récupère les défis actifs de l'enfant connecté
  */
 export async function getActiveChallengesForChild(): Promise<ActionResult<ChallengeForChild[]>> {
   try {
     const session = await getKidsSession()
     if (!session) {
-      return { success: false, error: 'Non connecte' }
+      return { success: false, error: 'Non connecté' }
     }
 
     const { childId } = session
@@ -99,7 +99,7 @@ export async function getActiveChallengesForChild(): Promise<ActionResult<Challe
 }
 
 /**
- * Recupere les defis completes de l'enfant connecte
+ * Récupère les défis complétés de l'enfant connecté
  */
 export async function getCompletedChallengesForChild(
   limit: number = 10
@@ -107,7 +107,7 @@ export async function getCompletedChallengesForChild(
   try {
     const session = await getKidsSession()
     if (!session) {
-      return { success: false, error: 'Non connecte' }
+      return { success: false, error: 'Non connecté' }
     }
 
     const { childId } = session
@@ -183,7 +183,7 @@ export async function getCompletedChallengesForChild(
 }
 
 /**
- * Recupere le detail d'un defi pour l'enfant
+ * Récupère le détail d'un défi pour l'enfant
  */
 export async function getChallengeDetailForChild(
   challengeId: string
@@ -191,7 +191,7 @@ export async function getChallengeDetailForChild(
   try {
     const session = await getKidsSession()
     if (!session) {
-      return { success: false, error: 'Non connecte' }
+      return { success: false, error: 'Non connecté' }
     }
 
     const { childId } = session
@@ -259,7 +259,7 @@ export async function getChallengeDetailForChild(
 }
 
 /**
- * Recupere l'historique de progression d'un defi
+ * Récupère l'historique de progression d'un défi
  */
 export async function getChallengeProgressHistory(
   challengeId: string
@@ -272,7 +272,7 @@ export async function getChallengeProgressHistory(
   try {
     const session = await getKidsSession()
     if (!session) {
-      return { success: false, error: 'Non connecte' }
+      return { success: false, error: 'Non connecté' }
     }
 
     const { childId } = session
@@ -286,7 +286,7 @@ export async function getChallengeProgressHistory(
     )
 
     if (!progress) {
-      return { success: false, error: 'Acces refuse' }
+      return { success: false, error: 'Accès refusé' }
     }
 
     const history = await query<{
@@ -311,7 +311,7 @@ export async function getChallengeProgressHistory(
 }
 
 /**
- * Stats des defis pour le dashboard enfant
+ * Stats des défis pour le dashboard enfant
  */
 export async function getChallengeStatsForChild(): Promise<ActionResult<{
   activeCount: number
@@ -322,7 +322,7 @@ export async function getChallengeStatsForChild(): Promise<ActionResult<{
   try {
     const session = await getKidsSession()
     if (!session) {
-      return { success: false, error: 'Non connecte' }
+      return { success: false, error: 'Non connecté' }
     }
 
     const { childId } = session

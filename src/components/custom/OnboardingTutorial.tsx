@@ -30,26 +30,26 @@ interface TutorialStep {
 const tutorialSteps: TutorialStep[] = [
   {
     title: "Tableau de bord",
-    content: "Voici votre tableau de bord. Vous y trouverez un apercu de toutes vos taches et de votre charge mentale.",
+    content: "Voici votre tableau de bord. Vous y trouverez un aperçu de toutes vos tâches et de votre charge mentale.",
   },
   {
     title: "Vos enfants",
-    content: "Ajoutez vos enfants depuis le menu lateral pour personnaliser les taches selon leur age et leurs activites.",
+    content: "Ajoutez vos enfants depuis le menu latéral pour personnaliser les tâches selon leur âge et leurs activités.",
     target: '[data-tour="nav-children"]',
   },
   {
-    title: "Ajouter une tache",
-    content: "Creez facilement de nouvelles taches avec le bouton + en bas a droite. Vous pouvez aussi utiliser la commande vocale !",
+    title: "Ajouter une tâche",
+    content: "Créez facilement de nouvelles tâches avec le bouton + en bas à droite. Vous pouvez aussi utiliser la commande vocale !",
     target: '[data-tour="fab-button"]',
   },
   {
     title: "Charge mentale",
-    content: "Analysez la repartition de la charge mentale entre les parents pour un meilleur equilibre.",
+    content: "Analysez la répartition de la charge mentale entre les parents pour un meilleur équilibre.",
     target: '[data-tour="nav-charge"]',
   },
   {
-    title: "Votre serie",
-    content: "Maintenez votre serie en completant vos taches chaque jour. Plus la serie est longue, plus vous progressez !",
+    title: "Votre série",
+    content: "Maintenez votre série en complétant vos tâches chaque jour. Plus la série est longue, plus vous progressez !",
     target: '[data-tour="header-streak"]',
   },
 ]

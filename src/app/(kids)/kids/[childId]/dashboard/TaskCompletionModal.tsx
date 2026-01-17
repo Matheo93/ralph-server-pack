@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useRef, useTransition } from 'react'
+import { useState, useRef, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import confetti from 'canvas-confetti'
 import type { KidsTask } from '@/lib/actions/kids-tasks'
 import { submitTaskProof } from '@/lib/actions/kids-tasks'
 
@@ -264,31 +265,164 @@ export function TaskCompletionModal({ task, childId, onClose }: TaskCompletionMo
           </div>
         )}
 
-        {/* Étape: Succès */}
-        {step === 'success' && (
-          <div className="p-8 text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', bounce: 0.5 }}
-              className="text-6xl mb-4"
-            >
-              🎉
-            </motion.div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">
-              C&apos;est envoyé !
-            </h3>
-            <p className="text-gray-500">
-              Tes parents vont valider ta mission
-            </p>
-            <div className="bg-green-50 rounded-2xl p-4 mt-4">
-              <span className="text-green-600 font-medium">
-                +{task.xp_value} XP en attente
-              </span>
-            </div>
-          </div>
-        )}
+        {/* Étape: Succès avec confettis */}
+        {step === 'success' && <SuccessStep xpValue={task.xp_value} />}
       </motion.div>
     </motion.div>
+  )
+}
+
+// Composant séparé pour l'étape succès avec effet confettis
+function SuccessStep({ xpValue }: { xpValue: number }) {
+  useEffect(() => {
+    // Lance les confettis au montage
+    const duration = 2000
+    const animationEnd = Date.now() + duration
+    const colors = ['#EC4899', '#F97316', '#FBBF24', '#10B981', '#8B5CF6']
+
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min
+
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now()
+      if (timeLeft <= 0) {
+        clearInterval(interval)
+        return
+      }
+
+      const particleCount = 50 * (timeLeft / duration)
+
+      // Confettis des deux côtés
+      confetti({
+        particleCount: Math.floor(particleCount / 2),
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.7 },
+        colors,
+        startVelocity: 30,
+        gravity: 0.8,
+        ticks: 200,
+      })
+      confetti({
+        particleCount: Math.floor(particleCount / 2),
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.7 },
+        colors,
+        startVelocity: 30,
+        gravity: 0.8,
+        ticks: 200,
+      })
+    }, 250)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="p-8 text-center relative overflow-hidden">
+      {/* Étoiles animées en arrière-plan */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(8)].map((_, i) => (
+          <motion.span
+            key={i}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0.5, 1.2, 0.5],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: i * 0.25,
+            }}
+            className="absolute text-xl"
+            style={{
+              top: `${10 + Math.random() * 80}%`,
+              left: `${10 + Math.random() * 80}%`,
+            }}
+          >
+            {['⭐', '✨', '🌟', '💫'][i % 4]}
+          </motion.span>
+        ))}
+      </div>
+
+      {/* Icône principale avec rebond */}
+      <motion.div
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{
+          scale: [0, 1.3, 1],
+          rotate: [0, 10, 0],
+        }}
+        transition={{
+          type: 'spring',
+          damping: 10,
+          stiffness: 200,
+        }}
+        className="relative z-10"
+      >
+        <span className="text-7xl block mb-2">🎉</span>
+      </motion.div>
+
+      {/* Titre avec effet typing */}
+      <motion.h3
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="text-2xl font-black bg-gradient-to-r from-pink-600 via-purple-600 to-orange-500 bg-clip-text text-transparent mb-2"
+      >
+        Super champion ! 🏆
+      </motion.h3>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="text-gray-600 mb-4"
+      >
+        Tes parents vont valider ta mission
+      </motion.p>
+
+      {/* Badge XP animé */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.7, type: 'spring' }}
+        className="inline-block"
+      >
+        <motion.div
+          animate={{
+            boxShadow: [
+              '0 0 0 0 rgba(16, 185, 129, 0.4)',
+              '0 0 0 15px rgba(16, 185, 129, 0)',
+            ],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+          }}
+          className="bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl px-6 py-3 shadow-lg"
+        >
+          <span className="text-white font-black text-lg flex items-center gap-2">
+            <motion.span
+              animate={{ rotate: [0, 20, -20, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
+            >
+              💎
+            </motion.span>
+            +{xpValue} XP en attente
+          </span>
+        </motion.div>
+      </motion.div>
+
+      {/* Petit message encourageant */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+        className="text-sm text-gray-400 mt-4"
+      >
+        Continue comme ça ! 💪
+      </motion.p>
+    </div>
   )
 }

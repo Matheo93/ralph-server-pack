@@ -65,7 +65,7 @@ export default async function ExclusionsPage() {
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">Exclusions temporaires</h1>
         <p className="text-muted-foreground">
-          Gerez les periodes ou un membre n'est pas disponible pour recevoir des taches.
+          Gérez les périodes où un membre n'est pas disponible pour recevoir des tâches.
         </p>
       </div>
 

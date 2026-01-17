@@ -97,8 +97,8 @@ const ChildrenIllustration = () => (
   <svg viewBox="0 0 200 160" className="w-full h-full">
     <defs>
       <linearGradient id="childBg" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#a855f7" stopOpacity="0.1"/>
-        <stop offset="100%" stopColor="#a855f7" stopOpacity="0.05"/>
+        <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.1"/>
+        <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.05"/>
       </linearGradient>
     </defs>
     <circle cx="100" cy="85" r="60" fill="url(#childBg)"/>
@@ -248,8 +248,8 @@ const EMPTY_STATE_CONFIGS: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Ajoutez vos enfants pour mieux organiser les tâches par personne.",
     actionLabel: "Ajouter un enfant",
     actionHref: "/children/new",
-    iconColor: "text-purple-500",
-    bgColor: "bg-purple-50 dark:bg-purple-950/20",
+    iconColor: "text-sky-500",
+    bgColor: "bg-sky-50 dark:bg-sky-950/20",
     illustration: <ChildrenIllustration />,
   },
   calendar: {

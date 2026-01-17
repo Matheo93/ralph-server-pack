@@ -30,64 +30,101 @@ export function KidsHeader({
     : 100
 
   return (
-    <header className="bg-white/80 backdrop-blur-lg rounded-b-3xl shadow-lg px-4 py-4 mb-4">
-      <div className="flex items-center justify-between">
+    <header className="bg-gradient-to-br from-white/90 via-pink-50/80 to-orange-50/80 backdrop-blur-lg rounded-b-[2rem] shadow-xl px-4 py-5 mb-4 border-b-4 border-pink-200/50 relative overflow-hidden">
+      {/* Decorative sparkles */}
+      <div className="absolute top-2 right-16 text-xl opacity-40 animate-pulse">✨</div>
+      <div className="absolute bottom-2 left-4 text-lg opacity-30 animate-pulse" style={{ animationDelay: '0.5s' }}>⭐</div>
+
+      <div className="flex items-center justify-between relative z-10">
         {/* Avatar et nom */}
         <div className="flex items-center gap-3">
-          <Avatar className="w-14 h-14 border-3 border-white shadow-md">
-            {avatarUrl ? (
-              <AvatarImage src={avatarUrl} alt={firstName} />
-            ) : null}
-            <AvatarFallback className="bg-gradient-to-br from-pink-400 to-orange-500 text-white text-xl font-bold">
-              {firstName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <motion.div
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Avatar className="w-16 h-16 border-4 border-white shadow-lg ring-2 ring-pink-200">
+              {avatarUrl ? (
+                <AvatarImage src={avatarUrl} alt={firstName} />
+              ) : null}
+              <AvatarFallback className="bg-gradient-to-br from-pink-400 via-purple-400 to-orange-400 text-white text-2xl font-black">
+                {firstName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </motion.div>
           <div>
-            <h1 className="text-lg font-bold text-gray-800">
-              Salut {firstName} !
-            </h1>
-            <div className="flex items-center gap-1 text-sm text-gray-600">
-              <span>{levelIcon}</span>
-              <span>{levelName}</span>
-              <span className="text-gray-400">• Niv. {currentLevel}</span>
-            </div>
+            <motion.h1
+              className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-orange-500"
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+            >
+              Coucou {firstName} ! 👋
+            </motion.h1>
+            <motion.div
+              className="flex items-center gap-1.5 text-sm"
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              <span className="text-lg">{levelIcon}</span>
+              <span className="font-bold text-purple-600">{levelName}</span>
+              <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-bold">Niv. {currentLevel}</span>
+            </motion.div>
           </div>
         </div>
 
-        {/* Streak */}
+        {/* Streak avec animation feu */}
         {streakCurrent > 0 && (
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="flex flex-col items-center bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-2xl px-3 py-2 shadow-lg"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            whileHover={{ scale: 1.1 }}
+            className="flex flex-col items-center bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 text-white rounded-2xl px-4 py-2.5 shadow-xl border-2 border-orange-300/50"
           >
-            <span className="text-2xl">🔥</span>
-            <span className="text-sm font-bold">{streakCurrent}</span>
+            <motion.span
+              className="text-3xl"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              🔥
+            </motion.span>
+            <span className="text-base font-black">{streakCurrent} jour{streakCurrent > 1 ? 's' : ''}</span>
           </motion.div>
         )}
       </div>
 
-      {/* Barre de progression XP */}
-      <div className="mt-4">
-        <div className="flex items-center justify-between text-sm mb-1">
-          <span className="text-gray-600 font-medium">
-            {currentXp} XP
+      {/* Barre de progression XP - Style game */}
+      <motion.div
+        className="mt-5 bg-white/60 rounded-2xl p-3 shadow-inner"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="flex items-center justify-between text-sm mb-2">
+          <span className="font-bold text-purple-700 flex items-center gap-1">
+            <span className="text-lg">💎</span> {currentXp} XP
           </span>
           {xpForNextLevel && (
-            <span className="text-gray-400">
-              {xpForNextLevel} XP pour niveau {currentLevel + 1}
+            <span className="text-orange-600 font-medium text-xs">
+              🎯 {xpForNextLevel - currentXp} XP restants
             </span>
           )}
         </div>
-        <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+        <div className="h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-            className="h-full bg-gradient-to-r from-pink-500 to-orange-500 rounded-full"
-          />
+            transition={{ duration: 1.5, ease: 'easeOut' }}
+            className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-full relative"
+          >
+            {/* Sparkle effect on progress bar */}
+            <motion.div
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ repeat: Infinity, duration: 1 }}
+            />
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </header>
   )
 }

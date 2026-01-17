@@ -35,7 +35,7 @@ const additionalFeatures = [
   { icon: Clock, label: "Historique des tâches par enfant", color: "text-amber-500" },
   { icon: Zap, label: "Gamification avec streaks", color: "text-green-500" },
   { icon: Users, label: "Partage entre co-parents", color: "text-blue-500" },
-  { icon: Shield, label: "Templates personnalisables", color: "text-purple-500" },
+  { icon: Shield, label: "Templates personnalisables", color: "text-sky-500" },
   { icon: Heart, label: "Mode hors-ligne", color: "text-rose-500" },
 ]
 
@@ -63,10 +63,10 @@ export function Features() {
           {features.map((feature, index) => (
             <StaggerItem key={index}>
             <div
-              className={`relative p-6 rounded-2xl bg-white border-2 ${feature.borderColor} shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
+              className={`relative p-6 rounded-2xl bg-white border-2 ${feature.borderColor} shadow-sm card-lift`}
             >
               {/* Icon */}
-              <div className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-5`}>
+              <div className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-5 scale-bounce-hover`}>
                 <feature.icon className="h-7 w-7" />
               </div>
 

@@ -211,8 +211,8 @@ function CoachMarksOverlay() {
               height: targetRect.height + 16,
             }}
           >
-            <div className="absolute inset-0 rounded-lg border-2 border-purple-500 animate-pulse" />
-            <div className="absolute inset-0 rounded-lg bg-purple-500/10" />
+            <div className="absolute inset-0 rounded-lg border-2 border-sky-500 animate-pulse" />
+            <div className="absolute inset-0 rounded-lg bg-sky-500/10" />
           </motion.div>
         )}
 
@@ -279,7 +279,7 @@ function CoachMarksOverlay() {
               <Button
                 size="sm"
                 onClick={nextStep}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                className="flex-1 bg-gradient-to-r from-sky-500 to-pink-500 text-white"
               >
                 {currentStep === steps.length - 1 ? "Terminer" : "Suivant"}
               </Button>
@@ -295,9 +295,9 @@ function CoachMarksOverlay() {
               className={cn(
                 "w-2 h-2 rounded-full transition-colors",
                 index === currentStep
-                  ? "bg-purple-500"
+                  ? "bg-sky-500"
                   : index < currentStep
-                    ? "bg-purple-300"
+                    ? "bg-sky-300"
                     : "bg-gray-300"
               )}
             />

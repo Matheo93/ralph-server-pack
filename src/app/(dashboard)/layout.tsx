@@ -19,6 +19,7 @@ import { CoachMarksProvider } from "@/components/custom/CoachMarks"
 import { PushPermissionPrompt } from "@/components/custom/PushPermissionPrompt"
 import { OnboardingTutorial } from "@/components/custom/OnboardingTutorial"
 import { MagicChat } from "@/components/custom/MagicChat"
+import { InviteCoParentCTA } from "@/components/custom/InviteCoParentCTA"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -127,6 +128,7 @@ export default async function DashboardLayout({
             <KeyboardShortcutsHelp />
             <OfflineIndicator showOnlineStatus />
             <PushPermissionPrompt compact showAfterMs={10000} />
+            <InviteCoParentCTA />
             <OnboardingTutorial />
             <MagicChat
               isPremium={isPremium}

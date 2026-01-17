@@ -109,7 +109,7 @@ export function MagicChat({ isPremium, householdId }: MagicChatProps) {
         {/* Floating button */}
         <motion.button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 flex items-center justify-center"
+          className="fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-sky-500 to-teal-600 text-white shadow-lg shadow-sky-500/30 flex items-center justify-center"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -182,7 +182,7 @@ export function MagicChat({ isPremium, householdId }: MagicChatProps) {
           "fixed bottom-24 right-4 lg:bottom-6 lg:right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-colors",
           isOpen
             ? "bg-muted text-muted-foreground"
-            : "bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-purple-500/30"
+            : "bg-gradient-to-br from-sky-500 to-teal-600 text-white shadow-sky-500/30"
         )}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -200,7 +200,7 @@ export function MagicChat({ isPremium, householdId }: MagicChatProps) {
             className="fixed bottom-40 right-4 lg:bottom-24 lg:right-6 z-50 w-[calc(100vw-2rem)] max-w-md bg-background rounded-2xl shadow-2xl border overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-violet-500 to-purple-600 p-4 text-white">
+            <div className="bg-gradient-to-r from-sky-500 to-teal-600 p-4 text-white">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                   <Sparkles className="w-5 h-5" />
@@ -242,7 +242,7 @@ export function MagicChat({ isPremium, householdId }: MagicChatProps) {
                     )}
                   >
                     {message.role === "assistant" && (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-teal-600 flex items-center justify-center flex-shrink-0">
                         <Bot className="w-4 h-4 text-white" />
                       </div>
                     )}
@@ -266,7 +266,7 @@ export function MagicChat({ isPremium, householdId }: MagicChatProps) {
               )}
               {isLoading && (
                 <div className="flex gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-teal-600 flex items-center justify-center flex-shrink-0">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
                   <div className="bg-muted px-4 py-2 rounded-2xl rounded-bl-md">

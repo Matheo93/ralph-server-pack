@@ -115,10 +115,11 @@ export async function getHousehold() {
     timezone: string
     streak_current: number
     streak_best: number
-    subscription_status: string
+    subscription_status: string | null
     subscription_ends_at: string | null
   }
 
+  // Query that joins subscriptions table to get actual subscription status
   const membership = await queryOne<MembershipResult>(`
     SELECT
       hm.household_id,
@@ -128,8 +129,22 @@ export async function getHousehold() {
       h.timezone,
       h.streak_current,
       h.streak_best,
-      h.subscription_status,
-      h.subscription_ends_at
+      COALESCE(
+        (SELECT s.status FROM subscriptions s
+         WHERE s.household_id = h.id
+         AND s.status IN ('active', 'trialing', 'trial')
+         AND s.current_period_end > NOW()
+         ORDER BY s.created_at DESC LIMIT 1),
+        h.subscription_status
+      ) as subscription_status,
+      COALESCE(
+        (SELECT s.current_period_end FROM subscriptions s
+         WHERE s.household_id = h.id
+         AND s.status IN ('active', 'trialing', 'trial')
+         AND s.current_period_end > NOW()
+         ORDER BY s.created_at DESC LIMIT 1),
+        h.subscription_ends_at
+      ) as subscription_ends_at
     FROM household_members hm
     JOIN households h ON h.id = hm.household_id
     WHERE hm.user_id = $1 AND hm.is_active = true

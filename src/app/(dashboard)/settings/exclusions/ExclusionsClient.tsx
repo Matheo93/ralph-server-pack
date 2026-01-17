@@ -83,7 +83,7 @@ export function ExclusionsClient({
       {futureExclusions.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <span>A venir</span>
+            <span>À venir</span>
             <span className="text-sm font-normal text-muted-foreground">
               ({futureExclusions.length})
             </span>
@@ -105,7 +105,7 @@ export function ExclusionsClient({
       {pastExclusions.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <span className="text-muted-foreground">Passees</span>
+            <span className="text-muted-foreground">Passées</span>
             <span className="text-sm font-normal text-muted-foreground">
               ({pastExclusions.length})
             </span>
@@ -142,20 +142,20 @@ export function ExclusionsClient({
       {/* Info card */}
       <Card className="bg-muted/50">
         <CardHeader>
-          <CardTitle className="text-base">Comment ca marche ?</CardTitle>
+          <CardTitle className="text-base">Comment ça marche ?</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>
             Lorsqu'un membre est en exclusion temporaire, il ne recevra pas de nouvelles
-            taches assignees automatiquement.
+            tâches assignées automatiquement.
           </p>
           <p>
-            Les taches deja assignees restent sur son compte, mais peuvent etre
-            reassignees manuellement.
+            Les tâches déjà assignées restent sur son compte, mais peuvent être
+            réassignées manuellement.
           </p>
           <p>
-            Utilisez cette fonctionnalite pour les vacances, maladies ou tout autre
-            periode d'indisponibilite.
+            Utilisez cette fonctionnalité pour les vacances, maladies ou tout autre
+            période d'indisponibilité.
           </p>
         </CardContent>
       </Card>

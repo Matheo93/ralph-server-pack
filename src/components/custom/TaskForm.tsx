@@ -332,6 +332,55 @@ export function TaskForm({
 
           <div className="space-y-2">
             <Label>Deadline</Label>
+            {/* Quick date buttons */}
+            <div className="flex flex-wrap gap-2 mb-2">
+              <Button
+                type="button"
+                variant={formData.deadline?.toDateString() === new Date().toDateString() ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  const today = new Date()
+                  today.setHours(23, 59, 59, 999)
+                  setFormData((prev) => ({ ...prev, deadline: today }))
+                }}
+              >
+                Aujourd'hui
+              </Button>
+              <Button
+                type="button"
+                variant={(() => {
+                  const tomorrow = new Date()
+                  tomorrow.setDate(tomorrow.getDate() + 1)
+                  return formData.deadline?.toDateString() === tomorrow.toDateString() ? "default" : "outline"
+                })()}
+                size="sm"
+                onClick={() => {
+                  const tomorrow = new Date()
+                  tomorrow.setDate(tomorrow.getDate() + 1)
+                  tomorrow.setHours(23, 59, 59, 999)
+                  setFormData((prev) => ({ ...prev, deadline: tomorrow }))
+                }}
+              >
+                Demain
+              </Button>
+              <Button
+                type="button"
+                variant={(() => {
+                  const nextWeek = new Date()
+                  nextWeek.setDate(nextWeek.getDate() + 7)
+                  return formData.deadline?.toDateString() === nextWeek.toDateString() ? "default" : "outline"
+                })()}
+                size="sm"
+                onClick={() => {
+                  const nextWeek = new Date()
+                  nextWeek.setDate(nextWeek.getDate() + 7)
+                  nextWeek.setHours(23, 59, 59, 999)
+                  setFormData((prev) => ({ ...prev, deadline: nextWeek }))
+                }}
+              >
+                Dans 1 semaine
+              </Button>
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 type="button"
@@ -344,7 +393,7 @@ export function TaskForm({
                       day: "numeric",
                       month: "long",
                     })
-                  : "Choisir une date"}
+                  : "Autre date..."}
               </Button>
               {formData.deadline && (
                 <Button
@@ -359,6 +408,12 @@ export function TaskForm({
                 </Button>
               )}
             </div>
+            {!formData.deadline && (
+              <p className="text-xs text-orange-600 flex items-center gap-1">
+                <span>💡</span>
+                <span>Planifier une date aide à ne pas oublier la tâche !</span>
+              </p>
+            )}
             {showCalendar && (
               <Calendar
                 mode="single"

@@ -167,7 +167,7 @@ export function BottomNavigation({
                   onVocalClick?.()
                   setIsMoreOpen(false)
                 }}
-                className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300"
+                className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300"
               >
                 <Mic className="w-6 h-6" />
                 <span className="text-sm font-medium">Note vocale</span>

@@ -24,7 +24,7 @@ const navigation = [
     tourId: "nav-children",
   },
   {
-    name: "Defis",
+    name: "Défis",
     href: "/challenges",
     icon: Trophy,
     color: "text-orange-500",
@@ -32,7 +32,7 @@ const navigation = [
     tourId: "nav-challenges",
   },
   {
-    name: "Taches",
+    name: "Tâches",
     href: "/tasks",
     icon: CheckSquare,
     color: "text-green-500",

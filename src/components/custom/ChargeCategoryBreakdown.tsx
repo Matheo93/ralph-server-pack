@@ -27,10 +27,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   administratif: "bg-blue-500",
   sante: "bg-red-500",
   ecole: "bg-yellow-500",
-  quotidien: "bg-green-500",
-  social: "bg-purple-500",
-  activites: "bg-pink-500",
-  logistique: "bg-orange-500",
+  quotidien: "bg-emerald-500",
+  social: "bg-sky-500",
+  activites: "bg-teal-500",
+  logistique: "bg-amber-500",
 }
 
 const CATEGORY_ICONS: Record<string, string> = {

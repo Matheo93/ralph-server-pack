@@ -80,7 +80,7 @@ export function useGlobalShortcuts() {
     {
       key: "n",
       handler: () => router.push("/tasks/new"),
-      description: "Nouvelle tache",
+      description: "Nouvelle tâche",
     },
     {
       key: "d",
@@ -90,7 +90,7 @@ export function useGlobalShortcuts() {
     {
       key: "t",
       handler: () => router.push("/tasks"),
-      description: "Voir les taches",
+      description: "Voir les tâches",
     },
     {
       key: "c",
@@ -100,7 +100,7 @@ export function useGlobalShortcuts() {
     {
       key: "s",
       handler: () => router.push("/settings"),
-      description: "Parametres",
+      description: "Paramètres",
     },
     {
       key: "/",

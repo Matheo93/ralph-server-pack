@@ -71,7 +71,21 @@ export const TaskCreateSchema = z.object({
   assigned_to: z.string().uuid("ID d'utilisateur invalide").nullable().optional(),
   deadline: z
     .string()
-    .datetime({ message: "Format de date invalide" })
+    .refine((val) => {
+      if (!val) return true
+      // Accept both ISO datetime and date-only formats
+      const dateOnly = /^\d{4}-\d{2}-\d{2}$/
+      const isoDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
+      return dateOnly.test(val) || isoDateTime.test(val)
+    }, { message: "Format de date invalide" })
+    .transform((val) => {
+      if (!val) return val
+      // Convert date-only to full ISO datetime at end of day
+      if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+        return `${val}T23:59:59.999Z`
+      }
+      return val
+    })
     .nullable()
     .optional(),
   deadline_flexible: z.boolean().default(true),

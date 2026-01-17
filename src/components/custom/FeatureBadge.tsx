@@ -27,7 +27,7 @@ const variantStyles = {
     pulse: false,
   },
   beta: {
-    bg: "bg-gradient-to-r from-purple-500 to-pink-500",
+    bg: "bg-gradient-to-r from-sky-500 to-teal-500",
     text: "Beta",
     pulse: true,
   },

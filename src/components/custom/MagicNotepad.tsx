@@ -319,7 +319,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
             <Button
               size="lg"
               onClick={handleOpen}
-              className="rounded-full w-14 h-14 p-0 shadow-lg bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 border-0"
+              className="rounded-full w-14 h-14 p-0 shadow-lg bg-gradient-to-br from-sky-500 to-teal-500 hover:from-sky-600 hover:to-pink-600 border-0"
               aria-label="Ouvrir le carnet magique"
             >
               <SparklesIcon className="w-6 h-6 text-white" />
@@ -345,7 +345,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
             )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+            <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-sky-500 to-teal-500 text-white">
               <div className="flex items-center gap-2">
                 <SparklesIcon className="w-5 h-5" />
                 <span className="font-semibold text-sm">Carnet Magique</span>
@@ -389,18 +389,18 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                         className={cn(
                           "min-h-[150px] resize-none text-sm",
                           "border-gray-200 dark:border-gray-700",
-                          "focus:ring-purple-500 focus:border-purple-500",
-                          isListening && "bg-purple-50 dark:bg-purple-900/20"
+                          "focus:ring-sky-500 focus:border-sky-500",
+                          isListening && "bg-sky-50 dark:bg-sky-900/20"
                         )}
                         disabled={isListening}
                       />
 
                       {/* Listening indicator */}
                       {isListening && (
-                        <div className="absolute bottom-2 right-2 flex items-center gap-1.5 text-purple-600">
+                        <div className="absolute bottom-2 right-2 flex items-center gap-1.5 text-sky-600">
                           <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500" />
                           </span>
                           <span className="text-xs">Écoute...</span>
                         </div>
@@ -436,7 +436,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                         size="sm"
                         onClick={handleClassify}
                         disabled={!textInput.trim() || isListening || isProcessing}
-                        className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                        className="flex-1 bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-pink-600 text-white"
                       >
                         {isProcessing ? (
                           <>
@@ -466,7 +466,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                       animate={{ rotate: 360 }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                     >
-                      <SparklesIcon className="w-12 h-12 text-purple-500" />
+                      <SparklesIcon className="w-12 h-12 text-sky-500" />
                     </motion.div>
                     <p className="text-sm text-muted-foreground">Classification en cours...</p>
                   </div>
@@ -494,7 +494,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                           className={cn(
                             "p-3 rounded-lg border transition-colors cursor-pointer",
                             selectedTasks.has(index)
-                              ? "border-purple-300 bg-purple-50 dark:border-purple-700 dark:bg-purple-900/30"
+                              ? "border-sky-300 bg-sky-50 dark:border-sky-700 dark:bg-sky-900/30"
                               : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
                           )}
                           onClick={() => toggleTaskSelection(index)}
@@ -505,7 +505,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                               className={cn(
                                 "mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
                                 selectedTasks.has(index)
-                                  ? "border-purple-500 bg-purple-500"
+                                  ? "border-sky-500 bg-sky-500"
                                   : "border-gray-300 dark:border-gray-600"
                               )}
                             >
@@ -553,7 +553,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                         size="sm"
                         onClick={handleCreateTasks}
                         disabled={selectedTasks.size === 0 || isProcessing}
-                        className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                        className="flex-1 bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-600 hover:to-pink-600 text-white"
                       >
                         {isProcessing ? (
                           <>
@@ -579,7 +579,7 @@ export function MagicNotepad({ className }: MagicNotepadProps) {
                 {/* Creating State */}
                 {state === "creating" && (
                   <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
-                    <LoadingSpinner className="w-12 h-12 text-purple-500" />
+                    <LoadingSpinner className="w-12 h-12 text-sky-500" />
                     <p className="text-sm text-muted-foreground">Création des tâches...</p>
                   </div>
                 )}

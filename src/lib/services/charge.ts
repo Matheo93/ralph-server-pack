@@ -13,19 +13,24 @@ interface HouseholdMember {
   email: string
 }
 
+/**
+ * Calculate the current mental load (charge mentale) for a user
+ * Only counts PENDING tasks - completing a task reduces the load
+ */
 export async function calculateCharge(
   userId: string,
   periodDays: number = 7
 ): Promise<{ totalLoad: number; tasksCount: number }> {
+  // Only count PENDING tasks - completed tasks don't count towards current mental load
+  // This ensures that completing tasks REDUCES the score (less stress)
   const result = await queryOne<{ total_load: string; tasks_count: string }>(`
     SELECT
       COALESCE(SUM(load_weight), 0) as total_load,
       COUNT(*) as tasks_count
     FROM tasks
     WHERE assigned_to = $1
-      AND status IN ('done', 'pending')
-      AND (completed_at >= NOW() - INTERVAL '${periodDays} days'
-           OR (status = 'pending' AND deadline >= CURRENT_DATE - INTERVAL '${periodDays} days'))
+      AND status = 'pending'
+      AND deadline >= CURRENT_DATE - INTERVAL '${periodDays} days'
   `, [userId])
 
   return {
@@ -61,39 +66,67 @@ export async function getHouseholdBalance(
     WHERE hm.household_id = $1 AND hm.is_active = true
   `, [householdId])
 
-  // Get task weights per user for the period
-  const taskWeights = await query<TaskWeight>(`
+  // Get PENDING task weights per user (current mental load = tasks not yet done)
+  // Completed tasks REDUCE the load, so we only count pending ones for "current" load
+  const pendingTaskWeights = await query<TaskWeight>(`
     SELECT assigned_to, load_weight
     FROM tasks
     WHERE household_id = $1
-      AND status IN ('done', 'pending')
+      AND status = 'pending'
       AND assigned_to IS NOT NULL
-      AND (completed_at >= NOW() - INTERVAL '${periodDays} days'
-           OR (status = 'pending' AND deadline >= CURRENT_DATE))
+      AND deadline >= CURRENT_DATE - INTERVAL '${periodDays} days'
+  `, [householdId])
+
+  // Get completed task weights for the period (for balance comparison)
+  const completedTaskWeights = await query<TaskWeight>(`
+    SELECT assigned_to, load_weight
+    FROM tasks
+    WHERE household_id = $1
+      AND status = 'done'
+      AND assigned_to IS NOT NULL
+      AND completed_at >= NOW() - INTERVAL '${periodDays} days'
   `, [householdId])
 
   // Calculate totals per member
-  const memberLoads: Map<string, { load: number; count: number }> = new Map()
+  // Current load = pending tasks only (this is the "stress" level)
+  const memberLoads: Map<string, { pendingLoad: number; completedLoad: number; pendingCount: number; completedCount: number }> = new Map()
 
   for (const member of members) {
-    memberLoads.set(member.user_id, { load: 0, count: 0 })
+    memberLoads.set(member.user_id, { pendingLoad: 0, completedLoad: 0, pendingCount: 0, completedCount: 0 })
   }
 
-  let totalHouseholdLoad = 0
-  for (const tw of taskWeights) {
+  let totalPendingLoad = 0
+  let totalCompletedLoad = 0
+
+  // Add pending task weights
+  for (const tw of pendingTaskWeights) {
     const existing = memberLoads.get(tw.assigned_to)
     if (existing) {
-      existing.load += tw.load_weight
-      existing.count += 1
-      totalHouseholdLoad += tw.load_weight
+      existing.pendingLoad += tw.load_weight
+      existing.pendingCount += 1
+      totalPendingLoad += tw.load_weight
     }
   }
+
+  // Add completed task weights (for balance tracking, not for "stress")
+  for (const tw of completedTaskWeights) {
+    const existing = memberLoads.get(tw.assigned_to)
+    if (existing) {
+      existing.completedLoad += tw.load_weight
+      existing.completedCount += 1
+      totalCompletedLoad += tw.load_weight
+    }
+  }
+
+  // Total load for balance calculation = pending load only (current stress)
+  // More completed = less current load = good!
+  const totalHouseholdLoad = totalPendingLoad
 
   // Build member summaries
   const memberSummaries: UserLoadSummary[] = []
   for (const member of members) {
     const data = memberLoads.get(member.user_id)
-    const load = data?.load ?? 0
+    const load = data?.pendingLoad ?? 0
     const percentage = totalHouseholdLoad > 0 ? (load / totalHouseholdLoad) * 100 : 0
 
     memberSummaries.push({
@@ -101,7 +134,7 @@ export async function getHouseholdBalance(
       userName: member.email?.split("@")[0] ?? "Parent",
       totalLoad: load,
       percentage,
-      tasksCount: data?.count ?? 0,
+      tasksCount: data?.pendingCount ?? 0,
     })
   }
 
@@ -137,7 +170,7 @@ export async function assignToLeastLoaded(
   if (members.length === 0) return null
   if (members.length === 1) return members[0]?.user_id ?? null
 
-  // Calculate current load for each member this week
+  // Calculate current PENDING load for each member (only pending tasks count as current stress)
   const loads: { userId: string; load: number }[] = []
 
   for (const member of members) {
@@ -146,9 +179,8 @@ export async function assignToLeastLoaded(
       FROM tasks
       WHERE household_id = $1
         AND assigned_to = $2
-        AND status IN ('done', 'pending')
-        AND (completed_at >= NOW() - INTERVAL '7 days'
-             OR (status = 'pending' AND deadline >= CURRENT_DATE))
+        AND status = 'pending'
+        AND deadline >= CURRENT_DATE - INTERVAL '7 days'
     `, [householdId, member.user_id])
 
     loads.push({
@@ -226,6 +258,7 @@ interface ParentLoad {
 /**
  * Get weekly load for all parents in a household
  * Returns load breakdown by parent for the last 7 days
+ * Only counts PENDING tasks (completed tasks reduce the load)
  */
 export async function getWeeklyLoadByParent(
   householdId: string
@@ -245,9 +278,8 @@ export async function getWeeklyLoadByParent(
     LEFT JOIN users u ON u.id = hm.user_id
     LEFT JOIN tasks t ON t.assigned_to = hm.user_id
       AND t.household_id = hm.household_id
-      AND t.status IN ('done', 'pending')
-      AND (t.completed_at >= NOW() - INTERVAL '7 days'
-           OR (t.status = 'pending' AND t.deadline >= CURRENT_DATE))
+      AND t.status = 'pending'
+      AND t.deadline >= CURRENT_DATE - INTERVAL '7 days'
     WHERE hm.household_id = $1 AND hm.is_active = true
     GROUP BY hm.user_id, u.email
     ORDER BY total_load DESC

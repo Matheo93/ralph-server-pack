@@ -11,10 +11,10 @@ interface KidsTaskListProps {
 }
 
 const priorityColors = {
-  critical: 'border-red-400 bg-red-50',
-  high: 'border-orange-400 bg-orange-50',
-  normal: 'border-gray-200 bg-white',
-  low: 'border-gray-100 bg-gray-50',
+  critical: 'border-red-300 bg-gradient-to-br from-red-50 via-pink-50 to-white shadow-red-100',
+  high: 'border-orange-300 bg-gradient-to-br from-orange-50 via-yellow-50 to-white shadow-orange-100',
+  normal: 'border-purple-200 bg-gradient-to-br from-purple-50 via-pink-50 to-white shadow-purple-100',
+  low: 'border-sky-200 bg-gradient-to-br from-sky-50 via-cyan-50 to-white shadow-sky-100',
 } as const
 
 type PriorityKey = keyof typeof priorityColors
@@ -59,24 +59,28 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
           {pendingTasks.map((task, index) => (
             <motion.button
               key={task.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              transition={{ delay: index * 0.05 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -150, rotate: -5 }}
+              transition={{ delay: index * 0.08, type: 'spring', stiffness: 200 }}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => handleTaskClick(task)}
-              className={`w-full text-left rounded-2xl border-2 p-4 shadow-sm transition-shadow hover:shadow-md ${getPriorityColor(task.priority)}`}
+              className={`w-full text-left rounded-3xl border-3 p-5 shadow-lg hover:shadow-xl transition-all ${getPriorityColor(task.priority)}`}
             >
-              <div className="flex items-start gap-3">
-                {/* Icône catégorie */}
-                <div className="text-3xl flex-shrink-0">
+              <div className="flex items-start gap-4">
+                {/* Icône catégorie avec animation */}
+                <motion.div
+                  className="text-4xl flex-shrink-0 bg-white/60 rounded-2xl w-14 h-14 flex items-center justify-center shadow-inner"
+                  whileHover={{ rotate: [0, -10, 10, 0] }}
+                  transition={{ duration: 0.5 }}
+                >
                   {task.category_icon ?? '📋'}
-                </div>
+                </motion.div>
 
                 {/* Contenu */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-800 text-lg truncate">
+                  <h3 className="font-black text-gray-800 text-lg truncate">
                     {task.title}
                   </h3>
                   {task.description && (
@@ -84,24 +88,31 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
                       {task.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs px-2 py-1 bg-pink-100 text-pink-600 rounded-full font-medium">
-                      +{task.xp_value} XP
-                    </span>
+                  <div className="flex flex-wrap items-center gap-2 mt-3">
+                    <motion.span
+                      className="text-xs px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-bold shadow-md"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      ✨ +{task.xp_value} XP
+                    </motion.span>
                     {task.deadline && (
-                      <span className="text-xs text-gray-400">
-                        Pour le {new Date(task.deadline).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                      <span className="text-xs px-2 py-1 bg-white/70 text-gray-600 rounded-full font-medium">
+                        📅 {new Date(task.deadline).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Bouton action */}
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                    <span className="text-white text-xl">✓</span>
+                {/* Bouton action animé */}
+                <motion.div
+                  className="flex-shrink-0"
+                  whileHover={{ scale: 1.15, rotate: 10 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <div className="w-14 h-14 bg-gradient-to-br from-green-400 via-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-xl border-2 border-white">
+                    <span className="text-white text-2xl font-bold">GO!</span>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </motion.button>
           ))}

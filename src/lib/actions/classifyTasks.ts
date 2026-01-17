@@ -19,8 +19,8 @@ function getOpenAI() {
 const CLASSIFICATION_PROMPT = `Tu es un assistant de gestion familiale expert.
 A partir du texte fourni (notes vocales transcrites ou texte libre), tu dois:
 
-1. EXTRAIRE toutes les taches mentionnees (il peut y en avoir plusieurs)
-2. CLASSER chaque tache selon:
+1. EXTRAIRE toutes les tâches mentionnées (il peut y en avoir plusieurs)
+2. CLASSER chaque tâche selon:
    - title: L'action a faire (verbe + complement), claire et actionable
    - description: Details supplementaires si mentionnes, sinon null
    - child_name: Prenom de l'enfant concerne, ou null
@@ -29,8 +29,8 @@ A partir du texte fourni (notes vocales transcrites ou texte libre), tu dois:
    - deadline_text: La date mentionnee telle quelle ("demain", "lundi prochain", "15 janvier"), ou null
    - assigned_to: "me" (je/moi), "partner" (mon mari/ma femme/conjoint), "both" (tous les deux/ensemble), "anyone" (quelqu'un), ou null
 
-Regles:
-- Une phrase peut contenir PLUSIEURS taches ("acheter du pain ET prendre rdv medecin" = 2 taches)
+Règles:
+- Une phrase peut contenir PLUSIEURS tâches ("acheter du pain ET prendre rdv médecin" = 2 tâches)
 - Categories:
   * "ecole": cantine, fournitures, sorties scolaires, reunions, devoirs
   * "sante": medecin, dentiste, vaccins, ordonnances, pharmacie
@@ -39,7 +39,7 @@ Regles:
   * "social": anniversaires, invitations, cadeaux
   * "activites": sport, musique, loisirs extra-scolaires
   * "logistique": transport, accompagnement, organisation
-- Si une tache semble urgente (mots: "urgent", "vite", "tout de suite"), mets priority=critical
+- Si une tâche semble urgente (mots: "urgent", "vite", "tout de suite"), mets priority=critical
 - Si "on" ou "nous" est mentionne, assigned_to="both"
 
 Reponds UNIQUEMENT avec un JSON valide de ce format:
@@ -199,7 +199,7 @@ export async function classifyTasks(text: string): Promise<ClassifyTasksResult> 
     // Get user and household
     const user = await getUser()
     if (!user) {
-      return { success: false, tasks: [], error: "Non authentifie" }
+      return { success: false, tasks: [], error: "Non authentifié" }
     }
 
     const membership = await getHousehold()
@@ -225,7 +225,7 @@ export async function classifyTasks(text: string): Promise<ClassifyTasksResult> 
 
     const content = completion.choices[0]?.message?.content
     if (!content) {
-      return { success: false, tasks: [], error: "Pas de reponse de l'IA" }
+      return { success: false, tasks: [], error: "Pas de réponse de l'IA" }
     }
 
     // Parse and validate response
@@ -278,7 +278,7 @@ export async function createTasksFromClassification(
 ): Promise<{ success: boolean; taskIds: string[]; errors: string[] }> {
   const user = await getUser()
   if (!user) {
-    return { success: false, taskIds: [], errors: ["Non authentifie"] }
+    return { success: false, taskIds: [], errors: ["Non authentifié"] }
   }
 
   const membership = await getHousehold()

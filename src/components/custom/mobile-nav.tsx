@@ -30,8 +30,8 @@ import {
 const navigation = [
   { name: "Tableau de bord", href: "/dashboard", icon: Home },
   { name: "Enfants", href: "/children", icon: Users },
-  { name: "Defis", href: "/challenges", icon: Trophy },
-  { name: "Taches", href: "/tasks", icon: CheckSquare },
+  { name: "Défis", href: "/challenges", icon: Trophy },
+  { name: "Tâches", href: "/tasks", icon: CheckSquare },
   { name: "Calendrier", href: "/calendar", icon: Calendar },
   { name: "Courses", href: "/shopping", icon: ShoppingCart },
   { name: "Charge mentale", href: "/charge", icon: BarChart3 },

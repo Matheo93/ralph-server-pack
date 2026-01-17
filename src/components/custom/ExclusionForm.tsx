@@ -92,7 +92,7 @@ export function ExclusionForm({
         <DialogHeader>
           <DialogTitle>Nouvelle exclusion temporaire</DialogTitle>
           <DialogDescription>
-            Exclure un membre de l'assignation des taches pendant une periode.
+            Exclure un membre de l'assignation des tâches pendant une période.
           </DialogDescription>
         </DialogHeader>
 
@@ -117,7 +117,7 @@ export function ExclusionForm({
           {/* Date range */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start-date">Date de debut</Label>
+              <Label htmlFor="start-date">Date de début</Label>
               <Input
                 id="start-date"
                 type="date"

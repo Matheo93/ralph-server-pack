@@ -93,7 +93,7 @@ export function TemplateSwitches({ templates, onToggle }: TemplateSwitchesProps)
                         {getAgeLabel(template.age_min, template.age_max)}
                       </Badge>
                       {template.cron_rule && (
-                        <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-950/30">
+                        <Badge variant="outline" className="text-xs bg-sky-50 dark:bg-sky-950/30">
                           Récurrent
                         </Badge>
                       )}

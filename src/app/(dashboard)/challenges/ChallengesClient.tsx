@@ -126,7 +126,7 @@ export function ChallengesClient({
   }
 
   const handleDelete = (challengeId: string) => {
-    if (!confirm('Supprimer ce defi ?')) return
+    if (!confirm('Supprimer ce défi ?')) return
 
     startTransition(async () => {
       await deleteChallenge(challengeId)
@@ -159,29 +159,29 @@ export function ChallengesClient({
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button disabled={householdChildren.length === 0}>
-              Creer un defi
+              Créer un défi
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Nouveau defi</DialogTitle>
+              <DialogTitle>Nouveau défi</DialogTitle>
               <DialogDescription>
-                Creez un defi motivant pour vos enfants
+                Créez un défi motivant pour vos enfants
               </DialogDescription>
             </DialogHeader>
 
             <Tabs value={selectedTab} onValueChange={(v) => setSelectedTab(v as 'template' | 'custom')}>
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="template">Depuis un modele</TabsTrigger>
-                <TabsTrigger value="custom">Personnalise</TabsTrigger>
+                <TabsTrigger value="template">Depuis un modèle</TabsTrigger>
+                <TabsTrigger value="custom">Personnalisé</TabsTrigger>
               </TabsList>
 
               <TabsContent value="template" className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label>Choisir un modele</Label>
+                  <Label>Choisir un modèle</Label>
                   <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selectionner un modele" />
+                      <SelectValue placeholder="Sélectionner un modèle" />
                     </SelectTrigger>
                     <SelectContent>
                       {templates.map(t => (
@@ -203,7 +203,7 @@ export function ChallengesClient({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Assigner a</Label>
+                  <Label>Assigner à</Label>
                   <div className="flex flex-wrap gap-2">
                     {householdChildren.map(child => (
                       <label
@@ -229,7 +229,7 @@ export function ChallengesClient({
                   onClick={handleCreateFromTemplate}
                   disabled={isPending || !selectedTemplate || selectedChildren.length === 0}
                 >
-                  {isPending ? 'Creation...' : 'Creer le defi'}
+                  {isPending ? 'Création...' : 'Créer le défi'}
                 </Button>
               </TabsContent>
 
@@ -249,7 +249,7 @@ export function ChallengesClient({
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Nom du defi</Label>
+                    <Label>Nom du défi</Label>
                     <Input
                       value={customForm.name}
                       onChange={e => setCustomForm(f => ({ ...f, name: e.target.value }))}
@@ -269,18 +269,18 @@ export function ChallengesClient({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Mots-cles (separes par virgules)</Label>
+                    <Label>Mots-clés (séparés par virgules)</Label>
                     <Input
                       value={customForm.triggerTaskKeyword}
                       onChange={e => setCustomForm(f => ({ ...f, triggerTaskKeyword: e.target.value }))}
                       placeholder="ranger, chambre, clean"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Les taches contenant ces mots compteront pour le defi
+                      Les tâches contenant ces mots compteront pour le défi
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label>Nombre de taches requises</Label>
+                    <Label>Nombre de tâches requises</Label>
                     <Input
                       type="number"
                       min={1}
@@ -293,7 +293,7 @@ export function ChallengesClient({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Delai (jours, 0 = illimite)</Label>
+                    <Label>Délai (jours, 0 = illimité)</Label>
                     <Input
                       type="number"
                       min={0}
@@ -303,7 +303,7 @@ export function ChallengesClient({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Recompense XP</Label>
+                    <Label>Récompense XP</Label>
                     <Input
                       type="number"
                       min={1}
@@ -315,16 +315,16 @@ export function ChallengesClient({
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Recompense personnalisee (optionnel)</Label>
+                  <Label>Récompense personnalisée (optionnel)</Label>
                   <Input
                     value={customForm.rewardCustom}
                     onChange={e => setCustomForm(f => ({ ...f, rewardCustom: e.target.value }))}
-                    placeholder="Ex: 1h de jeux video, sortie au cinema..."
+                    placeholder="Ex: 1h de jeux vidéo, sortie au cinéma..."
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Assigner a</Label>
+                  <Label>Assigner à</Label>
                   <div className="flex flex-wrap gap-2">
                     {householdChildren.map(child => (
                       <label
@@ -350,7 +350,7 @@ export function ChallengesClient({
                   onClick={handleCreateCustom}
                   disabled={isPending || !customForm.name || selectedChildren.length === 0}
                 >
-                  {isPending ? 'Creation...' : 'Creer le defi'}
+                  {isPending ? 'Création...' : 'Créer le défi'}
                 </Button>
               </TabsContent>
             </Tabs>
@@ -363,11 +363,11 @@ export function ChallengesClient({
         <Card className="text-center py-12">
           <CardContent>
             <div className="text-6xl mb-4">🎯</div>
-            <h3 className="text-xl font-semibold mb-2">Aucun defi</h3>
+            <h3 className="text-xl font-semibold mb-2">Aucun défi</h3>
             <p className="text-muted-foreground mb-4">
               {householdChildren.length === 0
-                ? 'Ajoutez d\'abord des enfants pour creer des defis'
-                : 'Creez votre premier defi pour motiver vos enfants'}
+                ? 'Ajoutez d\'abord des enfants pour créer des défis'
+                : 'Créez votre premier défi pour motiver vos enfants'}
             </p>
           </CardContent>
         </Card>
@@ -376,7 +376,7 @@ export function ChallengesClient({
       {/* Active challenges */}
       {activeChallenges.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Defis en cours</h2>
+          <h2 className="text-xl font-semibold">Défis en cours</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {activeChallenges.map(challenge => (
               <ChallengeCard
@@ -394,7 +394,7 @@ export function ChallengesClient({
       {/* Completed/Inactive challenges */}
       {completedChallenges.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-muted-foreground">Defis termines</h2>
+          <h2 className="text-xl font-semibold text-muted-foreground">Défis terminés</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 opacity-75">
             {completedChallenges.map(challenge => (
               <ChallengeCard
@@ -480,7 +480,7 @@ function ChallengeCard({
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">{child.first_name}</span>
                   <span className={completed ? 'text-green-600' : 'text-muted-foreground'}>
-                    {completed ? 'Termine!' : `${count}/${challenge.required_count}`}
+                    {completed ? 'Terminé !' : `${count}/${challenge.required_count}`}
                   </span>
                 </div>
                 <Progress value={percentage} className="h-2" />

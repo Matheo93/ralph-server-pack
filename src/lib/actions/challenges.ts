@@ -75,7 +75,7 @@ async function getHouseholdId(userId: string): Promise<string | null> {
 // ============================================================
 
 /**
- * Recupere tous les templates de challenges actifs
+ * Récupère tous les templates de challenges actifs
  */
 export async function getChallengeTemplates(): Promise<ActionResult<ChallengeTemplate[]>> {
   try {
@@ -90,7 +90,7 @@ export async function getChallengeTemplates(): Promise<ActionResult<ChallengeTem
 }
 
 /**
- * Recupere un template par son slug
+ * Récupère un template par son slug
  */
 export async function getChallengeTemplateBySlug(
   slug: string
@@ -112,19 +112,19 @@ export async function getChallengeTemplateBySlug(
 // ============================================================
 
 /**
- * Cree un nouveau challenge (custom ou depuis template)
+ * Crée un nouveau challenge (custom ou depuis template)
  */
 export async function createChallenge(
   input: CreateChallengeInput
 ): Promise<ActionResult<{ challengeId: string }>> {
   const validation = createChallengeSchema.safeParse(input)
   if (!validation.success) {
-    return { success: false, error: validation.error.issues[0]?.message ?? 'Donnees invalides' }
+    return { success: false, error: validation.error.issues[0]?.message ?? 'Données invalides' }
   }
 
   const userId = await getUserId()
   if (!userId) {
-    return { success: false, error: 'Non connecte' }
+    return { success: false, error: 'Non connecté' }
   }
 
   await setCurrentUser(userId)
@@ -175,7 +175,7 @@ export async function createChallenge(
     })
 
     if (!challenge) {
-      return { success: false, error: 'Erreur lors de la creation' }
+      return { success: false, error: 'Erreur lors de la création' }
     }
 
     // Create initial progress records for each child
@@ -191,12 +191,12 @@ export async function createChallenge(
     return { success: true, data: { challengeId: challenge.id } }
   } catch (error) {
     console.error('Erreur createChallenge:', error)
-    return { success: false, error: 'Erreur lors de la creation du defi' }
+    return { success: false, error: 'Erreur lors de la création du défi' }
   }
 }
 
 /**
- * Cree un challenge depuis un template
+ * Crée un challenge depuis un template
  */
 export async function createChallengeFromTemplate(
   templateSlug: string,
@@ -204,7 +204,7 @@ export async function createChallengeFromTemplate(
 ): Promise<ActionResult<{ challengeId: string }>> {
   const userId = await getUserId()
   if (!userId) {
-    return { success: false, error: 'Non connecte' }
+    return { success: false, error: 'Non connecté' }
   }
 
   await setCurrentUser(userId)
@@ -237,14 +237,14 @@ export async function createChallengeFromTemplate(
 }
 
 /**
- * Recupere tous les challenges du foyer
+ * Récupère tous les challenges du foyer
  */
 export async function getChallenges(
   includeInactive = false
 ): Promise<ActionResult<ChallengeWithProgress[]>> {
   const userId = await getUserId()
   if (!userId) {
-    return { success: false, error: 'Non connecte' }
+    return { success: false, error: 'Non connecté' }
   }
 
   await setCurrentUser(userId)
@@ -325,14 +325,14 @@ export async function getChallenges(
 }
 
 /**
- * Recupere un challenge par son ID
+ * Récupère un challenge par son ID
  */
 export async function getChallengeById(
   challengeId: string
 ): Promise<ActionResult<ChallengeWithProgress | null>> {
   const userId = await getUserId()
   if (!userId) {
-    return { success: false, error: 'Non connecte' }
+    return { success: false, error: 'Non connecté' }
   }
 
   await setCurrentUser(userId)
@@ -424,12 +424,12 @@ export async function updateChallenge(
 ): Promise<ActionResult> {
   const validation = updateChallengeSchema.safeParse(input)
   if (!validation.success) {
-    return { success: false, error: validation.error.issues[0]?.message ?? 'Donnees invalides' }
+    return { success: false, error: validation.error.issues[0]?.message ?? 'Données invalides' }
   }
 
   const userId = await getUserId()
   if (!userId) {
-    return { success: false, error: 'Non connecte' }
+    return { success: false, error: 'Non connecté' }
   }
 
   await setCurrentUser(userId)
@@ -448,7 +448,7 @@ export async function updateChallenge(
   )
 
   if (!existing) {
-    return { success: false, error: 'Defi introuvable' }
+    return { success: false, error: 'Défi introuvable' }
   }
 
   try {
@@ -492,7 +492,7 @@ export async function updateChallenge(
     return { success: true }
   } catch (error) {
     console.error('Erreur updateChallenge:', error)
-    return { success: false, error: 'Erreur lors de la mise a jour' }
+    return { success: false, error: 'Erreur lors de la mise à jour' }
   }
 }
 
@@ -502,7 +502,7 @@ export async function updateChallenge(
 export async function deleteChallenge(challengeId: string): Promise<ActionResult> {
   const userId = await getUserId()
   if (!userId) {
-    return { success: false, error: 'Non connecte' }
+    return { success: false, error: 'Non connecté' }
   }
 
   await setCurrentUser(userId)
@@ -520,7 +520,7 @@ export async function deleteChallenge(challengeId: string): Promise<ActionResult
     )
 
     if (!existing) {
-      return { success: false, error: 'Defi introuvable' }
+      return { success: false, error: 'Défi introuvable' }
     }
 
     // Delete challenge (cascade deletes progress)
@@ -559,7 +559,7 @@ export async function updateChallengeProgress(
 ): Promise<ActionResult<ChallengeProgress>> {
   const userId = await getUserId()
   if (!userId) {
-    return { success: false, error: 'Non connecte' }
+    return { success: false, error: 'Non connecté' }
   }
 
   await setCurrentUser(userId)
@@ -577,12 +577,12 @@ export async function updateChallengeProgress(
     )
 
     if (!challenge) {
-      return { success: false, error: 'Defi introuvable ou inactif' }
+      return { success: false, error: 'Défi introuvable ou inactif' }
     }
 
     // Verify child is in challenge
     if (!challenge.child_ids.includes(childId)) {
-      return { success: false, error: 'Enfant non assigne a ce defi' }
+      return { success: false, error: 'Enfant non assigné à ce défi' }
     }
 
     // Get or create progress
@@ -600,7 +600,7 @@ export async function updateChallengeProgress(
     }
 
     if (!progress) {
-      return { success: false, error: 'Erreur creation progression' }
+      return { success: false, error: 'Erreur création progression' }
     }
 
     // Don't update if already completed
@@ -655,7 +655,7 @@ export async function updateChallengeProgress(
     return { success: true, data: updatedProgress! }
   } catch (error) {
     console.error('Erreur updateChallengeProgress:', error)
-    return { success: false, error: 'Erreur lors de la mise a jour' }
+    return { success: false, error: 'Erreur lors de la mise à jour' }
   }
 }
 
@@ -668,7 +668,7 @@ export async function completeChallenge(
 ): Promise<ActionResult> {
   const userId = await getUserId()
   if (!userId) {
-    return { success: false, error: 'Non connecte' }
+    return { success: false, error: 'Non connecté' }
   }
 
   await setCurrentUser(userId)
@@ -686,7 +686,7 @@ export async function completeChallenge(
     )
 
     if (!challenge) {
-      return { success: false, error: 'Defi introuvable' }
+      return { success: false, error: 'Défi introuvable' }
     }
 
     // Get progress

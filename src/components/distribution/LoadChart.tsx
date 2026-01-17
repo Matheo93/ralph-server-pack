@@ -25,10 +25,10 @@ interface LoadChartProps {
 
 const COLORS = [
   "bg-blue-500",
-  "bg-green-500",
-  "bg-purple-500",
-  "bg-orange-500",
-  "bg-pink-500",
+  "bg-emerald-500",
+  "bg-sky-500",
+  "bg-amber-500",
+  "bg-teal-500",
   "bg-cyan-500",
 ]
 
@@ -174,10 +174,10 @@ export function DonutChart({
                 index === 0
                   ? "text-blue-500"
                   : index === 1
-                  ? "text-green-500"
+                  ? "text-emerald-500"
                   : index === 2
-                  ? "text-purple-500"
-                  : "text-orange-500"
+                  ? "text-sky-500"
+                  : "text-amber-500"
               )}
             />
           )

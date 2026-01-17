@@ -53,7 +53,7 @@ const GUIDE_STEPS: GuideStep[] = [
     title: "Charge mentale",
     description:
       "Visualisez la répartition de la charge entre les parents et identifiez les déséquilibres à corriger.",
-    icon: <BarChart3 className="w-8 h-8 text-purple-500" />,
+    icon: <BarChart3 className="w-8 h-8 text-amber-500" />,
     highlight: "[data-nav='charge']",
   },
   {

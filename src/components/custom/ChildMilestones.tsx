@@ -112,7 +112,7 @@ export function ChildMilestones({
   return (
     <div className={cn("space-y-6", className)}>
       {/* Age and Birthday Banner */}
-      <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-200">
+      <Card className="bg-gradient-to-r from-blue-500/10 to-sky-500/10 border-blue-200">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
@@ -383,7 +383,7 @@ export function ChildMilestones({
         {/* Celebrations Tab */}
         <TabsContent value="celebrations" className="space-y-4">
           {/* Next birthday */}
-          <Card className="bg-gradient-to-r from-pink-50 to-purple-50 border-pink-200">
+          <Card className="bg-gradient-to-r from-pink-50 to-rose-50 border-pink-200">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full bg-pink-100 flex items-center justify-center">
@@ -756,7 +756,7 @@ function CelebrationItem({ celebration }: CelebrationItemProps) {
 
   const Icon = celebration.celebrationType
     ? typeIcons[celebration.celebrationType]
-    : <PartyPopper className="h-5 w-5 text-purple-500" />
+    : <PartyPopper className="h-5 w-5 text-pink-500" />
 
   return (
     <Card className="hover:shadow-md transition-shadow">

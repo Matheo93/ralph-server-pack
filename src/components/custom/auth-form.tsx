@@ -86,7 +86,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     setSuccess(null)
     startTransition(async () => {
       const result = await signup(data)
-      if (result.error) {
+      if (!result.success && result.error) {
         setError(result.error)
         return
       }

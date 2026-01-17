@@ -11,10 +11,11 @@ export function Hero() {
       {/* Background gradient - warm tones */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/20 to-secondary/10" />
 
-      {/* Decorative shapes */}
-      <div className="absolute top-20 left-10 w-32 h-32 rounded-full bg-primary/10 blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-40 h-40 rounded-full bg-accent/20 blur-3xl" />
-      <div className="absolute top-40 right-1/4 w-24 h-24 rounded-full bg-secondary/20 blur-2xl" />
+      {/* Animated decorative shapes - floating blobs */}
+      <div className="absolute top-20 left-10 w-32 h-32 bg-primary/10 blur-3xl animate-blob animate-float-slow" />
+      <div className="absolute bottom-20 right-10 w-40 h-40 bg-accent/20 blur-3xl animate-blob animate-float-delay-1" />
+      <div className="absolute top-40 right-1/4 w-24 h-24 bg-secondary/20 blur-2xl animate-blob animate-float-delay-2" />
+      <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-primary/5 blur-2xl animate-blob animate-float-delay-3" />
 
       <div className="container relative py-20 md:py-32">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
