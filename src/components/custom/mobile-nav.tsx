@@ -24,11 +24,13 @@ import {
   Bell,
   CreditCard,
   Shield,
+  Trophy,
 } from "lucide-react"
 
 const navigation = [
   { name: "Tableau de bord", href: "/dashboard", icon: Home },
   { name: "Enfants", href: "/children", icon: Users },
+  { name: "Defis", href: "/challenges", icon: Trophy },
   { name: "Taches", href: "/tasks", icon: CheckSquare },
   { name: "Calendrier", href: "/calendar", icon: Calendar },
   { name: "Courses", href: "/shopping", icon: ShoppingCart },

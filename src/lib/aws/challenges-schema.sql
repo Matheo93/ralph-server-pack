@@ -133,7 +133,7 @@ CREATE INDEX IF NOT EXISTS idx_challenge_progress_active ON challenge_progress(c
 CREATE INDEX IF NOT EXISTS idx_challenge_progress_log_progress ON challenge_progress_log(challenge_progress_id);
 
 -- ============================================================
--- RLS POLICIES
+-- RLS POLICIES (using app.current_user_id for PostgreSQL RDS)
 -- ============================================================
 
 ALTER TABLE challenge_templates ENABLE ROW LEVEL SECURITY;
@@ -147,39 +147,43 @@ CREATE POLICY "challenge_templates_select_all" ON challenge_templates FOR SELECT
 -- Challenges: membres du foyer
 CREATE POLICY "challenges_select" ON challenges FOR SELECT
     USING (household_id IN (
-        SELECT household_id FROM household_members WHERE user_id = auth.uid()
+        SELECT household_id FROM household_members
+        WHERE user_id = current_setting('app.current_user_id', true)::uuid
     ));
 CREATE POLICY "challenges_insert" ON challenges FOR INSERT
     WITH CHECK (household_id IN (
-        SELECT household_id FROM household_members WHERE user_id = auth.uid()
+        SELECT household_id FROM household_members
+        WHERE user_id = current_setting('app.current_user_id', true)::uuid
     ));
 CREATE POLICY "challenges_update" ON challenges FOR UPDATE
     USING (household_id IN (
-        SELECT household_id FROM household_members WHERE user_id = auth.uid()
+        SELECT household_id FROM household_members
+        WHERE user_id = current_setting('app.current_user_id', true)::uuid
     ));
 CREATE POLICY "challenges_delete" ON challenges FOR DELETE
     USING (household_id IN (
-        SELECT household_id FROM household_members WHERE user_id = auth.uid()
+        SELECT household_id FROM household_members
+        WHERE user_id = current_setting('app.current_user_id', true)::uuid
     ));
 
--- Challenge progress: parents du foyer (via children -> household)
+-- Challenge progress: via children -> household
 CREATE POLICY "challenge_progress_select" ON challenge_progress FOR SELECT
     USING (child_id IN (
         SELECT c.id FROM children c
         JOIN household_members hm ON hm.household_id = c.household_id
-        WHERE hm.user_id = auth.uid()
+        WHERE hm.user_id = current_setting('app.current_user_id', true)::uuid
     ));
 CREATE POLICY "challenge_progress_insert" ON challenge_progress FOR INSERT
     WITH CHECK (child_id IN (
         SELECT c.id FROM children c
         JOIN household_members hm ON hm.household_id = c.household_id
-        WHERE hm.user_id = auth.uid()
+        WHERE hm.user_id = current_setting('app.current_user_id', true)::uuid
     ));
 CREATE POLICY "challenge_progress_update" ON challenge_progress FOR UPDATE
     USING (child_id IN (
         SELECT c.id FROM children c
         JOIN household_members hm ON hm.household_id = c.household_id
-        WHERE hm.user_id = auth.uid()
+        WHERE hm.user_id = current_setting('app.current_user_id', true)::uuid
     ));
 
 -- Challenge progress log: via challenge_progress
@@ -188,14 +192,14 @@ CREATE POLICY "challenge_progress_log_select" ON challenge_progress_log FOR SELE
         SELECT cp.id FROM challenge_progress cp
         JOIN children c ON c.id = cp.child_id
         JOIN household_members hm ON hm.household_id = c.household_id
-        WHERE hm.user_id = auth.uid()
+        WHERE hm.user_id = current_setting('app.current_user_id', true)::uuid
     ));
 CREATE POLICY "challenge_progress_log_insert" ON challenge_progress_log FOR INSERT
     WITH CHECK (challenge_progress_id IN (
         SELECT cp.id FROM challenge_progress cp
         JOIN children c ON c.id = cp.child_id
         JOIN household_members hm ON hm.household_id = c.household_id
-        WHERE hm.user_id = auth.uid()
+        WHERE hm.user_id = current_setting('app.current_user_id', true)::uuid
     ));
 
 -- ============================================================
@@ -266,8 +270,8 @@ DECLARE
     v_current_count INTEGER;
     v_task_category_code VARCHAR(50);
 BEGIN
-    -- Only process when task is marked as completed
-    IF NEW.status = 'completed' AND (OLD.status IS NULL OR OLD.status != 'completed') AND NEW.child_id IS NOT NULL THEN
+    -- Only process when task is marked as done (completed)
+    IF NEW.status = 'done' AND (OLD.status IS NULL OR OLD.status != 'done') AND NEW.child_id IS NOT NULL THEN
         -- Get task category code
         SELECT code INTO v_task_category_code
         FROM task_categories

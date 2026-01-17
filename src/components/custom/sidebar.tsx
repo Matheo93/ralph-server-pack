@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, Users, CheckSquare, Calendar, ShoppingCart, Scale, Settings, Sparkles } from "lucide-react"
+import { Home, Users, CheckSquare, Calendar, ShoppingCart, Scale, Settings, Sparkles, Trophy } from "lucide-react"
 import { PremiumBadge } from "./PremiumBadge"
 
 const navigation = [
@@ -22,6 +22,14 @@ const navigation = [
     color: "text-blue-500",
     bgActive: "bg-blue-50",
     tourId: "nav-children",
+  },
+  {
+    name: "Defis",
+    href: "/challenges",
+    icon: Trophy,
+    color: "text-orange-500",
+    bgActive: "bg-orange-50",
+    tourId: "nav-challenges",
   },
   {
     name: "Taches",
