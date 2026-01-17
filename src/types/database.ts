@@ -857,3 +857,307 @@ export type Notification = Tables<"notifications">
 export type Subscription = Tables<"subscriptions">
 export type Invitation = Tables<"invitations">
 export type MemberExclusion = Tables<"member_exclusions">
+
+// ============================================================
+// KIDS INTERFACE TYPES
+// ============================================================
+
+// Child Account (compte enfant avec PIN)
+export interface ChildAccount {
+  id: string
+  child_id: string
+  pin_hash: string
+  current_xp: number
+  current_level: number
+  streak_current: number
+  streak_best: number
+  last_activity_at: string | null
+  total_tasks_completed: number
+  created_at: string
+  updated_at: string
+}
+
+export interface ChildAccountInsert {
+  id?: string
+  child_id: string
+  pin_hash: string
+  current_xp?: number
+  current_level?: number
+  streak_current?: number
+  streak_best?: number
+  last_activity_at?: string | null
+  total_tasks_completed?: number
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ChildAccountUpdate {
+  id?: string
+  child_id?: string
+  pin_hash?: string
+  current_xp?: number
+  current_level?: number
+  streak_current?: number
+  streak_best?: number
+  last_activity_at?: string | null
+  total_tasks_completed?: number
+  created_at?: string
+  updated_at?: string
+}
+
+// XP Level (configuration des niveaux)
+export interface XpLevel {
+  level: number
+  name: string
+  xp_required: number
+  icon: string | null
+}
+
+// Badge système
+export interface Badge {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  icon: string | null
+  condition_type: 'tasks_completed' | 'streak_days' | 'level_reached' | 'special'
+  condition_value: number
+  xp_reward: number
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}
+
+// Badge débloqué par enfant
+export interface ChildBadge {
+  id: string
+  child_id: string
+  badge_id: string
+  unlocked_at: string
+  seen_at: string | null
+}
+
+export interface ChildBadgeInsert {
+  id?: string
+  child_id: string
+  badge_id: string
+  unlocked_at?: string
+  seen_at?: string | null
+}
+
+// Transaction XP
+export interface XpTransaction {
+  id: string
+  child_id: string
+  amount: number
+  reason: 'task_completed' | 'badge_earned' | 'bonus_streak' | 'reward_spent'
+  task_id: string | null
+  badge_id: string | null
+  created_at: string
+}
+
+export interface XpTransactionInsert {
+  id?: string
+  child_id: string
+  amount: number
+  reason: 'task_completed' | 'badge_earned' | 'bonus_streak' | 'reward_spent'
+  task_id?: string | null
+  badge_id?: string | null
+  created_at?: string
+}
+
+// Preuve photo
+export interface TaskProof {
+  id: string
+  task_id: string
+  child_id: string
+  photo_url: string
+  photo_taken_at: string
+  status: 'pending' | 'approved' | 'rejected'
+  rejection_reason: string | null
+  validated_by: string | null
+  validated_at: string | null
+  xp_awarded: number | null
+  created_at: string
+}
+
+export interface TaskProofInsert {
+  id?: string
+  task_id: string
+  child_id: string
+  photo_url: string
+  photo_taken_at?: string
+  status?: 'pending' | 'approved' | 'rejected'
+  rejection_reason?: string | null
+  validated_by?: string | null
+  validated_at?: string | null
+  xp_awarded?: number | null
+  created_at?: string
+}
+
+export interface TaskProofUpdate {
+  id?: string
+  task_id?: string
+  child_id?: string
+  photo_url?: string
+  photo_taken_at?: string
+  status?: 'pending' | 'approved' | 'rejected'
+  rejection_reason?: string | null
+  validated_by?: string | null
+  validated_at?: string | null
+  xp_awarded?: number | null
+  created_at?: string
+}
+
+// Récompense
+export interface Reward {
+  id: string
+  household_id: string
+  name: string
+  description: string | null
+  xp_cost: number
+  reward_type: 'screen_time' | 'money' | 'privilege' | 'custom'
+  icon: string
+  screen_time_minutes: number | null
+  money_amount: number | null
+  is_active: boolean
+  max_redemptions_per_week: number | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface RewardInsert {
+  id?: string
+  household_id: string
+  name: string
+  description?: string | null
+  xp_cost: number
+  reward_type: 'screen_time' | 'money' | 'privilege' | 'custom'
+  icon?: string
+  screen_time_minutes?: number | null
+  money_amount?: number | null
+  is_active?: boolean
+  max_redemptions_per_week?: number | null
+  created_by?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface RewardUpdate {
+  id?: string
+  household_id?: string
+  name?: string
+  description?: string | null
+  xp_cost?: number
+  reward_type?: 'screen_time' | 'money' | 'privilege' | 'custom'
+  icon?: string
+  screen_time_minutes?: number | null
+  money_amount?: number | null
+  is_active?: boolean
+  max_redemptions_per_week?: number | null
+  created_by?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+// Échange de récompense
+export interface RewardRedemption {
+  id: string
+  reward_id: string | null
+  child_id: string
+  reward_snapshot: Json
+  xp_spent: number
+  status: 'pending' | 'approved' | 'rejected' | 'delivered'
+  requested_at: string
+  validated_by: string | null
+  validated_at: string | null
+  rejection_reason: string | null
+  delivered_at: string | null
+}
+
+export interface RewardRedemptionInsert {
+  id?: string
+  reward_id?: string | null
+  child_id: string
+  reward_snapshot: Json
+  xp_spent: number
+  status?: 'pending' | 'approved' | 'rejected' | 'delivered'
+  requested_at?: string
+  validated_by?: string | null
+  validated_at?: string | null
+  rejection_reason?: string | null
+  delivered_at?: string | null
+}
+
+export interface RewardRedemptionUpdate {
+  id?: string
+  reward_id?: string | null
+  child_id?: string
+  reward_snapshot?: Json
+  xp_spent?: number
+  status?: 'pending' | 'approved' | 'rejected' | 'delivered'
+  requested_at?: string
+  validated_by?: string | null
+  validated_at?: string | null
+  rejection_reason?: string | null
+  delivered_at?: string | null
+}
+
+// Historique streak enfant
+export interface ChildStreakHistory {
+  id: string
+  child_id: string
+  streak_date: string
+  tasks_completed: number
+  streak_value: number
+  created_at: string
+}
+
+export interface ChildStreakHistoryInsert {
+  id?: string
+  child_id: string
+  streak_date: string
+  tasks_completed?: number
+  streak_value: number
+  created_at?: string
+}
+
+// Types composites pour l'interface enfant
+export interface ChildWithAccount extends Child {
+  account: ChildAccount | null
+}
+
+export interface BadgeWithStatus extends Badge {
+  unlocked: boolean
+  unlocked_at: string | null
+  seen: boolean
+}
+
+export interface ChildDashboardData {
+  child: Child
+  account: ChildAccount
+  level: XpLevel
+  nextLevel: XpLevel | null
+  todayTasks: Task[]
+  pendingProofs: TaskProof[]
+  recentBadges: (ChildBadge & { badge: Badge })[]
+  streak: {
+    current: number
+    best: number
+    lastActivity: string | null
+  }
+}
+
+export interface LeaderboardEntry {
+  child_id: string
+  first_name: string
+  avatar_url: string | null
+  current_xp: number
+  current_level: number
+  level_name: string
+  level_icon: string
+  total_tasks_completed: number
+  streak_current: number
+  rank: number
+}

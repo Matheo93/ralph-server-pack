@@ -64,7 +64,7 @@ function generateCSP(nonce: string): string {
   return directives.join("; ")
 }
 
-// Routes that require authentication
+// Routes that require parent authentication
 const protectedRoutes = ["/dashboard", "/children", "/onboarding", "/settings"]
 
 // Routes that should redirect to dashboard if already authenticated
@@ -72,6 +72,10 @@ const authRoutes = ["/login", "/signup"]
 
 // Routes that are always public
 const publicRoutes = ["/", "/callback", "/confirm"]
+
+// Routes for kids interface (separate auth system)
+const kidsPublicRoutes = ["/kids", "/kids/select"] // Sélection profil enfant
+const kidsProtectedRoutes = ["/kids/dashboard", "/kids/shop", "/kids/badges", "/kids/profile"]
 
 function isProtectedRoute(pathname: string): boolean {
   return protectedRoutes.some((route) => pathname.startsWith(route))
@@ -83,6 +87,53 @@ function isAuthRoute(pathname: string): boolean {
 
 function isPublicRoute(pathname: string): boolean {
   return publicRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`))
+}
+
+function isKidsPublicRoute(pathname: string): boolean {
+  // /kids et /kids/[childId]/login sont publics
+  if (pathname === "/kids") return true
+  if (pathname.match(/^\/kids\/[^/]+\/login$/)) return true
+  return kidsPublicRoutes.some((route) => pathname === route)
+}
+
+function isKidsProtectedRoute(pathname: string): boolean {
+  // Routes enfant protégées: /kids/[childId]/dashboard, shop, badges, profile
+  if (pathname.match(/^\/kids\/[^/]+\/(dashboard|shop|badges|profile)$/)) return true
+  return kidsProtectedRoutes.some((route) => pathname.startsWith(route))
+}
+
+function isKidsRoute(pathname: string): boolean {
+  return pathname.startsWith("/kids")
+}
+
+// Vérifie la session enfant
+function getKidsSession(request: NextRequest): { childId: string; firstName: string } | null {
+  try {
+    const sessionCookie = request.cookies.get("kids_session")?.value
+    if (!sessionCookie) return null
+
+    const session = JSON.parse(sessionCookie) as {
+      childId: string
+      firstName: string
+      createdAt: number
+    }
+
+    // Vérifier l'expiration (4 heures)
+    const SESSION_MAX_AGE = 60 * 60 * 4 * 1000
+    if (Date.now() - session.createdAt > SESSION_MAX_AGE) {
+      return null
+    }
+
+    return { childId: session.childId, firstName: session.firstName }
+  } catch {
+    return null
+  }
+}
+
+// Extrait le childId de l'URL /kids/[childId]/...
+function extractChildIdFromPath(pathname: string): string | null {
+  const match = pathname.match(/^\/kids\/([^/]+)/)
+  return match?.[1] || null
 }
 
 // Decode JWT without verification (verification done by Cognito on API calls)
@@ -114,6 +165,58 @@ function isTokenExpired(token: string): boolean {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // ============================================================
+  // KIDS INTERFACE ROUTING
+  // ============================================================
+  if (isKidsRoute(pathname)) {
+    const kidsSession = getKidsSession(request)
+    const pathChildId = extractChildIdFromPath(pathname)
+
+    // Routes publiques enfant (sélection profil, login)
+    if (isKidsPublicRoute(pathname)) {
+      // Si déjà connecté avec une session enfant, rediriger vers le dashboard
+      if (kidsSession && pathname === "/kids") {
+        return NextResponse.redirect(
+          new URL(`/kids/${kidsSession.childId}/dashboard`, request.url)
+        )
+      }
+      // Si sur la page login et déjà connecté pour cet enfant
+      if (kidsSession && pathChildId === kidsSession.childId && pathname.endsWith("/login")) {
+        return NextResponse.redirect(
+          new URL(`/kids/${kidsSession.childId}/dashboard`, request.url)
+        )
+      }
+      // Continuer normalement
+    }
+
+    // Routes protégées enfant (dashboard, shop, badges, profile)
+    if (isKidsProtectedRoute(pathname)) {
+      // Pas de session = rediriger vers sélection profil
+      if (!kidsSession) {
+        return NextResponse.redirect(new URL("/kids", request.url))
+      }
+
+      // Session pour un autre enfant = rediriger vers login de cet enfant
+      if (pathChildId && pathChildId !== kidsSession.childId) {
+        return NextResponse.redirect(
+          new URL(`/kids/${pathChildId}/login`, request.url)
+        )
+      }
+    }
+
+    // Continue avec les headers de sécurité
+    const response = NextResponse.next()
+    const nonce = generateNonce()
+    const csp = generateCSP(nonce)
+    response.headers.set("Content-Security-Policy", csp)
+    response.headers.set("X-Nonce", nonce)
+    return response
+  }
+
+  // ============================================================
+  // PARENT INTERFACE ROUTING
+  // ============================================================
 
   // Get auth tokens from cookies
   const idToken = request.cookies.get("id_token")?.value
