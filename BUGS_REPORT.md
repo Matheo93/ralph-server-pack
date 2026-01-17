@@ -123,4 +123,30 @@ Pas de nouveau commit détecté dans familyload.
 
 ---
 
-*Dernière mise à jour: 2026-01-17 - Boucle 2*
+## Boucle 3 - Retest + API (après 10 min)
+
+**Heure:** ~10 min après premier test
+
+### Pages
+- / (Landing): ✅
+- /api/health: ✅ (status: degraded - mémoire haute 90%)
+- /api/v1/auth: ✅ (validation Zod fonctionne)
+
+### API Health Response
+```json
+{
+  "status": "degraded",
+  "checks": {
+    "database": {"status": "ok", "latency": 102},
+    "redis": {"status": "ok"},
+    "memory": {"status": "warning", "message": "Memory high: 229MB / 254MB (90%)"}
+  }
+}
+```
+
+### Note
+- Mémoire serveur à 90% - peut nécessiter un restart ou optimisation
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 3*
