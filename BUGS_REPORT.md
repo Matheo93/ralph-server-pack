@@ -627,3 +627,72 @@ PGPASSWORD=xxx psql -h ralph-test-db.xxx.rds.amazonaws.com -U ralph -d ralphdb -
 ---
 
 *Dernière mise à jour: 2026-01-17 - Boucle 22*
+
+---
+
+## Boucle 23 - Tests Playwright (nouveau)
+
+**Heure:** 2026-01-17 ~06:30 UTC
+**Status:** OK (serveur répond)
+
+### Tests Effectués
+
+#### Pages Publiques
+| Page | Status | Notes |
+|------|--------|-------|
+| / (Landing) | ✅ OK | Rendu complet |
+| /login | ✅ OK | Formulaire fonctionnel |
+| /signup | ✅ OK | Création compte OK, email confirmation envoyé |
+| /kids | ✅ OK | Redirection auto vers dashboard enfant |
+| /kids/login | ❌ 404 | **BUG**: Route non trouvée |
+
+#### Interface Kids (avec enfant existant)
+| Page | Status | Notes |
+|------|--------|-------|
+| /kids/[id]/dashboard | ✅ OK | Affichage OK, erreurs DB console |
+| /kids/[id]/challenges | ✅ OK | Affichage OK, erreurs DB console |
+| /kids/[id]/shop | ✅ OK | Boutique vide |
+| /kids/[id]/badges | ✅ OK | 15 badges à débloquer |
+| /kids/[id]/profile | ✅ OK | Profil complet affiché |
+
+### Nouveaux Bugs Identifiés
+
+#### Bug #6 - Route /kids/login retourne 404
+**Date:** 2026-01-17
+**Page:** /kids/login
+**Priorité:** HAUTE
+**Attendu:** Page de sélection de profil enfant ou login PIN
+**Réel:** "404: This page could not be found."
+**Impact:** L'accès direct à /kids/login ne fonctionne pas
+**Note:** Le fichier existe dans `src/app/(kids)/kids/login/` mais la route ne fonctionne pas
+
+#### Bug #7 - Erreurs DB persistantes sur toutes pages Kids
+**Date:** 2026-01-17
+**Pages:** /kids/[id]/*
+**Priorité:** MOYENNE
+**Erreurs console:**
+- `Database query error`
+- `Error fetching counts`
+- `Erreur getActiveChallengesForChild`
+- `Erreur getChallengeStatsForChild`
+- `Erreur getCompletedChallengesForChild`
+**Impact:** Pages fonctionnent mais données potentiellement incomplètes
+**Cause probable:** Tables challenges non créées en DB (voir Bug #5)
+
+### Warnings CSP (non bloquants)
+Les erreurs CSP persistent sur toutes les pages:
+- img-src invalid source
+- connect-src invalid source
+- media-src invalid source
+
+### Résumé Boucle 23
+| Métrique | Valeur |
+|----------|--------|
+| Pages testées | 10 |
+| Pages OK | 9/10 (90%) |
+| Bugs critiques | 1 (404 /kids/login) |
+| Bugs DB | Persistants (tables manquantes) |
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 23 (Playwright)*
