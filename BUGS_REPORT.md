@@ -750,3 +750,38 @@ Les erreurs CSP persistent sur toutes les pages:
 ---
 
 *Dernière mise à jour: 2026-01-17 - Boucle 24*
+
+---
+
+## Boucle 25 - Monitoring rapide
+
+**Heure:** 2026-01-17 ~05:36 UTC
+**Status:** UNHEALTHY (mémoire 95%)
+
+### API Health
+```json
+{
+  "status": "unhealthy",
+  "memory": "95% (270/284 MB)",
+  "database": "ok (73ms)",
+  "redis": "ok",
+  "uptime": "277s"
+}
+```
+
+### Tests rapides
+| Page | Status |
+|------|--------|
+| / (Landing) | ✅ OK |
+| /kids → dashboard | ✅ OK |
+
+### Observation
+- Cette fois, pas d'erreurs "Error fetching counts" sur /kids/dashboard
+- Les queries DB s'exécutent correctement (11 queries logged)
+- Erreurs CSP toujours présentes (non bloquant)
+
+### Nouveaux commits: Non
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 25*
