@@ -788,7 +788,7 @@ Les erreurs CSP persistent sur toutes les pages:
 
 ---
 
-## Boucle 26 - AMÉLIORATION DÉTECTÉE 🎉
+## Boucle 26 - AMÉLIORATION DÉTECTÉE
 
 **Heure:** 2026-01-17 ~05:40 UTC
 **Status:** UNHEALTHY (mémoire en baisse)
@@ -810,7 +810,7 @@ Les erreurs CSP persistent sur toutes les pages:
 | /api/health | ✅ | Mémoire en baisse |
 | /kids/[id]/challenges | ✅ OK | **PLUS D'ERREURS DB!** |
 
-### 🎉 CORRECTION CONFIRMÉE - Page Challenges
+### CORRECTION CONFIRMÉE - Page Challenges
 - **Avant:** Erreurs console `Database query error`, `Erreur getActiveChallengesForChild`, etc.
 - **Maintenant:** 7 queries exécutées avec succès, AUCUNE erreur DB
 - **UI améliorée:** Stats ajoutées (En cours, Terminés, XP gagnés)
@@ -831,3 +831,73 @@ Les erreurs CSP persistent sur toutes les pages:
 ---
 
 *Dernière mise à jour: 2026-01-17 - Boucle 26*
+
+---
+
+## Boucle 27 - Test Complet Playwright
+
+**Heure:** 2026-01-17 ~06:45 UTC
+**Status:** OK (serveur répond)
+
+### Pages Publiques
+| Page | Status | Notes |
+|------|--------|-------|
+| / (Landing) | ✅ OK | Rendu complet, toutes sections visibles |
+| /login | ✅ OK | Formulaire fonctionnel |
+| /signup | ✅ OK | Formulaire création compte |
+| /privacy | ✅ OK | Politique confidentialité complète |
+| /terms | ✅ OK | CGU complètes |
+
+### Interface Kids
+| Page | Status | Notes |
+|------|--------|-------|
+| /kids | ✅ OK | Redirection auto vers dashboard enfant existant |
+| /kids/login | ❌ 404 | **BUG CONFIRMÉ** - Route non trouvée |
+| /kids/[id]/dashboard | ✅ OK | Profil Test Enfant, 0 XP, Niveau 1 |
+| /kids/[id]/challenges | ✅ OK | Stats affichées (0 en cours, 0 terminés, 0 XP) |
+| /kids/[id]/shop | ✅ OK | Boutique vide "Pas encore de récompenses" |
+| /kids/[id]/badges | ✅ OK | 15 badges à débloquer, onglets fonctionnels |
+| /kids/[id]/profile | ✅ OK | Profil complet avec stats |
+
+### Bugs Confirmés
+1. **Bug #6** - /kids/login retourne 404 (HAUTE priorité)
+2. **Bug #1** - Page 404 en anglais (BASSE priorité)
+3. **Bug #2** - Erreurs CSP dans console (BASSE priorité)
+
+### Résumé Boucle 27
+| Métrique | Valeur |
+|----------|--------|
+| Pages testées | 12 |
+| Pages OK | 11/12 (92%) |
+| Bugs confirmés | 3 |
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 27 (Playwright)*
+
+---
+
+## RÉSUMÉ GLOBAL DES BUGS
+
+### Bugs Critiques (à corriger en priorité)
+| # | Bug | Page | Priorité | Status |
+|---|-----|------|----------|--------|
+| 6 | Route /kids/login retourne 404 | /kids/login | HAUTE | OUVERT |
+| 5 | Tables challenges manquantes | DB | CRITIQUE | À VÉRIFIER |
+
+### Bugs Moyens
+| # | Bug | Page | Priorité | Status |
+|---|-----|------|----------|--------|
+| 3 | Erreurs DB page Challenges | /kids/[id]/challenges | HAUTE | POSSIBLEMENT CORRIGÉ |
+| 4 | Erreurs DB Dashboard Kids | /kids/[id]/dashboard | HAUTE | POSSIBLEMENT CORRIGÉ |
+| 7 | Erreurs DB persistantes | /kids/[id]/* | MOYENNE | POSSIBLEMENT CORRIGÉ |
+
+### Bugs Mineurs
+| # | Bug | Page | Priorité | Status |
+|---|-----|------|----------|--------|
+| 1 | Page 404 en anglais | /* | BASSE | OUVERT |
+| 2 | Erreurs CSP console | Toutes | BASSE | OUVERT |
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 27*
