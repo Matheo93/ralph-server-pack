@@ -59,7 +59,7 @@ export function InstallPrompt() {
       // Request 45 seconds after page load, coordinator handles sequencing
       setTimeout(() => {
         popupCoordinator.requestPopup("pwa-install")
-      }, 45000) // 45 seconds - second popup, coordinator handles sequencing
+      }, 90000) // 90 seconds - second popup, coordinator handles sequencing
     }
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
@@ -78,7 +78,7 @@ export function InstallPrompt() {
     if (isIOSDevice) {
       const timer = setTimeout(() => {
         popupCoordinator.requestPopup("pwa-install")
-      }, 45000) // 45 seconds - second popup, coordinator handles sequencing
+      }, 90000) // 90 seconds - second popup, coordinator handles sequencing
       return () => clearTimeout(timer)
     }
 
