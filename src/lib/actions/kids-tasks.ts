@@ -254,7 +254,7 @@ export async function approveTaskProof(
 
     // Calculer XP total avec bonus
     let totalXp = proof.xp_awarded ?? calculateTaskXp(proof.load_weight)
-    let streakBonus = calculateStreakBonus(account.streak_current)
+    const streakBonus = calculateStreakBonus(account.streak_current)
     let specialBonuses = 0
 
     // Bonus early bird

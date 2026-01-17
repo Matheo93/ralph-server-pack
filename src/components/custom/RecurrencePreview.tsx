@@ -68,7 +68,7 @@ function getNextOccurrences(
   count: number = 5
 ): Date[] {
   const occurrences: Date[] = []
-  let current = new Date(startDate)
+  const current = new Date(startDate)
   current.setHours(0, 0, 0, 0)
 
   const maxIterations = 365 // Safety limit

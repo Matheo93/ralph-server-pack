@@ -278,7 +278,7 @@ export function updateTemplate(
     JSON.stringify(updates.countries) !== JSON.stringify(template.countries);
 
   // Remove old template
-  let updatedStore = categoryChanged || countriesChanged
+  const updatedStore = categoryChanged || countriesChanged
     ? removeTemplate(store, templateId)
     : store;
 

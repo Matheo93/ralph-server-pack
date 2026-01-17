@@ -1001,7 +1001,7 @@ describe("Backup & Restore", () => {
       let store = createBackupStore()
 
       // Create expired backup
-      let expired = createBackupMetadata({ ...defaultConfig, retentionDays: 1 }, ["users"])
+      const expired = createBackupMetadata({ ...defaultConfig, retentionDays: 1 }, ["users"])
       expired.startedAt = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
       store = addBackupToStore(store, expired)
 

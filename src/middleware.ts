@@ -74,7 +74,7 @@ const authRoutes = ["/login", "/signup"]
 const publicRoutes = ["/", "/callback", "/confirm"]
 
 // Routes for kids interface (separate auth system)
-const kidsPublicRoutes = ["/kids", "/kids/select"] // Sélection profil enfant
+const kidsPublicRoutes = ["/kids", "/kids/select"] // Note: /kids/login/[childId] is also public (checked dynamically) // Sélection profil enfant
 const kidsProtectedRoutes = ["/kids/dashboard", "/kids/shop", "/kids/badges", "/kids/profile"]
 
 function isProtectedRoute(pathname: string): boolean {
@@ -90,9 +90,9 @@ function isPublicRoute(pathname: string): boolean {
 }
 
 function isKidsPublicRoute(pathname: string): boolean {
-  // /kids et /kids/[childId]/login sont publics
+  // /kids et /kids/login/[childId] sont publics
   if (pathname === "/kids") return true
-  if (pathname.match(/^\/kids\/[^/]+\/login$/)) return true
+  if (pathname.match(/^\/kids\/login\/[^/]+$/)) return true
   return kidsPublicRoutes.some((route) => pathname === route)
 }
 
@@ -200,7 +200,7 @@ export async function middleware(request: NextRequest) {
       // Session pour un autre enfant = rediriger vers login de cet enfant
       if (pathChildId && pathChildId !== kidsSession.childId) {
         return NextResponse.redirect(
-          new URL(`/kids/${pathChildId}/login`, request.url)
+          new URL(`/kids/login/${pathChildId}`, request.url)
         )
       }
     }

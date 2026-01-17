@@ -685,7 +685,7 @@ describe("Task Generator", () => {
 
     it("should confirm preview and create task", () => {
       const preview = createTestPreview("preview_123")
-      let updated = addPreview(store, preview)
+      const updated = addPreview(store, preview)
       // confirmTask returns { store, task }
       const result = confirmTask(updated, "preview_123", "household_123", "member_456")
 
@@ -747,7 +747,7 @@ describe("Task Generator", () => {
 
     it("should get confirmed tasks with filters", () => {
       const preview = createTestPreview("preview_123")
-      let updated = addPreview(store, preview)
+      const updated = addPreview(store, preview)
       const { store: updatedStore } = confirmTask(updated, "preview_123", "household_123", "member_456")
 
       // getConfirmedTasks takes store and optional filters object

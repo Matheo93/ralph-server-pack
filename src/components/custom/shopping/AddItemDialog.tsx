@@ -47,7 +47,8 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
 
     const name = formData.get("name") as string
     const quantity = parseFloat(formData.get("quantity") as string) || 1
-    const unit = formData.get("unit") as Unit | ""
+    const unitRaw = formData.get("unit") as string
+    const unit: Unit | null = unitRaw && unitRaw !== "none" ? (unitRaw as Unit) : null
     const category = formData.get("category") as ShoppingCategory
     const note = formData.get("note") as string
     const urgent = formData.get("urgent") === "on"
@@ -62,7 +63,7 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
         list_id: listId,
         name: name.trim(),
         quantity,
-        unit: unit || null,
+        unit,
         category,
         note: note || null,
         priority: urgent ? 1 : 0,
@@ -120,7 +121,7 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
                   <SelectValue placeholder="Unite..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Aucune</SelectItem>
+                  <SelectItem value="none">Aucune</SelectItem>
                   {UNITS.map((unit) => (
                     <SelectItem key={unit} value={unit}>
                       {UNIT_LABELS[unit]}

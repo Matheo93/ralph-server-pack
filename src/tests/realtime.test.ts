@@ -232,7 +232,7 @@ describe("WebSocket Manager", () => {
     })
 
     it("should determine connection health", () => {
-      let info = createHeartbeatInfo()
+      const info = createHeartbeatInfo()
       expect(isConnectionHealthy(info)).toBe(true)
     })
   })
@@ -247,7 +247,7 @@ describe("WebSocket Manager", () => {
 
     it("should track active connections", () => {
       let pool = createConnectionPool(10)
-      let conn = createConnectionInfo("conn_1")
+      const conn = createConnectionInfo("conn_1")
       pool = addConnection(pool, conn)!
       pool = updateConnection(pool, "conn_1", { state: "connected" })
       expect(pool.activeConnections).toBe(1)

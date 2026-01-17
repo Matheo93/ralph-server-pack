@@ -38,7 +38,7 @@ export function KidsProfileSelector({ children }: KidsProfileSelectorProps) {
   const router = useRouter()
 
   const handleSelectChild = (childId: string) => {
-    router.push(`/kids/${childId}/login`)
+    router.push(`/kids/login/${childId}`)
   }
 
   return (

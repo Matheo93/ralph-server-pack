@@ -499,3 +499,7 @@ Features:
 All Sprint 20 tests pass: 2725 tests
 Build: OK
 Lines of code: 163K
+[2026-01-17 01:14:41] [INFO] 🍩 RALPH STARTING - /home/ubuntu/familyload
+[2026-01-17 01:14:41] [INFO] ━━━ Iteration 1 ━━━
+[2026-01-17 01:14:41] [INFO] Tasks remaining: 55
+[2026-01-17 01:14:41] [INFO] Running Claude (attempt 1/5)...

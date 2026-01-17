@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { CelebrationOverlay } from '@/components/kids/CelebrationOverlay'
 import type { ChallengeForChild, CompletedChallenge } from '@/types/database'
 
 interface ChallengesGridProps {
@@ -8,14 +9,59 @@ interface ChallengesGridProps {
   completedChallenges: CompletedChallenge[]
 }
 
+// Detecte les defis completes recemment (dans les 5 dernieres minutes)
+function getRecentlyCompletedChallenge(challenges: CompletedChallenge[]): CompletedChallenge | null {
+  const fiveMinutesAgo = Date.now() - 5 * 60 * 1000
+
+  for (const challenge of challenges) {
+    if (challenge.progress.completed_at) {
+      const completedTime = new Date(challenge.progress.completed_at).getTime()
+      if (completedTime > fiveMinutesAgo) {
+        // Verifier si on n'a pas deja celebre ce defi (localStorage)
+        const celebratedKey = `challenge_celebrated_${challenge.id}`
+        if (typeof window !== 'undefined' && !localStorage.getItem(celebratedKey)) {
+          return challenge
+        }
+      }
+    }
+  }
+  return null
+}
+
 export function ChallengesGrid({
   activeChallenges,
   completedChallenges,
 }: ChallengesGridProps) {
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
+  const [celebrationChallenge, setCelebrationChallenge] = useState<CompletedChallenge | null>(null)
+
+  // Detecter un defi recemment complete pour afficher la celebration
+  useEffect(() => {
+    const recentChallenge = getRecentlyCompletedChallenge(completedChallenges)
+    if (recentChallenge) {
+      setCelebrationChallenge(recentChallenge)
+      // Marquer comme celebre pour ne pas re-afficher
+      localStorage.setItem(`challenge_celebrated_${recentChallenge.id}`, 'true')
+    }
+  }, [completedChallenges])
+
+  const handleCelebrationComplete = () => {
+    setCelebrationChallenge(null)
+  }
 
   return (
     <div>
+      {/* Celebration overlay pour defi complete */}
+      <CelebrationOverlay
+        isVisible={celebrationChallenge !== null}
+        type="badge"
+        icon={celebrationChallenge?.icon ?? '🏆'}
+        title="Defi Releve!"
+        subtitle={celebrationChallenge ? `${celebrationChallenge.name} - +${celebrationChallenge.progress.xp_awarded} XP` : undefined}
+        onComplete={handleCelebrationComplete}
+        duration={3500}
+      />
+
       {/* Tabs */}
       <div className="flex gap-2 mb-4">
         <button

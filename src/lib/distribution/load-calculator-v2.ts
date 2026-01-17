@@ -350,7 +350,7 @@ export function calculateTaskWeight(
   const explanation: string[] = []
 
   // Base weight from category
-  let baseWeight = categoryWeight.baseWeight
+  const baseWeight = categoryWeight.baseWeight
   explanation.push(`Base: ${baseWeight} (catégorie ${validatedInput.category})`)
 
   // Calculate individual multipliers

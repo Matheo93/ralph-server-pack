@@ -324,7 +324,7 @@ export function recordSuccess(breaker: CircuitBreaker): CircuitBreaker {
   const newSuccessCount = breaker.successCount + 1
 
   let newState = breaker.state
-  let newFailureCount = 0 // Reset on success
+  const newFailureCount = 0 // Reset on success
 
   // If half-open and we've hit success threshold, close the circuit
   if (breaker.state === "half_open" && newSuccessCount >= breaker.config.successThreshold) {
@@ -353,7 +353,7 @@ export function recordFailure(breaker: CircuitBreaker): CircuitBreaker {
   const newFailureCount = breaker.failureCount + 1
 
   let newState = breaker.state
-  let newSuccessCount = 0 // Reset on failure
+  const newSuccessCount = 0 // Reset on failure
 
   // Check if we should open the circuit
   if (breaker.state === "closed" || breaker.state === "half_open") {
