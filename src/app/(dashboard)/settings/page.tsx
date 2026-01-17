@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User, Home, Dumbbell, Bell, FileText, Shield, ChevronRight, Trash2 } from "lucide-react"
+import { User, Home, Dumbbell, Bell, FileText, Shield, ChevronRight, Trash2, Sparkles } from "lucide-react"
 
 const SETTINGS_SECTIONS = [
   {
@@ -21,6 +21,15 @@ const SETTINGS_SECTIONS = [
     color: "text-orange-500",
     bgColor: "bg-orange-50 dark:bg-orange-950/30",
     borderColor: "border-orange-200 dark:border-orange-800",
+  },
+  {
+    title: "Espace Enfants",
+    description: "Tâches et récompenses",
+    href: "/settings/kids",
+    icon: Sparkles,
+    color: "text-pink-500",
+    bgColor: "bg-pink-50 dark:bg-pink-950/30",
+    borderColor: "border-pink-200 dark:border-pink-800",
   },
   {
     title: "Préférences",

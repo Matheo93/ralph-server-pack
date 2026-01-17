@@ -451,18 +451,22 @@ async function checkAndAwardBadges(
 /**
  * Récupère les preuves en attente de validation (pour parent)
  */
-export async function getPendingProofs(
-  householdId: string
-): Promise<ActionResult<Array<TaskProof & { task_title: string; child_name: string; child_avatar: string | null }>>> {
+export async function getPendingProofs(): Promise<ActionResult<Array<TaskProof & { task_title: string; child_name: string; child_avatar: string | null }>>> {
   try {
+    const userId = await import('@/lib/auth/actions').then(m => m.getUserId())
+    if (!userId) {
+      return { success: false, error: 'Non authentifié' }
+    }
+
     const proofs = await query<TaskProof & { task_title: string; child_name: string; child_avatar: string | null }>(
       `SELECT tp.*, t.title as task_title, c.first_name as child_name, c.avatar_url as child_avatar
        FROM task_proofs tp
        JOIN tasks t ON t.id = tp.task_id
        JOIN children c ON c.id = tp.child_id
-       WHERE t.household_id = $1 AND tp.status = 'pending'
+       JOIN household_members hm ON hm.household_id = t.household_id
+       WHERE hm.user_id = $1 AND tp.status = 'pending'
        ORDER BY tp.created_at DESC`,
-      [householdId]
+      [userId]
     )
 
     return { success: true, data: proofs }
