@@ -24,7 +24,7 @@ export function InviteCoParentCTA({ className, inline = false }: InviteCoParentC
     // Invite co-parent is lowest priority - register last
     const timer = setTimeout(() => {
       popupCoordinator.requestPopup("invite-coparent")
-    }, 780000) // 13 minutes - lowest priority, after notifications and PWA
+    }, 1560000) // 26 minutes - lowest priority, after notifications and PWA
 
     return () => clearTimeout(timer)
   }, [popupCoordinator])

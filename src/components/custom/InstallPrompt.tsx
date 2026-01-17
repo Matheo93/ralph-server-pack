@@ -59,7 +59,7 @@ export function InstallPrompt() {
       // PWA install is second priority - register after notifications
       setTimeout(() => {
         popupCoordinator.requestPopup("pwa-install")
-      }, 480000) // 8 minutes - after notifications popup
+      }, 960000) // 16 minutes - after notifications popup
     }
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
@@ -78,7 +78,7 @@ export function InstallPrompt() {
     if (isIOSDevice) {
       const timer = setTimeout(() => {
         popupCoordinator.requestPopup("pwa-install")
-      }, 480000) // 8 minutes - after notifications popup
+      }, 960000) // 16 minutes - after notifications popup
       return () => clearTimeout(timer)
     }
 
