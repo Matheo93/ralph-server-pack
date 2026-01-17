@@ -2,8 +2,8 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Landing page error: Navigation timeout of 30000 ms exceeded
-  ❌ Landing page: Navigation timeout of 30000 ms exceeded
+❌ Dashboard error: Navigation timeout of 30000 ms exceeded
+  ❌ Dashboard: Navigation timeout of 30000 ms exceeded
 
 ---
 
