@@ -2,11 +2,11 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Landing page error: net::ERR_SOCKET_NOT_CONNECTED at http://localhost:3000
-❌ Dashboard error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/dashboard
-❌ Settings household error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/settings/household
-❌ Children error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/children
-  ❌ Landing page: net::ERR_SOCKET_NOT_CONNECTED at http://localhost:3000
+❌ Landing page error: Protocol error (Runtime.callFunctionOn): Target closed
+❌ Dashboard error: Attempted to use detached Frame '09525CD0289BB4E451C382D50F918EB6'.
+❌ Settings household error: Attempted to use detached Frame '09525CD0289BB4E451C382D50F918EB6'.
+❌ Children error: Attempted to use detached Frame '09525CD0289BB4E451C382D50F918EB6'.
+  ❌ Landing page: Protocol error (Runtime.callFunctionOn): Target closed
 
 ---
 
