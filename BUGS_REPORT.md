@@ -204,4 +204,37 @@ Pas de nouveau commit détecté dans familyload.
 
 ---
 
-*Dernière mise à jour: 2026-01-17 - Boucle 5*
+## Boucle 6 - Mémoire stabilisée (après 25 min)
+
+**Heure:** ~25 min après premier test
+
+### API Health - AMÉLIORATION
+```json
+{
+  "status": "degraded",
+  "checks": {
+    "database": {"status": "ok", "latency": 135},
+    "memory": {"status": "warning", "message": "Memory high: 285MB / 370MB (77%)"}
+  }
+}
+```
+
+### Évolution mémoire
+| Boucle | Status | Mémoire |
+|--------|--------|---------|
+| 3 | degraded | 90% (229/254 MB) |
+| 4 | unhealthy | 95% (217/228 MB) |
+| 5 | unhealthy | 93% (463/501 MB) |
+| 6 | degraded | 77% (285/370 MB) ✅ |
+
+### Conclusion
+- GC a fait son travail
+- La mémoire se stabilise
+- Le serveur reste fonctionnel
+
+### Pages testées
+- /kids: ✅
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 6*
