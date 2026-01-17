@@ -56,10 +56,10 @@ export function InstallPrompt() {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
       // PWA install is second priority - register after notifications
-      // Request immediately - coordinator queue will handle ordering and delays
+      // Request after user settles - coordinator queue will handle ordering and delays
       setTimeout(() => {
         popupCoordinator.requestPopup("pwa-install")
-      }, 15000) // 15 seconds - request early, coordinator controls actual display
+      }, 120000) // 120 seconds - request after user settles, coordinator controls actual display
     }
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
@@ -74,11 +74,11 @@ export function InstallPrompt() {
     window.addEventListener("appinstalled", handleAppInstalled)
 
     // Show iOS instructions after a delay if on iOS
-    // Request early - coordinator handles the initial delay and queue
+    // Request after user settles - coordinator handles the initial delay and queue
     if (isIOSDevice) {
       const timer = setTimeout(() => {
         popupCoordinator.requestPopup("pwa-install")
-      }, 15000) // 15 seconds - request early, coordinator controls actual display
+      }, 120000) // 120 seconds - request after user settles, coordinator controls actual display
       return () => clearTimeout(timer)
     }
 
