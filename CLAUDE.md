@@ -2,8 +2,7 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Dashboard error: Navigation timeout of 30000 ms exceeded
-  ❌ Dashboard: Navigation timeout of 30000 ms exceeded
+❌ Children error: Navigation timeout of 30000 ms exceeded
 
 ---
 
