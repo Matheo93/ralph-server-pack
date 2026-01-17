@@ -15,64 +15,106 @@
   "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "icons": [
     {
+      "src": "/icons/icon-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "/icons/icon-72.png",
       "sizes": "72x72",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-96.png",
       "sizes": "96x96",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-128.png",
       "sizes": "128x128",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-144.png",
       "sizes": "144x144",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-152.png",
       "sizes": "152x152",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-384.png",
       "sizes": "384x384",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "screenshots": [
     {
-      "src": "/screenshots/dashboard",
+      "src": "/screenshots/dashboard.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Dashboard FamilyLoad - Vue d'ensemble de vos tâches familiales"
     },
     {
-      "src": "/screenshots/mobile",
+      "src": "/screenshots/mobile.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
@@ -85,21 +127,21 @@
       "short_name": "Tâche",
       "description": "Créer une nouvelle tâche familiale",
       "url": "/tasks/new?source=shortcut",
-      "icons": [{ "src": "/icons/shortcut-task.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/shortcut-task.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Tâches du jour",
       "short_name": "Aujourd'hui",
       "description": "Voir les tâches à faire aujourd'hui",
       "url": "/tasks/today?source=shortcut",
-      "icons": [{ "src": "/icons/shortcut-today.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/shortcut-today.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Charge mentale",
       "short_name": "Charge",
       "description": "Visualiser la répartition de la charge mentale",
       "url": "/charge?source=shortcut",
-      "icons": [{ "src": "/icons/shortcut-charge.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/shortcut-charge.png", "sizes": "96x96", "type": "image/png" }]
     }
   ],
   "related_applications": [],
