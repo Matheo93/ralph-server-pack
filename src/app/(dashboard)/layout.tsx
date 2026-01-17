@@ -4,6 +4,7 @@ import { getMessages, getLocale } from "next-intl/server"
 import { getUser } from "@/lib/auth/actions"
 import { getHousehold } from "@/lib/actions/household"
 import { QueryProvider } from "@/lib/providers/QueryProvider"
+import { PopupCoordinatorProvider } from "@/lib/providers/PopupCoordinator"
 import { Sidebar } from "@/components/custom/sidebar"
 import { Header } from "@/components/custom/header"
 import { MobileNav } from "@/components/custom/mobile-nav"
@@ -73,6 +74,7 @@ export default async function DashboardLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <QueryProvider>
+        <PopupCoordinatorProvider>
         <CoachMarksProvider>
         <PageTransitionProvider>
           <SkipLinks />
@@ -133,6 +135,7 @@ export default async function DashboardLayout({
           </div>
         </PageTransitionProvider>
         </CoachMarksProvider>
+        </PopupCoordinatorProvider>
       </QueryProvider>
     </NextIntlClientProvider>
   )

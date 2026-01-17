@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Download, X, Smartphone } from "lucide-react"
+import { usePopupCoordinator } from "@/lib/providers/PopupCoordinator"
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[]
@@ -13,9 +14,6 @@ interface BeforeInstallPromptEvent extends Event {
   }>
   prompt(): Promise<void>
 }
-
-const DISMISSED_KEY = "pwa-install-dismissed"
-const DISMISSED_DURATION = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 // Register service worker
 function registerServiceWorker() {
@@ -30,10 +28,14 @@ function registerServiceWorker() {
 
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [showPrompt, setShowPrompt] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
-  const [showIOSInstructions, setShowIOSInstructions] = useState(false)
+
+  // Use popup coordinator for visibility - ALWAYS use coordinator, no fallback
+  const popupCoordinator = usePopupCoordinator()
+
+  const showPrompt = popupCoordinator.isPopupAllowed("pwa-install")
+  const showIOSInstructions = popupCoordinator.isPopupAllowed("pwa-install")
 
   useEffect(() => {
     // Register service worker
@@ -49,20 +51,14 @@ export function InstallPrompt() {
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
     setIsIOS(isIOSDevice)
 
-    // Check if dismissed recently
-    const dismissedAt = localStorage.getItem(DISMISSED_KEY)
-    if (dismissedAt) {
-      const dismissedTime = parseInt(dismissedAt, 10)
-      if (Date.now() - dismissedTime < DISMISSED_DURATION) {
-        return
-      }
-    }
-
     // Listen for beforeinstallprompt event (Android/Desktop)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
-      setShowPrompt(true)
+      // Delay to allow higher priority popups to show first
+      setTimeout(() => {
+        popupCoordinator.requestPopup("pwa-install")
+      }, 15000) // 15 seconds delay - lower priority than push notifications
     }
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
@@ -70,7 +66,7 @@ export function InstallPrompt() {
     // Listen for successful installation
     const handleAppInstalled = () => {
       setIsInstalled(true)
-      setShowPrompt(false)
+      popupCoordinator.dismissPopup("pwa-install")
       setDeferredPrompt(null)
     }
 
@@ -79,8 +75,8 @@ export function InstallPrompt() {
     // Show iOS instructions after a delay if on iOS
     if (isIOSDevice) {
       const timer = setTimeout(() => {
-        setShowIOSInstructions(true)
-      }, 3000)
+        popupCoordinator.requestPopup("pwa-install")
+      }, 15000) // 15 seconds delay - allows push notification to show first
       return () => clearTimeout(timer)
     }
 
@@ -88,7 +84,7 @@ export function InstallPrompt() {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
       window.removeEventListener("appinstalled", handleAppInstalled)
     }
-  }, [])
+  }, [popupCoordinator])
 
   const handleInstall = async () => {
     if (!deferredPrompt) return
@@ -98,7 +94,7 @@ export function InstallPrompt() {
       const { outcome } = await deferredPrompt.userChoice
 
       if (outcome === "accepted") {
-        setShowPrompt(false)
+        popupCoordinator.dismissPopup("pwa-install")
       }
     } catch {
       // User cancelled or error occurred
@@ -107,11 +103,9 @@ export function InstallPrompt() {
     setDeferredPrompt(null)
   }
 
-  const handleDismiss = () => {
-    setShowPrompt(false)
-    setShowIOSInstructions(false)
-    localStorage.setItem(DISMISSED_KEY, Date.now().toString())
-  }
+  const handleDismiss = useCallback(() => {
+    popupCoordinator.dismissPopup("pwa-install")
+  }, [popupCoordinator])
 
   // Don't show if already installed
   if (isInstalled) return null
