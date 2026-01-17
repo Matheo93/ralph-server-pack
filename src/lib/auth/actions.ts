@@ -109,6 +109,26 @@ export async function login(data: LoginInput): Promise<AuthActionResult> {
       })
     }
 
+    // Sync user to RDS if not exists (from Cognito sub)
+    try {
+      const parts = IdToken!.split(".")
+      if (parts.length === 3 && parts[1]) {
+        const payload = JSON.parse(Buffer.from(parts[1], "base64").toString()) as Record<string, unknown>
+        const sub = payload["sub"] as string
+        const userEmail = payload["email"] as string
+        if (sub && userEmail) {
+          await query(
+            `INSERT INTO users (id, email, auth_provider, role)
+             VALUES (\$1, \$2, 'cognito', 'parent_principal')
+             ON CONFLICT (id) DO NOTHING`,
+            [sub, userEmail]
+          )
+        }
+      }
+    } catch (syncErr) {
+      console.error("Failed to sync user to RDS:", syncErr)
+    }
+
     revalidatePath("/", "layout")
     redirect("/dashboard")
   } catch (error) {

@@ -43,12 +43,12 @@ function DashboardUnscheduledInner({ tasks }: DashboardUnscheduledProps) {
           <div className="text-sm text-orange-700">
             <p className="font-medium">
               {tasks.length === 1
-                ? "1 tâche sans date à planifier"
-                : `${tasks.length} tâches sans date à planifier`
+                ? "Cette tâche n'a pas encore de date"
+                : `Ces ${tasks.length} tâches n'ont pas encore de date`
               }
             </p>
             <p className="text-orange-600/80 mt-0.5">
-              Ces tâches n&apos;ont pas de date limite. Ajoutez une date pour mieux vous organiser !
+              Ajoutez une date limite pour qu&apos;elles apparaissent dans votre planning et ne soient pas oubliées !
             </p>
           </div>
         </div>
