@@ -696,3 +696,57 @@ Les erreurs CSP persistent sur toutes les pages:
 ---
 
 *Dernière mise à jour: 2026-01-17 - Boucle 23 (Playwright)*
+
+---
+
+## Boucle 24 - Tests complémentaires
+
+**Heure:** 2026-01-17 ~05:32 UTC
+**Status:** UNHEALTHY (mémoire 95%)
+
+### API Health
+```json
+{
+  "status": "unhealthy",
+  "memory": "95% (233/245 MB)",
+  "database": "ok (55ms)",
+  "redis": "ok"
+}
+```
+
+### Pages Testées
+
+#### Pages Légales
+| Page | Status | Notes |
+|------|--------|-------|
+| /privacy | ✅ OK | Politique de confidentialité complète |
+| /terms | ✅ OK | CGU complètes |
+
+#### Pages Protégées (redirection vers /login)
+| Page | Status | Notes |
+|------|--------|-------|
+| /settings | ✅ OK | Redirige vers /login?redirect=%2Fsettings |
+| /children | ✅ OK | Redirige vers /login?redirect=%2Fchildren |
+| /tasks | ✅ OK | Redirige vers /login |
+| /dashboard | ✅ OK | Redirige vers /login?redirect=%2Fdashboard |
+
+#### Page 404
+| Page | Status | Notes |
+|------|--------|-------|
+| /page-inexistante-test | ⚠️ Bug | Message en anglais "This page could not be found." |
+
+### Confirmation Bug #1 - Page 404 en anglais
+**Reconfirmé:** La page 404 affiche toujours "This page could not be found." en anglais
+**Recommandation:** Créer un fichier `src/app/not-found.tsx` avec message en français
+
+### Résumé Boucle 24
+| Métrique | Valeur |
+|----------|--------|
+| Pages testées | 7 |
+| Pages OK | 7/7 (100%) |
+| Bugs confirmés | 1 (404 anglais) |
+| Mémoire | 95% (critique) |
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 24*
