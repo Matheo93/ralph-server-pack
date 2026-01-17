@@ -563,3 +563,42 @@ Note: Serveur continue de répondre malgré mémoire critique à 97%.
 ---
 
 *Dernière mise à jour: 2026-01-17 - Boucle 21 (TEST KIDS COMPLET)*
+
+---
+
+## [CRITIQUE] Bug #5 - Tables Challenges manquantes en DB
+
+**Date:** 2026-01-17
+**Source:** Investigation Boucle 21
+**Priorité:** CRITIQUE
+
+### Problème
+Le code `feat(challenges): add challenges/quests XP system for kids` (commit b750dc9) a été ajouté mais les tables DB n'ont pas été créées.
+
+### Tables manquantes
+1. `challenge_templates` - Templates de défis prédéfinis
+2. `challenges` - Défis actifs/complétés
+3. `challenge_progress` - Progression par enfant
+4. `challenge_progress_log` - Historique des progressions
+
+### Impact
+- Page /kids/[id]/challenges génère des erreurs DB
+- Les fonctions `getActiveChallengesForChild`, `getChallengeStatsForChild`, `getCompletedChallengesForChild` échouent
+- La fonctionnalité Challenges ne fonctionne pas du tout
+
+### Solution
+Exécuter le fichier de migration:
+```bash
+PGPASSWORD=xxx psql -h ralph-test-db.xxx.rds.amazonaws.com -U ralph -d ralphdb -f src/lib/aws/challenges-schema.sql
+```
+
+### Fichier migration
+`src/lib/aws/challenges-schema.sql` existe et contient:
+- CREATE TABLE challenge_templates, challenges, challenge_progress, challenge_progress_log
+- Indexes
+- RLS Policies
+- Triggers et fonctions
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Investigation Bug Challenges*
