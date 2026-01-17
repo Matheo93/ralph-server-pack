@@ -2,7 +2,11 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Children error: Navigation timeout of 30000 ms exceeded
+❌ Dashboard error: Attempted to use detached Frame 'BB96B29D91DA88B04E629F400BA446DC'.
+❌ Settings household error: Attempted to use detached Frame 'BB96B29D91DA88B04E629F400BA446DC'.
+❌ Children error: Attempted to use detached Frame 'BB96B29D91DA88B04E629F400BA446DC'.
+  ❌ Dashboard: Attempted to use detached Frame 'BB96B29D91DA88B04E629F400BA446DC'.
+  ❌ Settings household: Attempted to use detached Frame 'BB96B29D91DA88B04E629F400BA446DC'.
 
 ---
 
