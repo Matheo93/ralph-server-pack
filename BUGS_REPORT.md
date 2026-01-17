@@ -602,3 +602,28 @@ PGPASSWORD=xxx psql -h ralph-test-db.xxx.rds.amazonaws.com -U ralph -d ralphdb -
 ---
 
 *Dernière mise à jour: 2026-01-17 - Investigation Bug Challenges*
+
+---
+
+## Boucle 22 - Monitoring continu
+
+**Heure:** 2026-01-17 ~05:27 UTC
+**Status:** UNHEALTHY
+**Mémoire:** 96% (237/246 MB) - CRITIQUE
+
+### Tests rapides
+- / (Landing): ✅
+- /login: ✅
+- /kids: ✅ (redirection auto vers dashboard car session active)
+- /kids/[id]/dashboard: ✅
+
+### Observations
+- Session Kids persiste entre navigations
+- Erreurs DB "Error fetching counts" toujours présentes
+- Serveur répond malgré mémoire critique
+
+### Nouveaux commits: Non
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 22*
