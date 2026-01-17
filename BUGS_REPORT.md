@@ -879,20 +879,20 @@ Les erreurs CSP persistent sur toutes les pages:
 
 ## RÉSUMÉ GLOBAL DES BUGS
 
-### Bugs Critiques (à corriger en priorité)
-| # | Bug | Page | Priorité | Status |
-|---|-----|------|----------|--------|
-| 6 | Route /kids/login retourne 404 | /kids/login | HAUTE | OUVERT |
-| 5 | Tables challenges manquantes | DB | CRITIQUE | À VÉRIFIER |
+### Bugs Corrigés ✅
+| # | Bug | Page | Status |
+|---|-----|------|--------|
+| 3 | Erreurs DB page Challenges | /kids/[id]/challenges | ✅ CORRIGÉ (Boucle 28) |
+| 4 | Erreurs DB Dashboard Kids | /kids/[id]/dashboard | ✅ CORRIGÉ (Boucle 28) |
+| 5 | Tables challenges manquantes | DB | ✅ CORRIGÉ |
+| 7 | Erreurs DB persistantes | /kids/[id]/* | ✅ CORRIGÉ (Boucle 28) |
 
-### Bugs Moyens
-| # | Bug | Page | Priorité | Status |
-|---|-----|------|----------|--------|
-| 3 | Erreurs DB page Challenges | /kids/[id]/challenges | HAUTE | POSSIBLEMENT CORRIGÉ |
-| 4 | Erreurs DB Dashboard Kids | /kids/[id]/dashboard | HAUTE | POSSIBLEMENT CORRIGÉ |
-| 7 | Erreurs DB persistantes | /kids/[id]/* | MOYENNE | POSSIBLEMENT CORRIGÉ |
+### Bugs Invalidés (pas des bugs)
+| # | Bug | Raison |
+|---|-----|--------|
+| 6 | Route /kids/login retourne 404 | ❌ INVALIDE - Route normale est /kids/login/[childId] |
 
-### Bugs Mineurs
+### Bugs Mineurs (ouverts)
 | # | Bug | Page | Priorité | Status |
 |---|-----|------|----------|--------|
 | 1 | Page 404 en anglais | /* | BASSE | OUVERT |
@@ -900,4 +900,36 @@ Les erreurs CSP persistent sur toutes les pages:
 
 ---
 
-*Dernière mise à jour: 2026-01-17 - Boucle 27*
+## Boucle 28 - Confirmation Corrections
+
+**Heure:** 2026-01-17 ~06:55 UTC
+**Status:** UNHEALTHY (mémoire 91%)
+
+### API Health
+```json
+{
+  "status": "unhealthy",
+  "memory": "91% (256/280 MB)",
+  "database": "ok (191ms)",
+  "redis": "ok"
+}
+```
+
+### Tests effectués
+| Page | Status | Notes |
+|------|--------|-------|
+| /kids/[id]/dashboard | ✅ OK | 11 queries OK, AUCUNE erreur DB |
+| /kids/[id]/challenges | ✅ OK | 7 queries OK, AUCUNE erreur DB |
+| /kids/login/[id] | ✅ OK | Page PIN fonctionnelle |
+
+### Conclusions Boucle 28
+- ✅ **Bugs DB corrigés** - Les erreurs de base de données sur les pages Kids sont résolues
+- ✅ **Tables challenges fonctionnelles** - Les queries s'exécutent correctement
+- ❌ Bug #6 invalidé - `/kids/login` n'est pas censé fonctionner sans childId
+- ⚠️ Mémoire toujours haute (91%)
+
+### Nouveaux commits: Non
+
+---
+
+*Dernière mise à jour: 2026-01-17 - Boucle 28*
