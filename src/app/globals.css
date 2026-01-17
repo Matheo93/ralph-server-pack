@@ -408,3 +408,454 @@
 .animate-button-press {
   animation: button-press 150ms ease-out;
 }
+
+/* ============================================
+ * MODERN LANDING PAGE ANIMATIONS
+ * Floating orbs, gradient animations, etc.
+ * ============================================ */
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(-1deg);
+  }
+  75% {
+    transform: translateY(-15px) rotate(1deg);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Delayed float animations */
+.animate-float-delay-1 {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.animate-float-delay-2 {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-float-delay-3 {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 3s;
+}
+
+/* Gradient shift animation for backgrounds */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+/* Pulse glow animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Subtle bounce for CTA buttons */
+@keyframes subtle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.animate-subtle-bounce {
+  animation: subtle-bounce 2s ease-in-out infinite;
+}
+
+/* Shine effect for buttons */
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 100%;
+  }
+}
+
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shine 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Glow effect for primary buttons */
+.btn-glow {
+  box-shadow: 0 0 20px -5px var(--primary);
+  transition: box-shadow 300ms ease;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 0 30px -5px var(--primary);
+}
+
+/* Magnetic hover effect (CSS-only approximation) */
+.magnetic-hover {
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out;
+}
+
+.magnetic-hover:hover {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Button hover lift effect */
+.btn-hover-lift {
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 300ms ease-out,
+              background-color 200ms ease-out;
+}
+
+.btn-hover-lift:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-hover-lift:active {
+  transform: translateY(-1px) scale(1.01);
+  transition-duration: 100ms;
+}
+
+/* Primary button glow pulse on hover */
+.btn-glow-pulse {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-glow-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  z-index: -1;
+  opacity: 0;
+  filter: blur(15px);
+  transition: opacity 300ms ease-out;
+}
+
+.btn-glow-pulse:hover::after {
+  opacity: 0.5;
+}
+
+/* Outline button fill animation */
+.btn-outline-fill {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn-outline-fill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--primary);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms ease-out, opacity 300ms ease-out;
+  z-index: -1;
+}
+
+.btn-outline-fill:hover::before {
+  transform: scaleX(1);
+  opacity: 0.08;
+}
+
+/* Icon bounce on button hover */
+.btn-icon-bounce:hover svg,
+.btn-icon-bounce:hover .lucide {
+  animation: icon-bounce 400ms ease-out;
+}
+
+@keyframes icon-bounce {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(4px);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Ripple effect on click */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  transition: transform 500ms ease-out, opacity 500ms ease-out;
+}
+
+.btn-ripple:active::after {
+  transform: translate(-50%, -50%) scale(2);
+  opacity: 1;
+  transition-duration: 0ms;
+}
+
+/* Text gradient animation */
+@keyframes text-gradient {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-text-gradient {
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    oklch(0.7 0.2 50),
+    var(--primary),
+    oklch(0.6 0.15 20)
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-gradient 4s linear infinite;
+}
+
+/* Staggered fade-in for list items */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Stagger delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* Blob animation for organic shapes */
+@keyframes blob {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  50% {
+    border-radius: 50% 60% 30% 60% / 30% 50% 70% 50%;
+  }
+  75% {
+    border-radius: 60% 40% 60% 40% / 70% 30% 50% 60%;
+  }
+}
+
+.animate-blob {
+  animation: blob 8s ease-in-out infinite;
+}
+
+/* Counter number animation */
+@keyframes count-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-count-up {
+  animation: count-up 0.6s ease-out forwards;
+}
+
+/* Underline grow animation */
+@keyframes underline-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.underline-grow {
+  position: relative;
+}
+
+.underline-grow::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms ease-out;
+}
+
+.underline-grow:hover::after {
+  transform: scaleX(1);
+}
+
+/* Card lift effect */
+.card-lift {
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon spin on hover */
+.icon-spin-hover {
+  transition: transform 500ms ease;
+}
+
+.icon-spin-hover:hover {
+  transform: rotate(360deg);
+}
+
+/* Scale bounce on hover */
+.scale-bounce-hover {
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.scale-bounce-hover:hover {
+  transform: scale(1.1);
+}
+
+/* Rotating border gradient */
+@keyframes rotate-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-border {
+  position: relative;
+}
+
+.animated-border::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    oklch(0.7 0.18 80),
+    var(--primary)
+  );
+  background-size: 200% 200%;
+  animation: rotate-border 3s linear infinite;
+  z-index: -1;
+}
+
+/* Typing cursor animation */
+@keyframes blink-cursor {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.cursor-blink::after {
+  content: "|";
+  animation: blink-cursor 1s step-end infinite;
+}

@@ -41,16 +41,16 @@ export function HeroCTA() {
       <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
         <Button
           size="lg"
-          className="text-base h-14 px-8 bg-primary hover:bg-primary/90 shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:scale-105"
+          className="text-base h-14 px-8 bg-primary hover:bg-primary/90 shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:scale-105 btn-shine btn-glow btn-glow-pulse btn-ripple group"
           onClick={() => handleNavigation("/signup")}
         >
           Commencer gratuitement
-          <ArrowRight className="ml-2 h-5 w-5" />
+          <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
         </Button>
         <Button
           size="lg"
           variant="outline"
-          className="text-base h-14 px-8 border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+          className="text-base h-14 px-8 border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5 magnetic-hover btn-outline-fill btn-hover-lift"
           onClick={() => {
             const featuresEl = document.getElementById("features")
             if (featuresEl) {
@@ -58,7 +58,7 @@ export function HeroCTA() {
             }
           }}
         >
-          Decouvrir les fonctionnalites
+          Découvrir les fonctionnalités
         </Button>
       </div>
     </>
@@ -99,19 +99,19 @@ export function FinalCTA() {
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Button
           size="lg"
-          className="text-base bg-white text-primary hover:bg-white/90 shadow-lg"
+          className="text-base bg-white text-primary hover:bg-white/90 shadow-lg btn-shine btn-hover-lift btn-ripple group"
           onClick={() => handleNavigation("/signup")}
         >
-          Creer mon compte gratuit
-          <ArrowRight className="ml-2 h-5 w-5" />
+          Créer mon compte gratuit
+          <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
         </Button>
         <Button
           size="lg"
           variant="outline"
-          className="text-base border-2 border-white/30 bg-transparent text-white hover:bg-white/10"
+          className="text-base border-2 border-white/30 bg-transparent text-white hover:bg-white/10 magnetic-hover btn-hover-lift"
           onClick={() => handleNavigation("/login")}
         >
-          J&apos;ai deja un compte
+          J&apos;ai déjà un compte
         </Button>
       </div>
     </>

@@ -159,10 +159,10 @@ export function Pricing() {
                 {/* CTA */}
                 <Button
                   size="lg"
-                  className={`w-full text-base ${
+                  className={`w-full text-base transition-all duration-300 hover:scale-105 group ${
                     plan.highlight
-                      ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
-                      : "bg-secondary hover:bg-secondary/80"
+                      ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 btn-shine btn-glow btn-glow-pulse btn-ripple"
+                      : "bg-secondary hover:bg-secondary/80 magnetic-hover btn-hover-lift"
                   }`}
                   variant={plan.highlight ? "default" : "secondary"}
                   asChild

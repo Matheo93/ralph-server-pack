@@ -36,13 +36,13 @@ export default function HomePage() {
               Commencez votre essai gratuit de 14 jours dès maintenant.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="text-base">
+              <Button size="lg" asChild className="text-base h-14 px-8 transition-all duration-300 hover:scale-105 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 btn-shine btn-glow btn-glow-pulse btn-ripple group">
                 <Link href="/signup">
                   Créer mon compte gratuit
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="text-base">
+              <Button size="lg" variant="outline" asChild className="text-base h-14 px-8 border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 magnetic-hover btn-outline-fill btn-hover-lift">
                 <Link href="/login">J&apos;ai déjà un compte</Link>
               </Button>
             </div>

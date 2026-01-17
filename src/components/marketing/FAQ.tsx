@@ -116,7 +116,7 @@ export function FAQ() {
             <p className="text-muted-foreground mb-6">
               Notre équipe est disponible pour vous aider à chaque étape.
             </p>
-            <Button variant="outline" asChild className="border-2 border-primary/20 hover:bg-primary/5">
+            <Button variant="outline" asChild className="border-2 border-primary/20 hover:bg-primary/5 transition-all duration-300 hover:scale-105 hover:border-primary/40 hover:shadow-md magnetic-hover btn-outline-fill btn-hover-lift btn-icon-bounce">
               <a href="mailto:support@familyload.fr" className="inline-flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 support@familyload.fr
