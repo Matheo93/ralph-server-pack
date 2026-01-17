@@ -15,19 +15,33 @@ interface KidsProfileSelectorProps {
   children: ChildProfile[]
 }
 
-// Couleurs de fond aléatoires pour les avatars sans image
+// Couleurs de fond vibrantes pour les avatars sans image
 const avatarColors = [
-  'bg-gradient-to-br from-pink-400 to-rose-500',
-  'bg-gradient-to-br from-orange-400 to-amber-500',
-  'bg-gradient-to-br from-yellow-400 to-lime-500',
-  'bg-gradient-to-br from-emerald-400 to-teal-500',
-  'bg-gradient-to-br from-cyan-400 to-blue-500',
-  'bg-gradient-to-br from-violet-400 to-purple-500',
+  'bg-gradient-to-br from-pink-400 via-rose-400 to-red-400',
+  'bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400',
+  'bg-gradient-to-br from-lime-400 via-green-400 to-emerald-400',
+  'bg-gradient-to-br from-teal-400 via-cyan-400 to-sky-400',
+  'bg-gradient-to-br from-blue-400 via-indigo-400 to-violet-400',
+  'bg-gradient-to-br from-purple-400 via-fuchsia-400 to-pink-400',
 ]
+
+// Emojis décoratifs aléatoires par profil - plus variés et fun
+const decorativeEmojis = ['🚀', '⭐', '🦄', '🎨', '🌈', '🎮', '🏆', '💎', '🦋', '🎪', '🌟', '🎈']
+
+// Emojis de réaction au hover
+const hoverEmojis = ['🎉', '✨', '💫', '🌟', '⚡']
 
 function getAvatarColor(index: number): string {
   const color = avatarColors[index % avatarColors.length]
-  return color ?? 'bg-gradient-to-br from-pink-400 to-rose-500'
+  return color ?? 'bg-gradient-to-br from-pink-400 via-rose-400 to-red-400'
+}
+
+function getDecoEmoji(index: number): string {
+  return decorativeEmojis[index % decorativeEmojis.length] ?? '🌟'
+}
+
+function getHoverEmoji(index: number): string {
+  return hoverEmojis[index % hoverEmojis.length] ?? '✨'
 }
 
 function getInitials(name: string): string {
@@ -43,61 +57,106 @@ export function KidsProfileSelector({ children }: KidsProfileSelectorProps) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 sm:gap-8">
         {children.map((child, index) => (
           <motion.button
             key={child.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 40, scale: 0.7, rotate: -8 }}
+            animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+            transition={{ delay: index * 0.18, type: 'spring', stiffness: 180, damping: 12 }}
+            whileHover={{ scale: 1.12, y: -10, rotate: 3, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
+            whileTap={{ scale: 0.88, rotate: -3 }}
             onClick={() => handleSelectChild(child.id)}
-            className="flex flex-col items-center p-4 sm:p-6 bg-white/70 backdrop-blur-sm rounded-3xl shadow-lg hover:shadow-xl transition-shadow focus:outline-none focus:ring-4 focus:ring-pink-300"
+            className="relative flex flex-col items-center p-5 sm:p-8 bg-white/90 backdrop-blur-md rounded-[2.5rem] shadow-2xl hover:shadow-3xl transition-all focus:outline-none focus:ring-4 focus:ring-pink-400 focus:ring-offset-2 border-4 border-white/60 group overflow-hidden"
           >
-            {/* Avatar */}
-            <div className="relative mb-3">
-              <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-4 border-white shadow-md">
-                {child.avatar_url ? (
-                  <AvatarImage src={child.avatar_url} alt={child.first_name} />
-                ) : null}
-                <AvatarFallback
-                  className={`${getAvatarColor(index)} text-white text-2xl sm:text-3xl font-bold`}
-                >
-                  {getInitials(child.first_name)}
-                </AvatarFallback>
-              </Avatar>
-              {/* Indicateur de compte actif */}
+            {/* Animated background gradient on hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-200/0 via-purple-200/0 to-orange-200/0 group-hover:from-pink-200/40 group-hover:via-purple-200/30 group-hover:to-orange-200/40 transition-all duration-500 rounded-[2.5rem]" />
+
+            {/* Decorative background sparkles - more animated */}
+            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="absolute top-2 left-2 text-2xl animate-ping" style={{ animationDuration: '1s' }}>✨</span>
+              <span className="absolute top-3 right-3 text-xl animate-bounce" style={{ animationDelay: '0.1s', animationDuration: '0.8s' }}>{getHoverEmoji(index)}</span>
+              <span className="absolute bottom-3 left-3 text-xl animate-pulse" style={{ animationDelay: '0.2s' }}>💫</span>
+              <span className="absolute bottom-4 right-4 text-lg animate-bounce" style={{ animationDelay: '0.3s', animationDuration: '0.9s' }}>⭐</span>
+            </div>
+
+            {/* Avatar avec animation */}
+            <div className="relative mb-4">
+              {/* Glow effect derrière l'avatar */}
+              <div className={`absolute inset-0 ${getAvatarColor(index)} rounded-full blur-lg opacity-50 scale-110 group-hover:opacity-70 transition-opacity`} />
+
+              <motion.div
+                whileHover={{ rotate: [0, -5, 5, 0] }}
+                transition={{ duration: 0.5 }}
+              >
+                <Avatar className="relative w-24 h-24 sm:w-28 sm:h-28 border-4 border-white shadow-lg ring-4 ring-white/30">
+                  {child.avatar_url ? (
+                    <AvatarImage src={child.avatar_url} alt={child.first_name} />
+                  ) : null}
+                  <AvatarFallback
+                    className={`${getAvatarColor(index)} text-white text-3xl sm:text-4xl font-black`}
+                  >
+                    {getInitials(child.first_name)}
+                  </AvatarFallback>
+                </Avatar>
+              </motion.div>
+
+              {/* Emoji décoratif flottant */}
+              <motion.span
+                className="absolute -top-2 -right-2 text-2xl"
+                animate={{ y: [0, -5, 0], rotate: [0, 10, 0] }}
+                transition={{ repeat: Infinity, duration: 2, delay: index * 0.3 }}
+              >
+                {getDecoEmoji(index)}
+              </motion.span>
+
+              {/* Indicateur de compte actif - plus visible */}
               {child.has_account && (
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                  <span className="text-white text-xs">✓</span>
-                </div>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-3 border-white flex items-center justify-center shadow-lg"
+                >
+                  <span className="text-white text-sm font-bold">✓</span>
+                </motion.div>
               )}
             </div>
 
-            {/* Nom */}
-            <span className="text-lg sm:text-xl font-semibold text-gray-800 truncate max-w-full">
+            {/* Nom avec style fun */}
+            <span className="text-xl sm:text-2xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent truncate max-w-full">
               {child.first_name}
             </span>
 
-            {/* Sous-texte */}
-            <span className="text-sm text-gray-500 mt-1">
-              Appuie pour entrer
-            </span>
+            {/* Bouton d'action animé - plus gros et attrayant */}
+            <motion.div
+              className="mt-4 px-6 py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 rounded-full shadow-xl relative overflow-hidden"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              <span className="text-white text-base font-black flex items-center gap-2 relative z-10">
+                C&apos;est moi ! <span className="text-xl animate-bounce" style={{ animationDuration: '0.6s' }}>👋</span>
+              </span>
+            </motion.div>
           </motion.button>
         ))}
       </div>
 
-      {/* Message si un seul enfant */}
+      {/* Message si un seul enfant - plus engageant */}
       {children.length === 1 && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-center text-gray-500 mt-6"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="text-center mt-8 bg-white/60 backdrop-blur-sm rounded-2xl p-4 shadow-md"
         >
-          Bienvenue {children[0]?.first_name} ! Appuie sur ton profil pour continuer.
-        </motion.p>
+          <p className="text-gray-700 font-medium flex items-center justify-center gap-2">
+            <span className="text-2xl animate-bounce">👆</span>
+            <span>Salut {children[0]?.first_name} ! Appuie sur ton profil pour jouer !</span>
+            <span className="text-2xl animate-bounce" style={{ animationDelay: '0.2s' }}>🎮</span>
+          </p>
+        </motion.div>
       )}
     </div>
   )

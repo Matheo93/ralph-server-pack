@@ -1,0 +1,80 @@
+/* Kids Interface Animations - Fun and Playful */
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 0.8; }
+  50% { transform: translateY(-20px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0.8; }
+}
+
+@keyframes rainbow-glow {
+  0% { filter: drop-shadow(0 0 10px #ff6b6b); }
+  25% { filter: drop-shadow(0 0 10px #ffd93d); }
+  50% { filter: drop-shadow(0 0 10px #6bcb77); }
+  75% { filter: drop-shadow(0 0 10px #4d96ff); }
+  100% { filter: drop-shadow(0 0 10px #ff6b6b); }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-confetti {
+  animation: confetti-fall linear infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+.animate-float-up {
+  animation: float-up 3s ease-in-out infinite;
+}
+
+.animate-rainbow-glow {
+  animation: rainbow-glow 4s linear infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+.kids-title {
+  text-shadow: 3px 3px 0px rgba(255,255,255,0.5),
+               -1px -1px 0px rgba(0,0,0,0.1);
+}
+
+/* Fun button hover effects */
+.kids-button-hover:hover {
+  transform: scale(1.05) rotate(1deg);
+  transition: transform 0.2s ease-out;
+}
+
+/* Card entrance animation */
+.kids-card-enter {
+  animation: card-pop 0.3s ease-out;
+}
+
+@keyframes card-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

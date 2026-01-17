@@ -38,14 +38,19 @@ function DashboardUnscheduledInner({ tasks }: DashboardUnscheduledProps) {
             </Button>
           </Link>
         </div>
-        <div className="flex items-start gap-2 mt-2 p-2 bg-orange-100/50 rounded-lg">
+        <div className="flex items-start gap-2 mt-2 p-3 bg-orange-100/70 rounded-lg border border-orange-200/50">
           <AlertCircle className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-orange-700">
-            {tasks.length === 1
-              ? "Cette tâche n'a pas de date prévue. Planifiez-la pour mieux gérer votre charge mentale !"
-              : `${tasks.length} tâches n'ont pas de date. Planifiez-les pour réduire votre charge mentale !`
-            }
-          </p>
+          <div className="text-sm text-orange-700">
+            <p className="font-medium">
+              {tasks.length === 1
+                ? "1 tâche sans date à planifier"
+                : `${tasks.length} tâches sans date à planifier`
+              }
+            </p>
+            <p className="text-orange-600/80 mt-0.5">
+              Ces tâches n&apos;ont pas de date limite. Ajoutez une date pour mieux vous organiser !
+            </p>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-2">

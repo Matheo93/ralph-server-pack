@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils/index"
 import type { UserLoadSummary, HouseholdBalance } from "@/types/task"
-import { CheckCircle2, TrendingDown } from "lucide-react"
+import { CheckCircle2, TrendingDown, ArrowDown, Sparkles } from "lucide-react"
 
 interface ChargeBalanceProps {
   balance: HouseholdBalance
@@ -94,10 +94,32 @@ export function ChargeBalance({ balance, className }: ChargeBalanceProps) {
 
         {/* Tip for reducing load */}
         {totalLoad > 0 && (
-          <div className="pt-2 border-t bg-blue-50/50 dark:bg-blue-950/20 rounded-lg p-3 -mx-1">
-            <p className="text-xs text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
-              <span className="text-base">💡</span>
-              <span>Complétez vos tâches en attente pour réduire votre charge mentale !</span>
+          <div className="pt-2 border-t bg-gradient-to-r from-blue-50/80 to-green-50/80 dark:from-blue-950/30 dark:to-green-950/30 rounded-lg p-3 -mx-1">
+            <div className="flex items-start gap-2">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center">
+                <ArrowDown className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  Comment réduire votre charge ?
+                </p>
+                <p className="text-xs text-blue-600/80 dark:text-blue-300/80 mt-0.5">
+                  Chaque tâche complétée diminue automatiquement le score. Seules les tâches en attente comptent !
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Celebration for zero load */}
+        {totalLoad === 0 && (
+          <div className="pt-2 border-t bg-gradient-to-r from-green-50/80 to-emerald-50/80 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg p-4 -mx-1 text-center">
+            <Sparkles className="w-8 h-8 text-green-500 mx-auto mb-2" />
+            <p className="text-sm font-bold text-green-700 dark:text-green-300">
+              Zéro charge mentale !
+            </p>
+            <p className="text-xs text-green-600/80 dark:text-green-400/80 mt-1">
+              Toutes vos tâches sont complétées. Profitez de ce moment de sérénité !
             </p>
           </div>
         )}
