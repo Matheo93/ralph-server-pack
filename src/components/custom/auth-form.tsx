@@ -86,15 +86,18 @@ export function AuthForm({ mode }: AuthFormProps) {
     setSuccess(null)
     startTransition(async () => {
       const result = await signup(data)
-      if (!result.success && result.error) {
+      if (result.error) {
         setError(result.error)
-      } else if (result.requiresConfirmation && result.email) {
+        return
+      }
+      if (result.requiresConfirmation && result.email) {
         // Redirect to email verification page
         router.push(`/verify-email?email=${encodeURIComponent(result.email)}`)
-      } else {
-        setSuccess("Un email de confirmation vous a été envoyé. Vérifiez votre boîte de réception.")
-        signupForm.reset()
+        return
       }
+      // Fallback message (should not normally reach here)
+      setSuccess("Inscription réussie !")
+      signupForm.reset()
     })
   }
 
