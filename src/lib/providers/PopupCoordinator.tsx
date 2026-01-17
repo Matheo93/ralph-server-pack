@@ -12,9 +12,9 @@ import { createContext, useContext, useState, useCallback, ReactNode, useEffect,
  *
  * Rules:
  * - Only one popup visible at a time
- * - Minimum delay between popups (30 seconds)
+ * - Minimum delay of 3 minutes between popups
  * - User dismissal respected (saved to localStorage for 7 days)
- * - Initial delay of 60 seconds before showing any popup
+ * - Initial delay of 1.5 minutes before showing any popup
  */
 
 type PopupType = "push-notification" | "pwa-install" | "invite-coparent"
@@ -34,8 +34,8 @@ interface PopupCoordinatorContextValue {
 
 const PopupCoordinatorContext = createContext<PopupCoordinatorContextValue | null>(null)
 
-const POPUP_DELAY_MS = 1800000 // 1800 seconds (30 minutes) between popups - very relaxed timing
-const INITIAL_DELAY_MS = 900000 // 900 seconds (15 minutes) initial delay - let user fully settle in first
+const POPUP_DELAY_MS = 180000 // 3 minutes between popups - less intrusive
+const INITIAL_DELAY_MS = 90000 // 1.5 minute initial delay - let user settle in first
 const STORAGE_PREFIX = "familyload_popup_"
 
 // Priority order - lower index = higher priority

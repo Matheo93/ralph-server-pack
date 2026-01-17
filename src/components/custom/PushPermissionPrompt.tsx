@@ -113,12 +113,12 @@ export function PushPermissionPrompt({
     setPermissionState(permission as PermissionState)
 
     // Request to show popup after delay if permission not set
-    // Coordinator handles the 15 minute initial delay and 30 minutes between popups
-    // We register intent with a longer delay to avoid overwhelming users
+    // Coordinator handles the initial delay and time between popups
+    // Push notifications are highest priority - register first
     if (permission === "default") {
       const timer = setTimeout(() => {
         popupCoordinator.requestPopup("push-notification")
-      }, 300000) // 300 seconds (5 minutes) - staggered registration, highest priority
+      }, 10000) // 10 seconds - let user settle in before requesting
       return () => clearTimeout(timer)
     }
   }, [showAfterMs, popupCoordinator])
