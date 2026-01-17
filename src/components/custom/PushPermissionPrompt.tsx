@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils/index"
 import { useHapticFeedback } from "@/hooks/useHapticFeedback"
+import { usePopupCoordinator } from "@/lib/providers/PopupCoordinator"
 
 type PermissionState = "default" | "granted" | "denied" | "unsupported"
 
@@ -17,7 +18,6 @@ interface PushPermissionPromptProps {
   compact?: boolean
 }
 
-const STORAGE_KEY = "familyload_push_prompt_dismissed"
 const VAPID_PUBLIC_KEY = process.env["NEXT_PUBLIC_VAPID_PUBLIC_KEY"] ?? ""
 
 function BellIcon({ className }: { className?: string }) {
@@ -91,10 +91,12 @@ export function PushPermissionPrompt({
   compact = false,
 }: PushPermissionPromptProps) {
   const [permissionState, setPermissionState] = useState<PermissionState>("default")
-  const [isVisible, setIsVisible] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [isDismissed, setIsDismissed] = useState(false)
   const haptic = useHapticFeedback()
+
+  // Use popup coordinator for visibility - ALWAYS use coordinator, no fallback
+  const popupCoordinator = usePopupCoordinator()
+  const isVisible = popupCoordinator.isPopupAllowed("push-notification")
 
   // Check initial permission state
   useEffect(() => {
@@ -110,26 +112,15 @@ export function PushPermissionPrompt({
     const permission = Notification.permission
     setPermissionState(permission as PermissionState)
 
-    // Check if user already dismissed
-    const dismissed = localStorage.getItem(STORAGE_KEY)
-    if (dismissed) {
-      const dismissedAt = new Date(dismissed)
-      const daysSinceDismissed = (Date.now() - dismissedAt.getTime()) / (1000 * 60 * 60 * 24)
-      // Show again after 7 days
-      if (daysSinceDismissed < 7) {
-        setIsDismissed(true)
-        return
-      }
-    }
-
-    // Show prompt after delay if permission not set
+    // Request to show popup after delay if permission not set
+    // Coordinator handles the queue and timing
     if (permission === "default") {
       const timer = setTimeout(() => {
-        setIsVisible(true)
-      }, showAfterMs)
+        popupCoordinator.requestPopup("push-notification")
+      }, 5000) // 5 seconds - highest priority, shows first after coordinator's initial delay
       return () => clearTimeout(timer)
     }
-  }, [showAfterMs])
+  }, [showAfterMs, popupCoordinator])
 
   const handleRequestPermission = useCallback(async () => {
     setIsLoading(true)
@@ -150,7 +141,7 @@ export function PushPermissionPrompt({
 
         haptic.success()
         onPermissionGranted?.()
-        setIsVisible(false)
+        popupCoordinator.dismissPopup("push-notification")
       } else {
         haptic.error()
         onPermissionDenied?.()
@@ -165,18 +156,15 @@ export function PushPermissionPrompt({
   }, [haptic, onPermissionGranted, onPermissionDenied])
 
   const handleDismiss = useCallback(() => {
-    localStorage.setItem(STORAGE_KEY, new Date().toISOString())
-    setIsVisible(false)
-    setIsDismissed(true)
+    popupCoordinator.dismissPopup("push-notification")
     haptic.lightTap()
-  }, [haptic])
+  }, [haptic, popupCoordinator])
 
-  // Don't render if already granted, denied, unsupported, or dismissed
+  // Don't render if already granted, denied, unsupported, or not visible
   if (
     permissionState === "granted" ||
     permissionState === "denied" ||
     permissionState === "unsupported" ||
-    isDismissed ||
     !isVisible
   ) {
     return null
@@ -194,7 +182,7 @@ export function PushPermissionPrompt({
             className
           )}
         >
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-4 shadow-lg">
+          <div className="bg-gradient-to-r from-sky-600 to-teal-600 rounded-xl p-4 shadow-lg">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                 <BellIcon className="w-5 h-5 text-white" />
@@ -204,7 +192,7 @@ export function PushPermissionPrompt({
                   Activer les notifications
                 </p>
                 <p className="text-xs text-white/80 mt-0.5">
-                  Rappels de taches et streak
+                  Rappels de tâches et streak
                 </p>
               </div>
               <button
@@ -227,7 +215,7 @@ export function PushPermissionPrompt({
                 size="sm"
                 onClick={handleRequestPermission}
                 disabled={isLoading}
-                className="flex-1 bg-white hover:bg-white/90 text-purple-600"
+                className="flex-1 bg-white hover:bg-white/90 text-sky-600"
               >
                 {isLoading ? "..." : "Activer"}
               </Button>
@@ -255,12 +243,12 @@ export function PushPermissionPrompt({
         >
           <Card className={cn("w-full max-w-md", className)}>
             <CardHeader className="text-center pb-4">
-              <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-sky-500 to-teal-500 flex items-center justify-center mb-4">
                 <BellIcon className="w-8 h-8 text-white" />
               </div>
-              <CardTitle className="text-xl">Restez informe!</CardTitle>
+              <CardTitle className="text-xl">Restez informé !</CardTitle>
               <CardDescription className="text-base">
-                Recevez des rappels pour ne jamais oublier vos taches
+                Recevez des rappels pour ne jamais oublier vos tâches
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -272,7 +260,7 @@ export function PushPermissionPrompt({
                   <div>
                     <p className="text-sm font-medium">Rappels de streak</p>
                     <p className="text-xs text-muted-foreground">
-                      Ne perdez pas votre serie
+                      Ne perdez pas votre série
                     </p>
                   </div>
                 </div>
@@ -282,7 +270,7 @@ export function PushPermissionPrompt({
                     <span className="text-lg">📋</span>
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Rappels de taches</p>
+                    <p className="text-sm font-medium">Rappels de tâches</p>
                     <p className="text-xs text-muted-foreground">
                       Avant chaque deadline
                     </p>
@@ -313,7 +301,7 @@ export function PushPermissionPrompt({
                 <Button
                   onClick={handleRequestPermission}
                   disabled={isLoading}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                  className="flex-1 bg-gradient-to-r from-sky-500 to-teal-500 text-white hover:from-sky-600 hover:to-teal-600"
                 >
                   {isLoading ? (
                     <span className="flex items-center gap-2">

@@ -79,9 +79,17 @@ export default async function DashboardPage() {
               <span className="text-muted-foreground">tâche{taskCounts.total > 1 ? "s" : ""}</span>
             </div>
             {taskCounts.unscheduled > 0 && (
-              <p className="text-xs text-muted-foreground mt-1">
-                dont {taskCounts.unscheduled} sans date
-              </p>
+              <Link href="/tasks?filter=unscheduled" className="text-xs text-orange-600 hover:text-orange-700 mt-1 inline-flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {taskCounts.unscheduled === taskCounts.total
+                  ? "Planifier les tâches"
+                  : `${taskCounts.unscheduled} à planifier`}
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             )}
           </CardContent>
         </Card>
@@ -170,10 +178,8 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* CTA Invite co-parent - Only shown if single parent */}
-      {balance && balance.members.length < 2 && (
-        <InviteCoParentCTA className="mb-8" />
-      )}
+{/* Note: InviteCoParentCTA is now rendered as a popup via PopupCoordinator in layout.tsx
+         It will only appear when the coordinator allows it (after other popups dismiss) */}
 
       {/* Tâches en retard */}
       {overdueTasks.length > 0 && (
