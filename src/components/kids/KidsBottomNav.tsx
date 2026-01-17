@@ -8,6 +8,7 @@ interface KidsBottomNavProps {
   childId: string
   pendingTasksCount?: number
   unreadBadgesCount?: number
+  activeChallengesCount?: number
 }
 
 const navItems = [
@@ -15,7 +16,7 @@ const navItems = [
     href: (id: string) => `/kids/${id}/dashboard`,
     label: 'Missions',
     icon: (active: boolean) => (
-      <svg className="w-7 h-7" fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 0 : 2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
       </svg>
     ),
@@ -23,21 +24,32 @@ const navItems = [
     badge: 'tasks',
   },
   {
-    href: (id: string) => `/kids/${id}/shop`,
-    label: 'Boutique',
+    href: (id: string) => `/kids/${id}/challenges`,
+    label: 'Defis',
     icon: (active: boolean) => (
-      <svg className="w-7 h-7" fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 0 : 2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 0 : 2} d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
     ),
     activeColor: 'text-orange-500',
+    badge: 'challenges',
+  },
+  {
+    href: (id: string) => `/kids/${id}/shop`,
+    label: 'Boutique',
+    icon: (active: boolean) => (
+      <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 0 : 2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    activeColor: 'text-green-500',
     badge: null,
   },
   {
     href: (id: string) => `/kids/${id}/badges`,
-    label: 'Succès',
+    label: 'Succes',
     icon: (active: boolean) => (
-      <svg className="w-7 h-7" fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 0 : 2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
       </svg>
     ),
@@ -48,7 +60,7 @@ const navItems = [
     href: (id: string) => `/kids/${id}/profile`,
     label: 'Moi',
     icon: (active: boolean) => (
-      <svg className="w-7 h-7" fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 0 : 2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
       </svg>
     ),
@@ -57,12 +69,13 @@ const navItems = [
   },
 ]
 
-export function KidsBottomNav({ childId, pendingTasksCount = 0, unreadBadgesCount = 0 }: KidsBottomNavProps) {
+export function KidsBottomNav({ childId, pendingTasksCount = 0, unreadBadgesCount = 0, activeChallengesCount = 0 }: KidsBottomNavProps) {
   const pathname = usePathname()
 
   const getBadgeCount = (badgeType: string | null): number => {
     if (badgeType === 'tasks') return pendingTasksCount
     if (badgeType === 'badges') return unreadBadgesCount
+    if (badgeType === 'challenges') return activeChallengesCount
     return 0
   }
 

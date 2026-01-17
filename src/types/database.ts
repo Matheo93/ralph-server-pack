@@ -1161,3 +1161,187 @@ export interface LeaderboardEntry {
   streak_current: number
   rank: number
 }
+
+// ============================================================
+// CHALLENGES TYPES
+// ============================================================
+
+// Trigger type for challenges
+export type ChallengeTriggerType = 'task_category' | 'task_any' | 'specific_task'
+export type ChallengeDifficulty = 'easy' | 'medium' | 'hard'
+
+// Challenge Template (predefined templates)
+export interface ChallengeTemplate {
+  id: string
+  slug: string
+  name_fr: string
+  name_en: string
+  description_fr: string | null
+  description_en: string | null
+  icon: string
+  trigger_type: ChallengeTriggerType
+  trigger_category_code: string | null
+  trigger_task_keyword: string | null
+  required_count: number
+  timeframe_days: number | null
+  reward_xp: number
+  reward_badge_id: string | null
+  difficulty: ChallengeDifficulty
+  age_min: number | null
+  age_max: number | null
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}
+
+// Challenge (active challenge instance)
+export interface Challenge {
+  id: string
+  household_id: string
+  template_id: string | null
+  name: string
+  description: string | null
+  icon: string
+  trigger_type: ChallengeTriggerType
+  trigger_category_code: string | null
+  trigger_task_keyword: string | null
+  required_count: number
+  timeframe_days: number | null
+  reward_xp: number
+  reward_badge_id: string | null
+  reward_custom: string | null
+  child_ids: string[]
+  started_at: string
+  expires_at: string | null
+  is_active: boolean
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ChallengeInsert {
+  id?: string
+  household_id: string
+  template_id?: string | null
+  name: string
+  description?: string | null
+  icon?: string
+  trigger_type: ChallengeTriggerType
+  trigger_category_code?: string | null
+  trigger_task_keyword?: string | null
+  required_count?: number
+  timeframe_days?: number | null
+  reward_xp?: number
+  reward_badge_id?: string | null
+  reward_custom?: string | null
+  child_ids: string[]
+  started_at?: string
+  expires_at?: string | null
+  is_active?: boolean
+  created_by?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ChallengeUpdate {
+  id?: string
+  household_id?: string
+  template_id?: string | null
+  name?: string
+  description?: string | null
+  icon?: string
+  trigger_type?: ChallengeTriggerType
+  trigger_category_code?: string | null
+  trigger_task_keyword?: string | null
+  required_count?: number
+  timeframe_days?: number | null
+  reward_xp?: number
+  reward_badge_id?: string | null
+  reward_custom?: string | null
+  child_ids?: string[]
+  started_at?: string
+  expires_at?: string | null
+  is_active?: boolean
+  created_by?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+// Challenge Progress (per child)
+export interface ChallengeProgress {
+  id: string
+  challenge_id: string
+  child_id: string
+  current_count: number
+  is_completed: boolean
+  completed_at: string | null
+  xp_awarded: number | null
+  badge_awarded_id: string | null
+  last_task_id: string | null
+  last_progress_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ChallengeProgressInsert {
+  id?: string
+  challenge_id: string
+  child_id: string
+  current_count?: number
+  is_completed?: boolean
+  completed_at?: string | null
+  xp_awarded?: number | null
+  badge_awarded_id?: string | null
+  last_task_id?: string | null
+  last_progress_at?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ChallengeProgressUpdate {
+  id?: string
+  challenge_id?: string
+  child_id?: string
+  current_count?: number
+  is_completed?: boolean
+  completed_at?: string | null
+  xp_awarded?: number | null
+  badge_awarded_id?: string | null
+  last_task_id?: string | null
+  last_progress_at?: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+// Challenge Progress Log
+export interface ChallengeProgressLog {
+  id: string
+  challenge_progress_id: string
+  task_id: string | null
+  task_title: string | null
+  count_added: number
+  created_at: string
+}
+
+// Composite types for UI
+export interface ChallengeWithProgress extends Challenge {
+  progress: ChallengeProgress | null
+  children: Array<{
+    id: string
+    first_name: string
+    avatar_url: string | null
+    progress: ChallengeProgress | null
+  }>
+}
+
+export interface ChallengeForChild extends Challenge {
+  progress: ChallengeProgress
+  progressPercentage: number
+  remainingCount: number
+  daysRemaining: number | null
+}
+
+export interface CompletedChallenge extends Challenge {
+  progress: ChallengeProgress
+  badge: Badge | null
+}

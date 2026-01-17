@@ -47,12 +47,13 @@ export default async function KidsChildLayout({ children, params }: Props) {
   const session = await getKidsSessionData(childId)
 
   if (!session) {
-    redirect(`/kids/${childId}/login`)
+    redirect(`/kids/login/${childId}`)
   }
 
-  // Récupérer le nombre de tâches pendantes et badges non vus
+  // Recuperer les compteurs pour la navigation
   let pendingTasksCount = 0
   let unreadBadgesCount = 0
+  let activeChallengesCount = 0
 
   try {
     const tasksResult = await query<{ count: string }>(
@@ -69,6 +70,17 @@ export default async function KidsChildLayout({ children, params }: Props) {
       [childId]
     )
     unreadBadgesCount = parseInt(badgesResult[0]?.count ?? '0', 10)
+
+    const challengesResult = await query<{ count: string }>(
+      `SELECT COUNT(*) as count FROM challenges ch
+       LEFT JOIN challenge_progress cp ON cp.challenge_id = ch.id AND cp.child_id = $1
+       WHERE $1 = ANY(ch.child_ids)
+         AND ch.is_active = true
+         AND (ch.expires_at IS NULL OR ch.expires_at > NOW())
+         AND (cp.is_completed IS NULL OR cp.is_completed = false)`,
+      [childId]
+    )
+    activeChallengesCount = parseInt(challengesResult[0]?.count ?? '0', 10)
   } catch (error) {
     console.error('Error fetching counts:', error)
   }
@@ -80,6 +92,7 @@ export default async function KidsChildLayout({ children, params }: Props) {
         childId={childId}
         pendingTasksCount={pendingTasksCount}
         unreadBadgesCount={unreadBadgesCount}
+        activeChallengesCount={activeChallengesCount}
       />
     </div>
   )
