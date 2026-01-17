@@ -2,7 +2,10 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-✅ Tous les bugs corrigés !
+❌ Dashboard not properly loaded
+❌ Settings household issues
+  ❌ Dashboard: Not properly loaded
+  ❌ Settings household: Content not found
 
 ---
 
