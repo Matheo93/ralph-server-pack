@@ -24,7 +24,7 @@ export function InviteCoParentCTA({ className, inline = false }: InviteCoParentC
     // Request after user settles - coordinator queue handles ordering and delays
     const timer = setTimeout(() => {
       popupCoordinator.requestPopup("invite-coparent")
-    }, 180000) // 180 seconds (3 min) - request after user settles, coordinator controls actual display
+    }, 900000) // 15 minutes - request after user settles, coordinator controls actual display
 
     return () => clearTimeout(timer)
   }, [popupCoordinator])

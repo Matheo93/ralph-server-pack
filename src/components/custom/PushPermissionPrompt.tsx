@@ -117,7 +117,7 @@ export function PushPermissionPrompt({
     if (permission === "default") {
       const timer = setTimeout(() => {
         popupCoordinator.requestPopup("push-notification")
-      }, 60000) // 60 seconds - request after user settles, coordinator controls actual display
+      }, 300000) // 5 minutes - request after user settles, coordinator controls actual display
       return () => clearTimeout(timer)
     }
   }, [showAfterMs, popupCoordinator])
