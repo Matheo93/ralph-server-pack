@@ -2,11 +2,8 @@
 
 ## 🚨 BUGS DÉTECTÉS PAR PUPPETEER - À CORRIGER MAINTENANT 🚨
 
-❌ Dashboard error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/dashboard
-❌ Settings household error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/settings/household
-❌ Children error: net::ERR_CONNECTION_REFUSED at http://localhost:3000/children
-  ❌ Dashboard: net::ERR_CONNECTION_REFUSED at http://localhost:3000/dashboard
-  ❌ Settings household: net::ERR_CONNECTION_REFUSED at http://localhost:3000/settings/household
+❌ Landing page error: Navigation timeout of 30000 ms exceeded
+  ❌ Landing page: Navigation timeout of 30000 ms exceeded
 
 ---
 
