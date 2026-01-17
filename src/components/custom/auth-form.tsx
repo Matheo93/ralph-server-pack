@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -36,6 +37,7 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ mode }: AuthFormProps) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -69,6 +71,11 @@ export function AuthForm({ mode }: AuthFormProps) {
     startTransition(async () => {
       const result = await login(data)
       if (!result.success && result.error) {
+        // If user is not confirmed, redirect to verification page
+        if (result.requiresConfirmation && result.email) {
+          router.push(`/verify-email?email=${encodeURIComponent(result.email)}`)
+          return
+        }
         setError(result.error)
       }
     })
@@ -81,6 +88,9 @@ export function AuthForm({ mode }: AuthFormProps) {
       const result = await signup(data)
       if (!result.success && result.error) {
         setError(result.error)
+      } else if (result.requiresConfirmation && result.email) {
+        // Redirect to email verification page
+        router.push(`/verify-email?email=${encodeURIComponent(result.email)}`)
       } else {
         setSuccess("Un email de confirmation vous a été envoyé. Vérifiez votre boîte de réception.")
         signupForm.reset()
