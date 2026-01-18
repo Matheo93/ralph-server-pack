@@ -96,6 +96,9 @@ export const TaskCreateSchema = z.object({
   source: TaskSourceEnum.default("manual"),
   vocal_transcript: z.string().nullable().optional(),
   vocal_audio_url: z.string().url().nullable().optional(),
+  reward_type: z.enum(["xp", "immediate"]).default("xp"),
+  reward_immediate_text: z.string().max(500).nullable().optional(),
+  reward_xp_override: z.number().int().min(1).max(100).nullable().optional(),
 })
 
 export type TaskCreateInput = z.infer<typeof TaskCreateSchema>

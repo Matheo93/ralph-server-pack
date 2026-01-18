@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Card,
@@ -13,9 +14,11 @@ import { Button } from "@/components/ui/button"
 import { deleteChild } from "@/lib/actions/children"
 import { calculateAge } from "@/lib/validations/child"
 import type { Child } from "@/types/database"
+import { Copy, Check, Gamepad2, KeyRound } from "lucide-react"
 
 interface ChildCardProps {
-  child: Child
+  child: Child & { has_account?: boolean }
+  kidsLoginUrl?: string
 }
 
 const schoolLevelLabels: Record<string, string> = {
@@ -25,11 +28,17 @@ const schoolLevelLabels: Record<string, string> = {
   lycee: "Lycée",
 }
 
-export function ChildCard({ child }: ChildCardProps) {
+export function ChildCard({ child, kidsLoginUrl }: ChildCardProps) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [showConfirm, setShowConfirm] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const age = calculateAge(child.birthdate)
+
+  const handleCardClick = () => {
+    router.push(`/children/${child.id}`)
+  }
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -38,8 +47,33 @@ export function ChildCard({ child }: ChildCardProps) {
     })
   }
 
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (kidsLoginUrl) {
+      try {
+        await navigator.clipboard.writeText(kidsLoginUrl)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch (err) {
+        // Fallback pour les navigateurs qui ne supportent pas clipboard API
+        const textArea = document.createElement("textarea")
+        textArea.value = kidsLoginUrl
+        document.body.appendChild(textArea)
+        textArea.select()
+        document.execCommand("copy")
+        document.body.removeChild(textArea)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }
+    }
+  }
+
   return (
-    <Card className="w-full hover:border-primary/50 hover:shadow-md transition-all">
+    <Card 
+      className="w-full hover:border-primary/50 hover:shadow-md transition-all cursor-pointer"
+      onClick={handleCardClick}
+    >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div>
@@ -54,11 +88,16 @@ export function ChildCard({ child }: ChildCardProps) {
             </CardDescription>
           </div>
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-            <Link href={`/children/${child.id}/edit`}>
-              <Button variant="outline" size="sm">
-                Modifier
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                router.push(`/children/${child.id}/edit`)
+              }}
+            >
+              Modifier
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -81,6 +120,47 @@ export function ChildCard({ child }: ChildCardProps) {
           </p>
         )}
 
+        {/* Kids Space Access */}
+        <div className="pt-2 border-t" onClick={(e) => e.stopPropagation()}>
+          {child.has_account && kidsLoginUrl ? (
+            <div className="flex items-center gap-2">
+              <Gamepad2 className="h-4 w-4 text-primary" />
+              <span className="text-sm text-muted-foreground flex-1">Espace Enfant</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyLink}
+                className="gap-1"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-3 w-3" />
+                    Copié!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3 w-3" />
+                    Copier lien
+                  </>
+                )}
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="gap-1 text-muted-foreground"
+              onClick={(e) => {
+                e.stopPropagation()
+                router.push(`/children/${child.id}/setup-pin`)
+              }}
+            >
+              <KeyRound className="h-3 w-3" />
+              Configurer PIN enfant
+            </Button>
+          )}
+        </div>
+
         {showConfirm ? (
           <div className="flex items-center gap-2 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
             <p className="text-sm text-destructive flex-1">
@@ -89,7 +169,10 @@ export function ChildCard({ child }: ChildCardProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowConfirm(false)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowConfirm(false)
+              }}
               disabled={isPending}
             >
               Annuler
@@ -97,7 +180,10 @@ export function ChildCard({ child }: ChildCardProps) {
             <Button
               variant="destructive"
               size="sm"
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleDelete()
+              }}
               disabled={isPending}
             >
               {isPending ? "..." : "Confirmer"}
@@ -109,7 +195,10 @@ export function ChildCard({ child }: ChildCardProps) {
               variant="ghost"
               size="sm"
               className="text-destructive hover:text-destructive"
-              onClick={() => setShowConfirm(true)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowConfirm(true)
+              }}
             >
               Supprimer
             </Button>

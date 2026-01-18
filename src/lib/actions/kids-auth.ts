@@ -527,3 +527,71 @@ export async function deleteChildAccount(
     return { success: false, error: 'Erreur lors de la suppression' }
   }
 }
+
+/**
+ * Configure ou met à jour le PIN d'un enfant (par un parent)
+ * Crée le compte si il n'existe pas, ou met à jour le PIN existant
+ */
+export async function setupChildPin(
+  childId: string,
+  pin: string
+): Promise<ActionResult> {
+  try {
+    // Valider le PIN
+    if (!/^\d{4}$/.test(pin)) {
+      return { success: false, error: 'Le PIN doit contenir exactement 4 chiffres' }
+    }
+
+    // Vérifier l'authentification parent
+    const userId = await getUserId()
+    if (!userId) {
+      return { success: false, error: 'Non authentifié' }
+    }
+
+    await setCurrentUser(userId)
+
+    // Vérifier que l'enfant appartient au foyer du parent
+    const child = await queryOne<Child>(
+      `SELECT c.* FROM children c
+       JOIN household_members hm ON hm.household_id = c.household_id
+       WHERE c.id = $1 AND hm.user_id = $2 AND c.is_active = true`,
+      [childId, userId]
+    )
+
+    if (!child) {
+      return { success: false, error: 'Enfant non trouvé' }
+    }
+
+    // Hash du PIN
+    const pinHash = await hashPin(pin)
+
+    // Vérifier si un compte existe déjà
+    const existingAccount = await queryOne<{ child_id: string }>(
+      'SELECT child_id FROM child_accounts WHERE child_id = $1',
+      [childId]
+    )
+
+    if (existingAccount) {
+      // Mettre à jour le PIN existant
+      await execute(
+        'UPDATE child_accounts SET pin_hash = $1, updated_at = NOW() WHERE child_id = $2',
+        [pinHash, childId]
+      )
+    } else {
+      // Créer un nouveau compte
+      await execute(
+        `INSERT INTO child_accounts (child_id, pin_hash)
+         VALUES ($1, $2)`,
+        [childId, pinHash]
+      )
+    }
+
+    // Reset les tentatives (au cas où il y avait un lockout)
+    resetAttempts(childId)
+
+    return { success: true }
+  } catch (error) {
+    console.error('Erreur setupChildPin:', error)
+    return { success: false, error: 'Erreur lors de la configuration du PIN' }
+  }
+}

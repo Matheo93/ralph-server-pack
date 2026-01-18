@@ -48,12 +48,12 @@ const priorityOptions = [
 ]
 
 const recurrenceOptions = [
-  { value: "none", label: "Pas de recurrence" },
+  { value: "none", label: "Pas de récurrence" },
   { value: "daily", label: "Tous les jours" },
   { value: "weekly", label: "Toutes les semaines" },
   { value: "biweekly", label: "Toutes les 2 semaines" },
   { value: "monthly", label: "Tous les mois" },
-  { value: "custom", label: "Personnalise..." },
+  { value: "custom", label: "Personnalisé..." },
 ]
 
 const DAY_NAMES = [
@@ -76,7 +76,6 @@ export function TaskForm({
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [showCalendar, setShowCalendar] = useState(false)
-  const [showRecurrence, setShowRecurrence] = useState(false)
 
   const [formData, setFormData] = useState({
     title: task?.title ?? "",
@@ -88,10 +87,9 @@ export function TaskForm({
     deadline_flexible: task?.deadline_flexible ?? true,
     is_critical: task?.is_critical ?? false,
     load_weight: task?.load_weight ?? 3,
-    // Reward fields
-    reward_type: (task as any)?.reward_type ?? "xp" as "xp" | "immediate",
-    reward_immediate_text: (task as any)?.reward_immediate_text ?? "",
-    reward_xp_override: (task as any)?.reward_xp_override ?? null as number | null,
+    reward_type: ((task as unknown as Record<string, unknown>)?.["reward_type"] as "xp" | "immediate") ?? "xp",
+    reward_immediate_text: ((task as unknown as Record<string, unknown>)?.["reward_immediate_text"] as string) ?? "",
+    reward_xp_override: (task as unknown as Record<string, unknown>)?.["reward_xp_override"] as number | null ?? null,
   })
 
   const [recurrenceType, setRecurrenceType] = useState<string>(
@@ -127,7 +125,6 @@ export function TaskForm({
         setRecurrenceRule({ frequency: "monthly", interval: 1 })
         break
       case "custom":
-        setShowRecurrence(true)
         updateCustomRecurrence()
         break
     }
@@ -155,7 +152,6 @@ export function TaskForm({
     setTimeout(updateCustomRecurrence, 0)
   }
 
-  // Calculate XP based on load_weight
   const calculatedXp = formData.reward_xp_override ?? formData.load_weight * 5
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -174,7 +170,6 @@ export function TaskForm({
         is_critical: formData.is_critical,
         load_weight: formData.load_weight,
         recurrence_rule: recurrenceRule,
-        // Include reward fields only if a child is selected
         ...(formData.child_id && {
           reward_type: formData.reward_type,
           reward_immediate_text: formData.reward_type === "immediate" ? formData.reward_immediate_text : null,
@@ -349,17 +344,17 @@ export function TaskForm({
             <div className="space-y-4 p-4 border-2 border-dashed border-purple-300 rounded-lg bg-purple-50/50">
               <div className="flex items-center gap-2">
                 <Gift className="h-5 w-5 text-purple-600" />
-                <Label className="text-purple-800 font-semibold">Récompense pour l'enfant</Label>
+                <Label className="text-purple-800 font-semibold">Récompense pour l&apos;enfant</Label>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setFormData(prev => ({ ...prev, reward_type: "xp" }))}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     formData.reward_type === "xp"
-                      ? "border-yellow-500 bg-yellow-50 shadow-md"
-                      : "border-gray-200 bg-white hover:border-yellow-300"
+                      ? "border-purple-500 bg-purple-100 shadow-md"
+                      : "border-gray-200 bg-white hover:border-purple-300"
                   }`}
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -376,8 +371,8 @@ export function TaskForm({
                   onClick={() => setFormData(prev => ({ ...prev, reward_type: "immediate" }))}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     formData.reward_type === "immediate"
-                      ? "border-pink-500 bg-pink-50 shadow-md"
-                      : "border-gray-200 bg-white hover:border-pink-300"
+                      ? "border-purple-500 bg-purple-100 shadow-md"
+                      : "border-gray-200 bg-white hover:border-purple-300"
                   }`}
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -457,7 +452,7 @@ export function TaskForm({
                   setFormData((prev) => ({ ...prev, deadline: today }))
                 }}
               >
-                Aujourd'hui
+                Aujourd&apos;hui
               </Button>
               <Button
                 type="button"
@@ -521,12 +516,6 @@ export function TaskForm({
                 </Button>
               )}
             </div>
-            {!formData.deadline && (
-              <p className="text-xs text-orange-600 flex items-center gap-1">
-                <span>💡</span>
-                <span>Planifier une date aide à ne pas oublier la tâche !</span>
-              </p>
-            )}
             {showCalendar && (
               <Calendar
                 mode="single"
@@ -543,7 +532,7 @@ export function TaskForm({
           {/* Recurrence Section */}
           <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
             <div className="space-y-2">
-              <Label>Recurrence</Label>
+              <Label>Récurrence</Label>
               <Select value={recurrenceType} onValueChange={handleRecurrenceChange}>
                 <SelectTrigger>
                   <SelectValue />
@@ -563,7 +552,7 @@ export function TaskForm({
               <div className="space-y-4 pt-2">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-sm">Frequence</Label>
+                    <Label className="text-sm">Fréquence</Label>
                     <Select
                       value={customRecurrence.frequency}
                       onValueChange={(v) => {

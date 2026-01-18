@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
+import { headers } from "next/headers"
 import { getUserId } from "@/lib/auth/actions"
 import { getChild } from "@/lib/actions/children"
 import { query, queryOne, setCurrentUser } from "@/lib/aws/database"
@@ -20,7 +21,10 @@ import {
   Sparkles,
   TrendingUp,
   User,
+  Smartphone,
+  Copy,
 } from "lucide-react"
+import { CopyLinkButton } from "./CopyLinkButton"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -68,6 +72,19 @@ export default async function ChildDetailPage({ params }: PageProps) {
   if (!membership) {
     redirect("/onboarding")
   }
+
+  // Check if child has a kids account (PIN configured)
+  const kidsAccount = await queryOne<{ id: string }>(`
+    SELECT id FROM child_accounts WHERE child_id = $1
+  `, [id])
+  const hasKidsAccount = !!kidsAccount
+
+  // Get base URL for kids login link
+  const headersList = await headers()
+  const host = headersList.get("host") || "localhost:3000"
+  const isLocalOrIP = host.includes("localhost") || /^\d+\.\d+\.\d+\.\d+/.test(host)
+  const protocol = isLocalOrIP ? "http" : "https"
+  const kidsLoginUrl = `${protocol}://${host}/kids/login/${id}`
 
   // Get tasks for this child with completed_at
   const tasks = await query<ChildTask>(`
@@ -179,6 +196,46 @@ export default async function ChildDetailPage({ params }: PageProps) {
           </Button>
         </div>
       </div>
+
+      {/* Kids Space Access Card */}
+      <Card className="mb-8 border-pink-200 bg-gradient-to-r from-pink-50 to-orange-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-pink-700">
+            <Smartphone className="h-5 w-5" />
+            Espace enfant
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {hasKidsAccount ? (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                {child.first_name} peut accéder à son espace personnel avec son code PIN.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 p-3 bg-white rounded-lg border">
+                  <p className="text-xs text-muted-foreground mb-1">Lien de connexion</p>
+                  <code className="text-sm font-mono break-all text-pink-600">{kidsLoginUrl}</code>
+                </div>
+                <CopyLinkButton url={kidsLoginUrl} />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Partagez ce lien avec {child.first_name} pour qu&apos;il puisse se connecter sur sa tablette ou téléphone.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                {child.first_name} n&apos;a pas encore de code PIN pour accéder à son espace.
+              </p>
+              <Button asChild className="bg-pink-500 hover:bg-pink-600">
+                <Link href={`/children/${id}/edit`}>
+                  Configurer le code PIN
+                </Link>
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4 mb-8">

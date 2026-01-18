@@ -122,7 +122,7 @@ export async function createShoppingList(
     return { success: false, error: "Erreur lors de la creation de la liste" }
   }
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true, data: { listId: list.id } }
 }
@@ -170,7 +170,7 @@ export async function updateShoppingList(
     return { success: false, error: "Liste introuvable ou non autorisee" }
   }
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true }
 }
@@ -199,7 +199,7 @@ export async function deleteShoppingList(
     return { success: false, error: "Liste introuvable ou non autorisee" }
   }
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true }
 }
@@ -351,7 +351,7 @@ export async function addShoppingItem(
       category = COALESCE($3, shopping_history.category)
   `, [membership.household_id, validation.data.name, validation.data.category])
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true, data: { itemId: item.id } }
 }
@@ -439,7 +439,7 @@ export async function updateShoppingItem(
     return { success: false, error: "Article introuvable ou non autorise" }
   }
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true }
 }
@@ -486,7 +486,7 @@ export async function checkShoppingItem(
     return { success: false, error: "Article introuvable ou non autorise" }
   }
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true }
 }
@@ -529,7 +529,7 @@ export async function bulkCheckShoppingItems(
     [is_checked, userId, item_ids, membership.household_id]
   )
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true, data: { updatedCount: result.length } }
 }
@@ -561,7 +561,7 @@ export async function deleteShoppingItem(
     return { success: false, error: "Article introuvable ou non autorise" }
   }
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true }
 }
@@ -663,7 +663,7 @@ export async function clearCheckedItems(
     [listId, membership.household_id]
   )
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true, data: { deletedCount: result.length } }
 }
@@ -701,7 +701,7 @@ export async function uncheckAllItems(
     [listId, membership.household_id]
   )
 
-  revalidatePath("/shopping")
+  // revalidatePath("/shopping") - moved to client action
 
   return { success: true, data: { updatedCount: result.length } }
 }

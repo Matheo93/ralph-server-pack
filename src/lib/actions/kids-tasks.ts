@@ -497,3 +497,185 @@ export async function markBadgeSeen(badgeId: string): Promise<ActionResult> {
     return { success: false, error: 'Erreur' }
   }
 }
+
+/**
+ * Récupère les tâches pour la roadmap (triées par priorité + deadline)
+ */
+export async function getKidsRoadmap(childId: string): Promise<ActionResult<{
+  tasks: Array<{
+    id: string
+    title: string
+    description: string | null
+    deadline: string | null
+    status: "pending" | "done"
+    priority: string
+    proof_status: "pending" | "approved" | "rejected" | null
+    reward_type: "xp" | "immediate"
+    reward_xp: number
+    reward_immediate_text: string | null
+    category_icon: string | null
+    completed_at: string | null
+  }>
+  pendingReward: {
+    taskId: string
+    taskTitle: string
+    rewardType: "xp" | "immediate"
+    xpAmount: number
+    immediateText: string | null
+    levelUp: boolean
+    newLevel: number | null
+    newLevelName: string | null
+  } | null
+}>> {
+  try {
+    const session = await getKidsSession()
+    if (!session) {
+      return { success: false, error: 'Non connecté' }
+    }
+
+    if (session.childId !== childId) {
+      return { success: false, error: 'Accès non autorisé' }
+    }
+
+    // Récupérer l'enfant et son foyer
+    const child = await queryOne<{ household_id: string }>(
+      'SELECT household_id FROM children WHERE id = $1 AND is_active = true',
+      [childId]
+    )
+
+    if (!child) {
+      return { success: false, error: 'Enfant non trouvé' }
+    }
+
+    // Récupérer les tâches triées par priorité puis deadline
+    const tasks = await query<{
+      id: string
+      title: string
+      description: string | null
+      deadline: string | null
+      status: string
+      priority: string
+      load_weight: number
+      reward_type: string | null
+      reward_immediate_text: string | null
+      reward_xp_override: number | null
+      category_icon: string | null
+      completed_at: string | null
+      proof_status: string | null
+    }>(`
+      SELECT 
+        t.id,
+        t.title,
+        t.description,
+        t.deadline::text,
+        t.status,
+        t.priority,
+        t.load_weight,
+        COALESCE(t.reward_type, 'xp') as reward_type,
+        t.reward_immediate_text,
+        t.reward_xp_override,
+        tc.icon as category_icon,
+        t.completed_at::text,
+        tp.status as proof_status
+      FROM tasks t
+      LEFT JOIN task_categories tc ON tc.id = t.category_id
+      LEFT JOIN task_proofs tp ON tp.task_id = t.id AND tp.child_id = $1
+      WHERE t.child_id = $1
+        AND t.household_id = $2
+        AND t.status IN ('pending', 'done')
+      ORDER BY
+        CASE t.status WHEN 'pending' THEN 0 ELSE 1 END,
+        CASE t.priority
+          WHEN 'critical' THEN 0
+          WHEN 'high' THEN 1
+          WHEN 'normal' THEN 2
+          WHEN 'low' THEN 3
+          ELSE 4
+        END,
+        t.deadline ASC NULLS LAST,
+        t.created_at ASC
+      LIMIT 50
+    `, [childId, child.household_id])
+
+    // Transformer avec XP calculé
+    const transformedTasks = tasks.map(t => ({
+      id: t.id,
+      title: t.title,
+      description: t.description,
+      deadline: t.deadline,
+      status: t.status as "pending" | "done",
+      priority: t.priority,
+      proof_status: t.proof_status as "pending" | "approved" | "rejected" | null,
+      reward_type: (t.reward_type || 'xp') as "xp" | "immediate",
+      reward_xp: t.reward_xp_override ?? calculateTaskXp(t.load_weight),
+      reward_immediate_text: t.status === 'done' && t.proof_status === 'approved' ? t.reward_immediate_text : null,
+      category_icon: t.category_icon,
+      completed_at: t.completed_at,
+    }))
+
+    // Vérifier s'il y a une récompense à afficher (tâche récemment validée)
+    const recentlyApproved = await queryOne<{
+      task_id: string
+      task_title: string
+      reward_type: string
+      xp_awarded: number
+      reward_immediate_text: string | null
+      validated_at: string
+    }>(`
+      SELECT 
+        tp.task_id,
+        t.title as task_title,
+        COALESCE(t.reward_type, 'xp') as reward_type,
+        tp.xp_awarded,
+        t.reward_immediate_text,
+        tp.validated_at::text
+      FROM task_proofs tp
+      JOIN tasks t ON t.id = tp.task_id
+      WHERE tp.child_id = $1
+        AND tp.status = 'approved'
+        AND tp.validated_at > NOW() - INTERVAL '5 minutes'
+        AND NOT EXISTS (
+          SELECT 1 FROM reward_notifications rn 
+          WHERE rn.task_proof_id = tp.id AND rn.seen = true
+        )
+      ORDER BY tp.validated_at DESC
+      LIMIT 1
+    `, [childId])
+
+    let pendingReward = null
+    if (recentlyApproved) {
+      // Vérifier level up
+      const account = await queryOne<{ current_level: number }>(
+        'SELECT current_level FROM child_accounts WHERE child_id = $1',
+        [childId]
+      )
+      
+      const level = await queryOne<{ name: string }>(
+        'SELECT name FROM xp_levels WHERE level = $1',
+        [account?.current_level || 1]
+      )
+
+      pendingReward = {
+        taskId: recentlyApproved.task_id,
+        taskTitle: recentlyApproved.task_title,
+        rewardType: recentlyApproved.reward_type as "xp" | "immediate",
+        xpAmount: recentlyApproved.xp_awarded,
+        immediateText: recentlyApproved.reward_immediate_text,
+        levelUp: false, // TODO: détecter si level up
+        newLevel: account?.current_level || null,
+        newLevelName: level?.name || null,
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        tasks: transformedTasks,
+        pendingReward,
+      },
+    }
+  } catch (error) {
+    console.error('Erreur getKidsRoadmap:', error)
+    return { success: false, error: 'Erreur lors du chargement' }
+  }
+}

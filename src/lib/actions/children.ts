@@ -202,7 +202,7 @@ export async function deleteChild(childId: string): Promise<ActionResult> {
   }
 }
 
-export async function getChildren() {
+export async function getChildren(): Promise<(Child & { has_account: boolean })[]> {
   const userId = await getUserId()
   if (!userId) return []
 
@@ -217,25 +217,27 @@ export async function getChildren() {
 
   if (!membership) return []
 
-  const children = await query<Child>(`
+  const children = await query<Child & { has_account: boolean }>(`
     SELECT
-      id,
-      household_id,
-      first_name,
-      to_char(birthdate, 'YYYY-MM-DD') as birthdate,
-      gender,
-      school_name,
-      school_level,
-      school_class,
-      tags,
-      avatar_url,
-      is_active,
-      created_at::text as created_at,
-      updated_at::text as updated_at
-    FROM children
-    WHERE household_id = $1
-      AND is_active = true
-    ORDER BY birthdate ASC
+      c.id,
+      c.household_id,
+      c.first_name,
+      to_char(c.birthdate, 'YYYY-MM-DD') as birthdate,
+      c.gender,
+      c.school_name,
+      c.school_level,
+      c.school_class,
+      c.tags,
+      c.avatar_url,
+      c.is_active,
+      c.created_at::text as created_at,
+      c.updated_at::text as updated_at,
+      CASE WHEN ca.child_id IS NOT NULL THEN true ELSE false END as has_account
+    FROM children c
+    LEFT JOIN child_accounts ca ON ca.child_id = c.id
+    WHERE c.household_id = $1
+      AND c.is_active = true
+    ORDER BY c.birthdate ASC
   `, [membership.household_id])
 
   return children

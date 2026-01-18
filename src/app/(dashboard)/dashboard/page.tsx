@@ -14,7 +14,7 @@ import { StreakCounter } from "@/components/custom/StreakCounter"
 import { ChargeBalance } from "@/components/custom/ChargeBalance"
 import { ChargeWeekChart } from "@/components/custom/ChargeWeekChart"
 import { ChargeHistoryCard } from "@/components/custom/ChargeHistoryCard"
-import { InviteCoParentCTA } from "@/components/custom/InviteCoParentCTA"
+// InviteCoParentCTA is now rendered as a popup via PopupCoordinator in layout.tsx
 import { KidsPendingBanner } from "@/components/custom/KidsPendingBanner"
 
 // Force dynamic rendering to ensure fresh data on each request

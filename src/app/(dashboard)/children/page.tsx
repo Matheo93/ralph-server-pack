@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import { headers } from "next/headers"
 import { getUser } from "@/lib/auth/actions"
 import { getHousehold } from "@/lib/actions/household"
 import { getChildren } from "@/lib/actions/children"
@@ -22,6 +23,20 @@ export default async function ChildrenPage() {
 
   const children = await getChildren()
 
+  // Get base URL for kids login
+  const headersList = await headers()
+  let host = headersList.get("host") ?? "localhost:3000"
+  
+  // Ensure port 3000 is included for IP addresses
+  const isIP = /^\d+\.\d+\.\d+\.\d+/.test(host)
+  if (isIP && !host.includes(":")) {
+    host = `${host}:3000`
+  }
+  
+  const isLocalOrIP = host.includes("localhost") || isIP
+  const protocol = isLocalOrIP ? "http" : "https"
+  const baseUrl = `${protocol}://${host}`
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -43,9 +58,11 @@ export default async function ChildrenPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {children.map((child) => (
-            <Link key={child.id} href={`/children/${child.id}`} className="block">
-              <ChildCard child={child} />
-            </Link>
+            <ChildCard
+              key={child.id}
+              child={child}
+              kidsLoginUrl={child.has_account ? `${baseUrl}/kids/login/${child.id}` : undefined}
+            />
           ))}
         </div>
       )}
