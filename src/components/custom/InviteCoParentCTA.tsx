@@ -24,7 +24,7 @@ export function InviteCoParentCTA({ className, inline = false }: InviteCoParentC
     // Request after page load, coordinator handles sequencing
     const timer = setTimeout(() => {
       popupCoordinator.requestPopup("invite-coparent")
-    }, 15000) // 15 seconds after page load - coordinator enforces timing
+    }, 180000) // 3 minutes after page load - coordinator enforces timing
 
     return () => clearTimeout(timer)
   }, [popupCoordinator])
