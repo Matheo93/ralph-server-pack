@@ -5,7 +5,7 @@
 - [x] Créer e2e/kids-profile.spec.ts - Tests pour le profil enfant (dark mode, son, déconnexion)
 - [x] Créer e2e/stripe-checkout.spec.ts - Tests du flow de paiement complet
 - [x] Créer e2e/voice-commands.spec.ts - Tests de la création de tâches vocales
-- [ ] Ajouter tests unitaires pour les server actions (src/lib/actions/*.ts)
+- [x] Ajouter tests unitaires pour les server actions (src/lib/actions/*.ts)
 
 ## Phase 2: Performance & Core Web Vitals
 - [ ] Implémenter le lazy loading des composants lourds (ChargeWeekChart, calendrier)
