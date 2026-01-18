@@ -58,7 +58,7 @@ export function ProfileCard({
 
         <h1 className="text-2xl font-bold text-gray-800">{child.first_name}</h1>
         {age && (
-          <p className="text-gray-500">{age} ans</p>
+          <p className="text-gray-600">{age} ans</p>
         )}
       </div>
 
@@ -69,13 +69,13 @@ export function ProfileCard({
             <span className="text-xl">{level.icon}</span>
             <span className="font-semibold text-gray-800">{level.name}</span>
           </div>
-          <span className="text-sm text-gray-500">Niv. {account.current_level}</span>
+          <span className="text-sm text-gray-600">Niv. {account.current_level}</span>
         </div>
 
         {/* Barre de progression */}
         <div className="space-y-1">
           <Progress value={xpProgress} className="h-3" />
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-gray-600">
             <span>{account.current_xp} XP</span>
             {nextLevel && (
               <span>{nextLevel.xp_required} XP pour {nextLevel.name}</span>
@@ -92,7 +92,7 @@ export function ProfileCard({
           <div className="text-lg font-bold text-orange-600">
             {account.streak_current}
           </div>
-          <div className="text-xs text-orange-500">Streak</div>
+          <div className="text-xs text-orange-600 font-medium">Streak</div>
         </div>
 
         {/* Badges */}
@@ -101,7 +101,7 @@ export function ProfileCard({
           <div className="text-lg font-bold text-yellow-600">
             {badgesUnlocked}/{badgesTotal}
           </div>
-          <div className="text-xs text-yellow-500">Badges</div>
+          <div className="text-xs text-yellow-700 font-medium">Badges</div>
         </div>
 
         {/* Rang */}
@@ -113,7 +113,7 @@ export function ProfileCard({
             <div className="text-lg font-bold text-amber-600">
               #{rank}
             </div>
-            <div className="text-xs text-amber-500">Rang</div>
+            <div className="text-xs text-amber-700 font-medium">Rang</div>
           </div>
         )}
 
@@ -123,7 +123,7 @@ export function ProfileCard({
             <div className="text-lg font-bold text-blue-600">
               {account.current_xp}
             </div>
-            <div className="text-xs text-blue-500">Total XP</div>
+            <div className="text-xs text-blue-700 font-medium">Total XP</div>
           </div>
         )}
       </div>

@@ -66,7 +66,8 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
               whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => handleTaskClick(task)}
-              className={`w-full text-left rounded-3xl border-3 p-5 shadow-lg hover:shadow-xl transition-all ${getPriorityColor(task.priority)}`}
+              aria-label={`${task.title}, ${task.xp_value} XP${task.deadline ? `, à faire avant le ${new Date(task.deadline).toLocaleDateString('fr-FR')}` : ''}`}
+              className={`w-full text-left rounded-3xl border-3 p-5 shadow-lg hover:shadow-xl transition-all focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-400 focus-visible:ring-offset-2 ${getPriorityColor(task.priority)}`}
             >
               <div className="flex items-start gap-4">
                 {/* Icône catégorie avec animation */}
@@ -74,6 +75,7 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
                   className="text-4xl flex-shrink-0 bg-white/60 rounded-2xl w-14 h-14 flex items-center justify-center shadow-inner"
                   whileHover={{ rotate: [0, -10, 10, 0] }}
                   transition={{ duration: 0.5 }}
+                  aria-hidden="true"
                 >
                   {task.category_icon ?? '📋'}
                 </motion.div>
@@ -84,7 +86,7 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
                     {task.title}
                   </h3>
                   {task.description && (
-                    <p className="text-gray-500 text-sm line-clamp-2 mt-1">
+                    <p className="text-gray-600 text-sm line-clamp-2 mt-1">
                       {task.description}
                     </p>
                   )}
@@ -96,7 +98,7 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
                       ✨ +{task.xp_value} XP
                     </motion.span>
                     {task.deadline && (
-                      <span className="text-xs px-2 py-1 bg-white/70 text-gray-600 rounded-full font-medium">
+                      <span className="text-xs px-2 py-1 bg-white/70 text-gray-700 rounded-full font-medium">
                         📅 {new Date(task.deadline).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                       </span>
                     )}
@@ -121,7 +123,7 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
         {/* Tâches en attente de validation */}
         {waitingTasks.length > 0 && (
           <div className="mt-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2 px-1">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2 px-1">
               En attente de validation ({waitingTasks.length})
             </h3>
             {waitingTasks.map((task, index) => (
@@ -135,7 +137,7 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
                 <div className="flex items-center gap-3">
                   <div className="text-2xl">{task.category_icon ?? '📋'}</div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-700">{task.title}</h4>
+                    <h4 className="font-semibold text-gray-800">{task.title}</h4>
                     <span className={`text-xs px-2 py-1 rounded-full ${statusBadges['pending'].color}`}>
                       ⏳ {statusBadges['pending'].label}
                     </span>
@@ -150,7 +152,7 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
         {/* Tâches complétées */}
         {completedTasks.length > 0 && (
           <div className="mt-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2 px-1">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2 px-1">
               Terminées ({completedTasks.length})
             </h3>
             {completedTasks.map((task, index) => (
@@ -164,7 +166,7 @@ export function KidsTaskList({ tasks, childId }: KidsTaskListProps) {
                 <div className="flex items-center gap-3">
                   <div className="text-2xl opacity-60">{task.category_icon ?? '📋'}</div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-500 line-through">{task.title}</h4>
+                    <h4 className="font-medium text-gray-600 line-through">{task.title}</h4>
                   </div>
                   <div className="text-2xl">✅</div>
                 </div>

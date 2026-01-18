@@ -67,13 +67,14 @@ export function KidsProfileSelector({ children }: KidsProfileSelectorProps) {
             whileHover={{ scale: 1.12, y: -10, rotate: 3, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
             whileTap={{ scale: 0.88, rotate: -3 }}
             onClick={() => handleSelectChild(child.id)}
+            aria-label={`Se connecter en tant que ${child.first_name}`}
             className="relative flex flex-col items-center p-5 sm:p-8 bg-white/90 backdrop-blur-md rounded-[2.5rem] shadow-2xl hover:shadow-3xl transition-all focus:outline-none focus:ring-4 focus:ring-pink-400 focus:ring-offset-2 border-4 border-white/60 group overflow-hidden"
           >
             {/* Animated background gradient on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-200/0 via-purple-200/0 to-orange-200/0 group-hover:from-pink-200/40 group-hover:via-purple-200/30 group-hover:to-orange-200/40 transition-all duration-500 rounded-[2.5rem]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-200/0 via-purple-200/0 to-orange-200/0 group-hover:from-pink-200/40 group-hover:via-purple-200/30 group-hover:to-orange-200/40 transition-all duration-500 rounded-[2.5rem]" aria-hidden="true" />
 
             {/* Decorative background sparkles - more animated */}
-            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true">
               <span className="absolute top-2 left-2 text-2xl animate-ping" style={{ animationDuration: '1s' }}>✨</span>
               <span className="absolute top-3 right-3 text-xl animate-bounce" style={{ animationDelay: '0.1s', animationDuration: '0.8s' }}>{getHoverEmoji(index)}</span>
               <span className="absolute bottom-3 left-3 text-xl animate-pulse" style={{ animationDelay: '0.2s' }}>💫</span>
@@ -83,7 +84,7 @@ export function KidsProfileSelector({ children }: KidsProfileSelectorProps) {
             {/* Avatar avec animation */}
             <div className="relative mb-4">
               {/* Glow effect derrière l'avatar */}
-              <div className={`absolute inset-0 ${getAvatarColor(index)} rounded-full blur-lg opacity-50 scale-110 group-hover:opacity-70 transition-opacity`} />
+              <div className={`absolute inset-0 ${getAvatarColor(index)} rounded-full blur-lg opacity-50 scale-110 group-hover:opacity-70 transition-opacity`} aria-hidden="true" />
 
               <motion.div
                 whileHover={{ rotate: [0, -5, 5, 0] }}
@@ -91,10 +92,11 @@ export function KidsProfileSelector({ children }: KidsProfileSelectorProps) {
               >
                 <Avatar className="relative w-24 h-24 sm:w-28 sm:h-28 border-4 border-white shadow-lg ring-4 ring-white/30">
                   {child.avatar_url ? (
-                    <AvatarImage src={child.avatar_url} alt={child.first_name} />
+                    <AvatarImage src={child.avatar_url} alt={`Avatar de ${child.first_name}`} />
                   ) : null}
                   <AvatarFallback
                     className={`${getAvatarColor(index)} text-white text-3xl sm:text-4xl font-black`}
+                    aria-hidden="true"
                   >
                     {getInitials(child.first_name)}
                   </AvatarFallback>
@@ -106,6 +108,7 @@ export function KidsProfileSelector({ children }: KidsProfileSelectorProps) {
                 className="absolute -top-2 -right-2 text-2xl"
                 animate={{ y: [0, -5, 0], rotate: [0, 10, 0] }}
                 transition={{ repeat: Infinity, duration: 2, delay: index * 0.3 }}
+                aria-hidden="true"
               >
                 {getDecoEmoji(index)}
               </motion.span>
@@ -116,8 +119,10 @@ export function KidsProfileSelector({ children }: KidsProfileSelectorProps) {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-3 border-white flex items-center justify-center shadow-lg"
+                  role="img"
+                  aria-label="Compte configuré"
                 >
-                  <span className="text-white text-sm font-bold">✓</span>
+                  <span className="text-white text-sm font-bold" aria-hidden="true">✓</span>
                 </motion.div>
               )}
             </div>
@@ -132,6 +137,7 @@ export function KidsProfileSelector({ children }: KidsProfileSelectorProps) {
               className="mt-4 px-6 py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 rounded-full shadow-xl relative overflow-hidden"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              aria-hidden="true"
             >
               {/* Shimmer effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -150,11 +156,13 @@ export function KidsProfileSelector({ children }: KidsProfileSelectorProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
           className="text-center mt-8 bg-white/60 backdrop-blur-sm rounded-2xl p-4 shadow-md"
+          role="status"
+          aria-live="polite"
         >
-          <p className="text-gray-700 font-medium flex items-center justify-center gap-2">
-            <span className="text-2xl animate-bounce">👆</span>
+          <p className="text-gray-800 font-medium flex items-center justify-center gap-2">
+            <span className="text-2xl animate-bounce" aria-hidden="true">👆</span>
             <span>Salut {children[0]?.first_name} ! Appuie sur ton profil pour jouer !</span>
-            <span className="text-2xl animate-bounce" style={{ animationDelay: '0.2s' }}>🎮</span>
+            <span className="text-2xl animate-bounce" style={{ animationDelay: '0.2s' }} aria-hidden="true">🎮</span>
           </p>
         </motion.div>
       )}

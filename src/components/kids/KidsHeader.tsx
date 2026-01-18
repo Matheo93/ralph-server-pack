@@ -44,9 +44,9 @@ export function KidsHeader({
           >
             <Avatar className="w-16 h-16 border-4 border-white shadow-lg ring-2 ring-pink-200">
               {avatarUrl ? (
-                <AvatarImage src={avatarUrl} alt={firstName} />
+                <AvatarImage src={avatarUrl} alt={`Avatar de ${firstName}`} />
               ) : null}
-              <AvatarFallback className="bg-gradient-to-br from-pink-400 via-purple-400 to-orange-400 text-white text-2xl font-black">
+              <AvatarFallback className="bg-gradient-to-br from-pink-400 via-purple-400 to-orange-400 text-white text-2xl font-black" aria-hidden="true">
                 {firstName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -104,12 +104,19 @@ export function KidsHeader({
             <span className="text-lg">💎</span> {currentXp} XP
           </span>
           {xpForNextLevel && (
-            <span className="text-orange-600 font-medium text-xs">
+            <span className="text-orange-700 font-semibold text-xs">
               🎯 {xpForNextLevel - currentXp} XP restants
             </span>
           )}
         </div>
-        <div className="h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+        <div
+          className="h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner"
+          role="progressbar"
+          aria-label="Progression vers le niveau suivant"
+          aria-valuenow={progressPercent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}

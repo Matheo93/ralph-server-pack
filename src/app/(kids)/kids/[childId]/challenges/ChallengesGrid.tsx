@@ -71,7 +71,7 @@ export function ChallengesGrid({
           className={`flex-1 py-3 px-4 rounded-2xl font-bold transition-all transform hover:scale-105 ${
             activeTab === 'active'
               ? 'bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white shadow-xl scale-105'
-              : 'bg-white/70 text-gray-600 hover:bg-white/90'
+              : 'bg-white/70 text-gray-700 hover:bg-white/90'
           }`}
         >
           <span className="mr-1">🔥</span> En cours ({activeChallenges.length})
@@ -81,7 +81,7 @@ export function ChallengesGrid({
           className={`flex-1 py-3 px-4 rounded-2xl font-bold transition-all transform hover:scale-105 ${
             activeTab === 'completed'
               ? 'bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white shadow-xl scale-105'
-              : 'bg-white/70 text-gray-600 hover:bg-white/90'
+              : 'bg-white/70 text-gray-700 hover:bg-white/90'
           }`}
         >
           <span className="mr-1">✅</span> Terminés ({completedChallenges.length})
@@ -98,7 +98,7 @@ export function ChallengesGrid({
               <h3 className="text-xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
                 Pas de défi en cours
               </h3>
-              <p className="text-gray-600 font-medium">
+              <p className="text-gray-700 font-medium">
                 Tes parents vont bientôt te proposer des défis ! 🚀
               </p>
             </div>
@@ -118,7 +118,7 @@ export function ChallengesGrid({
               <h3 className="text-xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
                 Aucun défi terminé
               </h3>
-              <p className="text-gray-600 font-medium">
+              <p className="text-gray-700 font-medium">
                 Complète des défis pour les voir ici ! 💪
               </p>
             </div>
@@ -146,7 +146,7 @@ function ActiveChallengeCard({ challenge }: { challenge: ChallengeForChild }) {
         <div className="flex-1">
           <h3 className="font-black text-gray-800 text-lg">{challenge.name}</h3>
           {challenge.description && (
-            <p className="text-sm text-gray-500 line-clamp-1">{challenge.description}</p>
+            <p className="text-sm text-gray-600 line-clamp-1">{challenge.description}</p>
           )}
         </div>
         {challenge.daysRemaining !== null && (
@@ -162,7 +162,7 @@ function ActiveChallengeCard({ challenge }: { challenge: ChallengeForChild }) {
 
       <div className="mb-4 bg-white/60 rounded-2xl p-3">
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-gray-600 font-medium flex items-center gap-1">
+          <span className="text-gray-700 font-medium flex items-center gap-1">
             {isAlmostDone ? '🔥' : isHalfway ? '💪' : '🎯'} Progression
           </span>
           <span className="font-black text-purple-600">

@@ -80,7 +80,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
           className={`flex-1 py-3 px-4 rounded-xl font-medium transition-colors ${
             activeTab === 'badges'
               ? 'bg-white text-gray-800 shadow'
-              : 'text-gray-500'
+              : 'text-gray-600'
           }`}
         >
           🏆 Mes badges
@@ -90,7 +90,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
           className={`flex-1 py-3 px-4 rounded-xl font-medium transition-colors ${
             activeTab === 'leaderboard'
               ? 'bg-white text-gray-800 shadow'
-              : 'text-gray-500'
+              : 'text-gray-600'
           }`}
         >
           📊 Classement
@@ -108,7 +108,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
             {/* Badges débloqués */}
             {unlockedBadges.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-500 mb-3">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
                   Débloqués ({unlockedBadges.length})
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
@@ -138,7 +138,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
             {/* Badges verrouillés */}
             {lockedBadges.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-3">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
                   À débloquer ({lockedBadges.length})
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
@@ -201,7 +201,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
               <h3 className="text-xl font-bold text-gray-800 mb-2">
                 {selectedBadge.unlocked ? selectedBadge.name : '???'}
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-700 mb-4">
                 {selectedBadge.description}
               </p>
 
@@ -209,14 +209,14 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
                 <div className={`inline-block px-4 py-2 rounded-full mb-4 ${
                   selectedBadge.unlocked
                     ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-200 text-gray-500'
+                    : 'bg-gray-200 text-gray-600'
                 }`}>
                   +{selectedBadge.xp_reward} XP
                 </div>
               )}
 
               {selectedBadge.unlocked && selectedBadge.unlocked_at && (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-600">
                   Débloqué le {new Date(selectedBadge.unlocked_at).toLocaleDateString('fr-FR', {
                     day: 'numeric',
                     month: 'long',
