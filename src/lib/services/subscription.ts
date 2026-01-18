@@ -133,7 +133,10 @@ export async function getHouseholdSubscription(
 
   const now = new Date()
   const isActive = status === "active" || status === "trial"
-  const isPremium = isActive && subscriptionEndsAt && subscriptionEndsAt > now
+  // isPremium is true if:
+  // 1. Status is "active" (paid subscription, may not have end date if lifetime or auto-renew)
+  // 2. Status is "trial" with a valid end date in the future
+  const isPremium = status === "active" || (isActive && subscriptionEndsAt && subscriptionEndsAt > now)
 
   let daysRemaining: number | null = null
   if (subscriptionEndsAt) {
