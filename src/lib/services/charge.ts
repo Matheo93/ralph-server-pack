@@ -66,26 +66,60 @@ export async function getHouseholdBalance(
     WHERE hm.household_id = $1 AND hm.is_active = true
   `, [householdId])
 
-  // Get PENDING task weights per user (current mental load = tasks not yet done)
-  // Completed tasks REDUCE the load, so we only count pending ones for "current" load
-  const pendingTaskWeights = await query<TaskWeight>(`
-    SELECT assigned_to, load_weight
+  // OPTIMIZED: Combined query for pending and completed task weights
+  // Uses conditional aggregation to get both in a single database round-trip
+  // This reduces from 2 queries to 1, improving dashboard load time
+  interface CombinedTaskWeight {
+    assigned_to: string
+    pending_weight: string
+    completed_weight: string
+    pending_count: string
+    completed_count: string
+  }
+
+  const combinedWeights = await query<CombinedTaskWeight>(`
+    SELECT
+      assigned_to,
+      COALESCE(SUM(load_weight) FILTER (WHERE status = 'pending'), 0)::text as pending_weight,
+      COALESCE(SUM(load_weight) FILTER (WHERE status = 'done'), 0)::text as completed_weight,
+      COUNT(*) FILTER (WHERE status = 'pending')::text as pending_count,
+      COUNT(*) FILTER (WHERE status = 'done')::text as completed_count
     FROM tasks
     WHERE household_id = $1
-      AND status = 'pending'
       AND assigned_to IS NOT NULL
-      AND deadline >= CURRENT_DATE - INTERVAL '${periodDays} days'
+      AND (
+        (status = 'pending' AND deadline >= CURRENT_DATE - INTERVAL '${periodDays} days')
+        OR (status = 'done' AND completed_at >= NOW() - INTERVAL '${periodDays} days')
+      )
+    GROUP BY assigned_to
   `, [householdId])
 
-  // Get completed task weights for the period (for balance comparison)
-  const completedTaskWeights = await query<TaskWeight>(`
-    SELECT assigned_to, load_weight
-    FROM tasks
-    WHERE household_id = $1
-      AND status = 'done'
-      AND assigned_to IS NOT NULL
-      AND completed_at >= NOW() - INTERVAL '${periodDays} days'
-  `, [householdId])
+  // Convert combined result to separate arrays for compatibility
+  const pendingTaskWeights: TaskWeight[] = []
+  const completedTaskWeights: TaskWeight[] = []
+
+  for (const row of combinedWeights) {
+    const pendingWeight = parseInt(row.pending_weight, 10)
+    const completedWeight = parseInt(row.completed_weight, 10)
+    const pendingCount = parseInt(row.pending_count, 10)
+    const completedCount = parseInt(row.completed_count, 10)
+
+    // Add pending weights
+    for (let i = 0; i < pendingCount; i++) {
+      pendingTaskWeights.push({
+        assigned_to: row.assigned_to,
+        load_weight: pendingWeight / pendingCount,
+      })
+    }
+
+    // Add completed weights
+    for (let i = 0; i < completedCount; i++) {
+      completedTaskWeights.push({
+        assigned_to: row.assigned_to,
+        load_weight: completedWeight / completedCount,
+      })
+    }
+  }
 
   // Calculate totals per member
   // Current load = pending tasks only (this is the "stress" level)
@@ -160,40 +194,27 @@ export async function getHouseholdBalance(
 export async function assignToLeastLoaded(
   householdId: string
 ): Promise<string | null> {
-  // Get all active members
-  const members = await query<{ user_id: string }>(`
-    SELECT user_id
-    FROM household_members
-    WHERE household_id = $1 AND is_active = true
+  // OPTIMIZED: Single query with LEFT JOIN instead of N+1 queries
+  // Uses idx_tasks_household_assigned_load for efficient aggregation
+  const membersWithLoad = await query<{
+    user_id: string
+    total_load: string
+  }>(`
+    SELECT
+      hm.user_id,
+      COALESCE(SUM(t.load_weight), 0)::text as total_load
+    FROM household_members hm
+    LEFT JOIN tasks t ON t.assigned_to = hm.user_id
+      AND t.household_id = hm.household_id
+      AND t.status = 'pending'
+      AND t.deadline >= CURRENT_DATE - INTERVAL '7 days'
+    WHERE hm.household_id = $1 AND hm.is_active = true
+    GROUP BY hm.user_id
+    ORDER BY COALESCE(SUM(t.load_weight), 0) ASC
+    LIMIT 1
   `, [householdId])
 
-  if (members.length === 0) return null
-  if (members.length === 1) return members[0]?.user_id ?? null
-
-  // Calculate current PENDING load for each member (only pending tasks count as current stress)
-  const loads: { userId: string; load: number }[] = []
-
-  for (const member of members) {
-    const result = await queryOne<{ total_load: string }>(`
-      SELECT COALESCE(SUM(load_weight), 0) as total_load
-      FROM tasks
-      WHERE household_id = $1
-        AND assigned_to = $2
-        AND status = 'pending'
-        AND deadline >= CURRENT_DATE - INTERVAL '7 days'
-    `, [householdId, member.user_id])
-
-    loads.push({
-      userId: member.user_id,
-      load: parseInt(result?.total_load ?? "0", 10),
-    })
-  }
-
-  // Sort by load ascending
-  loads.sort((a, b) => a.load - b.load)
-
-  // Return the least loaded member
-  return loads[0]?.userId ?? null
+  return membersWithLoad[0]?.user_id ?? null
 }
 
 export async function getWeeklyLoadByUser(
