@@ -1,7 +1,7 @@
 "use client"
 
 import { Mic, Sparkles, BarChart3, Bell, Clock, Users, Zap, Shield, Heart } from "lucide-react"
-import { ScrollReveal, StaggerContainer, StaggerItem } from "./ScrollReveal"
+import { ScrollReveal, StaggerContainer, StaggerItem, BlurIn, Highlight, HorizontalWave, SlideRotate, PerspectiveReveal } from "./ScrollReveal"
 
 const features = [
   {
@@ -43,43 +43,47 @@ export function Features() {
   return (
     <section id="features" className="py-20 md:py-28 bg-gradient-to-b from-background via-accent/10 to-background">
       <div className="container">
-        <ScrollReveal>
+        <ScrollReveal animationType="cascade" distance={40}>
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors duration-200">
             <Sparkles className="w-4 h-4" />
             Fonctionnalités
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Tout ce dont vous avez besoin
+            Tout ce dont vous avez <Highlight color="bg-primary/10" delay={0.3}>besoin</Highlight>
           </h2>
+          <BlurIn delay={0.2}>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             FamilyLoad automatise la gestion des tâches parentales pour vous permettre
             de profiter pleinement de votre vie de famille.
           </p>
+          </BlurIn>
         </div>
         </ScrollReveal>
 
-        <StaggerContainer stagger={0.15} className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {features.map((feature, index) => (
-            <StaggerItem key={index}>
-            <div
-              className={`relative p-6 rounded-2xl bg-white border-2 ${feature.borderColor} shadow-sm card-lift`}
-            >
-              {/* Icon */}
-              <div className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-5 scale-bounce-hover`}>
-                <feature.icon className="h-7 w-7" />
-              </div>
+            <HorizontalWave key={index} index={index} delay={0.1}>
+              <PerspectiveReveal delay={0.1 + index * 0.1} axis="x">
+                <div
+                  className={`relative p-6 rounded-2xl bg-white border-2 ${feature.borderColor} shadow-sm card-lift h-full`}
+                >
+                  {/* Icon */}
+                  <div className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-5 scale-bounce-hover`}>
+                    <feature.icon className="h-7 w-7" />
+                  </div>
 
-              {/* Content */}
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                  {/* Content */}
+                  <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
 
-              {/* Decorative corner */}
-              <div className={`absolute top-0 right-0 w-20 h-20 ${feature.color.replace('text-', 'bg-').split(' ')[0]} opacity-5 rounded-bl-full`} />
-            </div>
-            </StaggerItem>
+                  {/* Decorative corner */}
+                  <div className={`absolute top-0 right-0 w-20 h-20 ${feature.color.replace('text-', 'bg-').split(' ')[0]} opacity-5 rounded-bl-full`} />
+                </div>
+              </PerspectiveReveal>
+            </HorizontalWave>
           ))}
-        </StaggerContainer>
+        </div>
 
         {/* Additional features list */}
         <ScrollReveal delay={0.2}>
@@ -105,7 +109,7 @@ export function Features() {
         </ScrollReveal>
 
         {/* USP highlight - Charge mentale */}
-        <ScrollReveal scale delay={0.1}>
+        <SlideRotate direction="left" delay={0.1}>
         <div className="mt-20 max-w-4xl mx-auto">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary/80 text-white p-8 md:p-12">
             {/* Background pattern */}
@@ -141,7 +145,7 @@ export function Features() {
             <div className="absolute -top-10 -left-10 w-32 h-32 rounded-full bg-white/5" />
           </div>
         </div>
-        </ScrollReveal>
+        </SlideRotate>
       </div>
     </section>
   )

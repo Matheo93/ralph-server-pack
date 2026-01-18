@@ -10,6 +10,7 @@ import { Header } from "@/components/custom/header"
 import { MobileNav } from "@/components/custom/mobile-nav"
 import { BottomNav } from "@/components/custom/bottom-nav"
 import { InstallPrompt } from "@/components/custom/InstallPrompt"
+import { UpdatePrompt } from "@/components/custom/UpdatePrompt"
 import { SkipLinks } from "@/components/custom/SkipLinks"
 import { KeyboardShortcutsHelp } from "@/components/custom/KeyboardShortcutsHelp"
 import { OfflineIndicator } from "@/components/custom/OfflineIndicator"
@@ -134,6 +135,7 @@ export default async function DashboardLayout({
             <BottomNav />
             <UnifiedFAB />
             <InstallPrompt />
+            <UpdatePrompt position="bottom" />
             <KeyboardShortcutsHelp />
             <OfflineIndicator showOnlineStatus />
             <PushPermissionPrompt compact showAfterMs={10000} />

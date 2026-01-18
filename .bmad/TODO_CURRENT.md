@@ -14,12 +14,12 @@
 - [x] Créer le manifest.json complet avec toutes les tailles d'icônes
 - [x] Implémenter le service worker pour le cache offline
 - [x] Ajouter les icônes PWA (192x192, 512x512, maskable)
-- [ ] Configurer le splash screen pour iOS et Android
+- [x] Configurer le splash screen pour iOS et Android
 
 ## Phase 3: Animation landing page
-- [ ] Ajouter des animations scroll-triggered sur la landing page (style entraide-souverainiste)
-- [ ] Implémenter le smooth scroll global (html { scroll-behavior: smooth; })
-- [ ] Ajouter des micro-animations sur les CTA buttons
+- [x] Ajouter des animations scroll-triggered sur la landing page (style entraide-souverainiste)
+- [x] Implémenter le smooth scroll global (html { scroll-behavior: smooth; })
+- [x] Ajouter des micro-animations sur les CTA buttons
 
 ## Phase 4: Tests E2E manquants
 - [ ] Créer e2e/settings.spec.ts - Tests pour les pages de paramètres

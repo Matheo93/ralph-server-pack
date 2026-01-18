@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/accordion"
 import { HelpCircle, Mail, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ScrollReveal, StaggerContainer, StaggerItem } from "./ScrollReveal"
+import { ScrollReveal, StaggerContainer, StaggerItem, BlurIn, Highlight, ScaleReveal, HorizontalWave, CurtainReveal } from "./ScrollReveal"
 
 interface FAQItem {
   question: string
@@ -69,62 +69,74 @@ export function FAQ() {
   return (
     <section id="faq" className="py-20 md:py-28 bg-gradient-to-b from-background to-accent/10">
       <div className="container">
-        <ScrollReveal>
+        <ScrollReveal animationType="cascade" distance={40}>
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
-            <HelpCircle className="w-4 h-4" />
-            FAQ
-          </div>
+          <ScrollReveal animationType="spring" delay={0.1}>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors duration-200">
+              <HelpCircle className="w-4 h-4" />
+              FAQ
+            </div>
+          </ScrollReveal>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Questions fréquentes
+            Questions <Highlight color="bg-primary/10" delay={0.3}>fréquentes</Highlight>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Tout ce que vous devez savoir sur FamilyLoad.
-            Vous ne trouvez pas la réponse ? Contactez-nous.
-          </p>
+          <BlurIn delay={0.2}>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Tout ce que vous devez savoir sur FamilyLoad.
+              Vous ne trouvez pas la réponse ? Contactez-nous.
+            </p>
+          </BlurIn>
         </div>
         </ScrollReveal>
 
-        <StaggerContainer stagger={0.08} className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <Accordion type="single" collapsible className="w-full space-y-3">
             {faqs.map((faq, index) => (
-              <StaggerItem key={index}>
-              <AccordionItem
-                value={`item-${index}`}
-                className="bg-white rounded-xl border-2 border-border/50 px-6 data-[state=open]:border-primary/30 data-[state=open]:shadow-md transition-all"
-              >
-                <AccordionTrigger className="text-left hover:no-underline py-5 [&[data-state=open]>svg]:text-primary">
-                  <span className="font-medium pr-4">{faq.question}</span>
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-              </StaggerItem>
+              <HorizontalWave key={index} index={index} delay={0.05}>
+                <CurtainReveal delay={0.02 * index} direction="left">
+                  <AccordionItem
+                    value={`item-${index}`}
+                    className="bg-white rounded-xl border-2 border-border/50 px-6 data-[state=open]:border-primary/30 data-[state=open]:shadow-md transition-all duration-300 hover:border-primary/20"
+                  >
+                    <AccordionTrigger className="text-left hover:no-underline py-5 [&[data-state=open]>svg]:text-primary">
+                      <span className="font-medium pr-4">{faq.question}</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                </CurtainReveal>
+              </HorizontalWave>
             ))}
           </Accordion>
-        </StaggerContainer>
+        </div>
 
         {/* Contact CTA */}
-        <ScrollReveal delay={0.3} scale>
+        <ScaleReveal delay={0.3} duration={0.7}>
         <div className="mt-16 max-w-xl mx-auto">
-          <div className="rounded-2xl bg-gradient-to-r from-primary/5 via-accent/20 to-primary/5 border border-primary/10 p-8 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <MessageCircle className="w-7 h-7 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Encore des questions ?</h3>
-            <p className="text-muted-foreground mb-6">
-              Notre équipe est disponible pour vous aider à chaque étape.
-            </p>
-            <Button variant="outline" asChild className="border-2 border-primary/20 hover:bg-primary/5 transition-all duration-300 hover:scale-105 hover:border-primary/40 hover:shadow-md magnetic-hover btn-outline-fill btn-hover-lift btn-icon-bounce">
-              <a href="mailto:support@familyload.fr" className="inline-flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                support@familyload.fr
-              </a>
-            </Button>
+          <div className="rounded-2xl bg-gradient-to-r from-primary/5 via-accent/20 to-primary/5 border border-primary/10 p-8 text-center card-lift">
+            <ScrollReveal animationType="elastic" delay={0.4}>
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <MessageCircle className="w-7 h-7 text-primary" />
+              </div>
+            </ScrollReveal>
+            <BlurIn delay={0.5}>
+              <h3 className="text-xl font-semibold mb-2">Encore des questions ?</h3>
+              <p className="text-muted-foreground mb-6">
+                Notre équipe est disponible pour vous aider à chaque étape.
+              </p>
+            </BlurIn>
+            <ScrollReveal animationType="spring" delay={0.6}>
+              <Button variant="outline" asChild className="border-2 border-primary/20 hover:bg-primary/5 transition-all duration-300 hover:scale-105 hover:border-primary/40 hover:shadow-md magnetic-hover btn-outline-fill btn-hover-lift btn-icon-bounce">
+                <a href="mailto:support@familyload.fr" className="inline-flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  support@familyload.fr
+                </a>
+              </Button>
+            </ScrollReveal>
           </div>
         </div>
-        </ScrollReveal>
+        </ScaleReveal>
       </div>
     </section>
   )

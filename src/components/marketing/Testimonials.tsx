@@ -1,7 +1,7 @@
 "use client"
 
 import { Star, Quote, Heart, Users, CheckCircle, Clock } from "lucide-react"
-import { ScrollReveal, StaggerContainer, StaggerItem } from "./ScrollReveal"
+import { ScrollReveal, StaggerContainer, StaggerItem, BlurIn, Highlight, ScaleReveal, HorizontalWave, CurtainReveal, CountUp } from "./ScrollReveal"
 
 const testimonials = [
   {
@@ -50,27 +50,32 @@ export function Testimonials() {
   return (
     <section id="testimonials" className="py-20 md:py-28 bg-gradient-to-b from-accent/20 via-background to-accent/10">
       <div className="container">
-        <ScrollReveal>
+        <ScrollReveal animationType="cascade" distance={40}>
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
-            <Heart className="w-4 h-4 fill-current" />
-            Témoignages
-          </div>
+          <ScrollReveal animationType="spring" delay={0.1}>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors duration-200">
+              <Heart className="w-4 h-4 fill-current animate-heartbeat" />
+              Témoignages
+            </div>
+          </ScrollReveal>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ils ont retrouvé leur sérénité
+            Ils ont retrouvé leur <Highlight color="bg-primary/10" delay={0.3}>sérénité</Highlight>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Découvrez comment FamilyLoad a transformé le quotidien de ces familles.
-          </p>
+          <BlurIn delay={0.2}>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Découvrez comment FamilyLoad a transformé le quotidien de ces familles.
+            </p>
+          </BlurIn>
         </div>
         </ScrollReveal>
 
-        <StaggerContainer stagger={0.15} className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {testimonials.map((testimonial, index) => (
-            <StaggerItem key={index}>
-            <div
-              className={`relative p-6 rounded-2xl bg-white border-2 ${testimonial.borderColor} shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
-            >
+            <HorizontalWave key={index} index={index} delay={0.1}>
+              <CurtainReveal delay={0.05 * index} direction={index === 1 ? "down" : "up"}>
+                <div
+                  className={`relative p-6 rounded-2xl bg-white border-2 ${testimonial.borderColor} shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-2 card-lift h-full`}
+                >
               {/* Quote icon */}
               <div className="absolute -top-3 -left-3">
                 <div className={`w-10 h-10 rounded-xl ${testimonial.avatarBg} flex items-center justify-center shadow-lg`}>
@@ -116,30 +121,33 @@ export function Testimonials() {
                   </p>
                 </div>
               </div>
-            </div>
-            </StaggerItem>
+                </div>
+              </CurtainReveal>
+            </HorizontalWave>
           ))}
-        </StaggerContainer>
+        </div>
 
         {/* Trust stats */}
-        <ScrollReveal delay={0.2}>
+        <ScaleReveal delay={0.2} duration={0.7}>
         <div className="mt-20 py-10 px-8 rounded-3xl bg-gradient-to-r from-primary/5 via-accent/30 to-primary/5 border border-primary/10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
+          <StaggerContainer stagger={0.12} className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
             {stats.map((stat, index) => {
               const Icon = stat.icon
               return (
-                <div key={index} className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-3 ${stat.color}`}>
-                    <Icon className="w-6 h-6" />
+                <StaggerItem key={index} scale>
+                  <div className="flex flex-col items-center group cursor-default">
+                    <div className={`w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-3 ${stat.color} group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <p className="text-3xl font-bold text-foreground group-hover:scale-105 transition-transform duration-300">{stat.value}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
                   </div>
-                  <p className="text-3xl font-bold text-foreground">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-                </div>
+                </StaggerItem>
               )
             })}
-          </div>
+          </StaggerContainer>
         </div>
-        </ScrollReveal>
+        </ScaleReveal>
       </div>
     </section>
   )

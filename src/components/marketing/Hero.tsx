@@ -2,28 +2,39 @@
 
 import { CheckCircle2, Heart, Users, Sparkles } from "lucide-react"
 import { AnimatedFamilyIllustration } from "./AnimatedFamilyIllustration"
-import { ScrollReveal } from "./ScrollReveal"
+import { ScrollReveal, FloatingElement, Parallax, BlurIn, Highlight, LineReveal, RevealLine, ScaleReveal, SplitText, BounceIn, CountUp } from "./ScrollReveal"
 import { HeroCTA } from "./HeroCTA"
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      {/* Background gradient - warm tones */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/20 to-secondary/10" />
+      {/* Background gradient - warm tones with animated gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/20 to-secondary/10 animate-gradient" />
 
-      {/* Animated decorative shapes - floating blobs */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-primary/10 blur-3xl animate-blob animate-float-slow" />
-      <div className="absolute bottom-20 right-10 w-40 h-40 bg-accent/20 blur-3xl animate-blob animate-float-delay-1" />
-      <div className="absolute top-40 right-1/4 w-24 h-24 bg-secondary/20 blur-2xl animate-blob animate-float-delay-2" />
-      <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-primary/5 blur-2xl animate-blob animate-float-delay-3" />
+      {/* Animated decorative shapes - floating blobs with parallax */}
+      <Parallax speed={0.4} className="absolute top-20 left-10">
+        <div className="w-32 h-32 bg-primary/10 blur-3xl animate-blob animate-pulse-glow" />
+      </Parallax>
+      <Parallax speed={0.2} direction="down" className="absolute bottom-20 right-10">
+        <div className="w-40 h-40 bg-accent/20 blur-3xl animate-blob" style={{ animationDelay: "2s" }} />
+      </Parallax>
+      <Parallax speed={0.3} className="absolute top-40 right-1/4">
+        <div className="w-24 h-24 bg-secondary/20 blur-2xl animate-blob" style={{ animationDelay: "4s" }} />
+      </Parallax>
+      <Parallax speed={0.15} direction="down" className="absolute top-1/2 left-1/4">
+        <div className="w-20 h-20 bg-primary/5 blur-2xl animate-blob" style={{ animationDelay: "1s" }} />
+      </Parallax>
+      <Parallax speed={0.25} className="absolute bottom-40 left-20 hidden lg:block">
+        <div className="w-16 h-16 bg-amber-200/30 blur-2xl animate-blob" style={{ animationDelay: "3s" }} />
+      </Parallax>
 
       <div className="container relative py-20 md:py-32">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left column - Text content */}
           <div className="text-center lg:text-left">
             {/* Badge */}
-            <ScrollReveal delay={0.1}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-primary/15 text-primary text-sm font-semibold border border-primary/20">
+            <ScrollReveal delay={0.1} animationType="spring">
+            <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-primary/15 text-primary text-sm font-semibold border border-primary/20 hover:bg-primary/20 transition-colors duration-300">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
@@ -32,49 +43,56 @@ export function Hero() {
             </div>
             </ScrollReveal>
 
-            {/* Headline */}
-            <ScrollReveal delay={0.2}>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-foreground">
-              Libérez votre{" "}
-              <span className="text-primary relative">
-                charge mentale
-                <svg className="absolute -bottom-2 left-0 w-full h-3 text-primary/30" viewBox="0 0 200 12" fill="none">
-                  <path d="M2 10C50 2 150 2 198 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
-                </svg>
-              </span>
-              <br />
-              <span className="text-primary/80">parentale</span>
-            </h1>
-            </ScrollReveal>
+            {/* Headline with enhanced animation */}
+            <LineReveal delay={0.15} staggerDelay={0.08}>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-foreground">
+                <RevealLine>
+                  Libérez votre{" "}
+                </RevealLine>
+                <RevealLine>
+                  <span className="text-primary relative inline-block">
+                    <Highlight color="bg-primary/15" delay={0.5}>charge mentale</Highlight>
+                    <svg className="absolute -bottom-2 left-0 w-full h-3 text-primary/30" viewBox="0 0 200 12" fill="none">
+                      <path d="M2 10C50 2 150 2 198 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
+                    </svg>
+                  </span>
+                </RevealLine>
+                <RevealLine>
+                  <span className="text-primary/80">parentale</span>
+                </RevealLine>
+              </h1>
+            </LineReveal>
 
-            {/* Subheadline - Problem/Solution */}
-            <ScrollReveal delay={0.3}>
+            {/* Subheadline - Problem/Solution with blur effect */}
+            <BlurIn delay={0.4} duration={0.8}>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0">
               Les parents portent en moyenne{" "}
-              <strong className="text-foreground font-semibold">60% de la charge mentale</strong>{" "}
+              <Highlight color="bg-amber-100" delay={0.8}>
+                <strong className="text-foreground font-semibold">60% de la charge mentale</strong>
+              </Highlight>{" "}
               familiale. FamilyLoad automatise et répartit équitablement les tâches
               parentales grâce à l&apos;IA vocale.
             </p>
-            </ScrollReveal>
+            </BlurIn>
 
             {/* CTA Buttons - More prominent with smooth transitions */}
-            <ScrollReveal delay={0.4}>
+            <ScrollReveal delay={0.5} animationType="elastic">
               <HeroCTA />
             </ScrollReveal>
 
             {/* Trust indicators - More emotional, less corporate */}
-            <ScrollReveal delay={0.5}>
+            <ScrollReveal delay={0.6} animationType="wave">
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-primary fill-primary/20" />
+              <div className="flex items-center gap-2 hover:text-foreground transition-colors duration-200">
+                <Heart className="h-5 w-5 text-primary fill-primary/20 scale-bounce-hover" />
                 <span>Fini les &ldquo;c&apos;est toujours moi qui...&rdquo;</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-amber-500" />
+              <div className="flex items-center gap-2 hover:text-foreground transition-colors duration-200">
+                <Sparkles className="h-5 w-5 text-amber-500 scale-bounce-hover" />
                 <span>Prêt en 2 minutes</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-2 hover:text-foreground transition-colors duration-200">
+                <Users className="h-5 w-5 text-primary scale-bounce-hover" />
                 <span>Vos données restent les vôtres</span>
               </div>
             </div>
@@ -82,7 +100,7 @@ export function Hero() {
           </div>
 
           {/* Right column - Illustration */}
-          <ScrollReveal direction="right" delay={0.3} distance={60}>
+          <ScaleReveal delay={0.3} duration={0.8}>
           <div className="relative">
             {/* Family illustration container */}
             <div className="relative mx-auto max-w-md lg:max-w-none">
@@ -127,63 +145,79 @@ export function Hero() {
               </div>
 
               {/* Decorative elements around the card */}
-              <div className="absolute -z-10 -top-4 -right-4 w-full h-full rounded-3xl bg-primary/10 transform rotate-3" />
+              <div className="absolute -z-10 -top-4 -right-4 w-full h-full rounded-3xl bg-primary/10 transform rotate-3 animate-pulse-glow" />
               <div className="absolute -z-20 -top-8 -right-8 w-full h-full rounded-3xl bg-secondary/10 transform rotate-6" />
             </div>
           </div>
-          </ScrollReveal>
+          </ScaleReveal>
         </div>
 
         {/* Stats section */}
-        <ScrollReveal delay={0.4}>
+        <ScrollReveal delay={0.5} animationType="cascade" distance={40}>
         <div className="mt-20 pt-12 border-t border-border/50">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">2min</div>
+            <BounceIn from="top-left" delay={0.6}>
+            <div className="group cursor-default">
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
+                <CountUp end={2} suffix="min" duration={1.5} />
+              </div>
               <div className="text-sm text-muted-foreground">pour créer un compte</div>
             </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">60%</div>
+            </BounceIn>
+            <BounceIn from="top-right" delay={0.7}>
+            <div className="group cursor-default">
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
+                <CountUp end={60} suffix="%" duration={2} />
+              </div>
               <div className="text-sm text-muted-foreground">de charge mentale en moins</div>
             </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">500+</div>
+            </BounceIn>
+            <BounceIn from="bottom-left" delay={0.8}>
+            <div className="group cursor-default">
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
+                <CountUp end={500} suffix="+" duration={2.5} />
+              </div>
               <div className="text-sm text-muted-foreground">tâches pré-configurées</div>
             </div>
-            <div>
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
+            </BounceIn>
+            <BounceIn from="bottom-right" delay={0.9}>
+            <div className="group cursor-default">
+              <div className="text-3xl md:text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
                 <span className="flex items-center justify-center gap-1">
-                  <Heart className="w-7 h-7 fill-primary" />
+                  <Heart className="w-7 h-7 fill-primary animate-heartbeat" />
                 </span>
               </div>
               <div className="text-sm text-muted-foreground">familles heureuses</div>
             </div>
+            </BounceIn>
           </div>
 
           {/* Social proof - Press mentions */}
+          <ScrollReveal delay={1} animationType="blur">
           <div className="mt-12 pt-8 border-t border-border/30">
             <p className="text-center text-xs uppercase tracking-wider text-muted-foreground mb-6">
               Ils parlent de nous
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-60">
-              <div className="flex flex-col items-center">
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-60 hover:opacity-80 transition-opacity duration-300">
+              <div className="flex flex-col items-center hover:scale-105 transition-transform duration-200">
                 <span className="text-lg font-bold text-foreground">Le Monde</span>
                 <span className="text-xs text-muted-foreground">Famille</span>
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center hover:scale-105 transition-transform duration-200">
                 <span className="text-lg font-bold text-foreground">Parents</span>
                 <span className="text-xs text-muted-foreground">Magazine</span>
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center hover:scale-105 transition-transform duration-200">
                 <span className="text-lg font-bold text-foreground">Magicmaman</span>
                 <span className="text-xs text-muted-foreground">Digital</span>
               </div>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center hover:scale-105 transition-transform duration-200">
                 <span className="text-lg font-bold text-foreground">Femme Actuelle</span>
                 <span className="text-xs text-muted-foreground">Lifestyle</span>
               </div>
             </div>
           </div>
+          </ScrollReveal>
         </div>
         </ScrollReveal>
       </div>

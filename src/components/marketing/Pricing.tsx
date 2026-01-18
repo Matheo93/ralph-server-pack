@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Check, X, Sparkles, Shield, Crown, Zap } from "lucide-react"
-import { ScrollReveal } from "./ScrollReveal"
+import { ScrollReveal, StaggerContainer, StaggerItem, BlurIn, Highlight, SlideRotate, PerspectiveReveal } from "./ScrollReveal"
 
 const plans = [
   {
@@ -56,26 +56,31 @@ export function Pricing() {
   return (
     <section id="pricing" className="py-20 md:py-28 bg-gradient-to-b from-background via-secondary/20 to-background">
       <div className="container">
-        <ScrollReveal>
+        <ScrollReveal animationType="cascade" distance={40}>
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Sparkles className="w-4 h-4" />
-              Tarifs simples
-            </div>
+            <ScrollReveal animationType="spring" delay={0.1}>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 rounded-full bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors duration-200">
+                <Sparkles className="w-4 h-4" />
+                Tarifs simples
+              </div>
+            </ScrollReveal>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Choisissez votre formule
+              Choisissez votre <Highlight color="bg-primary/10" delay={0.3}>formule</Highlight>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Commencez gratuitement, passez Premium quand vous êtes prêt.
-              <br />
-              <span className="text-primary font-medium">Aucune carte bancaire requise pour l&apos;essai.</span>
-            </p>
+            <BlurIn delay={0.2}>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Commencez gratuitement, passez Premium quand vous êtes prêt.
+                <br />
+                <span className="text-primary font-medium">Aucune carte bancaire requise pour l&apos;essai.</span>
+              </p>
+            </BlurIn>
           </div>
         </ScrollReveal>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan, index) => (
-            <ScrollReveal key={plan.name} scale delay={index * 0.15}>
+            <SlideRotate key={plan.name} direction={index === 0 ? "left" : "right"} delay={0.1 + index * 0.15}>
+              <PerspectiveReveal delay={0.2 + index * 0.1} axis="y">
               <div
                 className={`relative rounded-3xl p-8 h-full flex flex-col ${
                   plan.highlight
@@ -170,38 +175,39 @@ export function Pricing() {
                   <Link href={plan.ctaLink}>{plan.cta}</Link>
                 </Button>
               </div>
-            </ScrollReveal>
+              </PerspectiveReveal>
+            </SlideRotate>
           ))}
         </div>
 
         {/* Trust badges */}
-        <ScrollReveal delay={0.4}>
+        <ScrollReveal delay={0.4} animationType="wave">
           <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Shield className="w-4 h-4 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+              <Shield className="w-4 h-4 text-green-600 scale-bounce-hover" />
               <span>Paiement sécurisé</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Check className="w-4 h-4 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+              <Check className="w-4 h-4 text-green-600 scale-bounce-hover" />
               <span>Annulation à tout moment</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Sparkles className="w-4 h-4 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+              <Sparkles className="w-4 h-4 text-green-600 scale-bounce-hover" />
               <span>Satisfait ou remboursé 30j</span>
             </div>
           </div>
         </ScrollReveal>
 
         {/* FAQ teaser */}
-        <ScrollReveal delay={0.5}>
+        <ScrollReveal delay={0.5} animationType="blur">
           <div className="mt-16 text-center">
             <p className="text-muted-foreground">
               Des questions ?{" "}
-              <Link href="#faq" className="text-primary hover:underline font-medium">
+              <Link href="#faq" className="text-primary hover:underline font-medium underline-grow">
                 Consultez notre FAQ
               </Link>{" "}
               ou{" "}
-              <Link href="mailto:contact@familyload.app" className="text-primary hover:underline font-medium">
+              <Link href="mailto:contact@familyload.app" className="text-primary hover:underline font-medium underline-grow">
                 contactez-nous
               </Link>
             </p>
