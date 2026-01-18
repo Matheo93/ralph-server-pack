@@ -413,7 +413,18 @@ export async function GET(request: NextRequest) {
         }
       )
 
-      // TODO: Save updated achievements to database if changed
+      // Save updated achievements to database if there were changes
+      if (notifications.length > 0 || updated.totalPoints !== achievements.totalPoints) {
+        await query(
+          `
+          INSERT INTO user_achievements (user_id, achievements_data, total_points, updated_at)
+          VALUES ($1, $2, $3, NOW())
+          ON CONFLICT (user_id)
+          DO UPDATE SET achievements_data = $2, total_points = $3, updated_at = NOW()
+        `,
+          [userId, JSON.stringify(updated), updated.totalPoints]
+        )
+      }
 
       const summary = formatAchievementsSummary(updated)
       const nextAchievements = getNextAchievements(updated, 3)
