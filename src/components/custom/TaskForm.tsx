@@ -19,6 +19,7 @@ import { RecurrencePreview } from "@/components/custom/RecurrencePreview"
 import { FormError } from "@/components/custom/FormError"
 import { createTask, updateTask } from "@/lib/actions/tasks"
 import { reportError } from "@/lib/error-reporting"
+import { Gift, Sparkles, Coins } from "lucide-react"
 import type { TaskWithRelations, RecurrenceRule } from "@/types/task"
 
 interface Child {
@@ -87,6 +88,10 @@ export function TaskForm({
     deadline_flexible: task?.deadline_flexible ?? true,
     is_critical: task?.is_critical ?? false,
     load_weight: task?.load_weight ?? 3,
+    // Reward fields
+    reward_type: (task as any)?.reward_type ?? "xp" as "xp" | "immediate",
+    reward_immediate_text: (task as any)?.reward_immediate_text ?? "",
+    reward_xp_override: (task as any)?.reward_xp_override ?? null as number | null,
   })
 
   const [recurrenceType, setRecurrenceType] = useState<string>(
@@ -150,6 +155,9 @@ export function TaskForm({
     setTimeout(updateCustomRecurrence, 0)
   }
 
+  // Calculate XP based on load_weight
+  const calculatedXp = formData.reward_xp_override ?? formData.load_weight * 5
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -166,6 +174,12 @@ export function TaskForm({
         is_critical: formData.is_critical,
         load_weight: formData.load_weight,
         recurrence_rule: recurrenceRule,
+        // Include reward fields only if a child is selected
+        ...(formData.child_id && {
+          reward_type: formData.reward_type,
+          reward_immediate_text: formData.reward_type === "immediate" ? formData.reward_immediate_text : null,
+          reward_xp_override: formData.reward_xp_override,
+        }),
       }
 
       let result
@@ -329,6 +343,105 @@ export function TaskForm({
               </Select>
             </div>
           </div>
+
+          {/* Reward Section - Only show when a child is selected */}
+          {formData.child_id && (
+            <div className="space-y-4 p-4 border-2 border-dashed border-purple-300 rounded-lg bg-purple-50/50">
+              <div className="flex items-center gap-2">
+                <Gift className="h-5 w-5 text-purple-600" />
+                <Label className="text-purple-800 font-semibold">Récompense pour l'enfant</Label>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, reward_type: "xp" }))}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    formData.reward_type === "xp"
+                      ? "border-yellow-500 bg-yellow-50 shadow-md"
+                      : "border-gray-200 bg-white hover:border-yellow-300"
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <Coins className="h-8 w-8 text-yellow-500" />
+                    <span className="font-medium">Points XP</span>
+                    <span className="text-sm text-muted-foreground">
+                      +{calculatedXp} XP
+                    </span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, reward_type: "immediate" }))}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    formData.reward_type === "immediate"
+                      ? "border-pink-500 bg-pink-50 shadow-md"
+                      : "border-gray-200 bg-white hover:border-pink-300"
+                  }`}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <Sparkles className="h-8 w-8 text-pink-500" />
+                    <span className="font-medium">Secret</span>
+                    <span className="text-sm text-muted-foreground">
+                      Coffre au trésor
+                    </span>
+                  </div>
+                </button>
+              </div>
+
+              {/* Immediate reward text input */}
+              {formData.reward_type === "immediate" && (
+                <div className="space-y-2">
+                  <Label htmlFor="reward_text" className="text-purple-800">
+                    Récompense secrète *
+                  </Label>
+                  <Textarea
+                    id="reward_text"
+                    value={formData.reward_immediate_text}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        reward_immediate_text: e.target.value,
+                      }))
+                    }
+                    placeholder="Ex: Code WiFi: FAMILLE2024 ou Tu peux regarder 30min de dessins animés!"
+                    rows={2}
+                    className="bg-white"
+                  />
+                  <p className="text-xs text-purple-600">
+                    Ce texte sera révélé dans un coffre au trésor après validation!
+                  </p>
+                </div>
+              )}
+
+              {/* XP override option */}
+              {formData.reward_type === "xp" && (
+                <div className="flex items-center gap-4">
+                  <Label className="text-purple-800 text-sm">XP personnalisé:</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={formData.reward_xp_override ?? ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          reward_xp_override: e.target.value ? parseInt(e.target.value, 10) : null,
+                        }))
+                      }
+                      placeholder={String(formData.load_weight * 5)}
+                      className="w-20 bg-white"
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      (défaut: {formData.load_weight * 5})
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Deadline</Label>
