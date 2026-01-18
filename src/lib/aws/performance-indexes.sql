@@ -457,7 +457,127 @@ MAINTENANCE SCHEDULE:
 */
 
 -- ============================================================
--- SECTION 8: QUERY OPTIMIZATION PATTERNS
+-- SECTION 9: MISSING INDEXES FOR SERVICE QUERIES (Sprint 23)
+-- ============================================================
+-- Based on analysis of assignment.ts, templates.ts, charge.ts queries
+
+-- === MEMBER CATEGORY PREFERENCES INDEXES ===
+-- Used by: findExpertMember, findPreferredMember, filterDislikingMembers
+-- Query pattern: WHERE category_id = $1 AND household_id = $2 AND user_id = ANY($3) AND preference_level = ?
+
+-- Composite index for expert/prefer lookups (most common pattern)
+CREATE INDEX IF NOT EXISTS idx_member_category_prefs_lookup
+  ON member_category_preferences(category_id, household_id, preference_level)
+  INCLUDE (user_id);
+
+-- Index for filtering by preference level with specific user list
+CREATE INDEX IF NOT EXISTS idx_member_category_prefs_expert
+  ON member_category_preferences(category_id, household_id, user_id)
+  WHERE preference_level = 'expert';
+
+CREATE INDEX IF NOT EXISTS idx_member_category_prefs_prefer
+  ON member_category_preferences(category_id, household_id, user_id)
+  WHERE preference_level = 'prefer';
+
+CREATE INDEX IF NOT EXISTS idx_member_category_prefs_dislike
+  ON member_category_preferences(category_id, household_id, user_id)
+  WHERE preference_level = 'dislike';
+
+-- === MEMBER EXCLUSIONS INDEXES ===
+-- Used by: checkExclusion, filterExcludedMembers, getActiveExclusions
+-- Query pattern: WHERE member_id = $1 AND household_id = $2 AND exclude_from <= $3 AND exclude_until >= $3
+
+-- Composite index for active exclusion checks (covers date range)
+CREATE INDEX IF NOT EXISTS idx_member_exclusions_active_check
+  ON member_exclusions(member_id, household_id, exclude_from, exclude_until);
+
+-- Index for household active exclusions lookup
+CREATE INDEX IF NOT EXISTS idx_member_exclusions_household_active
+  ON member_exclusions(household_id, exclude_until DESC)
+  WHERE exclude_until >= CURRENT_TIMESTAMP;
+
+-- === GENERATED TASKS INDEXES ===
+-- Used by: duplicate check in templates.ts, pending tasks lookup
+-- Query pattern: WHERE template_id = $1 AND child_id = $2 AND generation_key = $3
+
+-- Composite index for duplicate checking (already has UNIQUE constraint, but add B-tree for fast lookups)
+CREATE INDEX IF NOT EXISTS idx_generated_tasks_duplicate_check
+  ON generated_tasks(template_id, child_id, generation_key);
+
+-- Index for pending generated tasks by household
+CREATE INDEX IF NOT EXISTS idx_generated_tasks_pending
+  ON generated_tasks(household_id, deadline ASC)
+  WHERE status = 'pending' AND acknowledged = false;
+
+-- Index for generated tasks by child (for child profile views)
+CREATE INDEX IF NOT EXISTS idx_generated_tasks_child_status
+  ON generated_tasks(child_id, status, deadline);
+
+-- === HOUSEHOLD TEMPLATE SETTINGS INDEXES ===
+-- Used by: LEFT JOIN with task_templates for customization lookups
+-- Query pattern: ON hts.template_id = tt.id AND hts.household_id = $1
+
+-- Composite index for the JOIN pattern
+CREATE INDEX IF NOT EXISTS idx_household_template_settings_join
+  ON household_template_settings(template_id, household_id);
+
+-- Index for enabled templates by household
+CREATE INDEX IF NOT EXISTS idx_household_template_settings_enabled
+  ON household_template_settings(household_id, template_id)
+  WHERE is_enabled = true;
+
+-- === TASKS CATEGORY ANALYSIS INDEXES ===
+-- Used by: findLeastAssignedInCategory, category imbalance analysis
+-- Query pattern: WHERE household_id = $1 AND category_id = $2 AND assigned_to = ANY($3) GROUP BY assigned_to
+
+-- Composite index for category-based assignment history
+CREATE INDEX IF NOT EXISTS idx_tasks_category_assignment_history
+  ON tasks(household_id, category_id, assigned_to, created_at DESC)
+  WHERE assigned_to IS NOT NULL AND category_id IS NOT NULL;
+
+-- Index for category breakdown queries (charge calculation)
+CREATE INDEX IF NOT EXISTS idx_tasks_category_load_analysis
+  ON tasks(household_id, category_id, assigned_to, load_weight)
+  WHERE assigned_to IS NOT NULL AND category_id IS NOT NULL AND status IN ('pending', 'done');
+
+-- === TASK TEMPLATES INDEXES ===
+-- Used by: getApplicableTemplates, filterByAge
+-- Query pattern: WHERE is_active = true AND country = $1 AND age_min <= $2 AND age_max >= $2
+
+CREATE INDEX IF NOT EXISTS idx_task_templates_applicable
+  ON task_templates(country, age_min, age_max)
+  WHERE is_active = true;
+
+CREATE INDEX IF NOT EXISTS idx_task_templates_period
+  ON task_templates(period, country)
+  WHERE is_active = true AND period IS NOT NULL;
+
+-- === FULL TEXT SEARCH INDEX FOR TASKS ===
+-- Used by: search functionality in API v2 tasks
+-- Query pattern: WHERE title ILIKE $1 OR description ILIKE $1
+
+-- Use GIN index with pg_trgm for fast ILIKE searches
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE INDEX IF NOT EXISTS idx_tasks_title_trgm
+  ON tasks USING GIN (title gin_trgm_ops);
+
+CREATE INDEX IF NOT EXISTS idx_tasks_description_trgm
+  ON tasks USING GIN (description gin_trgm_ops)
+  WHERE description IS NOT NULL;
+
+-- ============================================================
+-- SECTION 10: ANALYZE TABLES AFTER NEW INDEXES
+-- ============================================================
+
+ANALYZE member_category_preferences;
+ANALYZE member_exclusions;
+ANALYZE generated_tasks;
+ANALYZE household_template_settings;
+ANALYZE task_templates;
+
+-- ============================================================
+-- SECTION 11: QUERY OPTIMIZATION PATTERNS
 -- ============================================================
 
 /*
