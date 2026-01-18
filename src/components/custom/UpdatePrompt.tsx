@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, RefreshCw, Download, Bell, BellOff } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -320,10 +321,12 @@ export function InstallPrompt({ className }: InstallPromptProps) {
       <div className="bg-card border rounded-lg shadow-lg p-4">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0">
-            <img
+            <Image
               src="/icons/icon-72.png"
               alt="FamilyLoad"
-              className="w-12 h-12 rounded-xl"
+              width={48}
+              height={48}
+              className="rounded-xl"
             />
           </div>
           <div className="flex-1 min-w-0">

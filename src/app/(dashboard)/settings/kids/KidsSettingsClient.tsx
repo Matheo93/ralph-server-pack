@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import {
   Gift,
   Clock,
@@ -287,13 +288,15 @@ export function KidsSettingsClient({
                     {/* Photo preview */}
                     <button
                       onClick={() => setShowPhotoModal(proof.photo_url)}
-                      className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity"
+                      className="relative w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity"
                     >
                       {proof.photo_url ? (
-                        <img
+                        <Image
                           src={proof.photo_url}
                           alt="Preuve"
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          sizes="80px"
                         />
                       ) : (
                         <ImageIcon className="w-8 h-8 text-gray-400" />
@@ -304,10 +307,13 @@ export function KidsSettingsClient({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         {proof.child_avatar ? (
-                          <img
+                          <Image
                             src={proof.child_avatar}
                             alt={proof.child_name}
-                            className="w-6 h-6 rounded-full"
+                            width={24}
+                            height={24}
+                            className="rounded-full"
+                            unoptimized
                           />
                         ) : (
                           <div className="w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center text-xs font-medium text-pink-600">
@@ -390,10 +396,13 @@ export function KidsSettingsClient({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           {redemption.child_avatar ? (
-                            <img
+                            <Image
                               src={redemption.child_avatar}
                               alt={redemption.child_name}
-                              className="w-6 h-6 rounded-full"
+                              width={24}
+                              height={24}
+                              className="rounded-full"
+                              unoptimized
                             />
                           ) : (
                             <div className="w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center text-xs font-medium text-pink-600">
@@ -549,12 +558,15 @@ export function KidsSettingsClient({
           className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
           onClick={() => setShowPhotoModal(null)}
         >
-          <img
-            src={showPhotoModal}
-            alt="Preuve"
-            className="max-w-full max-h-[80vh] rounded-xl"
-            onClick={(e) => e.stopPropagation()}
-          />
+          <div className="relative max-w-full max-h-[80vh] w-full h-full" onClick={(e) => e.stopPropagation()}>
+            <Image
+              src={showPhotoModal}
+              alt="Preuve"
+              fill
+              className="object-contain rounded-xl"
+              sizes="100vw"
+            />
+          </div>
         </div>
       )}
 
