@@ -26,6 +26,7 @@ import {
 import { login, signup } from "@/lib/auth/actions"
 import { loginSchema, signupSchema, magicLinkSchema } from "@/lib/validations/auth"
 import type { LoginInput, SignupInput, MagicLinkInput } from "@/lib/validations/auth"
+import { showToast, toast } from "@/lib/toast-messages"
 
 type AuthMode = "login" | "signup" | "magic-link"
 
@@ -77,6 +78,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           return
         }
         setError(result.error)
+        showToast.error("loginFailed", result.error)
       }
     })
   }
@@ -88,15 +90,18 @@ export function AuthForm({ mode }: AuthFormProps) {
       const result = await signup(data)
       if (!result.success && result.error) {
         setError(result.error)
+        showToast.error("signupFailed", result.error)
         return
       }
       if (result.requiresConfirmation && result.email) {
         // Redirect to email verification page
+        showToast.info("emailSent")
         router.push(`/verify-email?email=${encodeURIComponent(result.email)}`)
         return
       }
       // Fallback message (should not normally reach here)
       setSuccess("Inscription réussie !")
+      showToast.success("signupSuccess")
       signupForm.reset()
     })
   }
@@ -105,7 +110,9 @@ export function AuthForm({ mode }: AuthFormProps) {
     setError(null)
     setSuccess(null)
     // Magic link not supported with Cognito
-    setError("Les liens magiques ne sont pas disponibles. Veuillez utiliser la connexion classique.")
+    const errorMessage = "Les liens magiques ne sont pas disponibles. Veuillez utiliser la connexion classique."
+    setError(errorMessage)
+    showToast.warning("magicLinkUnavailable")
   }
 
   if (mode === "login") {

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { TaskPriorityBadge } from "./TaskPriorityBadge"
 import { TaskCategoryIcon } from "./TaskCategoryIcon"
 import { completeTask, cancelTask, deleteTask, restoreTask } from "@/lib/actions/tasks"
+import { showToast } from "@/lib/toast-messages"
 import { scaleIn, durations } from "@/lib/animations"
 import type { TaskListItem } from "@/types/task"
 import { cn } from "@/lib/utils/index"
@@ -67,27 +68,47 @@ function TaskCardInner({ task, onPostpone, compact = false, showScheduleHint = f
   const handleComplete = useCallback(() => {
     setJustCompleted(true)
     startTransition(async () => {
-      await completeTask(task.id)
+      const result = await completeTask(task.id)
+      if (result.success) {
+        showToast.success("taskCompleted", task.title)
+      } else {
+        showToast.error("taskCompleteFailed", result.error)
+      }
     })
-  }, [task.id])
+  }, [task.id, task.title])
 
   const handleCancel = useCallback(() => {
     startTransition(async () => {
-      await cancelTask(task.id)
+      const result = await cancelTask(task.id)
+      if (result.success) {
+        showToast.info("taskCancelled", task.title)
+      } else {
+        showToast.error("generic", result.error)
+      }
     })
-  }, [task.id])
+  }, [task.id, task.title])
 
   const handleDelete = useCallback(() => {
     startTransition(async () => {
-      await deleteTask(task.id)
+      const result = await deleteTask(task.id)
+      if (result.success) {
+        showToast.success("taskDeleted", task.title)
+      } else {
+        showToast.error("taskDeleteFailed", result.error)
+      }
     })
-  }, [task.id])
+  }, [task.id, task.title])
 
   const handleRestore = useCallback(() => {
     startTransition(async () => {
-      await restoreTask(task.id)
+      const result = await restoreTask(task.id)
+      if (result.success) {
+        showToast.success("taskRestored", task.title)
+      } else {
+        showToast.error("generic", result.error)
+      }
     })
-  }, [task.id])
+  }, [task.id, task.title])
 
   const handlePostpone = useCallback(() => {
     onPostpone?.(task.id)

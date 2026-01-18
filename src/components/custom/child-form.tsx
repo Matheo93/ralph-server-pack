@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { FormError } from "@/components/custom/FormError"
+import { showToast } from "@/lib/toast-messages"
 import { createChild, updateChild } from "@/lib/actions/children"
 import { reportError } from "@/lib/error-reporting"
 import {
@@ -94,19 +95,25 @@ export function ChildForm({ child, mode = "create" }: ChildFormProps) {
         const result = await updateChild({ id: child.id, ...data })
         if (!result.success && result.error) {
           setError(result.error)
+          showToast.error("childUpdateFailed", result.error)
           reportError(new Error(result.error), {
             componentName: "ChildForm",
             action: "updateChild",
           })
+        } else {
+          showToast.success("childUpdated", data.first_name)
         }
       } else {
         const result = await createChild(data)
         if (!result.success && result.error) {
           setError(result.error)
+          showToast.error("childCreateFailed", result.error)
           reportError(new Error(result.error), {
             componentName: "ChildForm",
             action: "createChild",
           })
+        } else {
+          showToast.success("childCreated", data.first_name)
         }
       }
     })

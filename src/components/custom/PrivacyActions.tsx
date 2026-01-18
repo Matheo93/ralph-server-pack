@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Download, Trash2, Loader2 } from "lucide-react"
+import { showToast } from "@/lib/toast-messages"
 
 interface PrivacyActionsProps {
   action: "export" | "delete"
@@ -56,8 +57,11 @@ export function PrivacyActions({ action }: PrivacyActionsProps) {
       link.click()
       link.remove()
       window.URL.revokeObjectURL(url)
+      showToast.success("dataExported")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de l'export")
+      const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'export"
+      setError(errorMessage)
+      showToast.error("generic", errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -90,11 +94,14 @@ export function PrivacyActions({ action }: PrivacyActionsProps) {
       }
 
       // Redirect to home after deletion
+      showToast.success("accountDeleted")
       setIsDialogOpen(false)
       router.push("/")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la suppression")
+      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la suppression"
+      setError(errorMessage)
+      showToast.error("generic", errorMessage)
     } finally {
       setIsLoading(false)
     }

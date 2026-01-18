@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { TaskCategoryIcon } from "./TaskCategoryIcon"
+import { showToast } from "@/lib/toast-messages"
 import type { TemplateWithSettings } from "@/types/template"
 
 interface TemplateSwitchesProps {
@@ -36,18 +37,25 @@ export function TemplateSwitches({ templates, onToggle }: TemplateSwitchesProps)
   const router = useRouter()
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
 
-  const handleToggle = async (templateId: string, enabled: boolean) => {
+  const handleToggle = async (template: TemplateWithSettings, enabled: boolean) => {
     if (!onToggle) return
 
-    setPendingIds((prev) => new Set(prev).add(templateId))
+    setPendingIds((prev) => new Set(prev).add(template.id))
 
     try {
-      await onToggle(templateId, enabled)
+      await onToggle(template.id, enabled)
       router.refresh()
+      if (enabled) {
+        showToast.success("templateEnabled", template.title)
+      } else {
+        showToast.success("templateDisabled", template.title)
+      }
+    } catch {
+      showToast.error("generic", `Impossible de modifier "${template.title}"`)
     } finally {
       setPendingIds((prev) => {
         const next = new Set(prev)
-        next.delete(templateId)
+        next.delete(template.id)
         return next
       })
     }
@@ -102,7 +110,7 @@ export function TemplateSwitches({ templates, onToggle }: TemplateSwitchesProps)
                 </div>
                 <Switch
                   checked={template.isEnabledForHousehold}
-                  onCheckedChange={(checked: boolean) => handleToggle(template.id, checked)}
+                  onCheckedChange={(checked: boolean) => handleToggle(template, checked)}
                   disabled={pendingIds.has(template.id) || !onToggle}
                 />
               </div>

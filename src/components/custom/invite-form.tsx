@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { inviteCoParent } from "@/lib/actions/household"
+import { showToast } from "@/lib/toast-messages"
 import { invitationSchema } from "@/lib/validations/household"
 import type { InvitationInput } from "@/lib/validations/household"
 import { Copy, Check, Mail, Link as LinkIcon } from "lucide-react"
@@ -47,9 +48,11 @@ export function InviteForm() {
       const result = await inviteCoParent(data)
       if (!result.success && result.error) {
         setError(result.error)
+        showToast.error("generic", result.error)
       } else if (result.data?.token) {
         const baseUrl = typeof window !== "undefined" ? window.location.origin : ""
         setInviteLink(`${baseUrl}/invite/${result.data.token}`)
+        showToast.success("inviteSent", data.email)
         form.reset()
       }
     })
@@ -59,6 +62,7 @@ export function InviteForm() {
     if (inviteLink) {
       await navigator.clipboard.writeText(inviteLink)
       setCopied(true)
+      showToast.success("copied")
       setTimeout(() => setCopied(false), 2000)
     }
   }

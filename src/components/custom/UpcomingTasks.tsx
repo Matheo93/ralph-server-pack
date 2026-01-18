@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { TaskCategoryIcon } from "./TaskCategoryIcon"
+import { showToast } from "@/lib/toast-messages"
 import type { UpcomingTaskPreview } from "@/types/template"
 import { cn } from "@/lib/utils/index"
 
@@ -70,14 +71,24 @@ function UpcomingTaskCard({
   const handleConfirm = () => {
     if (!onConfirm) return
     startTransition(async () => {
-      await onConfirm(task.template.id, task.child.id)
+      try {
+        await onConfirm(task.template.id, task.child.id)
+        showToast.success("taskCreated", task.template.title)
+      } catch {
+        showToast.error("taskCreateFailed")
+      }
     })
   }
 
   const handleSkip = () => {
     if (!onSkip) return
     startTransition(async () => {
-      await onSkip(task.template.id, task.child.id)
+      try {
+        await onSkip(task.template.id, task.child.id)
+        showToast.info("taskCancelled", task.template.title)
+      } catch {
+        showToast.error("generic")
+      }
     })
   }
 

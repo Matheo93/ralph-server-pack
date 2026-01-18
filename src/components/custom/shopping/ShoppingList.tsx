@@ -24,6 +24,7 @@ import { Progress } from "@/components/ui/progress"
 import { DraggableShoppingItem } from "./DraggableShoppingItem"
 import { AddItemDialog } from "./AddItemDialog"
 import { useOfflineShopping } from "@/hooks/useOfflineShopping"
+import { showToast } from "@/lib/toast-messages"
 import {
   type ShoppingList as ShoppingListType,
   type ShoppingItem as ShoppingItemType,
@@ -106,24 +107,46 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
     if (!quickAddValue.trim()) return
 
     setIsAdding(true)
-    await quickAdd(quickAddValue.trim())
-    setQuickAddValue("")
-    setIsAdding(false)
+    try {
+      await quickAdd(quickAddValue.trim())
+      showToast.success("itemAdded", quickAddValue.trim())
+      setQuickAddValue("")
+    } catch {
+      showToast.error("itemAddFailed")
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   const handleClearChecked = async () => {
-    if (!confirm("Supprimer tous les articles coches ?")) return
-    await clearChecked()
+    if (!confirm("Supprimer tous les articles cochés ?")) return
+    try {
+      await clearChecked()
+      showToast.success("listCleared")
+    } catch {
+      showToast.error("generic", "Impossible de supprimer les articles")
+    }
   }
 
   const handleUncheckAll = async () => {
-    await uncheckAll()
+    try {
+      await uncheckAll()
+      showToast.info("noChanges", "Tous les articles ont été décochés")
+    } catch {
+      showToast.error("generic", "Impossible de décocher les articles")
+    }
   }
 
   const handleSuggestionClick = async (suggestion: ShoppingSuggestion) => {
     setIsAdding(true)
-    await quickAdd(suggestion.item_name)
-    setIsAdding(false)
+    try {
+      await quickAdd(suggestion.item_name)
+      showToast.success("itemAdded", suggestion.item_name)
+    } catch {
+      showToast.error("itemAddFailed")
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   // Handle drag end for reordering

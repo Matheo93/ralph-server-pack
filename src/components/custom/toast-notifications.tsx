@@ -385,20 +385,36 @@ export function setToastHandler(handler: ToastContextValue) {
   toastHandlerRef = handler
 }
 
+// Support both positional and object syntax:
+// toast.success("Title", "Description") OR toast.success({ title: "Title", description: "Description" })
+type ToastArgs = [string, string?] | [{ title: string; description?: string }]
+
+function parseToastArgs(args: ToastArgs): { title: string; description?: string } {
+  if (typeof args[0] === "object") {
+    return args[0]
+  }
+  return { title: args[0], description: args[1] }
+}
+
 export const toast = {
-  success: (title: string, description?: string) => {
+  success: (...args: ToastArgs) => {
+    const { title, description } = parseToastArgs(args)
     toastHandlerRef?.success(title, description)
   },
-  error: (title: string, description?: string) => {
+  error: (...args: ToastArgs) => {
+    const { title, description } = parseToastArgs(args)
     toastHandlerRef?.error(title, description)
   },
-  warning: (title: string, description?: string) => {
+  warning: (...args: ToastArgs) => {
+    const { title, description } = parseToastArgs(args)
     toastHandlerRef?.warning(title, description)
   },
-  info: (title: string, description?: string) => {
+  info: (...args: ToastArgs) => {
+    const { title, description } = parseToastArgs(args)
     toastHandlerRef?.info(title, description)
   },
-  loading: (title: string, description?: string) => {
+  loading: (...args: ToastArgs) => {
+    const { title, description } = parseToastArgs(args)
     return toastHandlerRef?.loading(title, description)
   },
   dismiss: (id: string) => {

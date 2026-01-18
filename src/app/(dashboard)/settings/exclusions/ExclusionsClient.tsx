@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ExclusionForm, ExclusionCard } from "@/components/custom/ExclusionForm"
+import { showToast } from "@/lib/toast-messages"
 import { deleteExclusion, type MemberExclusion } from "@/lib/actions/settings"
 import { EmptyState } from "@/components/custom/EmptyState"
 
@@ -41,6 +42,9 @@ export function ExclusionsClient({
       const result = await deleteExclusion(exclusionId)
       if (result.success) {
         setExclusions((prev) => prev.filter((e) => e.id !== exclusionId))
+        showToast.success("exclusionDeleted")
+      } else {
+        showToast.error("generic", result.error ?? "Erreur inconnue")
       }
       setDeletingId(null)
     })

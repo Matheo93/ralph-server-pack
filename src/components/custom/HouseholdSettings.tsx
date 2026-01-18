@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { updateHousehold } from "@/lib/actions/settings"
+import { showToast } from "@/lib/toast-messages"
 
 interface HouseholdSettingsProps {
   household: {
@@ -72,10 +73,13 @@ export function HouseholdSettings({ household, isAdmin }: HouseholdSettingsProps
 
       if (result.success) {
         setSuccess(true)
+        showToast.success("householdUpdated")
         router.refresh()
         setTimeout(() => setSuccess(false), 3000)
       } else {
-        setError(result.error ?? "Une erreur est survenue")
+        const errorMessage = result.error ?? "Une erreur est survenue"
+        setError(errorMessage)
+        showToast.error("generic", errorMessage)
       }
     })
   }

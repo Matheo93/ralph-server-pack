@@ -29,6 +29,7 @@ import {
   type ShoppingCategory,
   type Unit,
 } from "@/lib/validations/shopping"
+import { showToast } from "@/lib/toast-messages"
 
 interface AddItemDialogProps {
   open: boolean
@@ -70,9 +71,12 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
       })
 
       if (result.success) {
+        showToast.success("itemAdded", name.trim())
         onClose()
       } else {
-        setError(result.error || "Erreur lors de l'ajout")
+        const errorMessage = result.error || "Erreur lors de l'ajout"
+        setError(errorMessage)
+        showToast.error("itemAddFailed", errorMessage)
       }
     })
   }

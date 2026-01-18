@@ -11,6 +11,7 @@ import { completeTask, cancelTask, deleteTask, restoreTask } from "@/lib/actions
 import type { TaskListItem } from "@/types/task"
 import { cn } from "@/lib/utils/index"
 import { Check, Clock, MoreHorizontal, Trash2, RotateCcw, X } from "lucide-react"
+import { showToast } from "@/lib/toast-messages"
 
 interface SwipeableTaskCardProps {
   task: TaskListItem
@@ -78,28 +79,49 @@ export function SwipeableTaskCard({ task, onPostpone }: SwipeableTaskCardProps) 
       navigator.vibrate([10, 50, 10])
     }
     startTransition(async () => {
-      await completeTask(task.id)
-      setActionTriggered(null)
+      try {
+        await completeTask(task.id)
+        showToast.success("taskCompleted", task.title)
+      } catch {
+        showToast.error("taskCompleteFailed")
+      } finally {
+        setActionTriggered(null)
+      }
     })
-  }, [task.id])
+  }, [task.id, task.title])
 
   const handleCancel = useCallback(() => {
     startTransition(async () => {
-      await cancelTask(task.id)
+      try {
+        await cancelTask(task.id)
+        showToast.info("taskCancelled", task.title)
+      } catch {
+        showToast.error("generic")
+      }
     })
-  }, [task.id])
+  }, [task.id, task.title])
 
   const handleDelete = useCallback(() => {
     startTransition(async () => {
-      await deleteTask(task.id)
+      try {
+        await deleteTask(task.id)
+        showToast.success("taskDeleted", task.title)
+      } catch {
+        showToast.error("taskDeleteFailed")
+      }
     })
-  }, [task.id])
+  }, [task.id, task.title])
 
   const handleRestore = useCallback(() => {
     startTransition(async () => {
-      await restoreTask(task.id)
+      try {
+        await restoreTask(task.id)
+        showToast.success("taskRestored", task.title)
+      } catch {
+        showToast.error("generic")
+      }
     })
-  }, [task.id])
+  }, [task.id, task.title])
 
   const handlePostpone = useCallback(() => {
     if (onPostpone) {

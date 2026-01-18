@@ -21,6 +21,7 @@ import { createTask, updateTask } from "@/lib/actions/tasks"
 import { reportError } from "@/lib/error-reporting"
 import { Gift, Sparkles, Coins } from "lucide-react"
 import type { TaskWithRelations, RecurrenceRule } from "@/types/task"
+import { showToast } from "@/lib/toast-messages"
 
 interface Child {
   id: string
@@ -185,10 +186,20 @@ export function TaskForm({
       }
 
       if (result.success) {
+        if (mode === "edit") {
+          showToast.success("taskUpdated", formData.title)
+        } else {
+          showToast.success("taskCreated", formData.title)
+        }
         router.push("/tasks")
       } else {
         const errorMessage = result.error ?? "Une erreur est survenue"
         setError(errorMessage)
+        if (mode === "edit") {
+          showToast.error("taskUpdateFailed", errorMessage)
+        } else {
+          showToast.error("taskCreateFailed", errorMessage)
+        }
         reportError(new Error(errorMessage), {
           componentName: "TaskForm",
           action: mode === "edit" ? "updateTask" : "createTask",

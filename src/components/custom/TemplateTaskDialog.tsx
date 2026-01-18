@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createTask, getTaskCategories } from "@/lib/actions/tasks"
+import { showToast } from "@/lib/toast-messages"
 import { getChildren } from "@/lib/actions/children"
 import type { TaskTemplate, TemplateWithSettings } from "@/types/template"
 import type { Child } from "@/types/database"
@@ -152,10 +153,12 @@ export function TemplateTaskDialog({
       })
 
       if (result.success) {
+        showToast.success("taskCreated", data.title)
         onOpenChange(false)
         form.reset()
       } else {
         setError(result.error ?? "Erreur lors de la création de la tâche")
+        showToast.error("taskCreateFailed", result.error)
       }
     })
   }

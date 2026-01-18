@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select"
 import { updateNotificationPreferences } from "@/lib/actions/settings"
 import { Bell, Loader2 } from "lucide-react"
+import { showToast } from "@/lib/toast-messages"
 
 interface NotificationSettingsProps {
   preferences: {
@@ -97,9 +98,11 @@ export function NotificationSettings({ preferences }: NotificationSettingsProps)
       })
 
       setPushTestResult("Notification envoyée ! Vérifiez votre écran.")
+      showToast.info("pushSent")
     } catch (error) {
       console.error("Push test error:", error)
       setPushTestResult("Erreur lors du test des notifications")
+      showToast.error("pushTestFailed")
     } finally {
       setTestingPush(false)
     }
@@ -121,10 +124,13 @@ export function NotificationSettings({ preferences }: NotificationSettingsProps)
 
       if (result.success) {
         setSuccess(true)
+        showToast.success("notificationsUpdated")
         router.refresh()
         setTimeout(() => setSuccess(false), 3000)
       } else {
-        setError(result.error ?? "Une erreur est survenue")
+        const errorMessage = result.error ?? "Une erreur est survenue"
+        setError(errorMessage)
+        showToast.error("notificationsUpdateFailed", errorMessage)
       }
     })
   }

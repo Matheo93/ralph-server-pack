@@ -18,6 +18,7 @@ import {
   type ShoppingItem as ShoppingItemType,
 } from "@/lib/actions/shopping"
 import { CATEGORY_ICONS, UNIT_LABELS, type ShoppingCategory, type Unit } from "@/lib/validations/shopping"
+import { showToast } from "@/lib/toast-messages"
 
 interface ShoppingItemProps {
   item: ShoppingItemType
@@ -28,10 +29,14 @@ export function ShoppingItem({ item }: ShoppingItemProps) {
 
   const handleCheck = () => {
     startTransition(async () => {
-      await checkShoppingItem({
-        id: item.id,
-        is_checked: !item.is_checked,
-      })
+      try {
+        await checkShoppingItem({
+          id: item.id,
+          is_checked: !item.is_checked,
+        })
+      } catch {
+        showToast.error("generic", "Impossible de modifier l'article")
+      }
     })
   }
 
@@ -39,7 +44,12 @@ export function ShoppingItem({ item }: ShoppingItemProps) {
     if (!confirm("Supprimer cet article ?")) return
 
     startTransition(async () => {
-      await deleteShoppingItem(item.id)
+      try {
+        await deleteShoppingItem(item.id)
+        showToast.success("itemDeleted", item.name)
+      } catch {
+        showToast.error("generic", "Impossible de supprimer l'article")
+      }
     })
   }
 

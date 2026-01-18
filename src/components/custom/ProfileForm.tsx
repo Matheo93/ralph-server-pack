@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { updateProfile } from "@/lib/actions/settings"
+import { showToast } from "@/lib/toast-messages"
 
 interface ProfileFormProps {
   profile: {
@@ -62,12 +63,15 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
       if (result.success) {
         setSuccess(true)
+        showToast.success("profileUpdated")
         // Écrire le cookie locale pour next-intl
         document.cookie = `locale=${language};path=/;max-age=31536000;SameSite=Lax`
         // Forcer un rechargement complet pour appliquer la nouvelle locale
         window.location.reload()
       } else {
-        setError(result.error ?? "Une erreur est survenue")
+        const errorMessage = result.error ?? "Une erreur est survenue"
+        setError(errorMessage)
+        showToast.error("profileUpdateFailed", errorMessage)
       }
     })
   }

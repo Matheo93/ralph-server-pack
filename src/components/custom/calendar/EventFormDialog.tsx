@@ -29,6 +29,7 @@ import {
   deleteCalendarEvent,
   type CalendarEvent,
 } from "@/lib/actions/calendar"
+import { showToast } from "@/lib/toast-messages"
 import {
   EVENT_TYPE_LABELS,
   RECURRENCE_LABELS,
@@ -110,9 +111,11 @@ export function EventFormDialog({
         })
 
         if (result.success) {
+          showToast.success("eventUpdated", title)
           onClose()
         } else {
           setError(result.error || "Erreur lors de la mise à jour")
+          showToast.error("eventCreateFailed", result.error || "Erreur lors de la mise à jour")
         }
       } else {
         const result = await createCalendarEvent({
@@ -131,9 +134,11 @@ export function EventFormDialog({
         })
 
         if (result.success) {
+          showToast.success("eventCreated", title)
           onClose()
         } else {
           setError(result.error || "Erreur lors de la création")
+          showToast.error("eventCreateFailed", result.error || "Erreur lors de la création")
         }
       }
     })
@@ -145,9 +150,11 @@ export function EventFormDialog({
     startTransition(async () => {
       const result = await deleteCalendarEvent(event.id)
       if (result.success) {
+        showToast.success("eventDeleted", event.title)
         onClose()
       } else {
         setError(result.error || "Erreur lors de la suppression")
+        showToast.error("generic", result.error || "Erreur lors de la suppression")
       }
     })
   }

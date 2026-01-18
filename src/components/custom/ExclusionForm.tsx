@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils/index"
+import { showToast } from "@/lib/toast-messages"
 import { createExclusion } from "@/lib/actions/settings"
 import { EXCLUSION_REASONS, type ExclusionReason } from "@/lib/constants/exclusion-reasons"
 
@@ -68,11 +69,13 @@ export function ExclusionForm({
       })
 
       if (result.success) {
+        showToast.success("exclusionAdded")
         resetForm()
         setOpen(false)
         onSuccess?.()
       } else {
         setError(result.error ?? "Erreur inconnue")
+        showToast.error("generic", result.error ?? "Erreur inconnue")
       }
     })
   }
