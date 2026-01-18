@@ -29,7 +29,7 @@
 ## Phase 5: UX Polish
 - [x] Ajouter des animations de transition entre les vues du calendrier (mois/semaine)
 - [x] Implémenter le drag & drop pour réorganiser les items de la liste de courses
-- [ ] Ajouter des confettis/animations lors de la complétion d'une tâche par un enfant
+- [x] Ajouter des confettis/animations lors de la complétion d'une tâche par un enfant
 - [ ] Créer des skeleton loaders pour les pages Calendar, Shopping et Kids
 - [ ] Améliorer le feedback visuel lors des actions (toast notifications cohérentes)
 

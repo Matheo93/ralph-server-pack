@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Camera, Clock, Sparkles, Coins, Check, Loader2, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { submitTaskProof } from "@/lib/actions/kids-tasks"
+import confetti from "canvas-confetti"
 import type { RoadmapTask } from "./KidsRoadmap"
 
 interface TaskLevelModalProps {
@@ -25,6 +26,7 @@ export function TaskLevelModal({
   const [showCamera, setShowCamera] = useState(false)
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -77,15 +79,14 @@ export function TaskLevelModal({
 
   const submitProof = useCallback(async () => {
     if (!task || !capturedPhoto) return
-    
+
     setIsSubmitting(true)
     setError(null)
-    
+
     try {
       const result = await submitTaskProof(task.id, capturedPhoto)
       if (result.success) {
-        onProofSubmitted()
-        handleClose()
+        setShowSuccess(true)
       } else {
         setError(result.error || "Erreur lors de l'envoi")
       }
@@ -94,15 +95,21 @@ export function TaskLevelModal({
     } finally {
       setIsSubmitting(false)
     }
-  }, [task, capturedPhoto, onProofSubmitted])
+  }, [task, capturedPhoto])
 
   const handleClose = useCallback(() => {
     stopCamera()
     setCapturedPhoto(null)
     setShowCamera(false)
+    setShowSuccess(false)
     setError(null)
     onClose()
   }, [stopCamera, onClose])
+
+  const handleSuccessClose = useCallback(() => {
+    onProofSubmitted()
+    handleClose()
+  }, [onProofSubmitted, handleClose])
 
   if (!task) return null
 
@@ -126,6 +133,14 @@ export function TaskLevelModal({
             className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Écran de succès avec confettis */}
+            {showSuccess ? (
+              <SuccessScreen
+                xpValue={task.reward_xp}
+                onClose={handleSuccessClose}
+              />
+            ) : (
+              <>
             {/* Header coloré */}
             <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-white">
               <div className="flex justify-between items-start">
@@ -255,7 +270,7 @@ export function TaskLevelModal({
               )}
 
               {/* Boutons d'action */}
-              {!isWaiting && (
+              {!isWaiting && !showSuccess && (
                 <div className="space-y-2">
                   {!showCamera && !capturedPhoto && (
                     <Button
@@ -289,9 +304,184 @@ export function TaskLevelModal({
                 </div>
               )}
             </div>
+              </>
+            )}
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
+  )
+}
+
+// Composant écran de succès avec confettis
+function SuccessScreen({ xpValue, onClose }: { xpValue: number; onClose: () => void }) {
+  useEffect(() => {
+    // Lance les confettis au montage
+    const duration = 2500
+    const animationEnd = Date.now() + duration
+    const colors = ['#EC4899', '#F97316', '#FBBF24', '#10B981', '#8B5CF6']
+
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min
+
+    // Premier burst central
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors,
+      startVelocity: 35,
+      gravity: 0.8,
+    })
+
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now()
+      if (timeLeft <= 0) {
+        clearInterval(interval)
+        return
+      }
+
+      const particleCount = 40 * (timeLeft / duration)
+
+      // Confettis des deux côtés
+      confetti({
+        particleCount: Math.floor(particleCount / 2),
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.7 },
+        colors,
+        startVelocity: 30,
+        gravity: 0.8,
+        ticks: 200,
+      })
+      confetti({
+        particleCount: Math.floor(particleCount / 2),
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.7 },
+        colors,
+        startVelocity: 30,
+        gravity: 0.8,
+        ticks: 200,
+      })
+    }, 300)
+
+    // Auto-close après l'animation
+    const closeTimer = setTimeout(() => {
+      onClose()
+    }, 3000)
+
+    return () => {
+      clearInterval(interval)
+      clearTimeout(closeTimer)
+    }
+  }, [onClose])
+
+  return (
+    <div className="p-8 text-center relative overflow-hidden min-h-[300px] flex flex-col items-center justify-center">
+      {/* Étoiles animées en arrière-plan */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(10)].map((_, i) => (
+          <motion.span
+            key={i}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0.5, 1.2, 0.5],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: i * 0.2,
+            }}
+            className="absolute text-xl"
+            style={{
+              top: `${10 + Math.random() * 80}%`,
+              left: `${10 + Math.random() * 80}%`,
+            }}
+          >
+            {['⭐', '✨', '🌟', '💫', '🎊'][i % 5]}
+          </motion.span>
+        ))}
+      </div>
+
+      {/* Icône principale avec rebond */}
+      <motion.div
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{
+          scale: [0, 1.3, 1],
+          rotate: [0, 10, 0],
+        }}
+        transition={{
+          type: 'spring',
+          damping: 10,
+          stiffness: 200,
+        }}
+        className="relative z-10"
+      >
+        <span className="text-8xl block mb-4">🎉</span>
+      </motion.div>
+
+      {/* Titre avec effet */}
+      <motion.h3
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="text-2xl font-black bg-gradient-to-r from-pink-600 via-purple-600 to-orange-500 bg-clip-text text-transparent mb-2"
+      >
+        Super champion ! 🏆
+      </motion.h3>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="text-gray-600 mb-4"
+      >
+        Tes parents vont valider ta mission
+      </motion.p>
+
+      {/* Badge XP animé */}
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.7, type: 'spring' }}
+        className="inline-block"
+      >
+        <motion.div
+          animate={{
+            boxShadow: [
+              '0 0 0 0 rgba(16, 185, 129, 0.4)',
+              '0 0 0 15px rgba(16, 185, 129, 0)',
+            ],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+          }}
+          className="bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl px-6 py-3 shadow-lg"
+        >
+          <span className="text-white font-black text-lg flex items-center gap-2">
+            <motion.span
+              animate={{ rotate: [0, 20, -20, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
+            >
+              💎
+            </motion.span>
+            +{xpValue} XP en attente
+          </span>
+        </motion.div>
+      </motion.div>
+
+      {/* Message encourageant */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+        className="text-sm text-gray-400 mt-4"
+      >
+        Continue comme ça ! 💪
+      </motion.p>
+    </div>
   )
 }
