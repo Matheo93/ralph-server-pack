@@ -8,7 +8,7 @@
 - [x] Ajouter tests unitaires pour les server actions (src/lib/actions/*.ts)
 
 ## Phase 2: Performance & Core Web Vitals
-- [ ] Implémenter le lazy loading des composants lourds (ChargeWeekChart, calendrier)
+- [x] Implémenter le lazy loading des composants lourds (ChargeWeekChart, calendrier)
 - [ ] Optimiser les requêtes Supabase avec des indexes manquants
 - [ ] Ajouter React Suspense avec des boundaries pour le streaming SSR
 - [ ] Créer des skeletons spécifiques pour chaque section du dashboard
