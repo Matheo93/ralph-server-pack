@@ -65,7 +65,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold">Calendrier familial</h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Tous les evenements de la famille en un coup d&apos;oeil
+          Tous les événements de la famille en un coup d'œil
         </p>
       </div>
 

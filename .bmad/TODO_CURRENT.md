@@ -1,7 +1,7 @@
 # Sprint 22 - Tests, Performance & UX Polish
 
 ## Phase 1: Corrections UTF-8
-- [ ] Corriger les accents dans src/app/(dashboard)/calendar/page.tsx ("evenements" → "événements")
+- [x] Corriger les accents dans src/app/(dashboard)/calendar/page.tsx ("evenements" → "événements")
 - [ ] Corriger les accents dans src/app/(dashboard)/shopping/page.tsx ("Gerez" → "Gérez", "differentes" → "différentes")
 - [ ] Auditer et corriger tous les accents manquants dans les fichiers .tsx restants
 
