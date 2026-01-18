@@ -33,8 +33,8 @@
 
 ## Phase 6: Performance
 - [x] Optimiser les images avec next/image sur toutes les pages
-- [ ] Ajouter le prefetching des routes fréquentes
-- [ ] Implémenter le stale-while-revalidate pour les données calendrier
+- [x] Ajouter le prefetching des routes fréquentes
+- [x] Implémenter le stale-while-revalidate pour les données calendrier
 
 ## Phase 7: Documentation
 - [ ] Créer ARCHITECTURE.md avec le schéma de la base de données

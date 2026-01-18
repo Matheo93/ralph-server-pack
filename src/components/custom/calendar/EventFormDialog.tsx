@@ -45,6 +45,8 @@ interface EventFormDialogProps {
   defaultDate: Date | null
   children: Array<{ id: string; first_name: string }>
   householdMembers: Array<{ user_id: string; name: string | null }>
+  /** Callback appelé après une mutation (création, modification, suppression) pour revalider le cache */
+  onMutate?: (eventDate: Date) => void
 }
 
 export function EventFormDialog({
@@ -54,6 +56,7 @@ export function EventFormDialog({
   defaultDate,
   children,
   householdMembers,
+  onMutate,
 }: EventFormDialogProps) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -112,6 +115,8 @@ export function EventFormDialog({
 
         if (result.success) {
           showToast.success("eventUpdated", title)
+          // Revalider le cache SWR pour le mois de l'événement
+          onMutate?.(new Date(startDate))
           onClose()
         } else {
           setError(result.error || "Erreur lors de la mise à jour")
@@ -135,6 +140,8 @@ export function EventFormDialog({
 
         if (result.success) {
           showToast.success("eventCreated", title)
+          // Revalider le cache SWR pour le mois de l'événement
+          onMutate?.(new Date(startDate))
           onClose()
         } else {
           setError(result.error || "Erreur lors de la création")
@@ -151,6 +158,8 @@ export function EventFormDialog({
       const result = await deleteCalendarEvent(event.id)
       if (result.success) {
         showToast.success("eventDeleted", event.title)
+        // Revalider le cache SWR pour le mois de l'événement supprimé
+        onMutate?.(new Date(event.start_date))
         onClose()
       } else {
         setError(result.error || "Erreur lors de la suppression")

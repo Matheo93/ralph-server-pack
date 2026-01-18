@@ -1,17 +1,18 @@
 "use client"
 
-import { useState, useMemo, useEffect, useCallback, useRef, useLayoutEffect } from "react"
+import { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addMonths, subMonths, addWeeks, subWeeks, isToday } from "date-fns"
 import { fr } from "date-fns/locale"
-import { ChevronLeft, ChevronRight, Plus, Loader2, History } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, Loader2, History, RefreshCw } from "lucide-react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { EventCard } from "./EventCard"
 import { EventFormDialog } from "./EventFormDialog"
-import { useCalendarPrefetch } from "@/hooks/useCalendarPrefetch"
+import { useCalendarSWR, type CalendarSWRData } from "@/hooks/useCalendarSWR"
 import type { CalendarEvent } from "@/lib/actions/calendar"
 
 // Import dynamique pour éviter les problèmes SSR avec @react-pdf/renderer
@@ -55,26 +56,21 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
   const [displayEvents, setDisplayEvents] = useState<CalendarEvent[]>(initialEvents)
   const [displayEventCounts, setDisplayEventCounts] = useState<Record<string, number>>(initialEventCounts)
   const [isNavigating, setIsNavigating] = useState(false)
+  const [isStaleData, setIsStaleData] = useState(false)
 
-  // Prefetching hook pour les mois adjacents
+  // SWR hook pour les données calendrier avec stale-while-revalidate
   const {
-    prefetchMonth,
-    prefetchPreviousMonth,
-    prefetchNextMonth,
-    prefetchAdjacentMonths,
     getMonthData,
-    setCachedData,
     getCachedData,
-    cancelPendingPrefetches,
-    isLoading
-  } = useCalendarPrefetch()
-
-  // Cleanup des prefetch en attente au démontage
-  useEffect(() => {
-    return () => {
-      cancelPendingPrefetches()
-    }
-  }, [cancelPendingPrefetches])
+    prefetch,
+    revalidate,
+    setCache,
+    isRevalidating,
+    isStale,
+  } = useCalendarSWR({
+    date: new Date(),
+    data: { events: initialEvents, eventCounts: initialEventCounts }
+  })
 
   // Handle view mode transitions (month <-> week)
   useEffect(() => {
@@ -93,48 +89,70 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
     }
   }, [viewMode])
 
-  // Initialize cache avec les données initiales au montage
-  useEffect(() => {
-    setCachedData(new Date(), { events: initialEvents, eventCounts: initialEventCounts })
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Charger les données du mois courant (depuis cache ou fetch)
+  // Charger les données du mois courant avec SWR (stale-while-revalidate)
   const loadMonthData = useCallback(async (date: Date) => {
-    setIsNavigating(true)
-    try {
-      // Vérifier d'abord le cache synchrone
-      const cachedData = getCachedData(date)
-      if (cachedData) {
-        setDisplayEvents(cachedData.events)
-        setDisplayEventCounts(cachedData.eventCounts)
-        setIsNavigating(false)
-        return
-      }
+    // D'abord, vérifier le cache synchrone pour affichage instantané
+    const cachedData = getCachedData(date)
+    if (cachedData) {
+      setDisplayEvents(cachedData.events)
+      setDisplayEventCounts(cachedData.eventCounts)
+      setIsStaleData(isStale(date))
+    } else {
+      setIsNavigating(true)
+    }
 
-      // Sinon, charger depuis le serveur (ou attendre le prefetch en cours)
-      const data = await getMonthData(date)
-      setDisplayEvents(data.events)
-      setDisplayEventCounts(data.eventCounts)
+    try {
+      // Récupérer les données avec SWR (retourne immédiatement si en cache)
+      const result = await getMonthData(date)
+      setDisplayEvents(result.data.events)
+      setDisplayEventCounts(result.data.eventCounts)
+      setIsStaleData(result.isStale)
     } catch (error) {
       console.error("Erreur lors du chargement des données du calendrier:", error)
     } finally {
       setIsNavigating(false)
     }
-  }, [getCachedData, getMonthData])
+  }, [getCachedData, getMonthData, isStale])
 
   // Charger les données quand le mois change
   useEffect(() => {
-    // Ne pas recharger pour le mois initial (on a déjà les données via props)
-    const initialMonth = format(new Date(), "yyyy-MM")
-    const currentMonth = format(currentDate, "yyyy-MM")
+    void loadMonthData(currentDate)
 
-    if (currentMonth !== initialMonth) {
-      void loadMonthData(currentDate)
+    // Prefetch les mois adjacents
+    const prevMonth = subMonths(currentDate, 1)
+    const nextMonth = addMonths(currentDate, 1)
+    prefetch(prevMonth)
+    prefetch(nextMonth)
+  }, [currentDate, loadMonthData, prefetch])
+
+  // Mettre à jour le state quand la revalidation en arrière-plan se termine
+  useEffect(() => {
+    // Vérifier périodiquement si les données ont été mises à jour
+    const checkForUpdates = () => {
+      const cachedData = getCachedData(currentDate)
+      if (cachedData) {
+        // Comparer avec les données actuelles
+        const eventsChanged = JSON.stringify(cachedData.events) !== JSON.stringify(displayEvents)
+        const countsChanged = JSON.stringify(cachedData.eventCounts) !== JSON.stringify(displayEventCounts)
+
+        if (eventsChanged || countsChanged) {
+          setDisplayEvents(cachedData.events)
+          setDisplayEventCounts(cachedData.eventCounts)
+          setIsStaleData(isStale(currentDate))
+        }
+      }
     }
 
-    // Toujours prefetch les mois adjacents
-    prefetchAdjacentMonths(currentDate)
-  }, [currentDate, loadMonthData, prefetchAdjacentMonths])
+    // Vérifier quand on passe de "revalidating" à "not revalidating"
+    if (!isRevalidating(currentDate) && isStaleData) {
+      checkForUpdates()
+    }
+  }, [currentDate, getCachedData, displayEvents, displayEventCounts, isRevalidating, isStale, isStaleData])
+
+  // Handler pour forcer la revalidation manuelle
+  const handleForceRevalidate = useCallback(() => {
+    void revalidate(currentDate)
+  }, [currentDate, revalidate])
 
   const days = useMemo(() => {
     if (viewMode === "month") {
@@ -219,9 +237,24 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
   const handleDayHover = (day: Date) => {
     if (!isSameMonth(day, currentDate)) {
       // Le jour appartient à un mois adjacent, prefetch ce mois
-      prefetchMonth(day)
+      prefetch(day)
     }
   }
+
+  // Prefetch mois précédent
+  const handlePrefetchPrevious = useCallback(() => {
+    const prevMonth = subMonths(currentDate, 1)
+    prefetch(prevMonth)
+  }, [currentDate, prefetch])
+
+  // Prefetch mois suivant
+  const handlePrefetchNext = useCallback(() => {
+    const nextMonth = addMonths(currentDate, 1)
+    prefetch(nextMonth)
+  }, [currentDate, prefetch])
+
+  // État de revalidation pour le mois courant
+  const currentMonthRevalidating = isRevalidating(currentDate)
 
   const weekDays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
 
@@ -234,9 +267,9 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
             variant="outline"
             size="icon"
             onClick={navigatePrevious}
-            onMouseEnter={() => prefetchPreviousMonth(currentDate)}
-            onTouchStart={() => prefetchPreviousMonth(currentDate)}
-            onFocus={() => prefetchPreviousMonth(currentDate)}
+            onMouseEnter={handlePrefetchPrevious}
+            onTouchStart={handlePrefetchPrevious}
+            onFocus={handlePrefetchPrevious}
             aria-label="Mois précédent"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -245,9 +278,9 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
             variant="outline"
             size="icon"
             onClick={navigateNext}
-            onMouseEnter={() => prefetchNextMonth(currentDate)}
-            onTouchStart={() => prefetchNextMonth(currentDate)}
-            onFocus={() => prefetchNextMonth(currentDate)}
+            onMouseEnter={handlePrefetchNext}
+            onTouchStart={handlePrefetchNext}
+            onFocus={handlePrefetchNext}
             aria-label="Mois suivant"
           >
             <ChevronRight className="h-4 w-4" />
@@ -257,11 +290,38 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
               ? format(currentDate, "MMMM yyyy", { locale: fr })
               : `Semaine du ${format(startOfWeek(currentDate, { locale: fr }), "d MMMM", { locale: fr })}`
             }
-            {(isNavigating || isLoading) && (
+            {isNavigating && (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
             )}
+            {currentMonthRevalidating && !isNavigating && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Mise à jour en arrière-plan...</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {isStaleData && !currentMonthRevalidating && !isNavigating && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={handleForceRevalidate}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Actualiser les données"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Données en cache - Cliquer pour actualiser</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
           </h2>
-          {(isNavigating || isLoading) && (
+          {isNavigating && (
             <span className="sr-only" role="status" aria-live="polite">Chargement en cours</span>
           )}
         </div>
@@ -407,6 +467,11 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
         defaultDate={selectedDate}
         children={children}
         householdMembers={householdMembers}
+        onMutate={(eventDate) => {
+          // Revalider le mois de l'événement muté
+          void revalidate(eventDate)
+          // Si c'est le mois courant, les données se mettront à jour automatiquement
+        }}
       />
     </div>
   )
