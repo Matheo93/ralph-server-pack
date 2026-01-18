@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { query, queryOne } from "@/lib/aws/database"
 import { getUserId } from "@/lib/auth/actions"
+import { getHouseholdSubscription } from "@/lib/services/subscription"
 import {
   // Streak
   calculateStreakStatus,
@@ -352,7 +353,10 @@ export async function GET(request: NextRequest) {
 
       // Check for monthly allocation
       let updatedInventory = inventory
-      const isPremium = false // TODO: Get from subscription status
+
+      // Get premium status from household subscription
+      const householdSubscription = await getHouseholdSubscription(householdId)
+      const isPremium = householdSubscription.isPremium
 
       const allocationResult = allocateMonthlyJokers(
         inventory,
