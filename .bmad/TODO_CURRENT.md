@@ -30,7 +30,7 @@
 - [x] Ajouter des animations de transition entre les vues du calendrier (mois/semaine)
 - [x] Implémenter le drag & drop pour réorganiser les items de la liste de courses
 - [x] Ajouter des confettis/animations lors de la complétion d'une tâche par un enfant
-- [ ] Créer des skeleton loaders pour les pages Calendar, Shopping et Kids
+- [x] Créer des skeleton loaders pour les pages Calendar, Shopping et Kids
 - [ ] Améliorer le feedback visuel lors des actions (toast notifications cohérentes)
 
 ## Phase 6: Accessibilité & i18n
