@@ -14,6 +14,11 @@ import {
 } from "@/lib/validations/calendar"
 import { getUserId } from "@/lib/auth/actions"
 import { query, queryOne, insert, setCurrentUser } from "@/lib/aws/database"
+import {
+  scheduleCalendarEventReminder,
+  cancelCalendarEventReminders,
+  rescheduleCalendarEventReminder,
+} from "@/lib/services/calendar-reminder-scheduler"
 
 // ============================================================
 // TYPES
@@ -103,6 +108,13 @@ export async function createCalendarEvent(
     return { success: false, error: "Erreur lors de la creation de l'evenement" }
   }
 
+  // Schedule reminder notification if reminder_minutes > 0
+  if (validation.data.reminder_minutes && validation.data.reminder_minutes > 0) {
+    await scheduleCalendarEventReminder(event.id).catch(() => {
+      // Silently fail - don't block event creation if notification fails
+    })
+  }
+
   revalidatePath("/calendar")
   revalidatePath("/dashboard")
 
@@ -156,6 +168,14 @@ export async function updateCalendarEvent(
     return { success: false, error: "Evenement introuvable ou non autorise" }
   }
 
+  // Reschedule reminder if start_date or reminder_minutes changed
+  const needsReschedule = keys.includes("start_date") || keys.includes("reminder_minutes")
+  if (needsReschedule) {
+    await rescheduleCalendarEventReminder(id).catch(() => {
+      // Silently fail - don't block update if notification fails
+    })
+  }
+
   revalidatePath("/calendar")
   revalidatePath("/dashboard")
 
@@ -178,6 +198,11 @@ export async function deleteCalendarEvent(
   if (!membership) {
     return { success: false, error: "Vous n'avez pas de foyer" }
   }
+
+  // Cancel any scheduled reminders before deleting the event
+  await cancelCalendarEventReminders(eventId).catch(() => {
+    // Silently fail - event will be deleted anyway
+  })
 
   const result = await query(
     `DELETE FROM calendar_events

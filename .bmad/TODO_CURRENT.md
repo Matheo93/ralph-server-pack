@@ -42,7 +42,7 @@
 
 ## Phase 7: Fonctionnalités supplémentaires
 - [x] Ajouter l'export PDF du calendrier mensuel
-- [ ] Implémenter les notifications push pour les événements calendrier (rappel 1h avant)
+- [x] Implémenter les notifications push pour les événements calendrier (rappel 1h avant)
 - [ ] Ajouter le partage de liste de courses par lien (lecture seule)
 - [ ] Créer une vue "cette semaine" pour les défis enfants
 - [ ] Ajouter la synchronisation en temps réel de la liste de courses (Supabase Realtime)

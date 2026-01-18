@@ -11,6 +11,10 @@ import {
   scheduleStreakRiskNotifications,
   scheduleChargeAlertNotifications,
 } from "@/lib/services/notification-scheduler"
+import {
+  processCalendarReminders,
+  scheduleDailyCalendarDigest,
+} from "@/lib/services/calendar-reminder-scheduler"
 import { query } from "@/lib/aws/database"
 
 // Cron secret to verify requests are legitimate
@@ -210,6 +214,49 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Process calendar reminders (run every 5 minutes)
+    if (type === "calendar_reminders" || type === "all") {
+      try {
+        const result = await processCalendarReminders()
+        results.push({
+          type: "calendar_reminders",
+          success: true,
+          details: {
+            processed: result.processed,
+            sent: result.sent,
+            failed: result.failed,
+            webPushSent: result.webPushSent,
+          },
+        })
+      } catch (error) {
+        results.push({
+          type: "calendar_reminders",
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        })
+      }
+    }
+
+    // Schedule daily calendar digest (run in morning)
+    if (type === "calendar_digest") {
+      try {
+        const result = await scheduleDailyCalendarDigest()
+        results.push({
+          type: "calendar_digest",
+          success: true,
+          details: {
+            scheduled: result.scheduled,
+          },
+        })
+      } catch (error) {
+        results.push({
+          type: "calendar_digest",
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        })
+      }
+    }
+
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
@@ -250,6 +297,8 @@ export async function GET(request: NextRequest) {
       "scheduled",
       "streak_risk",
       "charge_alert",
+      "calendar_reminders",
+      "calendar_digest",
       "all",
     ],
   })

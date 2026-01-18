@@ -4,7 +4,7 @@ import { getUser } from "@/lib/auth/actions"
 import { getHousehold, getCurrentHouseholdMembers } from "@/lib/actions/household"
 import { getCalendarEvents, getEventsCountByDate } from "@/lib/actions/calendar"
 import { getChildren } from "@/lib/actions/children"
-import { CalendarViewLazy } from "@/components/custom/calendar"
+import { CalendarViewLazy, CalendarNotificationToggle } from "@/components/custom/calendar"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -62,11 +62,14 @@ export default async function CalendarPage({ searchParams }: PageProps) {
 
   return (
     <div className="container mx-auto py-8 px-4 h-[calc(100vh-4rem)]">
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold">Calendrier familial</h1>
-        <p className="text-muted-foreground text-sm sm:text-base">
-          Tous les événements de la famille en un coup d'œil
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold">Calendrier familial</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Tous les événements de la famille en un coup d'œil
+          </p>
+        </div>
+        <CalendarNotificationToggle className="w-full sm:w-auto sm:min-w-[280px]" />
       </div>
 
       <CalendarViewLazy
