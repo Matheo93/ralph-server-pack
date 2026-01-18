@@ -9,6 +9,7 @@ import { NextRequest } from "next/server"
 import { query, queryOne } from "@/lib/aws/database"
 import { z } from "zod"
 import crypto from "crypto"
+import bcrypt from "bcryptjs"
 import {
   apiSuccess,
   apiError,
@@ -86,9 +87,11 @@ export async function POST(request: NextRequest) {
     return apiError("Utilisez la connexion web pour ce compte", 400)
   }
 
-  // TODO: Implement proper password verification
-  // For now, we'll just check if password hash exists
-  // const isValid = await bcrypt.compare(password, user.password_hash)
+  // Verify password using bcrypt
+  const isValidPassword = await bcrypt.compare(password, user.password_hash)
+  if (!isValidPassword) {
+    return apiError("Email ou mot de passe incorrect", 401)
+  }
 
   // Generate tokens
   const accessToken = generateToken()
