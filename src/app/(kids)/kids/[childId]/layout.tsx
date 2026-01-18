@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { KidsBottomNav } from '@/components/kids/KidsBottomNav'
+import { KidsPrefetcher } from '@/components/kids/KidsPrefetcher'
 import { query } from '@/lib/aws/database'
 
 interface Props {
@@ -128,6 +129,7 @@ export default async function KidsChildLayout({ children, params }: Props) {
         unreadBadgesCount={unreadBadgesCount}
         activeChallengesCount={activeChallengesCount}
       />
+      <KidsPrefetcher childId={childId} />
     </div>
   )
 }

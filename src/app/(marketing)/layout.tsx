@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { IntroAnimation } from "@/components/custom/IntroAnimation"
 import { MarketingHeader } from "@/components/custom/MarketingHeader"
+import { RoutePrefetcher } from "@/components/custom/RoutePrefetcher"
 
 export default function MarketingLayout({
   children,
@@ -15,6 +16,7 @@ export default function MarketingLayout({
 
       {/* Main Content */}
       <main className="flex-1">{children}</main>
+      <RoutePrefetcher initialDelay={500} />
 
       {/* Marketing Footer */}
       <footer className="border-t bg-muted/30">

@@ -21,6 +21,7 @@ import { PushPermissionPrompt } from "@/components/custom/PushPermissionPrompt"
 import { OnboardingTutorial } from "@/components/custom/OnboardingTutorial"
 import { MagicChat } from "@/components/custom/MagicChat"
 import { InviteCoParentCTA } from "@/components/custom/InviteCoParentCTA"
+import { RoutePrefetcher } from "@/components/custom/RoutePrefetcher"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -145,6 +146,7 @@ export default async function DashboardLayout({
               isPremium={isPremium}
               householdId={household?.id ?? ""}
             />
+            <RoutePrefetcher contextual />
           </div>
         </PageTransitionProvider>
         </CoachMarksProvider>
