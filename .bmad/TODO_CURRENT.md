@@ -27,7 +27,7 @@
 - [x] Créer e2e/recurring-tasks.spec.ts - Tests pour les tâches récurrentes
 
 ## Phase 5: Sécurité & Robustesse
-- [ ] Audit des inputs utilisateur avec Zod sur toutes les routes API
+- [x] Audit des inputs utilisateur avec Zod sur toutes les routes API
 - [ ] Ajouter rate limiting sur les routes sensibles (auth, API v1/v2)
 - [ ] Vérifier les RLS policies pour les nouvelles tables
 

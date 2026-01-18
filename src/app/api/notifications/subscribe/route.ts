@@ -35,6 +35,11 @@ const UpdateSubscriptionSchema = z.object({
   ])).optional(),
 })
 
+// Query parameter schema for DELETE
+const DeleteSubscriptionQuerySchema = z.object({
+  token: z.string().min(1, "Token manquant"),
+})
+
 interface DeviceToken {
   id: string
   user_id: string
@@ -185,10 +190,18 @@ export async function DELETE(request: NextRequest) {
 
   await setCurrentUser(userId)
 
-  const token = request.nextUrl.searchParams.get("token")
-  if (!token) {
-    return NextResponse.json({ error: "Token manquant" }, { status: 400 })
+  const queryValidation = DeleteSubscriptionQuerySchema.safeParse({
+    token: request.nextUrl.searchParams.get("token"),
+  })
+
+  if (!queryValidation.success) {
+    return NextResponse.json(
+      { error: queryValidation.error.issues[0]?.message ?? "Paramètres invalides" },
+      { status: 400 }
+    )
   }
+
+  const { token } = queryValidation.data
 
   try {
     const result = await query<{ id: string }>(`

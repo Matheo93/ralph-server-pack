@@ -58,18 +58,26 @@ export async function POST(request: NextRequest) {
   })
 }
 
+// Query parameter schema for DELETE
+const DeleteTokenQuerySchema = z.object({
+  token: z.string().min(1, "Token manquant"),
+})
+
 /**
  * DELETE /api/mobile/register-device
  * Unregister a device token
  */
 export async function DELETE(request: NextRequest) {
   return withAuth(request, async (userId, householdId) => {
-    const token = request.nextUrl.searchParams.get("token")
+    const queryValidation = DeleteTokenQuerySchema.safeParse({
+      token: request.nextUrl.searchParams.get("token"),
+    })
 
-    if (!token) {
-      return apiError("Token manquant", 400)
+    if (!queryValidation.success) {
+      return apiError(queryValidation.error.issues[0]?.message ?? "Paramètres invalides", 400)
     }
 
+    const { token } = queryValidation.data
     const success = await unregisterDeviceToken(userId, token)
 
     if (!success) {

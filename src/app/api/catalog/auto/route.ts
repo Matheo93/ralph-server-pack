@@ -41,6 +41,12 @@ const ScheduleRequestSchema = z.object({
   dueDate: z.string().datetime().optional(),
 })
 
+// Query parameter schema for GET
+const GetAutoTasksQuerySchema = z.object({
+  days: z.coerce.number().min(1).max(90).optional().default(30),
+  dueOnly: z.enum(["true", "false"]).optional().default("false"),
+})
+
 /**
  * GET /api/catalog/auto
  * Get upcoming automatic tasks for household
@@ -54,8 +60,20 @@ export async function GET(request: NextRequest) {
   await setCurrentUser(userId)
 
   const { searchParams } = new URL(request.url)
-  const daysAhead = Math.min(parseInt(searchParams.get("days") ?? "30"), 90)
-  const dueOnly = searchParams.get("dueOnly") === "true"
+  const queryValidation = GetAutoTasksQuerySchema.safeParse({
+    days: searchParams.get("days") ?? undefined,
+    dueOnly: searchParams.get("dueOnly") ?? undefined,
+  })
+
+  if (!queryValidation.success) {
+    return NextResponse.json(
+      { error: queryValidation.error.issues[0]?.message ?? "Paramètres invalides" },
+      { status: 400 }
+    )
+  }
+
+  const { days: daysAhead, dueOnly: dueOnlyStr } = queryValidation.data
+  const dueOnly = dueOnlyStr === "true"
 
   // Get user's household
   const membership = await queryOne<{ household_id: string }>(`

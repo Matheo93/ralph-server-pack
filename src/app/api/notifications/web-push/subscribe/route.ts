@@ -17,6 +17,11 @@ const SubscribeRequestSchema = z.object({
   resubscribe: z.boolean().optional(),
 })
 
+// Query parameter schema for DELETE
+const DeleteWebPushQuerySchema = z.object({
+  endpoint: z.string().min(1, "Endpoint manquant").url("Endpoint invalide"),
+})
+
 interface WebPushSubscriptionRecord {
   id: string
   user_id: string
@@ -134,10 +139,18 @@ export async function DELETE(request: NextRequest) {
 
   await setCurrentUser(userId)
 
-  const endpoint = request.nextUrl.searchParams.get("endpoint")
-  if (!endpoint) {
-    return NextResponse.json({ error: "Endpoint manquant" }, { status: 400 })
+  const queryValidation = DeleteWebPushQuerySchema.safeParse({
+    endpoint: request.nextUrl.searchParams.get("endpoint"),
+  })
+
+  if (!queryValidation.success) {
+    return NextResponse.json(
+      { error: queryValidation.error.issues[0]?.message ?? "Paramètres invalides" },
+      { status: 400 }
+    )
   }
+
+  const { endpoint } = queryValidation.data
 
   try {
     const result = await query<{ id: string }>(`

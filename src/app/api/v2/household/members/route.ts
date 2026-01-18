@@ -63,6 +63,15 @@ const UpdateMemberSchema = z.object({
   isActive: z.boolean().optional(),
 })
 
+// Query parameter schema for DELETE
+const DeleteMemberQuerySchema = z.object({
+  memberId: z.string().uuid().optional(),
+  invitationId: z.string().uuid().optional(),
+}).refine(
+  (data) => data.memberId !== undefined || data.invitationId !== undefined,
+  { message: "Either memberId or invitationId is required" }
+)
+
 // =============================================================================
 // GET /api/v2/household/members - List members
 // =============================================================================
@@ -310,12 +319,16 @@ export async function DELETE(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams
-    const memberId = searchParams.get("memberId")
-    const invitationId = searchParams.get("invitationId")
+    const queryValidation = DeleteMemberQuerySchema.safeParse({
+      memberId: searchParams.get("memberId") ?? undefined,
+      invitationId: searchParams.get("invitationId") ?? undefined,
+    })
 
-    if (!memberId && !invitationId) {
-      return validationError({ message: "Either memberId or invitationId is required" })
+    if (!queryValidation.success) {
+      return validationError({ message: queryValidation.error.issues[0]?.message ?? "Paramètres invalides" })
     }
+
+    const { memberId, invitationId } = queryValidation.data
 
     if (memberId) {
       // Cannot remove self
