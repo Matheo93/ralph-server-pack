@@ -98,7 +98,7 @@ export function RoadmapDashboard({
 
       {/* Message si pas de tâches - Fun et engageant */}
       {tasks.length === 0 && (
-        <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100 min-h-[400px]">
+        <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100 dark:from-purple-900/50 dark:via-pink-900/30 dark:to-orange-900/50 min-h-[400px]">
           <div className="text-center relative">
             {/* Decorative floating elements */}
             <div className="absolute -top-8 -left-8 text-4xl animate-bounce" style={{ animationDelay: '0s' }}>🌟</div>
@@ -107,14 +107,14 @@ export function RoadmapDashboard({
             <div className="absolute -bottom-6 -right-8 text-4xl animate-bounce" style={{ animationDelay: '0.6s' }}>🦋</div>
 
             <div className="text-8xl mb-6 animate-pulse drop-shadow-lg">🎉</div>
-            <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 mb-3">
+            <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 dark:from-purple-400 dark:via-pink-400 dark:to-orange-400 mb-3">
               Tu es un champion!
             </h2>
-            <p className="text-lg text-gray-600 mb-4">
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
               Toutes tes missions sont terminées! 🏆
             </p>
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border-2 border-pink-200">
-              <p className="text-purple-700 font-medium">
+            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border-2 border-pink-200 dark:border-pink-700">
+              <p className="text-purple-700 dark:text-purple-300 font-medium">
                 🚀 Reviens plus tard pour de nouvelles aventures!
               </p>
             </div>

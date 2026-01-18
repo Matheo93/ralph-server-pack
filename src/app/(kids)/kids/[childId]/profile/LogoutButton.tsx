@@ -20,7 +20,7 @@ export function LogoutButton() {
     <button
       onClick={handleLogout}
       disabled={isPending}
-      className="w-full py-4 px-6 bg-gradient-to-r from-pink-50 to-red-50 text-red-600 rounded-3xl text-center font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all border-2 border-red-200/50 disabled:opacity-50"
+      className="w-full py-4 px-6 bg-gradient-to-r from-pink-50 to-red-50 dark:from-pink-900/30 dark:to-red-900/30 text-red-600 dark:text-red-400 rounded-3xl text-center font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all border-2 border-red-200/50 dark:border-red-700/50 disabled:opacity-50"
     >
       {isPending ? '⏳ Déconnexion...' : '👋 Se déconnecter'}
     </button>

@@ -99,7 +99,7 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
               disabled={!available}
               aria-label={`${reward.name}, ${reward.xp_cost} XP${!affordable ? ', XP insuffisant' : ''}${limitReached ? ', limite atteinte' : ''}`}
               aria-disabled={!available}
-              className={`relative bg-white rounded-2xl p-4 shadow-md text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-2 ${
+              className={`relative bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 dark:focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
                 available
                   ? 'hover:shadow-lg'
                   : 'opacity-60 cursor-not-allowed'
@@ -116,23 +116,23 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
               <div className="text-4xl mb-2" aria-hidden="true">{reward.icon}</div>
 
               {/* Nom */}
-              <h3 className="font-semibold text-gray-800 mb-1 truncate">
+              <h3 className="font-semibold text-gray-800 dark:text-gray-100 mb-1 truncate">
                 {reward.name}
               </h3>
 
               {/* Type */}
-              <p className="text-xs text-gray-600 mb-2">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                 {rewardTypeLabels[reward.reward_type] ?? reward.reward_type}
               </p>
 
               {/* Détails selon le type */}
               {reward.reward_type === 'screen_time' && reward.screen_time_minutes && (
-                <p className="text-sm text-blue-600 mb-2">
+                <p className="text-sm text-blue-600 dark:text-blue-400 mb-2">
                   ⏱️ {reward.screen_time_minutes} min
                 </p>
               )}
               {reward.reward_type === 'money' && reward.money_amount && (
-                <p className="text-sm text-green-600 mb-2">
+                <p className="text-sm text-green-600 dark:text-green-400 mb-2">
                   💰 {Number(reward.money_amount).toFixed(2)}€
                 </p>
               )}
@@ -140,8 +140,8 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
               {/* Coût */}
               <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ${
                 affordable
-                  ? 'bg-pink-100 text-pink-600'
-                  : 'bg-gray-100 text-gray-400'
+                  ? 'bg-pink-100 dark:bg-pink-900/50 text-pink-600 dark:text-pink-300'
+                  : 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500'
               }`}>
                 {reward.xp_cost} XP
               </div>
@@ -167,7 +167,7 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl"
+              className="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {purchaseSuccess ? (
@@ -180,10 +180,10 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
                   aria-live="polite"
                 >
                   <div className="text-6xl mb-4" aria-hidden="true">🎉</div>
-                  <h3 id="reward-dialog-title" className="text-xl font-bold text-gray-800 mb-2">
+                  <h3 id="reward-dialog-title" className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                     Bravo !
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-300">
                     Ta demande a été envoyée à tes parents !
                   </p>
                 </motion.div>
@@ -191,30 +191,30 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
                 // État confirmation
                 <>
                   <div className="text-6xl mb-4" aria-hidden="true">{selectedReward.icon}</div>
-                  <h3 id="reward-dialog-title" className="text-xl font-bold text-gray-800 mb-2">
+                  <h3 id="reward-dialog-title" className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                     {selectedReward.name}
                   </h3>
                   {selectedReward.description && (
-                    <p className="text-gray-600 mb-4">{selectedReward.description}</p>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">{selectedReward.description}</p>
                   )}
 
-                  <div className="bg-gray-100 rounded-2xl p-4 mb-4">
+                  <div className="bg-gray-100 dark:bg-slate-700 rounded-2xl p-4 mb-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-700">Coût</span>
-                      <span className="text-pink-600 font-bold">
+                      <span className="text-gray-700 dark:text-gray-300">Coût</span>
+                      <span className="text-pink-600 dark:text-pink-400 font-bold">
                         {selectedReward.xp_cost} XP
                       </span>
                     </div>
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-gray-700">Après achat</span>
-                      <span className="text-gray-800 font-bold">
+                      <span className="text-gray-700 dark:text-gray-300">Après achat</span>
+                      <span className="text-gray-800 dark:text-gray-100 font-bold">
                         {xp - selectedReward.xp_cost} XP
                       </span>
                     </div>
                   </div>
 
                   {error && (
-                    <div role="alert" aria-live="assertive" className="bg-red-100 text-red-600 text-sm p-3 rounded-xl mb-4">
+                    <div role="alert" aria-live="assertive" className="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-300 text-sm p-3 rounded-xl mb-4">
                       {error}
                     </div>
                   )}
@@ -223,7 +223,7 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
                     <button
                       onClick={() => setSelectedReward(null)}
                       disabled={isPending}
-                      className="flex-1 py-3 px-4 bg-gray-100 text-gray-800 rounded-full font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                      className="flex-1 py-3 px-4 bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 rounded-full font-semibold hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
                     >
                       Annuler
                     </button>

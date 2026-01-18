@@ -19,7 +19,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#FED7AA', // Orange clair pour l'interface enfants
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FED7AA' }, // Orange clair pour l'interface enfants
+    { media: '(prefers-color-scheme: dark)', color: '#0F172A' }, // Slate-900 pour mode sombre
+  ],
 }
 
 export default function KidsLayout({
@@ -28,15 +31,15 @@ export default function KidsLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 dark:from-slate-900 dark:via-purple-950 dark:to-indigo-950 relative overflow-hidden transition-colors duration-300">
 
       {/* Animated floating shapes background - game-like atmosphere */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
         {/* Large gradient orbs with gentle animation */}
-        <div className="absolute -top-20 -left-20 w-64 h-64 bg-gradient-to-br from-pink-300/40 to-purple-300/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-gradient-to-br from-yellow-300/40 to-orange-300/40 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-        <div className="absolute top-1/3 -right-20 w-48 h-48 bg-gradient-to-br from-cyan-300/30 to-teal-300/30 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
-        <div className="absolute top-2/3 left-10 w-40 h-40 bg-gradient-to-br from-lime-300/30 to-green-300/30 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '4.5s', animationDelay: '0.5s' }} />
+        <div className="absolute -top-20 -left-20 w-64 h-64 bg-gradient-to-br from-pink-300/40 to-purple-300/40 dark:from-pink-600/20 dark:to-purple-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-gradient-to-br from-yellow-300/40 to-orange-300/40 dark:from-amber-600/20 dark:to-orange-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+        <div className="absolute top-1/3 -right-20 w-48 h-48 bg-gradient-to-br from-cyan-300/30 to-teal-300/30 dark:from-cyan-600/20 dark:to-teal-600/20 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        <div className="absolute top-2/3 left-10 w-40 h-40 bg-gradient-to-br from-lime-300/30 to-green-300/30 dark:from-lime-600/20 dark:to-green-600/20 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '4.5s', animationDelay: '0.5s' }} />
 
         {/* Floating emojis - more playful with varied animations */}
         <div className="absolute top-[8%] left-[5%] text-4xl opacity-60 animate-bounce" style={{ animationDuration: '2.5s' }}>🌟</div>
@@ -60,19 +63,19 @@ export default function KidsLayout({
         <div className="absolute top-[28%] right-[35%] text-cyan-400/50 text-xl animate-ping" style={{ animationDuration: '2.2s', animationDelay: '0.8s' }}>⭐</div>
 
         {/* Floating bubbles effect - more varied */}
-        <div className="absolute top-[20%] left-[45%] w-8 h-8 bg-gradient-to-br from-white/40 to-pink-200/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '4s', animationDelay: '0.2s' }} />
-        <div className="absolute top-[55%] left-[55%] w-6 h-6 bg-gradient-to-br from-white/40 to-purple-200/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3.5s', animationDelay: '0.7s' }} />
-        <div className="absolute top-[40%] left-[75%] w-10 h-10 bg-gradient-to-br from-white/40 to-cyan-200/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '5s', animationDelay: '1.2s' }} />
-        <div className="absolute top-[65%] left-[20%] w-7 h-7 bg-gradient-to-br from-white/40 to-lime-200/40 rounded-full animate-float-up shadow-lg" style={{ animationDelay: '0.4s' }} />
-        <div className="absolute top-[85%] left-[65%] w-5 h-5 bg-gradient-to-br from-white/40 to-yellow-200/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3s', animationDelay: '1.5s' }} />
+        <div className="absolute top-[20%] left-[45%] w-8 h-8 bg-gradient-to-br from-white/40 to-pink-200/40 dark:from-white/10 dark:to-pink-500/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '4s', animationDelay: '0.2s' }} />
+        <div className="absolute top-[55%] left-[55%] w-6 h-6 bg-gradient-to-br from-white/40 to-purple-200/40 dark:from-white/10 dark:to-purple-500/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3.5s', animationDelay: '0.7s' }} />
+        <div className="absolute top-[40%] left-[75%] w-10 h-10 bg-gradient-to-br from-white/40 to-cyan-200/40 dark:from-white/10 dark:to-cyan-500/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '5s', animationDelay: '1.2s' }} />
+        <div className="absolute top-[65%] left-[20%] w-7 h-7 bg-gradient-to-br from-white/40 to-lime-200/40 dark:from-white/10 dark:to-lime-500/20 rounded-full animate-float-up shadow-lg" style={{ animationDelay: '0.4s' }} />
+        <div className="absolute top-[85%] left-[65%] w-5 h-5 bg-gradient-to-br from-white/40 to-yellow-200/40 dark:from-white/10 dark:to-yellow-500/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3s', animationDelay: '1.5s' }} />
 
         {/* Confetti elements - falling slowly */}
-        <div className="absolute w-3 h-3 bg-pink-400 rounded-sm animate-confetti" style={{ left: '10%', animationDuration: '8s', animationDelay: '0s' }} />
-        <div className="absolute w-2 h-4 bg-yellow-400 rounded-sm animate-confetti" style={{ left: '25%', animationDuration: '10s', animationDelay: '2s' }} />
-        <div className="absolute w-3 h-2 bg-cyan-400 rounded-sm animate-confetti" style={{ left: '40%', animationDuration: '9s', animationDelay: '1s' }} />
-        <div className="absolute w-2 h-3 bg-purple-400 rounded-sm animate-confetti" style={{ left: '60%', animationDuration: '11s', animationDelay: '3s' }} />
-        <div className="absolute w-4 h-2 bg-green-400 rounded-sm animate-confetti" style={{ left: '75%', animationDuration: '8.5s', animationDelay: '0.5s' }} />
-        <div className="absolute w-2 h-2 bg-orange-400 rounded-full animate-confetti" style={{ left: '90%', animationDuration: '12s', animationDelay: '4s' }} />
+        <div className="absolute w-3 h-3 bg-pink-400 dark:bg-pink-500 rounded-sm animate-confetti" style={{ left: '10%', animationDuration: '8s', animationDelay: '0s' }} />
+        <div className="absolute w-2 h-4 bg-yellow-400 dark:bg-yellow-500 rounded-sm animate-confetti" style={{ left: '25%', animationDuration: '10s', animationDelay: '2s' }} />
+        <div className="absolute w-3 h-2 bg-cyan-400 dark:bg-cyan-500 rounded-sm animate-confetti" style={{ left: '40%', animationDuration: '9s', animationDelay: '1s' }} />
+        <div className="absolute w-2 h-3 bg-purple-400 dark:bg-purple-500 rounded-sm animate-confetti" style={{ left: '60%', animationDuration: '11s', animationDelay: '3s' }} />
+        <div className="absolute w-4 h-2 bg-green-400 dark:bg-green-500 rounded-sm animate-confetti" style={{ left: '75%', animationDuration: '8.5s', animationDelay: '0.5s' }} />
+        <div className="absolute w-2 h-2 bg-orange-400 dark:bg-orange-500 rounded-full animate-confetti" style={{ left: '90%', animationDuration: '12s', animationDelay: '4s' }} />
       </div>
 
       {/* Main content */}

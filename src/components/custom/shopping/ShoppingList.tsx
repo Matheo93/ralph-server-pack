@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useRef } from "react"
 import {
   DndContext,
   closestCenter,
@@ -16,7 +16,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
-import { Plus, Trash2, RotateCcw, Loader2, WifiOff, Cloud, CloudOff } from "lucide-react"
+import { Plus, Trash2, RotateCcw, Loader2, WifiOff, Cloud, CloudOff, Radio } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -25,6 +25,7 @@ import { DraggableShoppingItem } from "./DraggableShoppingItem"
 import { AddItemDialog } from "./AddItemDialog"
 import { ShareListDialog } from "./ShareListDialog"
 import { useOfflineShopping } from "@/hooks/useOfflineShopping"
+import { useShoppingRealtime } from "@/hooks/useShoppingRealtime"
 import { showToast } from "@/lib/toast-messages"
 import {
   type ShoppingList as ShoppingListType,
@@ -47,6 +48,11 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  const [realtimeStatus, setRealtimeStatus] = useState<"SUBSCRIBED" | "CLOSED" | "CHANNEL_ERROR" | "TIMED_OUT" | null>(null)
+
+  // Track locally created items to ignore realtime duplicates
+  const locallyCreatedIdsRef = useRef<Set<string>>(new Set())
+  const pendingUpdatesRef = useRef<Set<string>>(new Set())
 
   // Use offline-first shopping hook
   const {
@@ -54,17 +60,92 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
     isOnline,
     isSyncing,
     hasPendingChanges,
-    quickAdd,
-    toggleCheck,
-    deleteItem,
-    clearChecked,
-    uncheckAll,
-    reorderItems,
+    quickAdd: originalQuickAdd,
+    toggleCheck: originalToggleCheck,
+    deleteItem: originalDeleteItem,
+    clearChecked: originalClearChecked,
+    uncheckAll: originalUncheckAll,
+    reorderItems: originalReorderItems,
+    refresh,
+    handleRealtimeInsert,
+    handleRealtimeUpdate,
+    handleRealtimeDelete,
   } = useOfflineShopping({
     initialList: list,
     initialItems: initialItems,
     userId,
     userName,
+  })
+
+  // Wrap actions to track local changes
+  const quickAdd = useCallback(async (name: string) => {
+    await originalQuickAdd(name)
+  }, [originalQuickAdd])
+
+  const toggleCheck = useCallback(async (itemId: string) => {
+    pendingUpdatesRef.current.add(itemId)
+    await originalToggleCheck(itemId)
+    // Remove after a short delay to allow realtime to process
+    setTimeout(() => pendingUpdatesRef.current.delete(itemId), 2000)
+  }, [originalToggleCheck])
+
+  const deleteItem = useCallback(async (itemId: string) => {
+    pendingUpdatesRef.current.add(itemId)
+    await originalDeleteItem(itemId)
+  }, [originalDeleteItem])
+
+  const clearChecked = useCallback(async () => {
+    await originalClearChecked()
+  }, [originalClearChecked])
+
+  const uncheckAll = useCallback(async () => {
+    await originalUncheckAll()
+  }, [originalUncheckAll])
+
+  const reorderItems = useCallback(async (itemIds: string[]) => {
+    itemIds.forEach(id => pendingUpdatesRef.current.add(id))
+    await originalReorderItems(itemIds)
+    // Remove after a short delay
+    setTimeout(() => {
+      itemIds.forEach(id => pendingUpdatesRef.current.delete(id))
+    }, 2000)
+  }, [originalReorderItems])
+
+  // Set up Supabase Realtime subscription
+  useShoppingRealtime({
+    listId: list.id,
+    enabled: isOnline,
+    callbacks: {
+      onInsert: (item) => {
+        // Skip if this item was created locally (to avoid duplicates)
+        if (locallyCreatedIdsRef.current.has(item.id)) {
+          locallyCreatedIdsRef.current.delete(item.id)
+          return
+        }
+        handleRealtimeInsert(item)
+      },
+      onUpdate: (item) => {
+        // Skip if this update was triggered by our own action
+        if (pendingUpdatesRef.current.has(item.id)) {
+          return
+        }
+        handleRealtimeUpdate(item)
+      },
+      onDelete: (itemId) => {
+        // Skip if this delete was triggered by our own action
+        if (pendingUpdatesRef.current.has(itemId)) {
+          pendingUpdatesRef.current.delete(itemId)
+          return
+        }
+        handleRealtimeDelete(itemId)
+      },
+      onStatusChange: (status) => {
+        setRealtimeStatus(status)
+      },
+      onError: (error) => {
+        console.error("[ShoppingList] Realtime error:", error)
+      },
+    },
   })
 
   // DnD sensors
@@ -185,31 +266,36 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
 
   return (
     <div className="space-y-6" data-testid="shopping-list">
-      {/* Offline/Sync indicator */}
-      {(!isOnline || hasPendingChanges) && (
-        <div className="flex items-center gap-2 text-sm">
-          {!isOnline ? (
-            <Badge variant="secondary" className="gap-1">
-              <WifiOff className="h-3 w-3" />
-              Mode hors-ligne
-            </Badge>
-          ) : hasPendingChanges ? (
-            <Badge variant="outline" className="gap-1">
-              {isSyncing ? (
-                <>
-                  <Cloud className="h-3 w-3 animate-pulse" />
-                  Synchronisation...
-                </>
-              ) : (
-                <>
-                  <CloudOff className="h-3 w-3" />
-                  Modifications en attente
-                </>
-              )}
-            </Badge>
-          ) : null}
-        </div>
-      )}
+      {/* Offline/Sync/Realtime indicator */}
+      <div className="flex items-center gap-2 text-sm flex-wrap">
+        {!isOnline ? (
+          <Badge variant="secondary" className="gap-1">
+            <WifiOff className="h-3 w-3" />
+            Mode hors-ligne
+          </Badge>
+        ) : hasPendingChanges ? (
+          <Badge variant="outline" className="gap-1">
+            {isSyncing ? (
+              <>
+                <Cloud className="h-3 w-3 animate-pulse" />
+                Synchronisation...
+              </>
+            ) : (
+              <>
+                <CloudOff className="h-3 w-3" />
+                Modifications en attente
+              </>
+            )}
+          </Badge>
+        ) : null}
+        {/* Realtime status indicator */}
+        {isOnline && realtimeStatus === "SUBSCRIBED" && (
+          <Badge variant="outline" className="gap-1 text-green-600 border-green-300">
+            <Radio className="h-3 w-3 animate-pulse" />
+            Temps réel
+          </Badge>
+        )}
+      </div>
 
       {/* Header with progress */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

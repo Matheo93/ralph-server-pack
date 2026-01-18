@@ -19,12 +19,12 @@ export default async function KidsLoginPage({ params }: Props) {
   const child = result.data
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 dark:from-slate-900 dark:via-purple-950 dark:to-indigo-950 flex flex-col transition-colors duration-300">
       {/* Header avec retour */}
       <header className="p-4">
         <a
           href="/kids"
-          className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+          className="inline-flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors"
         >
           <svg
             className="w-6 h-6 mr-2"

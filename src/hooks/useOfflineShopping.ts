@@ -86,6 +86,12 @@ export interface UseOfflineShoppingResult {
   sync: () => Promise<void>
   /** Force refresh from server */
   refresh: (serverItems: ShoppingItem[]) => void
+  /** Handle realtime INSERT event */
+  handleRealtimeInsert: (item: ShoppingItem) => void
+  /** Handle realtime UPDATE event */
+  handleRealtimeUpdate: (item: ShoppingItem) => void
+  /** Handle realtime DELETE event */
+  handleRealtimeDelete: (itemId: string) => void
 }
 
 export function useOfflineShopping(options: UseOfflineShoppingOptions): UseOfflineShoppingResult {
@@ -500,6 +506,55 @@ export function useOfflineShopping(options: UseOfflineShoppingOptions): UseOffli
     setLastSync(new Date().toISOString())
   }, [toCachedItem])
 
+  // Handle realtime INSERT event
+  const handleRealtimeInsert = useCallback((item: ShoppingItem): void => {
+    const cachedItem = toCachedItem(item)
+    setItems(prev => {
+      // Check if item already exists (avoid duplicates)
+      if (prev.some(i => i.id === cachedItem.id)) {
+        return prev
+      }
+      // Add new item and update cache
+      const newItems = [...prev, cachedItem]
+      saveCachedItems(newItems)
+      return newItems
+    })
+  }, [toCachedItem])
+
+  // Handle realtime UPDATE event
+  const handleRealtimeUpdate = useCallback((item: ShoppingItem): void => {
+    const cachedItem = toCachedItem(item)
+    setItems(prev => {
+      const index = prev.findIndex(i => i.id === cachedItem.id)
+      if (index === -1) {
+        // Item doesn't exist locally, add it
+        const newItems = [...prev, cachedItem]
+        saveCachedItems(newItems)
+        return newItems
+      }
+      // Update existing item
+      const newItems = [...prev]
+      newItems[index] = {
+        ...cachedItem,
+        // Preserve offline metadata if any
+        _offline_created: prev[index]?._offline_created,
+        _offline_modified: false,
+        _sync_pending: false,
+      }
+      saveCachedItems(newItems)
+      return newItems
+    })
+  }, [toCachedItem])
+
+  // Handle realtime DELETE event
+  const handleRealtimeDelete = useCallback((itemId: string): void => {
+    setItems(prev => {
+      const newItems = prev.filter(i => i.id !== itemId)
+      saveCachedItems(newItems)
+      return newItems
+    })
+  }, [])
+
   return {
     list,
     items,
@@ -515,6 +570,9 @@ export function useOfflineShopping(options: UseOfflineShoppingOptions): UseOffli
     reorderItems,
     sync,
     refresh,
+    handleRealtimeInsert,
+    handleRealtimeUpdate,
+    handleRealtimeDelete,
   }
 }
 

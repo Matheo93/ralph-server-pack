@@ -60,14 +60,14 @@ export function XpHistory({ history }: XpHistoryProps) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="flex items-center gap-3 bg-white/70 backdrop-blur-sm rounded-xl p-3 shadow-sm"
+            className="flex items-center gap-3 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-xl p-3 shadow-sm"
           >
             <div className="text-2xl">{icon}</div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800 truncate">{label}</p>
-              <p className="text-xs text-gray-500">{formatRelativeTime(entry.created_at)}</p>
+              <p className="font-medium text-gray-800 dark:text-gray-100 truncate">{label}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{formatRelativeTime(entry.created_at)}</p>
             </div>
-            <div className={`font-bold ${isNegative ? 'text-red-500' : 'text-green-500'}`}>
+            <div className={`font-bold ${isNegative ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'}`}>
               {isNegative ? '' : '+'}{entry.amount} XP
             </div>
           </motion.div>

@@ -70,7 +70,7 @@ export function KidsBottomNav({ childId, pendingTasksCount = 0, unreadBadgesCoun
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t-2 border-pink-100 pb-safe z-50 shadow-lg" aria-label="Navigation principale">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t-2 border-pink-100 dark:border-purple-800 pb-safe z-50 shadow-lg transition-colors duration-300" aria-label="Navigation principale">
       <ul className="flex justify-around items-center h-20 max-w-lg mx-auto px-2" role="list">
         {navItems.map((item) => {
           const href = item.href(childId)
@@ -81,7 +81,7 @@ export function KidsBottomNav({ childId, pendingTasksCount = 0, unreadBadgesCoun
             <li key={item.label}>
               <Link
                 href={href}
-                className="relative flex flex-col items-center justify-center w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 focus-visible:ring-offset-2 rounded-xl"
+                className="relative flex flex-col items-center justify-center w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 dark:focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 rounded-xl"
                 aria-current={isActive ? "page" : undefined}
                 aria-label={`${item.label}${badgeCount > 0 ? `, ${badgeCount} notification${badgeCount > 1 ? 's' : ''}` : ''}`}
               >
@@ -89,7 +89,7 @@ export function KidsBottomNav({ childId, pendingTasksCount = 0, unreadBadgesCoun
                   whileTap={{ scale: 0.85 }}
                   whileHover={{ scale: 1.1 }}
                   className={`flex flex-col items-center gap-0.5 ${
-                    isActive ? item.activeColor : 'text-gray-600'
+                    isActive ? item.activeColor : 'text-gray-600 dark:text-gray-400'
                   }`}
                 >
                   {/* Emoji icon with bounce effect when active */}

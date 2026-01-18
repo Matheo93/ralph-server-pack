@@ -26,7 +26,7 @@ export function SoundToggle() {
 
   if (!mounted) {
     return (
-      <div className="w-full py-4 px-6 bg-gradient-to-r from-purple-100 via-violet-100 to-indigo-100 rounded-3xl text-center font-bold text-purple-700 shadow-lg border-2 border-purple-200/50">
+      <div className="w-full py-4 px-6 bg-gradient-to-r from-purple-100 via-violet-100 to-indigo-100 dark:from-purple-900/50 dark:via-violet-900/50 dark:to-indigo-900/50 rounded-3xl text-center font-bold text-purple-700 dark:text-purple-300 shadow-lg border-2 border-purple-200/50 dark:border-purple-700/50">
         <div className="flex items-center justify-center gap-3">
           <span className="text-2xl">🔊</span>
           <span>Sons du jeu</span>
@@ -41,8 +41,8 @@ export function SoundToggle() {
       whileTap={{ scale: 0.95 }}
       className={`w-full py-4 px-6 rounded-3xl text-center font-bold shadow-lg transform hover:scale-105 transition-all border-2 flex items-center justify-center gap-3 ${
         isMuted
-          ? 'bg-gradient-to-r from-gray-100 via-slate-100 to-gray-100 text-gray-600 border-gray-200/50'
-          : 'bg-gradient-to-r from-purple-100 via-violet-100 to-indigo-100 text-purple-700 border-purple-200/50'
+          ? 'bg-gradient-to-r from-gray-100 via-slate-100 to-gray-100 dark:from-gray-800/50 dark:via-slate-800/50 dark:to-gray-800/50 text-gray-600 dark:text-gray-400 border-gray-200/50 dark:border-gray-700/50'
+          : 'bg-gradient-to-r from-purple-100 via-violet-100 to-indigo-100 dark:from-purple-900/50 dark:via-violet-900/50 dark:to-indigo-900/50 text-purple-700 dark:text-purple-300 border-purple-200/50 dark:border-purple-700/50'
       }`}
     >
       <span className="text-2xl">

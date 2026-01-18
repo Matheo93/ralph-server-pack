@@ -90,7 +90,7 @@ export function PinLoginForm({ child }: PinLoginFormProps) {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-8"
       >
-        <Avatar className="w-24 h-24 mx-auto border-4 border-white shadow-lg mb-4">
+        <Avatar className="w-24 h-24 mx-auto border-4 border-white dark:border-slate-700 shadow-lg mb-4">
           {child.avatar_url ? (
             <AvatarImage src={child.avatar_url} alt={`Avatar de ${child.first_name}`} />
           ) : null}
@@ -98,10 +98,10 @@ export function PinLoginForm({ child }: PinLoginFormProps) {
             {child.first_name.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
           Salut {child.first_name} ! 👋
         </h1>
-        <p className="text-gray-700 mt-2">Entre ton code secret</p>
+        <p className="text-gray-700 dark:text-gray-300 mt-2">Entre ton code secret</p>
       </motion.div>
 
       {/* Input invisible pour mobile keyboard */}
@@ -131,10 +131,13 @@ export function PinLoginForm({ child }: PinLoginFormProps) {
             initial={{ scale: 0.8 }}
             animate={{
               scale: pin[index] ? 1.1 : 1,
-              backgroundColor: pin[index] ? '#EC4899' : '#E5E7EB',
             }}
             transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            className="w-5 h-5 rounded-full"
+            className={`w-5 h-5 rounded-full transition-colors ${
+              pin[index]
+                ? 'bg-pink-500 dark:bg-pink-400'
+                : 'bg-gray-200 dark:bg-slate-600'
+            }`}
           />
         ))}
       </motion.div>
@@ -149,7 +152,7 @@ export function PinLoginForm({ child }: PinLoginFormProps) {
             id="pin-error"
             role="alert"
             aria-live="assertive"
-            className="bg-red-100 text-red-600 text-center py-3 px-4 rounded-2xl mb-6 text-sm"
+            className="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-300 text-center py-3 px-4 rounded-2xl mb-6 text-sm"
           >
             {error}
           </motion.div>
@@ -176,10 +179,10 @@ export function PinLoginForm({ child }: PinLoginFormProps) {
                 aria-label={isDelete ? 'Effacer' : `Chiffre ${digit}`}
                 className={`
                   h-16 rounded-2xl font-bold text-2xl
-                  transition-colors focus:outline-none focus:ring-4 focus:ring-pink-300
+                  transition-colors focus:outline-none focus:ring-4 focus:ring-pink-300 dark:focus:ring-purple-500
                   ${isDelete
-                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    : 'bg-white text-gray-800 hover:bg-gray-50 shadow-md'
+                    ? 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-600'
+                    : 'bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-700 shadow-md'
                   }
                   ${isPending ? 'opacity-50 cursor-not-allowed' : ''}
                 `}
@@ -214,7 +217,7 @@ export function PinLoginForm({ child }: PinLoginFormProps) {
           animate={{ opacity: 1 }}
           className="mt-6 text-center"
         >
-          <div className="inline-flex items-center gap-2 text-pink-600">
+          <div className="inline-flex items-center gap-2 text-pink-600 dark:text-pink-400">
             <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
               <circle
                 className="opacity-25"
@@ -237,7 +240,7 @@ export function PinLoginForm({ child }: PinLoginFormProps) {
       )}
 
       {/* Aide */}
-      <p className="text-center text-gray-600 text-sm mt-8">
+      <p className="text-center text-gray-600 dark:text-gray-400 text-sm mt-8">
         Tu as oublié ton code ? Demande à tes parents de le réinitialiser.
       </p>
     </div>

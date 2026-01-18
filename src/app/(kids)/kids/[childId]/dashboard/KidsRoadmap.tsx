@@ -110,15 +110,15 @@ export function KidsRoadmap({ tasks, childName, onTaskClick }: KidsRoadmapProps)
       </div>
 
       {/* Header fixe */}
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-orange-100 via-yellow-50 to-transparent pb-4 pt-2">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-orange-100 via-yellow-50 to-transparent dark:from-slate-900 dark:via-purple-950/80 dark:to-transparent pb-4 pt-2 transition-colors duration-300">
         <motion.h2
-          className="text-center text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-pink-500 to-purple-600"
+          className="text-center text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-pink-500 to-purple-600 dark:from-orange-400 dark:via-pink-400 dark:to-purple-400"
           animate={{ scale: [1, 1.02, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
           🗺️ Ta quête, {childName}! 🚀
         </motion.h2>
-        <p className="text-center text-sm text-gray-600 mt-1">
+        <p className="text-center text-sm text-gray-600 dark:text-gray-300 mt-1">
           <motion.span
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 1.5, repeat: Infinity }}
@@ -179,8 +179,8 @@ export function KidsRoadmap({ tasks, childName, onTaskClick }: KidsRoadmapProps)
                     state === "completed" && "bg-gradient-to-br from-yellow-400 to-orange-400 text-white",
                     state === "current" && "bg-gradient-to-br from-purple-500 to-pink-500 text-white ring-4 ring-purple-300 ring-opacity-50 animate-pulse",
                     state === "waiting" && "bg-gradient-to-br from-blue-400 to-cyan-400 text-white",
-                    state === "available" && "bg-white text-gray-800 hover:shadow-xl",
-                    state === "locked" && "bg-gray-200 text-gray-400 cursor-not-allowed opacity-60"
+                    state === "available" && "bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100 hover:shadow-xl",
+                    state === "locked" && "bg-gray-200 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60"
                   )}
                 >
                   {/* Icône état */}
@@ -324,7 +324,7 @@ export function KidsRoadmap({ tasks, childName, onTaskClick }: KidsRoadmapProps)
 
       {/* Indicateur bas - Début */}
       <div className="absolute bottom-20 left-0 right-0 text-center pointer-events-none">
-        <p className="text-xs text-gray-500">↓ Départ ↓</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">↓ Départ ↓</p>
       </div>
     </div>
   )

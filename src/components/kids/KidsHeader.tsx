@@ -30,7 +30,7 @@ export function KidsHeader({
     : 100
 
   return (
-    <header className="bg-gradient-to-br from-white/90 via-pink-50/80 to-orange-50/80 backdrop-blur-lg rounded-b-[2rem] shadow-xl px-4 py-5 mb-4 border-b-4 border-pink-200/50 relative overflow-hidden">
+    <header className="bg-gradient-to-br from-white/90 via-pink-50/80 to-orange-50/80 dark:from-slate-800/90 dark:via-purple-900/80 dark:to-indigo-900/80 backdrop-blur-lg rounded-b-[2rem] shadow-xl px-4 py-5 mb-4 border-b-4 border-pink-200/50 dark:border-purple-600/50 relative overflow-hidden transition-colors duration-300">
       {/* Decorative sparkles */}
       <div className="absolute top-2 right-16 text-xl opacity-40 animate-pulse">✨</div>
       <div className="absolute bottom-2 left-4 text-lg opacity-30 animate-pulse" style={{ animationDelay: '0.5s' }}>⭐</div>
@@ -42,7 +42,7 @@ export function KidsHeader({
             whileHover={{ scale: 1.1, rotate: 5 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Avatar className="w-16 h-16 border-4 border-white shadow-lg ring-2 ring-pink-200">
+            <Avatar className="w-16 h-16 border-4 border-white dark:border-slate-700 shadow-lg ring-2 ring-pink-200 dark:ring-purple-500">
               {avatarUrl ? (
                 <AvatarImage src={avatarUrl} alt={`Avatar de ${firstName}`} />
               ) : null}
@@ -53,7 +53,7 @@ export function KidsHeader({
           </motion.div>
           <div>
             <motion.h1
-              className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-orange-500"
+              className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-orange-500 dark:from-pink-400 dark:to-orange-400"
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
             >
@@ -66,8 +66,8 @@ export function KidsHeader({
               transition={{ delay: 0.1 }}
             >
               <span className="text-lg">{levelIcon}</span>
-              <span className="font-bold text-purple-600">{levelName}</span>
-              <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-bold">Niv. {currentLevel}</span>
+              <span className="font-bold text-purple-600 dark:text-purple-400">{levelName}</span>
+              <span className="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full text-xs font-bold">Niv. {currentLevel}</span>
             </motion.div>
           </div>
         </div>
@@ -94,23 +94,23 @@ export function KidsHeader({
 
       {/* Barre de progression XP - Style game */}
       <motion.div
-        className="mt-5 bg-white/60 rounded-2xl p-3 shadow-inner"
+        className="mt-5 bg-white/60 dark:bg-slate-800/60 rounded-2xl p-3 shadow-inner"
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
         <div className="flex items-center justify-between text-sm mb-2">
-          <span className="font-bold text-purple-700 flex items-center gap-1">
+          <span className="font-bold text-purple-700 dark:text-purple-400 flex items-center gap-1">
             <span className="text-lg">💎</span> {currentXp} XP
           </span>
           {xpForNextLevel && (
-            <span className="text-orange-700 font-semibold text-xs">
+            <span className="text-orange-700 dark:text-orange-400 font-semibold text-xs">
               🎯 {xpForNextLevel - currentXp} XP restants
             </span>
           )}
         </div>
         <div
-          className="h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner"
+          className="h-4 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner"
           role="progressbar"
           aria-label="Progression vers le niveau suivant"
           aria-valuenow={progressPercent}

@@ -130,7 +130,7 @@ export function TaskLevelModal({
             initial={{ scale: 0.8, y: 50 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.8, y: 50 }}
-            className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl"
+            className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Écran de succès avec confettis */}
@@ -171,23 +171,23 @@ export function TaskLevelModal({
             <div className="p-4">
               {/* Description */}
               {task.description && (
-                <p className="text-gray-600 text-sm mb-4">{task.description}</p>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{task.description}</p>
               )}
 
               {/* Récompense */}
-              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-4 mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">🎁 Récompense</p>
+              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-2xl p-4 mb-4">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">🎁 Récompense</p>
                 {task.reward_type === "immediate" ? (
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-6 h-6 text-purple-500" />
-                    <span className="font-bold text-purple-700">
+                    <Sparkles className="w-6 h-6 text-purple-500 dark:text-purple-400" />
+                    <span className="font-bold text-purple-700 dark:text-purple-300">
                       Surprise secrète! 🤫
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Coins className="w-6 h-6 text-yellow-500" />
-                    <span className="font-bold text-yellow-700">
+                    <Coins className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />
+                    <span className="font-bold text-yellow-700 dark:text-yellow-300">
                       +{task.reward_xp} XP
                     </span>
                   </div>
@@ -196,7 +196,7 @@ export function TaskLevelModal({
 
               {/* Status en attente */}
               {isWaiting && (
-                <div className="bg-blue-100 rounded-2xl p-4 mb-4 text-center">
+                <div className="bg-blue-100 dark:bg-blue-900/40 rounded-2xl p-4 mb-4 text-center">
                   <motion.div
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
@@ -204,10 +204,10 @@ export function TaskLevelModal({
                   >
                     ⏳
                   </motion.div>
-                  <p className="text-blue-700 font-medium">
+                  <p className="text-blue-700 dark:text-blue-300 font-medium">
                     En attente de validation!
                   </p>
-                  <p className="text-blue-600 text-sm">
+                  <p className="text-blue-600 dark:text-blue-400 text-sm">
                     Un parent doit vérifier ta photo
                   </p>
                 </div>
@@ -215,12 +215,12 @@ export function TaskLevelModal({
 
               {/* Status rejeté */}
               {isRejected && (
-                <div className="bg-red-100 rounded-2xl p-4 mb-4 text-center">
+                <div className="bg-red-100 dark:bg-red-900/40 rounded-2xl p-4 mb-4 text-center">
                   <div className="text-4xl mb-2">😅</div>
-                  <p className="text-red-700 font-medium">
+                  <p className="text-red-700 dark:text-red-300 font-medium">
                     Oups! Réessaie!
                   </p>
-                  <p className="text-red-600 text-sm">
+                  <p className="text-red-600 dark:text-red-400 text-sm">
                     Ta photo n'a pas été validée
                   </p>
                 </div>
@@ -228,7 +228,7 @@ export function TaskLevelModal({
 
               {/* Erreur */}
               {error && (
-                <div className="bg-red-100 rounded-xl p-3 mb-4 text-center text-red-600 text-sm">
+                <div className="bg-red-100 dark:bg-red-900/40 rounded-xl p-3 mb-4 text-center text-red-600 dark:text-red-300 text-sm">
                   {error}
                 </div>
               )}
@@ -377,7 +377,7 @@ function SuccessScreen({ xpValue, onClose }: { xpValue: number; onClose: () => v
   }, [onClose])
 
   return (
-    <div className="p-8 text-center relative overflow-hidden min-h-[300px] flex flex-col items-center justify-center">
+    <div className="p-8 text-center relative overflow-hidden min-h-[300px] flex flex-col items-center justify-center bg-white dark:bg-slate-900">
       {/* Étoiles animées en arrière-plan */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(10)].map((_, i) => (
@@ -436,7 +436,7 @@ function SuccessScreen({ xpValue, onClose }: { xpValue: number; onClose: () => v
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="text-gray-600 mb-4"
+        className="text-gray-600 dark:text-gray-300 mb-4"
       >
         Tes parents vont valider ta mission
       </motion.p>
@@ -478,7 +478,7 @@ function SuccessScreen({ xpValue, onClose }: { xpValue: number; onClose: () => v
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="text-sm text-gray-400 mt-4"
+        className="text-sm text-gray-400 dark:text-gray-500 mt-4"
       >
         Continue comme ça ! 💪
       </motion.p>

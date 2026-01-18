@@ -15,7 +15,7 @@ export default async function KidsShopPage() {
   if (!result.success || !result.data) {
     return (
       <div className="p-4 text-center">
-        <p className="text-red-500">{result.error}</p>
+        <p className="text-red-500 dark:text-red-400">{result.error}</p>
       </div>
     )
   }
@@ -25,17 +25,17 @@ export default async function KidsShopPage() {
   return (
     <div className="min-h-screen p-4">
       {/* Header avec XP - Style magasin fun */}
-      <header className="bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 backdrop-blur-lg rounded-3xl p-5 mb-6 shadow-xl border-2 border-green-200/50 relative overflow-hidden">
+      <header className="bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 dark:from-green-900/50 dark:via-emerald-900/50 dark:to-teal-900/50 backdrop-blur-lg rounded-3xl p-5 mb-6 shadow-xl border-2 border-green-200/50 dark:border-green-700/50 relative overflow-hidden transition-colors duration-300">
         {/* Decorative elements */}
         <div className="absolute top-2 right-4 text-2xl opacity-40 animate-bounce">🛍️</div>
         <div className="absolute bottom-2 left-4 text-lg opacity-30 animate-pulse">✨</div>
 
         <div className="flex items-center justify-between relative z-10">
           <div>
-            <h1 className="text-2xl font-black bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent flex items-center gap-2">
+            <h1 className="text-2xl font-black bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 dark:from-green-400 dark:via-emerald-400 dark:to-teal-400 bg-clip-text text-transparent flex items-center gap-2">
               <span className="text-3xl">🎁</span> Boutique
             </h1>
-            <p className="text-gray-600 font-medium">Échange tes XP contre des récompenses !</p>
+            <p className="text-gray-600 dark:text-gray-300 font-medium">Échange tes XP contre des récompenses !</p>
           </div>
           <div className="bg-gradient-to-br from-amber-400 via-yellow-400 to-orange-400 text-white rounded-2xl px-5 py-3 shadow-xl transform hover:scale-105 transition-transform">
             <div className="text-xs font-bold opacity-90">💰 Tes XP</div>
@@ -48,15 +48,15 @@ export default async function KidsShopPage() {
       {rewards.length > 0 ? (
         <ShopGrid rewards={rewards} currentXp={currentXp} childId={session.childId} />
       ) : (
-        <div className="bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 backdrop-blur-sm rounded-3xl p-10 text-center shadow-xl border-2 border-purple-200/50 relative overflow-hidden">
+        <div className="bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 dark:from-purple-900/50 dark:via-pink-900/50 dark:to-orange-900/50 backdrop-blur-sm rounded-3xl p-10 text-center shadow-xl border-2 border-purple-200/50 dark:border-purple-700/50 relative overflow-hidden transition-colors duration-300">
           {/* Decorative elements */}
           <div className="absolute top-6 left-10 text-2xl opacity-40 animate-bounce">🌟</div>
           <div className="absolute bottom-8 right-12 text-xl opacity-40 animate-bounce" style={{ animationDelay: '0.5s' }}>🎀</div>
           <div className="text-7xl mb-4 animate-bounce" style={{ animationDuration: '2s' }}>🎁</div>
-          <h3 className="text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+          <h3 className="text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-3">
             Pas encore de récompenses
           </h3>
-          <p className="text-gray-600 font-medium text-lg">
+          <p className="text-gray-600 dark:text-gray-300 font-medium text-lg">
             Demande à tes parents d&apos;ajouter des récompenses ! 🙏
           </p>
         </div>

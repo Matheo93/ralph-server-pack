@@ -74,13 +74,13 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
   return (
     <>
       {/* Tabs */}
-      <div className="flex bg-white/50 rounded-2xl p-1 mb-6">
+      <div className="flex bg-white/50 dark:bg-slate-800/50 rounded-2xl p-1 mb-6">
         <button
           onClick={() => handleTabChange('badges')}
           className={`flex-1 py-3 px-4 rounded-xl font-medium transition-colors ${
             activeTab === 'badges'
-              ? 'bg-white text-gray-800 shadow'
-              : 'text-gray-600'
+              ? 'bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-100 shadow'
+              : 'text-gray-600 dark:text-gray-400'
           }`}
         >
           🏆 Mes badges
@@ -89,8 +89,8 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
           onClick={() => handleTabChange('leaderboard')}
           className={`flex-1 py-3 px-4 rounded-xl font-medium transition-colors ${
             activeTab === 'leaderboard'
-              ? 'bg-white text-gray-800 shadow'
-              : 'text-gray-600'
+              ? 'bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-100 shadow'
+              : 'text-gray-600 dark:text-gray-400'
           }`}
         >
           📊 Classement
@@ -108,7 +108,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
             {/* Badges débloqués */}
             {unlockedBadges.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   Débloqués ({unlockedBadges.length})
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
@@ -120,10 +120,10 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
                       transition={{ delay: index * 0.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleBadgeClick(badge)}
-                      className="relative bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow"
+                      className="relative bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md hover:shadow-lg transition-shadow"
                     >
                       <div className="text-4xl mb-2">{badge.icon}</div>
-                      <p className="text-xs font-medium text-gray-700 truncate">
+                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
                         {badge.name}
                       </p>
                       {!badge.seen && (
@@ -138,7 +138,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
             {/* Badges verrouillés */}
             {lockedBadges.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   À débloquer ({lockedBadges.length})
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
@@ -150,10 +150,10 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
                       transition={{ delay: index * 0.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleBadgeClick(badge)}
-                      className="bg-gray-100 rounded-2xl p-4 opacity-50"
+                      className="bg-gray-100 dark:bg-slate-700 rounded-2xl p-4 opacity-50"
                     >
                       <div className="text-4xl mb-2 grayscale">{badge.icon}</div>
-                      <p className="text-xs font-medium text-gray-400 truncate">
+                      <p className="text-xs font-medium text-gray-400 dark:text-gray-500 truncate">
                         ???
                       </p>
                     </motion.button>
@@ -190,33 +190,33 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
               exit={{ scale: 0.8, opacity: 0 }}
               className={`rounded-3xl p-6 max-w-xs w-full text-center shadow-2xl ${
                 selectedBadge.unlocked
-                  ? 'bg-gradient-to-br from-yellow-100 via-orange-100 to-pink-100'
-                  : 'bg-gray-100'
+                  ? 'bg-gradient-to-br from-yellow-100 via-orange-100 to-pink-100 dark:from-yellow-900/80 dark:via-orange-900/80 dark:to-pink-900/80'
+                  : 'bg-gray-100 dark:bg-slate-800'
               }`}
               onClick={(e) => e.stopPropagation()}
             >
               <div className={`text-6xl mb-4 ${!selectedBadge.unlocked && 'grayscale opacity-50'}`}>
                 {selectedBadge.icon}
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                 {selectedBadge.unlocked ? selectedBadge.name : '???'}
               </h3>
-              <p className="text-gray-700 mb-4">
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
                 {selectedBadge.description}
               </p>
 
               {selectedBadge.xp_reward > 0 && (
                 <div className={`inline-block px-4 py-2 rounded-full mb-4 ${
                   selectedBadge.unlocked
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-200 text-gray-600'
+                    ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300'
+                    : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400'
                 }`}>
                   +{selectedBadge.xp_reward} XP
                 </div>
               )}
 
               {selectedBadge.unlocked && selectedBadge.unlocked_at && (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Débloqué le {new Date(selectedBadge.unlocked_at).toLocaleDateString('fr-FR', {
                     day: 'numeric',
                     month: 'long',
@@ -251,7 +251,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
 
                 <button
                   onClick={() => setSelectedBadge(null)}
-                  className="w-full py-3 bg-gray-200 text-gray-700 rounded-full font-medium hover:bg-gray-300 transition-colors"
+                  className="w-full py-3 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-200 rounded-full font-medium hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors"
                 >
                   Fermer
                 </button>

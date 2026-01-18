@@ -37,7 +37,7 @@ export default async function KidsPage() {
   // Si aucun enfant avec compte, afficher un message ludique
   if (children.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 dark:from-slate-900 dark:via-purple-950 dark:to-indigo-950 flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-300">
         {/* Éléments décoratifs flottants */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-20 left-10 text-4xl animate-bounce" style={{ animationDuration: '2s' }}>🎈</div>
@@ -46,13 +46,13 @@ export default async function KidsPage() {
           <div className="absolute bottom-60 right-12 text-4xl animate-bounce" style={{ animationDuration: '2.8s', animationDelay: '0.3s' }}>🎨</div>
         </div>
 
-        <div className="bg-white/90 backdrop-blur-lg rounded-[2rem] p-8 shadow-2xl max-w-md text-center border-4 border-white/50 relative">
+        <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-[2rem] p-8 shadow-2xl max-w-md text-center border-4 border-white/50 dark:border-slate-700/50 relative">
           <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-5xl animate-bounce">🎮</div>
           <div className="text-7xl mb-4 mt-6">👋</div>
-          <h1 className="text-3xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent mb-3">
+          <h1 className="text-3xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 dark:from-purple-400 dark:via-pink-400 dark:to-orange-400 bg-clip-text text-transparent mb-3">
             Pas encore de compte
           </h1>
-          <p className="text-gray-600 mb-6 text-lg">
+          <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg">
             Demande à tes parents de te créer un compte pour jouer ! 🎯
           </p>
           <a
@@ -68,13 +68,13 @@ export default async function KidsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 dark:from-slate-900 dark:via-purple-950 dark:to-indigo-950 relative overflow-hidden transition-colors duration-300">
       {/* Éléments décoratifs flottants - atmosphère de jeu */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
-        <div className="absolute top-16 left-8 w-20 h-20 bg-gradient-to-br from-yellow-300/40 to-orange-300/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3s' }} />
-        <div className="absolute top-32 right-12 w-14 h-14 bg-gradient-to-br from-pink-300/40 to-rose-300/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
-        <div className="absolute bottom-48 left-6 w-12 h-12 bg-gradient-to-br from-purple-300/40 to-violet-300/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3.5s', animationDelay: '1s' }} />
-        <div className="absolute top-1/2 right-6 w-10 h-10 bg-gradient-to-br from-teal-300/40 to-cyan-300/40 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '4s', animationDelay: '1.5s' }} />
+        <div className="absolute top-16 left-8 w-20 h-20 bg-gradient-to-br from-yellow-300/40 to-orange-300/40 dark:from-yellow-600/20 dark:to-orange-600/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3s' }} />
+        <div className="absolute top-32 right-12 w-14 h-14 bg-gradient-to-br from-pink-300/40 to-rose-300/40 dark:from-pink-600/20 dark:to-rose-600/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+        <div className="absolute bottom-48 left-6 w-12 h-12 bg-gradient-to-br from-purple-300/40 to-violet-300/40 dark:from-purple-600/20 dark:to-violet-600/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3.5s', animationDelay: '1s' }} />
+        <div className="absolute top-1/2 right-6 w-10 h-10 bg-gradient-to-br from-teal-300/40 to-cyan-300/40 dark:from-teal-600/20 dark:to-cyan-600/20 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '4s', animationDelay: '1.5s' }} />
 
         {/* Emojis décoratifs */}
         <div className="absolute top-24 right-20 text-3xl opacity-40 animate-pulse">✨</div>
@@ -90,7 +90,7 @@ export default async function KidsPage() {
         <div className="inline-flex items-center justify-center gap-3 mb-4">
           <span className="text-5xl animate-bounce drop-shadow-lg" style={{ animationDuration: '1.5s' }}>🎮</span>
           <div className="relative">
-            <h1 className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent drop-shadow-sm tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 dark:from-purple-400 dark:via-pink-400 dark:to-orange-400 bg-clip-text text-transparent drop-shadow-sm tracking-tight">
               FamilyLoad Kids
             </h1>
             {/* Sparkle effect on title */}
@@ -99,11 +99,11 @@ export default async function KidsPage() {
           <span className="text-5xl animate-bounce drop-shadow-lg" style={{ animationDuration: '1.5s', animationDelay: '0.3s' }}>🎯</span>
         </div>
         <div className="relative inline-block">
-          <p className="text-gray-700 text-xl font-bold bg-white/70 backdrop-blur-sm rounded-full px-8 py-3 inline-block shadow-xl border-2 border-white/50">
+          <p className="text-gray-700 dark:text-gray-200 text-xl font-bold bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm rounded-full px-8 py-3 inline-block shadow-xl border-2 border-white/50 dark:border-slate-700/50">
             Choisis ton super-héros ! 🦸
           </p>
           {/* Animated arrow pointing down */}
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-3xl animate-bounce text-pink-500">
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-3xl animate-bounce text-pink-500 dark:text-pink-400">
             👇
           </div>
         </div>
@@ -118,7 +118,7 @@ export default async function KidsPage() {
       <footer className="fixed bottom-6 left-0 right-0 text-center z-20">
         <a
           href="/login"
-          className="text-gray-500 text-sm hover:text-gray-700 transition-colors bg-white/70 backdrop-blur-sm px-4 py-2 rounded-full shadow-md"
+          className="text-gray-500 dark:text-gray-400 text-sm hover:text-gray-700 dark:hover:text-gray-200 transition-colors bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm px-4 py-2 rounded-full shadow-md"
         >
           👨‍👩‍👧 Je suis un parent
         </a>

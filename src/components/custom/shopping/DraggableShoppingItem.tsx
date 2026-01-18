@@ -86,15 +86,18 @@ export function DraggableShoppingItem({
       {/* Drag handle */}
       {!item.is_checked && !isDragDisabled && (
         <button
+          type="button"
           className={cn(
-            "flex-shrink-0 cursor-grab active:cursor-grabbing touch-none p-1 -ml-1 rounded hover:bg-muted transition-colors",
+            "flex-shrink-0 cursor-grab active:cursor-grabbing touch-none p-1 -ml-1 rounded hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary",
             isDragging && "cursor-grabbing"
           )}
           {...attributes}
           {...listeners}
           data-testid="drag-handle"
+          aria-label={`Réorganiser ${item.name}`}
+          aria-roledescription="bouton de réorganisation"
         >
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
+          <GripVertical className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
         </button>
       )}
 
@@ -109,9 +112,10 @@ export function DraggableShoppingItem({
         disabled={isPending}
         className="h-5 w-5 flex-shrink-0"
         data-testid="shopping-item-checkbox"
+        aria-label={`Marquer ${item.name} comme ${item.is_checked ? 'non acheté' : 'acheté'}`}
       />
 
-      <span className="text-lg flex-shrink-0">{categoryIcon}</span>
+      <span className="text-lg flex-shrink-0" aria-hidden="true">{categoryIcon}</span>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
@@ -126,14 +130,14 @@ export function DraggableShoppingItem({
           </span>
           {item.priority === 1 && !item.is_checked && (
             <Badge variant="outline" className="text-orange-600 border-orange-300 flex-shrink-0">
-              <AlertCircle className="h-3 w-3 mr-1" />
-              Urgent
+              <AlertCircle className="h-3 w-3 mr-1" aria-hidden="true" />
+              <span>Urgent</span>
             </Badge>
           )}
           {isOfflineItem && (
             <Badge variant="outline" className="text-muted-foreground border-muted flex-shrink-0">
-              <CloudOff className="h-3 w-3 mr-1" />
-              Local
+              <CloudOff className="h-3 w-3 mr-1" aria-hidden="true" />
+              <span>Local</span>
             </Badge>
           )}
         </div>
@@ -164,11 +168,12 @@ export function DraggableShoppingItem({
             className="h-8 w-8 flex-shrink-0"
             disabled={isPending}
             data-testid="shopping-item-menu"
+            aria-label={`Options pour ${item.name}`}
           >
             {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             ) : (
-              <MoreHorizontal className="h-4 w-4" />
+              <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -178,7 +183,7 @@ export function DraggableShoppingItem({
             className="text-destructive"
             data-testid="shopping-item-delete"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
             Supprimer
           </DropdownMenuItem>
         </DropdownMenuContent>

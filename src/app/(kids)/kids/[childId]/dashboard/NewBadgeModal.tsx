@@ -61,7 +61,7 @@ export function NewBadgeModal({ badges }: NewBadgeModalProps) {
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: 'spring', bounce: 0.5, duration: 0.8 }}
-        className="bg-gradient-to-br from-yellow-100 via-orange-100 to-pink-100 rounded-3xl max-w-sm w-full p-8 text-center shadow-2xl"
+        className="bg-gradient-to-br from-yellow-100 via-orange-100 to-pink-100 dark:from-yellow-900/80 dark:via-orange-900/80 dark:to-pink-900/80 rounded-3xl max-w-sm w-full p-8 text-center shadow-2xl"
       >
         {/* Indicateur de progression */}
         {badges.length > 1 && (
@@ -70,7 +70,7 @@ export function NewBadgeModal({ badges }: NewBadgeModalProps) {
               <div
                 key={i}
                 className={`w-2 h-2 rounded-full transition-colors ${
-                  i === currentIndex ? 'bg-pink-500' : 'bg-gray-300'
+                  i === currentIndex ? 'bg-pink-500 dark:bg-pink-400' : 'bg-gray-300 dark:bg-gray-600'
                 }`}
               />
             ))}
@@ -82,7 +82,7 @@ export function NewBadgeModal({ badges }: NewBadgeModalProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="text-lg font-medium text-gray-500 mb-2"
+          className="text-lg font-medium text-gray-500 dark:text-gray-300 mb-2"
         >
           Nouveau badge débloqué !
         </motion.h2>
@@ -102,7 +102,7 @@ export function NewBadgeModal({ badges }: NewBadgeModalProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="text-2xl font-bold text-gray-800 mb-2"
+          className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2"
         >
           {currentBadge.name}
         </motion.h3>
@@ -112,7 +112,7 @@ export function NewBadgeModal({ badges }: NewBadgeModalProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="text-gray-600 mb-6"
+          className="text-gray-600 dark:text-gray-300 mb-6"
         >
           {currentBadge.description}
         </motion.p>
@@ -123,9 +123,9 @@ export function NewBadgeModal({ badges }: NewBadgeModalProps) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6 }}
-            className="bg-white/80 rounded-2xl py-3 px-6 inline-block mb-6"
+            className="bg-white/80 dark:bg-slate-800/80 rounded-2xl py-3 px-6 inline-block mb-6"
           >
-            <span className="text-pink-600 font-bold text-lg">
+            <span className="text-pink-600 dark:text-pink-400 font-bold text-lg">
               +{currentBadge.xp_reward} XP bonus !
             </span>
           </motion.div>

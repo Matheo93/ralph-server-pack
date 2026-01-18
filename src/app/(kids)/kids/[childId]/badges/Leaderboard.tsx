@@ -27,7 +27,7 @@ export function Leaderboard({ entries, currentChildId }: LeaderboardProps) {
     return (
       <div className="text-center py-8">
         <div className="text-5xl mb-4">🏆</div>
-        <p className="text-gray-500">Pas encore de classement</p>
+        <p className="text-gray-500 dark:text-gray-400">Pas encore de classement</p>
       </div>
     )
   }
@@ -37,10 +37,10 @@ export function Leaderboard({ entries, currentChildId }: LeaderboardProps) {
     return (
       <div className="text-center py-8">
         <div className="text-5xl mb-4">⭐</div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
           Tu es unique !
         </h3>
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-gray-400">
           Pas de frère ou sœur à battre... pour l&apos;instant !
         </p>
       </div>
@@ -62,8 +62,8 @@ export function Leaderboard({ entries, currentChildId }: LeaderboardProps) {
             transition={{ delay: index * 0.1 }}
             className={`flex items-center gap-4 p-4 rounded-2xl ${
               isCurrentChild
-                ? 'bg-gradient-to-r from-pink-100 to-orange-100 border-2 border-pink-300'
-                : 'bg-white/70 backdrop-blur-sm'
+                ? 'bg-gradient-to-r from-pink-100 to-orange-100 dark:from-pink-900/50 dark:to-orange-900/50 border-2 border-pink-300 dark:border-pink-700'
+                : 'bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm'
             } shadow`}
           >
             {/* Rang */}
@@ -71,12 +71,12 @@ export function Leaderboard({ entries, currentChildId }: LeaderboardProps) {
               {rankEmoji ? (
                 <span className="text-2xl">{rankEmoji}</span>
               ) : (
-                <span className="text-lg font-bold text-gray-400">#{entry.rank}</span>
+                <span className="text-lg font-bold text-gray-400 dark:text-gray-500">#{entry.rank}</span>
               )}
             </div>
 
             {/* Avatar */}
-            <Avatar className="w-12 h-12 border-2 border-white shadow">
+            <Avatar className="w-12 h-12 border-2 border-white dark:border-slate-600 shadow">
               {entry.avatar_url ? (
                 <AvatarImage src={entry.avatar_url} alt={entry.first_name} />
               ) : null}
@@ -92,7 +92,7 @@ export function Leaderboard({ entries, currentChildId }: LeaderboardProps) {
             {/* Infos */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h4 className={`font-semibold truncate ${isCurrentChild ? 'text-pink-700' : 'text-gray-800'}`}>
+                <h4 className={`font-semibold truncate ${isCurrentChild ? 'text-pink-700 dark:text-pink-400' : 'text-gray-800 dark:text-gray-100'}`}>
                   {entry.first_name}
                 </h4>
                 {isCurrentChild && (
@@ -101,7 +101,7 @@ export function Leaderboard({ entries, currentChildId }: LeaderboardProps) {
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <span>{entry.level_icon}</span>
                 <span>{entry.level_name}</span>
                 {entry.streak_current > 0 && (
@@ -115,8 +115,8 @@ export function Leaderboard({ entries, currentChildId }: LeaderboardProps) {
 
             {/* XP */}
             <div className="text-right">
-              <div className="font-bold text-gray-800">{entry.current_xp}</div>
-              <div className="text-xs text-gray-500">XP</div>
+              <div className="font-bold text-gray-800 dark:text-gray-100">{entry.current_xp}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">XP</div>
             </div>
           </motion.div>
         )
@@ -124,7 +124,7 @@ export function Leaderboard({ entries, currentChildId }: LeaderboardProps) {
 
       {/* Encouragement */}
       <div className="text-center pt-4">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Continue à compléter des missions pour gagner des XP ! 💪
         </p>
       </div>

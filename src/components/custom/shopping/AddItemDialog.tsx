@@ -90,7 +90,7 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
 
         <form action={handleSubmit} className="space-y-4" data-testid="add-item-form">
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
+            <div role="alert" aria-live="assertive" className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
               {error}
             </div>
           )}

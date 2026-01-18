@@ -19,29 +19,32 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
 
   if (compact) {
     return (
-      <div
+      <button
+        type="button"
         onClick={onClick}
         className={cn(
-          "text-xs px-1.5 py-0.5 rounded truncate cursor-pointer transition-opacity hover:opacity-80",
-          "text-white font-medium"
+          "text-xs px-1.5 py-0.5 rounded truncate cursor-pointer transition-opacity hover:opacity-80 w-full text-left",
+          "text-white font-medium focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-1"
         )}
         style={{ backgroundColor: event.color }}
-        title={event.title}
+        aria-label={`${event.title}${startTime ? ` à ${startTime}` : ''}${event.location ? `, ${event.location}` : ''}`}
       >
-        {startTime && <span className="mr-1">{startTime}</span>}
-        {event.title}
-      </div>
+        {startTime && <span className="mr-1" aria-hidden="true">{startTime}</span>}
+        <span>{event.title}</span>
+      </button>
     )
   }
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
       className={cn(
-        "p-2 rounded-lg cursor-pointer transition-all hover:shadow-md border-l-4",
-        "bg-card hover:bg-muted/50"
+        "p-2 rounded-lg cursor-pointer transition-all hover:shadow-md border-l-4 w-full text-left",
+        "bg-card hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
       )}
       style={{ borderLeftColor: event.color }}
+      aria-label={`${event.title}${!event.all_day ? ` de ${format(new Date(event.start_date), "HH:mm", { locale: fr })}${event.end_date ? ` à ${format(new Date(event.end_date), "HH:mm", { locale: fr })}` : ''}` : ', toute la journée'}${event.location ? `, lieu: ${event.location}` : ''}${event.assigned_to_name ? `, assigné à ${event.assigned_to_name}` : ''}${event.child_name ? `, pour ${event.child_name}` : ''}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
@@ -49,7 +52,7 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
 
           {!event.all_day && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Clock className="h-3 w-3" />
+              <Clock className="h-3 w-3" aria-hidden="true" />
               <span>
                 {format(new Date(event.start_date), "HH:mm", { locale: fr })}
                 {event.end_date && (
@@ -61,7 +64,7 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
 
           {event.location && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-              <MapPin className="h-3 w-3" />
+              <MapPin className="h-3 w-3" aria-hidden="true" />
               <span className="truncate">{event.location}</span>
             </div>
           )}
@@ -69,13 +72,13 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
           <div className="flex items-center gap-2 mt-1">
             {event.assigned_to_name && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <User className="h-3 w-3" />
+                <User className="h-3 w-3" aria-hidden="true" />
                 <span>{event.assigned_to_name}</span>
               </div>
             )}
             {event.child_name && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Baby className="h-3 w-3" />
+                <Baby className="h-3 w-3" aria-hidden="true" />
                 <span>{event.child_name}</span>
               </div>
             )}
@@ -85,8 +88,9 @@ export function EventCard({ event, compact = false, onClick }: EventCardProps) {
         <div
           className="w-2 h-2 rounded-full flex-shrink-0 mt-1"
           style={{ backgroundColor: event.color }}
+          aria-hidden="true"
         />
       </div>
-    </div>
+    </button>
   )
 }
