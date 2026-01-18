@@ -22,8 +22,8 @@
 - [x] Ajouter des micro-animations sur les CTA buttons
 
 ## Phase 4: Tests E2E manquants
-- [ ] Créer e2e/settings.spec.ts - Tests pour les pages de paramètres
-- [ ] Créer e2e/children-management.spec.ts - Tests CRUD enfants complet
+- [x] Créer e2e/settings.spec.ts - Tests pour les pages de paramètres
+- [x] Créer e2e/children-management.spec.ts - Tests CRUD enfants complet
 - [ ] Créer e2e/recurring-tasks.spec.ts - Tests pour les tâches récurrentes
 
 ## Phase 5: Sécurité & Robustesse
