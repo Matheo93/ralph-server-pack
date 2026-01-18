@@ -12,10 +12,12 @@ import { canUseFeature } from "@/lib/services/subscription"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ChargeBalance } from "@/components/custom/ChargeBalance"
-import { ChargeWeekChart } from "@/components/custom/ChargeWeekChart"
-import { ChargeHistoryCard } from "@/components/custom/ChargeHistoryCard"
-import { ChargeCategoryBreakdown } from "@/components/custom/ChargeCategoryBreakdown"
+import {
+  LazyChargeBalance,
+  LazyChargeHistoryCard,
+  LazyChargeCategoryBreakdown
+} from "@/components/custom/LazyChargeComponents"
+import { LazyChargeWeekChart } from "@/components/custom/LazyChargeWeekChart"
 import { ExportButtons } from "@/components/custom/ExportButtons"
 import { Scale, TrendingUp, Layers, Sparkles, ArrowRight } from "lucide-react"
 
@@ -149,16 +151,16 @@ export default async function ChargePage() {
       {/* Main content */}
       <div className="grid gap-6 lg:grid-cols-2 mb-8">
         {/* Balance widget */}
-        {balance && <ChargeBalance balance={balance} />}
+        {balance && <LazyChargeBalance balance={balance} />}
 
         {/* Week chart */}
-        {weekChartData.length > 0 && <ChargeWeekChart data={weekChartData} />}
+        {weekChartData.length > 0 && <LazyChargeWeekChart data={weekChartData} />}
       </div>
 
       {/* Category breakdown */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Répartition par catégorie</h2>
-        <ChargeCategoryBreakdown
+        <LazyChargeCategoryBreakdown
           categories={categoryData.categories}
           totalLoad={categoryData.totalLoad}
         />
@@ -166,7 +168,7 @@ export default async function ChargePage() {
 
       {/* History */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {chargeHistory.length >= 2 && <ChargeHistoryCard history={chargeHistory} />}
+        {chargeHistory.length >= 2 && <LazyChargeHistoryCard history={chargeHistory} />}
 
         {/* Tips card */}
         <Card>

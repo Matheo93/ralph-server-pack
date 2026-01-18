@@ -12,8 +12,8 @@ import { DashboardWeek } from "@/components/custom/DashboardWeek"
 import { DashboardUnscheduled } from "@/components/custom/DashboardUnscheduled"
 import { StreakCounter } from "@/components/custom/StreakCounter"
 import { ChargeBalance } from "@/components/custom/ChargeBalance"
-import { ChargeWeekChart } from "@/components/custom/ChargeWeekChart"
-import { ChargeHistoryCard } from "@/components/custom/ChargeHistoryCard"
+import { LazyChargeWeekChart } from "@/components/custom/LazyChargeWeekChart"
+import { LazyChargeHistoryCard } from "@/components/custom/LazyChargeComponents"
 // InviteCoParentCTA is now rendered as a popup via PopupCoordinator in layout.tsx
 import { KidsPendingBanner } from "@/components/custom/KidsPendingBanner"
 
@@ -243,7 +243,7 @@ export default async function DashboardPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <ChargeBalance balance={balance} />
             {weekChartData.length > 0 && (
-              <ChargeWeekChart data={weekChartData} className="lg:col-span-2" />
+              <LazyChargeWeekChart data={weekChartData} className="lg:col-span-2" />
             )}
           </div>
         </div>
@@ -270,7 +270,7 @@ export default async function DashboardPage() {
           />
 
           {chargeHistory.length >= 2 && (
-            <ChargeHistoryCard history={chargeHistory} />
+            <LazyChargeHistoryCard history={chargeHistory} />
           )}
 
           {/* Charge balance for single parent households */}
