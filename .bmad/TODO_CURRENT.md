@@ -13,7 +13,7 @@
 ## Phase 2: PWA complète
 - [x] Créer le manifest.json complet avec toutes les tailles d'icônes
 - [x] Implémenter le service worker pour le cache offline
-- [ ] Ajouter les icônes PWA (192x192, 512x512, maskable)
+- [x] Ajouter les icônes PWA (192x192, 512x512, maskable)
 - [ ] Configurer le splash screen pour iOS et Android
 
 ## Phase 3: Animation landing page
