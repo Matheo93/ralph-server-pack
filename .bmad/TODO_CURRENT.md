@@ -28,7 +28,7 @@
 
 ## Phase 5: Sécurité & Robustesse
 - [x] Audit des inputs utilisateur avec Zod sur toutes les routes API
-- [ ] Ajouter rate limiting sur les routes sensibles (auth, API v1/v2)
+- [x] Ajouter rate limiting sur les routes sensibles (auth, API v1/v2)
 - [ ] Vérifier les RLS policies pour les nouvelles tables
 
 ## Phase 6: Performance
