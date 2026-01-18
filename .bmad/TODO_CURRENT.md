@@ -21,8 +21,8 @@
 
 ## Phase 4: Optimisation Performance
 - [x] Ajouter lazy loading pour les composants lourds (CalendarView, ShoppingList)
-- [ ] Implémenter le prefetching des données calendrier lors du hover sur les mois adjacents
-- [ ] Ajouter le cache local (localStorage) pour la liste de courses en mode hors-ligne
+- [x] Implémenter le prefetching des données calendrier lors du hover sur les mois adjacents
+- [x] Ajouter le cache local (localStorage) pour la liste de courses en mode hors-ligne
 - [ ] Optimiser les requêtes SQL avec EXPLAIN ANALYZE et ajouter les index manquants
 - [ ] Implémenter la pagination pour l'historique des événements calendrier
 

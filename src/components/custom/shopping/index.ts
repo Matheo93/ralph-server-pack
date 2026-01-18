@@ -1,4 +1,5 @@
 export { ShoppingList } from "./ShoppingList"
 export { ShoppingListLazy, ShoppingListSkeleton } from "./ShoppingListLazy"
 export { ShoppingItem } from "./ShoppingItem"
+export { ShoppingItemOffline } from "./ShoppingItemOffline"
 export { AddItemDialog } from "./AddItemDialog"

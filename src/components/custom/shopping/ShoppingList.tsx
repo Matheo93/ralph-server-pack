@@ -1,38 +1,56 @@
 "use client"
 
-import { useState, useTransition, useMemo } from "react"
-import { Plus, Trash2, RotateCcw, Loader2 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useState, useMemo } from "react"
+import { Plus, Trash2, RotateCcw, Loader2, WifiOff, Cloud, CloudOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { ShoppingItem } from "./ShoppingItem"
+import { ShoppingItemOffline } from "./ShoppingItemOffline"
 import { AddItemDialog } from "./AddItemDialog"
+import { useOfflineShopping } from "@/hooks/useOfflineShopping"
 import {
-  quickAddShoppingItem,
-  clearCheckedItems,
-  uncheckAllItems,
   type ShoppingList as ShoppingListType,
   type ShoppingItem as ShoppingItemType,
   type ShoppingSuggestion,
 } from "@/lib/actions/shopping"
-import { SHOPPING_CATEGORIES, CATEGORY_ICONS } from "@/lib/validations/shopping"
+import { CATEGORY_ICONS } from "@/lib/validations/shopping"
+import type { CachedShoppingItem } from "@/lib/offline/shopping-cache"
 
 interface ShoppingListProps {
   list: ShoppingListType
   items: ShoppingItemType[]
   suggestions: ShoppingSuggestion[]
+  userId?: string
+  userName?: string
 }
 
-export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
-  const [isPending, startTransition] = useTransition()
+export function ShoppingList({ list, items: initialItems, suggestions, userId, userName }: ShoppingListProps) {
   const [quickAddValue, setQuickAddValue] = useState("")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [isAdding, setIsAdding] = useState(false)
+
+  // Use offline-first shopping hook
+  const {
+    items,
+    isOnline,
+    isSyncing,
+    hasPendingChanges,
+    quickAdd,
+    toggleCheck,
+    deleteItem,
+    clearChecked,
+    uncheckAll,
+  } = useOfflineShopping({
+    initialList: list,
+    initialItems: initialItems,
+    userId,
+    userName,
+  })
 
   const itemsByCategory = useMemo(() => {
-    const map = new Map<string, ShoppingItemType[]>()
+    const map = new Map<string, CachedShoppingItem[]>()
     items.forEach(item => {
       const existing = map.get(item.category) || []
       map.set(item.category, [...existing, item])
@@ -49,46 +67,61 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
   const totalCount = items.length
   const progress = totalCount > 0 ? (checkedCount / totalCount) * 100 : 0
 
-  const handleQuickAdd = (e: React.FormEvent) => {
+  const handleQuickAdd = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!quickAddValue.trim()) return
 
-    startTransition(async () => {
-      await quickAddShoppingItem({
-        list_id: list.id,
-        name: quickAddValue.trim(),
-      })
-      setQuickAddValue("")
-    })
+    setIsAdding(true)
+    await quickAdd(quickAddValue.trim())
+    setQuickAddValue("")
+    setIsAdding(false)
   }
 
-  const handleClearChecked = () => {
-    if (!confirm("Supprimer tous les articles cochés ?")) return
-
-    startTransition(async () => {
-      await clearCheckedItems(list.id)
-    })
+  const handleClearChecked = async () => {
+    if (!confirm("Supprimer tous les articles coches ?")) return
+    await clearChecked()
   }
 
-  const handleUncheckAll = () => {
-    startTransition(async () => {
-      await uncheckAllItems(list.id)
-    })
+  const handleUncheckAll = async () => {
+    await uncheckAll()
   }
 
-  const handleSuggestionClick = (suggestion: ShoppingSuggestion) => {
-    startTransition(async () => {
-      await quickAddShoppingItem({
-        list_id: list.id,
-        name: suggestion.item_name,
-      })
-    })
+  const handleSuggestionClick = async (suggestion: ShoppingSuggestion) => {
+    setIsAdding(true)
+    await quickAdd(suggestion.item_name)
+    setIsAdding(false)
   }
 
   const categories = Array.from(itemsByCategory.keys()).sort()
 
   return (
     <div className="space-y-6" data-testid="shopping-list">
+      {/* Offline/Sync indicator */}
+      {(!isOnline || hasPendingChanges) && (
+        <div className="flex items-center gap-2 text-sm">
+          {!isOnline ? (
+            <Badge variant="secondary" className="gap-1">
+              <WifiOff className="h-3 w-3" />
+              Mode hors-ligne
+            </Badge>
+          ) : hasPendingChanges ? (
+            <Badge variant="outline" className="gap-1">
+              {isSyncing ? (
+                <>
+                  <Cloud className="h-3 w-3 animate-pulse" />
+                  Synchronisation...
+                </>
+              ) : (
+                <>
+                  <CloudOff className="h-3 w-3" />
+                  Modifications en attente
+                </>
+              )}
+            </Badge>
+          ) : null}
+        </div>
+      )}
+
       {/* Header with progress */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex-1">
@@ -108,17 +141,17 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleUncheckAll}
-                disabled={isPending}
+                disabled={isSyncing}
                 data-testid="uncheck-all-button"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Décocher
+                Decocher
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleClearChecked}
-                disabled={isPending}
+                disabled={isSyncing}
                 className="text-destructive hover:text-destructive"
                 data-testid="clear-checked-button"
               >
@@ -137,11 +170,11 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
           onChange={(e) => setQuickAddValue(e.target.value)}
           placeholder="Ajouter un article rapidement..."
           className="flex-1"
-          disabled={isPending}
+          disabled={isAdding}
           data-testid="quick-add-input"
         />
-        <Button type="submit" disabled={isPending || !quickAddValue.trim()} data-testid="quick-add-submit">
-          {isPending ? (
+        <Button type="submit" disabled={isAdding || !quickAddValue.trim()} data-testid="quick-add-submit">
+          {isAdding ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <Plus className="h-4 w-4" />
@@ -153,7 +186,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
           onClick={() => setIsAddDialogOpen(true)}
           data-testid="add-detailed-button"
         >
-          Détaillé
+          Detaille
         </Button>
       </form>
 
@@ -193,7 +226,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
               onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
               data-testid={`category-filter-${cat.toLowerCase().replace(/\s+/g, '-')}`}
             >
-              {CATEGORY_ICONS[cat as keyof typeof CATEGORY_ICONS] || "📦"} {cat} ({itemsByCategory.get(cat)?.length || 0})
+              {CATEGORY_ICONS[cat as keyof typeof CATEGORY_ICONS] || ""} {cat} ({itemsByCategory.get(cat)?.length || 0})
             </Button>
           ))}
         </div>
@@ -211,7 +244,12 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
           {filteredItems
             .filter(item => !item.is_checked)
             .map(item => (
-              <ShoppingItem key={item.id} item={item} />
+              <ShoppingItemOffline
+                key={item.id}
+                item={item}
+                onToggleCheck={toggleCheck}
+                onDelete={deleteItem}
+              />
             ))}
 
           {/* Divider if there are checked items */}
@@ -219,7 +257,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
             <div className="flex items-center gap-2 py-2">
               <div className="flex-1 h-px bg-border" />
               <span className="text-xs text-muted-foreground">
-                Cochés ({filteredItems.filter(i => i.is_checked).length})
+                Coches ({filteredItems.filter(i => i.is_checked).length})
               </span>
               <div className="flex-1 h-px bg-border" />
             </div>
@@ -229,7 +267,12 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
           {filteredItems
             .filter(item => item.is_checked)
             .map(item => (
-              <ShoppingItem key={item.id} item={item} />
+              <ShoppingItemOffline
+                key={item.id}
+                item={item}
+                onToggleCheck={toggleCheck}
+                onDelete={deleteItem}
+              />
             ))}
         </div>
       )}

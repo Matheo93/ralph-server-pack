@@ -106,7 +106,13 @@ export default async function ShoppingPage() {
       {/* Shopping list */}
       <Card>
         <CardContent className="pt-6">
-          <ShoppingListLazy list={list} items={items} suggestions={suggestions} />
+          <ShoppingListLazy
+            list={list}
+            items={items}
+            suggestions={suggestions}
+            userId={user.id}
+            userName={user.email.split('@')[0]}
+          />
         </CardContent>
       </Card>
     </div>
