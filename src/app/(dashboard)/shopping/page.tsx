@@ -7,7 +7,7 @@ import {
   getShoppingSuggestions,
   getShoppingStats,
 } from "@/lib/actions/shopping"
-import { ShoppingList } from "@/components/custom/shopping"
+import { ShoppingListLazy } from "@/components/custom/shopping"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ShoppingCart, CheckCircle2, AlertCircle, Tags } from "lucide-react"
 
@@ -106,7 +106,7 @@ export default async function ShoppingPage() {
       {/* Shopping list */}
       <Card>
         <CardContent className="pt-6">
-          <ShoppingList list={list} items={items} suggestions={suggestions} />
+          <ShoppingListLazy list={list} items={items} suggestions={suggestions} />
         </CardContent>
       </Card>
     </div>

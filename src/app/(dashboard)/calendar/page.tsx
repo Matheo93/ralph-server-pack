@@ -4,7 +4,7 @@ import { getUser } from "@/lib/auth/actions"
 import { getHousehold, getCurrentHouseholdMembers } from "@/lib/actions/household"
 import { getCalendarEvents, getEventsCountByDate } from "@/lib/actions/calendar"
 import { getChildren } from "@/lib/actions/children"
-import { CalendarView } from "@/components/custom/calendar"
+import { CalendarViewLazy } from "@/components/custom/calendar"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -69,7 +69,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      <CalendarView
+      <CalendarViewLazy
         events={events}
         eventCounts={eventCounts}
         children={childrenList}

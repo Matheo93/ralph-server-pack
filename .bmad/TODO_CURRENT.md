@@ -16,11 +16,11 @@
 - [x] Créer src/tests/calendar-actions.test.ts - Tests pour les server actions du calendrier
 - [x] Créer src/tests/shopping-actions.test.ts - Tests pour les server actions de la liste de courses
 - [x] Créer src/tests/kids-auth.test.ts - Tests pour l'authentification enfant par PIN
-- [ ] Créer src/tests/kids-rewards.test.ts - Tests pour le système de récompenses enfant
-- [ ] Créer src/tests/kids-challenges.test.ts - Tests pour les défis enfants
+- [x] Créer src/tests/kids-rewards.test.ts - Tests pour le système de récompenses enfant
+- [x] Créer src/tests/kids-challenges.test.ts - Tests pour les défis enfants
 
 ## Phase 4: Optimisation Performance
-- [ ] Ajouter lazy loading pour les composants lourds (CalendarView, ShoppingList)
+- [x] Ajouter lazy loading pour les composants lourds (CalendarView, ShoppingList)
 - [ ] Implémenter le prefetching des données calendrier lors du hover sur les mois adjacents
 - [ ] Ajouter le cache local (localStorage) pour la liste de courses en mode hors-ligne
 - [ ] Optimiser les requêtes SQL avec EXPLAIN ANALYZE et ajouter les index manquants
