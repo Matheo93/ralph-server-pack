@@ -10,7 +10,7 @@
 - [x] Créer e2e/shopping.spec.ts - Tests E2E pour la liste de courses (ajout item, toggle, suppression, catégories)
 - [x] Créer e2e/kids-dashboard.spec.ts - Tests E2E pour le dashboard enfant (connexion PIN, voir tâches, compléter tâche)
 - [x] Créer e2e/kids-shop.spec.ts - Tests E2E pour la boutique enfant (voir récompenses, acheter avec coins)
-- [ ] Créer e2e/kids-badges.spec.ts - Tests E2E pour les badges enfant (voir badges, progression)
+- [x] Créer e2e/kids-badges.spec.ts - Tests E2E pour les badges enfant (voir badges, progression)
 
 ## Phase 3: Tests unitaires manquants
 - [ ] Créer src/tests/calendar-actions.test.ts - Tests pour les server actions du calendrier
