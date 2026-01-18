@@ -24,7 +24,7 @@
 - [x] Implémenter le prefetching des données calendrier lors du hover sur les mois adjacents
 - [x] Ajouter le cache local (localStorage) pour la liste de courses en mode hors-ligne
 - [x] Optimiser les requêtes SQL avec EXPLAIN ANALYZE et ajouter les index manquants
-- [ ] Implémenter la pagination pour l'historique des événements calendrier
+- [x] Implémenter la pagination pour l'historique des événements calendrier
 
 ## Phase 5: UX Polish
 - [ ] Ajouter des animations de transition entre les vues du calendrier (mois/semaine)

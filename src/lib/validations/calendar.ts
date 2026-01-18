@@ -38,10 +38,10 @@ export const CalendarEventCreateSchema = z.object({
   title: z
     .string()
     .min(1, "Le titre est requis")
-    .max(255, "Le titre ne peut pas depasser 255 caracteres"),
+    .max(255, "Le titre ne peut pas dépasser 255 caractères"),
   description: z
     .string()
-    .max(1000, "La description ne peut pas depasser 1000 caracteres")
+    .max(1000, "La description ne peut pas dépasser 1000 caractères")
     .nullable()
     .optional(),
   start_date: z
@@ -68,7 +68,7 @@ export const CalendarEventCreateSchema = z.object({
   event_type: EventTypeEnum.default("general"),
   location: z
     .string()
-    .max(500, "L'adresse ne peut pas depasser 500 caracteres")
+    .max(500, "L'adresse ne peut pas dépasser 500 caractères")
     .nullable()
     .optional(),
   reminder_minutes: z.number().int().min(0).max(10080).default(30), // Max 7 jours
@@ -78,7 +78,7 @@ export type CalendarEventCreateInput = z.infer<typeof CalendarEventCreateSchema>
 
 // Calendar event update schema
 export const CalendarEventUpdateSchema = CalendarEventCreateSchema.partial().extend({
-  id: z.string().uuid("ID d'evenement invalide"),
+  id: z.string().uuid("ID d'événement invalide"),
 })
 
 export type CalendarEventUpdateInput = z.infer<typeof CalendarEventUpdateSchema>
@@ -93,6 +93,19 @@ export const CalendarEventFilterSchema = z.object({
 })
 
 export type CalendarEventFilter = z.infer<typeof CalendarEventFilterSchema>
+
+// Calendar event history filter schema with pagination
+export const CalendarEventHistoryFilterSchema = z.object({
+  event_type: EventTypeEnum.nullable().optional(),
+  assigned_to: z.string().uuid().nullable().optional(),
+  child_id: z.string().uuid().nullable().optional(),
+  search: z.string().max(100).optional(),
+  limit: z.number().int().positive().max(100).default(20),
+  offset: z.number().int().nonnegative().default(0),
+  sort_order: z.enum(["asc", "desc"]).default("desc"),
+})
+
+export type CalendarEventHistoryFilter = z.infer<typeof CalendarEventHistoryFilterSchema>
 
 // Helper function to get color by event type
 export function getEventColor(eventType: EventType): string {
@@ -109,10 +122,10 @@ export function getEventColor(eventType: EventType): string {
 
 // Event type labels in French
 export const EVENT_TYPE_LABELS: Record<EventType, string> = {
-  general: "General",
-  medical: "Rendez-vous medical",
-  school: "Ecole",
-  activity: "Activite",
+  general: "Général",
+  medical: "Rendez-vous médical",
+  school: "École",
+  activity: "Activité",
   birthday: "Anniversaire",
   reminder: "Rappel",
 }
