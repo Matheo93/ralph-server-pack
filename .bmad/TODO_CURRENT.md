@@ -38,4 +38,4 @@
 
 ## Phase 7: Documentation
 - [x] Créer ARCHITECTURE.md avec le schéma de la base de données
-- [ ] Documenter les endpoints API dans /api/docs
+- [x] Documenter les endpoints API dans /api/docs
