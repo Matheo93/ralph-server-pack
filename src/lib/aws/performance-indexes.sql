@@ -577,7 +577,60 @@ ANALYZE household_template_settings;
 ANALYZE task_templates;
 
 -- ============================================================
--- SECTION 11: QUERY OPTIMIZATION PATTERNS
+-- SECTION 11: ADDITIONAL INDEXES (Sprint 23 Phase 2)
+-- ============================================================
+-- Based on analysis of remaining query patterns
+
+-- === ASSIGNMENT ROTATION INDEX ===
+-- Used by: getLastAssignedMember (assignment.ts:408-421)
+-- Query pattern: WHERE household_id = $1 AND assigned_to IS NOT NULL ORDER BY created_at DESC LIMIT 1
+CREATE INDEX IF NOT EXISTS idx_tasks_household_last_assigned
+  ON tasks(household_id, created_at DESC)
+  WHERE assigned_to IS NOT NULL;
+
+-- === OVERDUE TASKS WITH DETAILS INDEX ===
+-- Used by: sendDailyDigest (notifications.ts:210-215)
+-- Query pattern: WHERE household_id = $1 AND deadline::date < CURRENT_DATE AND status = 'pending'
+CREATE INDEX IF NOT EXISTS idx_tasks_overdue_with_deadline
+  ON tasks(household_id, deadline ASC)
+  WHERE status = 'pending' AND deadline IS NOT NULL;
+
+-- === WEEK TASKS COUNT INDEX ===
+-- Used by: sendDailyDigest (notifications.ts:218-226)
+-- Query pattern: WHERE deadline::date >= CURRENT_DATE AND deadline::date <= CURRENT_DATE + 7 days
+CREATE INDEX IF NOT EXISTS idx_tasks_week_ahead
+  ON tasks(household_id, deadline)
+  WHERE status IN ('pending', 'postponed') AND deadline IS NOT NULL;
+
+-- === SCHEDULER DAILY LOAD INDEX ===
+-- Used by: getDailyLoad (scheduler.ts:500-511)
+-- Query pattern: GROUP BY deadline ORDER BY deadline
+CREATE INDEX IF NOT EXISTS idx_tasks_scheduler_deadline_group
+  ON tasks(household_id, deadline, load_weight)
+  WHERE status = 'pending' AND deadline IS NOT NULL;
+
+-- === EXPORT QUERIES INDEX ===
+-- Used by: exportTasks (export.ts:231, 582)
+-- Query pattern: ORDER BY COALESCE(completed_at, deadline, created_at) DESC
+CREATE INDEX IF NOT EXISTS idx_tasks_export_timeline
+  ON tasks(household_id, COALESCE(completed_at, deadline, created_at) DESC);
+
+-- === BALANCE ALERTS INDEX ===
+-- Used by: getTransferableTasks (balance-alerts.ts:177)
+-- Query pattern: WHERE assigned_to = $2 AND status = 'pending' ORDER BY load_weight DESC, deadline ASC
+CREATE INDEX IF NOT EXISTS idx_tasks_transferable
+  ON tasks(household_id, assigned_to, load_weight DESC, deadline ASC)
+  WHERE status = 'pending';
+
+-- === RECURRENCE INDEX ===
+-- Used by: getNextOccurrences (recurrence.ts:365, 428)
+-- Query pattern: WHERE series_id IS NOT NULL ORDER BY deadline ASC
+CREATE INDEX IF NOT EXISTS idx_tasks_recurrence_next
+  ON tasks(household_id, series_id, deadline ASC)
+  WHERE series_id IS NOT NULL AND status = 'pending';
+
+-- ============================================================
+-- SECTION 12: QUERY OPTIMIZATION PATTERNS
 -- ============================================================
 
 /*
