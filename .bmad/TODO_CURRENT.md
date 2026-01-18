@@ -6,7 +6,7 @@
 - [x] Connecter le statut premium à la vraie subscription Stripe (src/app/api/gamification/route.ts:355)
 - [x] Sauvegarder l'inventaire mis à jour en base de données (src/app/api/gamification/route.ts:365)
 - [x] Sauvegarder les achievements mis à jour en base de données (src/app/api/gamification/route.ts:403)
-- [ ] Implémenter le curseur prev pour la pagination (src/app/api/v2/tasks/route.ts:524)
+- [x] Implémenter le curseur prev pour la pagination (src/app/api/v2/tasks/route.ts:524)
 - [ ] Implémenter la vérification de mot de passe correcte (src/app/api/v1/auth/route.ts:89)
 - [ ] Détecter le level up lors de la complétion de tâche (src/lib/actions/kids-tasks.ts:664)
 

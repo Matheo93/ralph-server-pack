@@ -298,8 +298,23 @@ function buildFilterClause(
   }
 }
 
-function buildSortClause(sort: z.infer<typeof SortV2Schema>): string {
+function buildSortClause(sort: z.infer<typeof SortV2Schema>, direction: "next" | "prev" = "next"): string {
+  // Helper to invert order for backward pagination
+  const invertOrder = (order: string): string => {
+    if (direction === "prev") {
+      return order === "asc" ? "DESC" : "ASC"
+    }
+    return order.toUpperCase()
+  }
+
   if (!sort || sort.length === 0) {
+    // Default sort: is_critical DESC, priority (urgent first), deadline ASC NULLS LAST, created_at DESC
+    if (direction === "prev") {
+      // Invert all orders for backward pagination
+      return `ORDER BY t.is_critical ASC,
+              CASE t.priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 WHEN 'low' THEN 3 END DESC,
+              t.deadline DESC NULLS FIRST, t.created_at ASC`
+    }
     return `ORDER BY t.is_critical DESC,
             CASE t.priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 WHEN 'low' THEN 3 END,
             t.deadline ASC NULLS LAST, t.created_at DESC`
@@ -316,8 +331,12 @@ function buildSortClause(sort: z.infer<typeof SortV2Schema>): string {
 
   const sortClauses = sort.map(s => {
     const field = fieldMap[s.field] || `t.${s.field}`
-    const nullsLast = ["deadline", "updatedAt"].includes(s.field) ? " NULLS LAST" : ""
-    return `${field} ${s.order.toUpperCase()}${nullsLast}`
+    const order = invertOrder(s.order)
+    // For backward pagination with NULLS LAST, we need NULLS FIRST when order is inverted
+    const nullsHandling = ["deadline", "updatedAt"].includes(s.field)
+      ? (direction === "prev" ? " NULLS FIRST" : " NULLS LAST")
+      : ""
+    return `${field} ${order}${nullsHandling}`
   })
 
   return `ORDER BY ${sortClauses.join(", ")}`
@@ -382,6 +401,7 @@ export async function GET(request: NextRequest) {
     // Parse cursor pagination
     const cursor = searchParams.get("cursor")
     const limit = Math.min(parseInt(searchParams.get("limit") ?? "20"), 100)
+    const direction = searchParams.get("direction") === "prev" ? "prev" : "next"
 
     // Parse filter from query string
     const filterParam = searchParams.get("filter")
@@ -452,12 +472,15 @@ export async function GET(request: NextRequest) {
     params.push(...filterResult.params)
     paramIndex = filterResult.nextIndex
 
-    // Handle cursor
+    // Handle cursor with direction support
     let cursorClause = ""
     if (cursor) {
       const decodedCursor = decodeCursor(cursor)
       if (decodedCursor) {
-        cursorClause = ` AND (t.created_at, t.id) < ($${paramIndex}, $${paramIndex + 1})`
+        // For "next" direction: get items OLDER than cursor (created_at < cursor)
+        // For "prev" direction: get items NEWER than cursor (created_at > cursor)
+        const operator = direction === "prev" ? ">" : "<"
+        cursorClause = ` AND (t.created_at, t.id) ${operator} ($${paramIndex}, $${paramIndex + 1})`
         params.push(decodedCursor["createdAt"], decodedCursor.id)
         paramIndex += 2
       }
@@ -471,8 +494,8 @@ export async function GET(request: NextRequest) {
     `, params.slice(0, filterResult.nextIndex))
     const totalCount = countResult?.count ?? 0
 
-    // Build sort clause
-    const sortClause = buildSortClause(sort)
+    // Build sort clause (invert order for backward pagination)
+    const sortClause = buildSortClause(sort, direction)
 
     // Get tasks
     const tasks = await query<Record<string, unknown>>(`
@@ -507,13 +530,30 @@ export async function GET(request: NextRequest) {
 
     // Determine if there are more results
     const hasMore = tasks.length > limit
-    const resultTasks = hasMore ? tasks.slice(0, limit) : tasks
+    let resultTasks = hasMore ? tasks.slice(0, limit) : tasks
+
+    // For backward pagination, reverse results to maintain consistent order
+    if (direction === "prev") {
+      resultTasks = resultTasks.reverse()
+    }
 
     // Build cursors
     const lastTask = resultTasks[resultTasks.length - 1]
-    const nextCursor = hasMore && lastTask
-      ? encodeCursor(lastTask["id"] as string, { createdAt: lastTask["created_at"] })
-      : null
+    const firstTask = resultTasks[0]
+
+    // nextCursor: for moving forward (older items)
+    // For "next" direction: cursor points to last item if there are more
+    // For "prev" direction: we fetched newer items, so nextCursor points to last item (for going back to normal forward pagination)
+    const nextCursor = direction === "next"
+      ? (hasMore && lastTask ? encodeCursor(lastTask["id"] as string, { createdAt: lastTask["created_at"] }) : null)
+      : (lastTask ? encodeCursor(lastTask["id"] as string, { createdAt: lastTask["created_at"] }) : null)
+
+    // prevCursor: for moving backward (newer items)
+    // For "next" direction with cursor: prevCursor points to first item
+    // For "prev" direction: prevCursor exists if there are more items in the backward direction
+    const prevCursor = direction === "next"
+      ? (cursor && firstTask ? encodeCursor(firstTask["id"] as string, { createdAt: firstTask["created_at"] }) : null)
+      : (hasMore && firstTask ? encodeCursor(firstTask["id"] as string, { createdAt: firstTask["created_at"] }) : null)
 
     // Map to v2 response format
     const v2Tasks = resultTasks.map(mapToV2Response)
@@ -521,7 +561,7 @@ export async function GET(request: NextRequest) {
     const meta: CursorPaginationMeta = {
       cursor,
       nextCursor,
-      prevCursor: null, // TODO: Implement prev cursor
+      prevCursor,
       hasMore,
       totalCount,
     }
