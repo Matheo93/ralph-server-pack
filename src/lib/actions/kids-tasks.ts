@@ -644,26 +644,44 @@ export async function getKidsRoadmap(childId: string): Promise<ActionResult<{
 
     let pendingReward = null
     if (recentlyApproved) {
-      // Vérifier level up
-      const account = await queryOne<{ current_level: number }>(
-        'SELECT current_level FROM child_accounts WHERE child_id = $1',
+      // Récupérer l'XP et le niveau actuel de l'enfant
+      const account = await queryOne<{ current_xp: number; current_level: number }>(
+        'SELECT current_xp, current_level FROM child_accounts WHERE child_id = $1',
         [childId]
       )
-      
+
+      const currentXp = account?.current_xp ?? 0
+      const currentLevel = account?.current_level ?? 1
+      const xpAwarded = recentlyApproved.xp_awarded ?? 0
+
+      // Calculer l'XP qu'il avait AVANT cette tâche
+      const xpBeforeTask = currentXp - xpAwarded
+
+      // Déterminer le niveau qu'il avait AVANT (en utilisant la fonction SQL via une requête)
+      const previousLevelResult = await queryOne<{ level: number }>(
+        'SELECT level FROM xp_levels WHERE xp_required <= $1 ORDER BY level DESC LIMIT 1',
+        [Math.max(0, xpBeforeTask)]
+      )
+      const previousLevel = previousLevelResult?.level ?? 1
+
+      // Level up si le niveau actuel est supérieur au niveau précédent
+      const levelUp = currentLevel > previousLevel
+
+      // Récupérer le nom du niveau actuel
       const level = await queryOne<{ name: string }>(
         'SELECT name FROM xp_levels WHERE level = $1',
-        [account?.current_level || 1]
+        [currentLevel]
       )
 
       pendingReward = {
         taskId: recentlyApproved.task_id,
         taskTitle: recentlyApproved.task_title,
         rewardType: recentlyApproved.reward_type as "xp" | "immediate",
-        xpAmount: recentlyApproved.xp_awarded,
+        xpAmount: xpAwarded,
         immediateText: recentlyApproved.reward_immediate_text,
-        levelUp: false, // TODO: détecter si level up
-        newLevel: account?.current_level || null,
-        newLevelName: level?.name || null,
+        levelUp,
+        newLevel: levelUp ? currentLevel : null,
+        newLevelName: levelUp ? (level?.name ?? null) : null,
       }
     }
 

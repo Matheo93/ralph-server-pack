@@ -8,7 +8,7 @@
 - [x] Sauvegarder les achievements mis à jour en base de données (src/app/api/gamification/route.ts:403)
 - [x] Implémenter le curseur prev pour la pagination (src/app/api/v2/tasks/route.ts:524)
 - [x] Implémenter la vérification de mot de passe correcte (src/app/api/v1/auth/route.ts:89)
-- [ ] Détecter le level up lors de la complétion de tâche (src/lib/actions/kids-tasks.ts:664)
+- [x] Détecter le level up lors de la complétion de tâche (src/lib/actions/kids-tasks.ts:664)
 
 ## Phase 2: PWA complète
 - [ ] Créer le manifest.json complet avec toutes les tailles d'icônes
