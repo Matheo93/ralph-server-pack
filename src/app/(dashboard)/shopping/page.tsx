@@ -1,15 +1,12 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { getUser } from "@/lib/auth/actions"
 import { getHousehold } from "@/lib/actions/household"
 import {
-  getOrCreateActiveList,
-  getShoppingItems,
-  getShoppingSuggestions,
-  getShoppingStats,
-} from "@/lib/actions/shopping"
-import { ShoppingListLazy } from "@/components/custom/shopping"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ShoppingCart, CheckCircle2, AlertCircle, Tags } from "lucide-react"
+  ShoppingDataStream,
+  ShoppingDataSkeleton,
+  StreamingErrorBoundary,
+} from "@/components/streaming"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -27,28 +24,9 @@ export default async function ShoppingPage() {
     redirect("/onboarding")
   }
 
-  const [list, stats, suggestions] = await Promise.all([
-    getOrCreateActiveList(),
-    getShoppingStats(),
-    getShoppingSuggestions(10),
-  ])
-
-  if (!list) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            Erreur lors du chargement de la liste de courses
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  const items = await getShoppingItems(list.id)
-
   return (
     <div className="container mx-auto py-8 px-4">
+      {/* Header - renders immediately */}
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold">Liste de courses</h1>
         <p className="text-muted-foreground text-sm sm:text-base">
@@ -56,65 +34,15 @@ export default async function ShoppingPage() {
         </p>
       </div>
 
-      {/* Stats cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalItems}</div>
-            <p className="text-xs text-muted-foreground">articles</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cochés</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.checkedItems}</div>
-            <p className="text-xs text-muted-foreground">fait{stats.checkedItems > 1 ? "s" : ""}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Urgents</CardTitle>
-            <AlertCircle className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.urgentItems}</div>
-            <p className="text-xs text-muted-foreground">prioritaire{stats.urgentItems > 1 ? "s" : ""}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Catégories</CardTitle>
-            <Tags className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.categoriesCount}</div>
-            <p className="text-xs text-muted-foreground">différentes</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Shopping list */}
-      <Card>
-        <CardContent className="pt-6">
-          <ShoppingListLazy
-            list={list}
-            items={items}
-            suggestions={suggestions}
+      {/* Main content - streams independently */}
+      <StreamingErrorBoundary sectionName="liste de courses">
+        <Suspense fallback={<ShoppingDataSkeleton />}>
+          <ShoppingDataStream
             userId={user.id}
-            userName={user.email.split('@')[0]}
+            userName={user.email?.split("@")[0] ?? "Utilisateur"}
           />
-        </CardContent>
-      </Card>
+        </Suspense>
+      </StreamingErrorBoundary>
     </div>
   )
 }

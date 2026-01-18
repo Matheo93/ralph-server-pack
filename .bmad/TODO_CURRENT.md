@@ -10,8 +10,8 @@
 ## Phase 2: Performance & Core Web Vitals
 - [x] Implémenter le lazy loading des composants lourds (ChargeWeekChart, calendrier)
 - [x] Optimiser les requêtes Supabase avec des indexes manquants
-- [ ] Ajouter React Suspense avec des boundaries pour le streaming SSR
-- [ ] Créer des skeletons spécifiques pour chaque section du dashboard
+- [x] Ajouter React Suspense avec des boundaries pour le streaming SSR
+- [x] Créer des skeletons spécifiques pour chaque section du dashboard
 - [ ] Auditer et réduire le bundle JavaScript (analyse avec next/bundle-analyzer)
 
 ## Phase 3: UX & Accessibilité

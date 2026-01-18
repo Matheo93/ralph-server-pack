@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { getUserId } from "@/lib/auth/actions"
 import { redirect } from "next/navigation"
 import { query, queryOne, setCurrentUser } from "@/lib/aws/database"
@@ -5,8 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { HouseholdSettings } from "@/components/custom/HouseholdSettings"
 import { InviteForm } from "@/components/custom/invite-form"
+import { HouseholdSettingsSkeleton, StreamingErrorBoundary } from "@/components/streaming"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 interface Household {
   id: string
@@ -72,7 +77,8 @@ async function getHouseholdData(): Promise<{
   return { household, members, currentUserId: userId }
 }
 
-export default async function HouseholdSettingsPage() {
+// Async component for household data - streams independently
+async function HouseholdDataStream() {
   const { household, members, currentUserId } = await getHouseholdData()
 
   if (!household || !currentUserId) {
@@ -84,7 +90,103 @@ export default async function HouseholdSettingsPage() {
   const isAdmin = currentMember?.role === "admin" || currentMember?.role === "parent_principal"
 
   return (
+    <div className="space-y-6">
+      {/* Household info */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Informations du foyer</CardTitle>
+          <CardDescription>
+            Nom et paramètres généraux
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <HouseholdSettings
+            household={household}
+            isAdmin={isAdmin}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Members */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Membres du foyer</CardTitle>
+          <CardDescription>
+            {members.length} membre{members.length !== 1 ? "s" : ""} dans le foyer
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {members.map((member) => (
+              <div
+                key={member.id}
+                className="flex items-center justify-between py-2 border-b last:border-0"
+              >
+                <div>
+                  <p className="font-medium">
+                    {member.name ?? member.email?.split("@")[0] ?? "Parent"}
+                    {member.user_id === currentUserId && (
+                      <span className="text-muted-foreground text-sm ml-2">(vous)</span>
+                    )}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{member.email}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant={member.role === "admin" ? "default" : "secondary"}>
+                    {member.role === "admin" ? "Admin" : "Membre"}
+                  </Badge>
+                  {!member.is_active && (
+                    <Badge variant="outline">Inactif</Badge>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Invite */}
+      {isAdmin && (
+        <InviteForm />
+      )}
+
+      {/* Stats */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Statistiques</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-2xl font-bold">{household.streak_current}</p>
+              <p className="text-sm text-muted-foreground">Streak actuel</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold">
+                {new Date(household.created_at).toLocaleDateString("fr-FR", {
+                  month: "short",
+                  year: "numeric",
+                })}
+              </p>
+              <p className="text-sm text-muted-foreground">Membre depuis</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default async function HouseholdSettingsPage() {
+  // Quick auth check
+  const userId = await getUserId()
+  if (!userId) {
+    redirect("/login")
+  }
+
+  return (
     <div className="container max-w-2xl py-8 px-4">
+      {/* Header renders immediately */}
       <div className="mb-6">
         <Link href="/settings">
           <Button variant="ghost" size="sm" className="mb-4">
@@ -97,90 +199,12 @@ export default async function HouseholdSettingsPage() {
         </p>
       </div>
 
-      <div className="space-y-6">
-        {/* Household info */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Informations du foyer</CardTitle>
-            <CardDescription>
-              Nom et paramètres généraux
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <HouseholdSettings
-              household={household}
-              isAdmin={isAdmin}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Members */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Membres du foyer</CardTitle>
-            <CardDescription>
-              {members.length} membre{members.length !== 1 ? "s" : ""} dans le foyer
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {members.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex items-center justify-between py-2 border-b last:border-0"
-                >
-                  <div>
-                    <p className="font-medium">
-                      {member.name ?? member.email?.split("@")[0] ?? "Parent"}
-                      {member.user_id === currentUserId && (
-                        <span className="text-muted-foreground text-sm ml-2">(vous)</span>
-                      )}
-                    </p>
-                    <p className="text-sm text-muted-foreground">{member.email}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={member.role === "admin" ? "default" : "secondary"}>
-                      {member.role === "admin" ? "Admin" : "Membre"}
-                    </Badge>
-                    {!member.is_active && (
-                      <Badge variant="outline">Inactif</Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Invite */}
-        {isAdmin && (
-          <InviteForm />
-        )}
-
-        {/* Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Statistiques</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-2xl font-bold">{household.streak_current}</p>
-                <p className="text-sm text-muted-foreground">Streak actuel</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {new Date(household.created_at).toLocaleDateString("fr-FR", {
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </p>
-                <p className="text-sm text-muted-foreground">Membre depuis</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Content streams independently */}
+      <StreamingErrorBoundary sectionName="foyer">
+        <Suspense fallback={<HouseholdSettingsSkeleton />}>
+          <HouseholdDataStream />
+        </Suspense>
+      </StreamingErrorBoundary>
     </div>
   )
 }

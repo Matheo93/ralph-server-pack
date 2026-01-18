@@ -1,25 +1,27 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { getUser } from "@/lib/auth/actions"
 import { getHousehold } from "@/lib/actions/household"
-import {
-  getHouseholdBalance,
-  getWeeklyChartData,
-  getChargeHistory,
-  getChargeByCategory,
-} from "@/lib/services/charge"
 import { canUseFeature } from "@/lib/services/subscription"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  LazyChargeBalance,
-  LazyChargeHistoryCard,
-  LazyChargeCategoryBreakdown
-} from "@/components/custom/LazyChargeComponents"
-import { LazyChargeWeekChart } from "@/components/custom/LazyChargeWeekChart"
 import { ExportButtons } from "@/components/custom/ExportButtons"
-import { Scale, TrendingUp, Layers, Sparkles, ArrowRight } from "lucide-react"
+import {
+  ChargeDataStream,
+  ChargeDataSkeleton,
+  StreamingErrorBoundary,
+} from "@/components/streaming"
+import { Scale, Sparkles } from "lucide-react"
+
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
+// Async component for export buttons (needs premium check)
+async function ExportButtonsStream({ householdId }: { householdId: string }) {
+  const isPremium = await canUseFeature(householdId, "pdf_export")
+  return <ExportButtons isPremium={isPremium} />
+}
 
 export default async function ChargePage() {
   const user = await getUser()
@@ -36,18 +38,11 @@ export default async function ChargePage() {
 
   const householdData = household.households as { id: string; name: string } | null
   const householdId = householdData?.id ?? ""
-
-  const [balance, weekChartData, chargeHistory, categoryData, isPremium] = await Promise.all([
-    getHouseholdBalance(),
-    getWeeklyChartData(),
-    getChargeHistory(),
-    getChargeByCategory(),
-    canUseFeature(householdId, "pdf_export"),
-  ])
+  const householdName = householdData?.name ?? "votre foyer"
 
   return (
     <div className="container mx-auto py-8 px-4">
-      {/* Hero section - USP highlight */}
+      {/* Hero section - renders immediately */}
       <div className="relative mb-10 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-primary/10 p-8 overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-4 right-4 w-32 h-32 rounded-full bg-amber-500/10 blur-3xl" />
@@ -67,13 +62,15 @@ export default async function ChargePage() {
                 </Badge>
               </div>
               <p className="text-muted-foreground text-sm sm:text-base max-w-xl">
-                Visualisez et rééquilibrez la répartition des tâches dans <strong>{householdData?.name || "votre foyer"}</strong>.
+                Visualisez et rééquilibrez la répartition des tâches dans <strong>{householdName}</strong>.
                 Une répartition équitable = une famille plus heureuse.
               </p>
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0">
-            <ExportButtons isPremium={isPremium} />
+            <Suspense fallback={<div className="h-10 w-24 bg-muted animate-pulse rounded-md" />}>
+              <ExportButtonsStream householdId={householdId} />
+            </Suspense>
             <Link href="/dashboard">
               <Button variant="outline" className="border-amber-200 hover:bg-amber-50">Retour</Button>
             </Link>
@@ -81,139 +78,12 @@ export default async function ChargePage() {
         </div>
       </div>
 
-      {/* Summary Cards - Redesigned with colors */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card className="border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-50/50 to-transparent hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-amber-600" />
-              </div>
-              <CardTitle className="text-sm font-medium text-foreground/70">
-                Charge totale (7j)
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-amber-600">{balance?.totalLoad ?? 0}</div>
-            <p className="text-sm text-muted-foreground">points de charge</p>
-          </CardContent>
-        </Card>
-
-        <Card className={`border-l-4 ${balance?.isBalanced ? 'border-l-green-500 bg-gradient-to-br from-green-50/50' : 'border-l-red-500 bg-gradient-to-br from-red-50/50'} to-transparent hover:shadow-md transition-shadow`}>
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-lg ${balance?.isBalanced ? 'bg-green-100' : 'bg-red-100'} flex items-center justify-center`}>
-                <Scale className={`w-4 h-4 ${balance?.isBalanced ? 'text-green-600' : 'text-red-600'}`} />
-              </div>
-              <CardTitle className="text-sm font-medium text-foreground/70">
-                Répartition
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2 mb-2">
-              {balance?.members.map((m, i) => (
-                <span key={m.userId} className={`text-2xl font-bold ${balance?.isBalanced ? 'text-green-600' : 'text-red-600'}`}>
-                  {Math.round(m.percentage)}%{i < balance.members.length - 1 ? " / " : ""}
-                </span>
-              ))}
-            </div>
-            {balance && (
-              <Badge
-                variant={balance.isBalanced ? "secondary" : "destructive"}
-                className={balance.isBalanced ? "bg-green-100 text-green-700 border-green-300" : balance.alertLevel === "warning" ? "bg-orange-500" : ""}
-              >
-                {balance.isBalanced ? "Équilibré" : "Déséquilibré"}
-              </Badge>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50/50 to-transparent hover:shadow-md transition-shadow">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                <Layers className="w-4 h-4 text-blue-600" />
-              </div>
-              <CardTitle className="text-sm font-medium text-foreground/70">
-                Catégories actives
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{categoryData.categories.length}</div>
-            <p className="text-sm text-muted-foreground">types de tâches</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main content */}
-      <div className="grid gap-6 lg:grid-cols-2 mb-8">
-        {/* Balance widget */}
-        {balance && <LazyChargeBalance balance={balance} />}
-
-        {/* Week chart */}
-        {weekChartData.length > 0 && <LazyChargeWeekChart data={weekChartData} />}
-      </div>
-
-      {/* Category breakdown */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Répartition par catégorie</h2>
-        <LazyChargeCategoryBreakdown
-          categories={categoryData.categories}
-          totalLoad={categoryData.totalLoad}
-        />
-      </div>
-
-      {/* History */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {chargeHistory.length >= 2 && <LazyChargeHistoryCard history={chargeHistory} />}
-
-        {/* Tips card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Conseils pour mieux répartir</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium">
-                1
-              </div>
-              <div>
-                <p className="font-medium">Identifiez les déséquilibres</p>
-                <p className="text-sm text-muted-foreground">
-                  Repérez les catégories où un parent gère plus de 60% des tâches
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
-                2
-              </div>
-              <div>
-                <p className="font-medium">Redistribuez progressivement</p>
-                <p className="text-sm text-muted-foreground">
-                  Commencez par les tâches les plus simples à déléguer
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 font-medium">
-                3
-              </div>
-              <div>
-                <p className="font-medium">Utilisez l&apos;assignation automatique</p>
-                <p className="text-sm text-muted-foreground">
-                  L&apos;app peut assigner les nouvelles tâches au parent le moins chargé
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Main content - streams independently */}
+      <StreamingErrorBoundary sectionName="données de charge">
+        <Suspense fallback={<ChargeDataSkeleton />}>
+          <ChargeDataStream householdId={householdId} householdName={householdName} />
+        </Suspense>
+      </StreamingErrorBoundary>
     </div>
   )
 }

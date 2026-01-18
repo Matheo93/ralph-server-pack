@@ -1,10 +1,18 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { getUserId } from "@/lib/auth/actions"
 import { queryOne, setCurrentUser } from "@/lib/aws/database"
 import { getSubscriptionDetails } from "@/lib/stripe/checkout"
 import { BillingContent } from "./billing-content"
+import { BillingContentSkeleton, StreamingErrorBoundary } from "@/components/streaming"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
-export default async function BillingPage() {
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
+// Async component for billing data - streams independently
+async function BillingDataStream() {
   const userId = await getUserId()
   if (!userId) {
     redirect("/login")
@@ -96,5 +104,36 @@ export default async function BillingPage() {
           : null,
       } : null}
     />
+  )
+}
+
+export default async function BillingPage() {
+  const userId = await getUserId()
+  if (!userId) {
+    redirect("/login")
+  }
+
+  return (
+    <div className="container max-w-2xl py-8 px-4">
+      {/* Header renders immediately */}
+      <div className="mb-6">
+        <Link href="/settings">
+          <Button variant="ghost" size="sm" className="mb-4">
+            ← Retour aux paramètres
+          </Button>
+        </Link>
+        <h1 className="text-2xl font-bold">Abonnement</h1>
+        <p className="text-muted-foreground">
+          Gérez votre abonnement et vos factures
+        </p>
+      </div>
+
+      {/* Content streams independently */}
+      <StreamingErrorBoundary sectionName="facturation">
+        <Suspense fallback={<BillingContentSkeleton />}>
+          <BillingDataStream />
+        </Suspense>
+      </StreamingErrorBoundary>
+    </div>
   )
 }

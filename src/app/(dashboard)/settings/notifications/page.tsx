@@ -1,10 +1,15 @@
+import { Suspense } from "react"
 import { getUserId } from "@/lib/auth/actions"
 import { redirect } from "next/navigation"
 import { queryOne, setCurrentUser } from "@/lib/aws/database"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { NotificationSettings } from "@/components/custom/NotificationSettings"
+import { NotificationSettingsSkeleton, StreamingErrorBoundary } from "@/components/streaming"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 interface NotificationPreferences {
   push_enabled: boolean
@@ -64,16 +69,104 @@ async function getNotificationPreferences(): Promise<NotificationPreferences | n
   }
 }
 
+// Async component for notification data - streams independently
+async function NotificationDataStream() {
+  const preferences = await getNotificationPreferences()
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Canaux de notification</CardTitle>
+          <CardDescription>
+            Choisissez comment recevoir vos notifications
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NotificationSettings preferences={preferences} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Rappels quotidiens</CardTitle>
+          <CardDescription>
+            Recevez un résumé des tâches du jour
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Rappel du matin</p>
+                <p className="text-sm text-muted-foreground">
+                  {preferences?.daily_reminder_time
+                    ? `Tous les jours à ${preferences.daily_reminder_time}`
+                    : "Désactivé"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Avant deadline</p>
+                <p className="text-sm text-muted-foreground">
+                  Rappel {preferences?.reminder_before_deadline_hours ?? 24}h avant chaque deadline
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Résumés et alertes</CardTitle>
+          <CardDescription>
+            Notifications périodiques et alertes spéciales
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Résumé hebdomadaire</p>
+                <p className="text-sm text-muted-foreground">
+                  Bilan de la semaine par email
+                </p>
+              </div>
+              <span className={preferences?.weekly_summary_enabled ? "text-green-600" : "text-muted-foreground"}>
+                {preferences?.weekly_summary_enabled ? "Activé" : "Désactivé"}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Alerte déséquilibre</p>
+                <p className="text-sm text-muted-foreground">
+                  Notification si la charge est mal répartie ({">"} 60/40)
+                </p>
+              </div>
+              <span className={preferences?.balance_alert_enabled ? "text-green-600" : "text-muted-foreground"}>
+                {preferences?.balance_alert_enabled ? "Activé" : "Désactivé"}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 export default async function NotificationSettingsPage() {
   const userId = await getUserId()
   if (!userId) {
     redirect("/login")
   }
 
-  const preferences = await getNotificationPreferences()
-
   return (
     <div className="container max-w-2xl py-8 px-4">
+      {/* Header renders immediately */}
       <div className="mb-6">
         <Link href="/settings">
           <Button variant="ghost" size="sm" className="mb-4">
@@ -86,87 +179,12 @@ export default async function NotificationSettingsPage() {
         </p>
       </div>
 
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Canaux de notification</CardTitle>
-            <CardDescription>
-              Choisissez comment recevoir vos notifications
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <NotificationSettings preferences={preferences} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Rappels quotidiens</CardTitle>
-            <CardDescription>
-              Recevez un résumé des tâches du jour
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Rappel du matin</p>
-                  <p className="text-sm text-muted-foreground">
-                    {preferences?.daily_reminder_time
-                      ? `Tous les jours à ${preferences.daily_reminder_time}`
-                      : "Désactivé"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Avant deadline</p>
-                  <p className="text-sm text-muted-foreground">
-                    Rappel {preferences?.reminder_before_deadline_hours ?? 24}h avant chaque deadline
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Résumés et alertes</CardTitle>
-            <CardDescription>
-              Notifications périodiques et alertes spéciales
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Résumé hebdomadaire</p>
-                  <p className="text-sm text-muted-foreground">
-                    Bilan de la semaine par email
-                  </p>
-                </div>
-                <span className={preferences?.weekly_summary_enabled ? "text-green-600" : "text-muted-foreground"}>
-                  {preferences?.weekly_summary_enabled ? "Activé" : "Désactivé"}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Alerte déséquilibre</p>
-                  <p className="text-sm text-muted-foreground">
-                    Notification si la charge est mal répartie ({">"} 60/40)
-                  </p>
-                </div>
-                <span className={preferences?.balance_alert_enabled ? "text-green-600" : "text-muted-foreground"}>
-                  {preferences?.balance_alert_enabled ? "Activé" : "Désactivé"}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Content streams independently */}
+      <StreamingErrorBoundary sectionName="notifications">
+        <Suspense fallback={<NotificationSettingsSkeleton />}>
+          <NotificationDataStream />
+        </Suspense>
+      </StreamingErrorBoundary>
     </div>
   )
 }

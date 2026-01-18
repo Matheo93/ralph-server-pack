@@ -1,34 +1,32 @@
-import { redirect } from 'next/navigation'
-import { getUser } from '@/lib/auth/actions'
-import { getHousehold } from '@/lib/actions/household'
-import { getChallenges, getChallengeTemplates } from '@/lib/actions/challenges'
-import { getChildren } from '@/lib/actions/children'
-import { ChallengesClient } from './ChallengesClient'
+import { Suspense } from "react"
+import { redirect } from "next/navigation"
+import { getUser } from "@/lib/auth/actions"
+import { getHousehold } from "@/lib/actions/household"
+import {
+  ChallengesDataStream,
+  ChallengesDataSkeleton,
+  StreamingErrorBoundary,
+} from "@/components/streaming"
+
+export const dynamic = "force-dynamic"
+export const revalidate = 0
 
 export default async function ChallengesPage() {
   const user = await getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect("/login")
   }
 
   const household = await getHousehold()
 
   if (!household) {
-    redirect('/onboarding')
+    redirect("/onboarding")
   }
-
-  const [challengesResult, templatesResult, householdChildren] = await Promise.all([
-    getChallenges(),
-    getChallengeTemplates(),
-    getChildren(),
-  ])
-
-  const challenges = challengesResult.success ? challengesResult.data ?? [] : []
-  const templates = templatesResult.success ? templatesResult.data ?? [] : []
 
   return (
     <div className="container mx-auto py-8 px-4">
+      {/* Header - renders immediately */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Défis</h1>
@@ -38,11 +36,12 @@ export default async function ChallengesPage() {
         </div>
       </div>
 
-      <ChallengesClient
-        challenges={challenges}
-        templates={templates}
-        householdChildren={householdChildren}
-      />
+      {/* Main content - streams independently */}
+      <StreamingErrorBoundary sectionName="défis">
+        <Suspense fallback={<ChallengesDataSkeleton />}>
+          <ChallengesDataStream />
+        </Suspense>
+      </StreamingErrorBoundary>
     </div>
   )
 }
