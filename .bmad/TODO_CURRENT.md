@@ -4,7 +4,7 @@
 - [x] Implémenter l'upload S3 pour les photos de tâches complétées (src/app/(kids)/kids/[childId]/dashboard/TaskCompletionModal.tsx:95)
 - [x] Implémenter le resend code pour la vérification email (src/app/(auth)/verify-email/VerifyEmailForm.tsx:179)
 - [x] Connecter le statut premium à la vraie subscription Stripe (src/app/api/gamification/route.ts:355)
-- [ ] Sauvegarder l'inventaire mis à jour en base de données (src/app/api/gamification/route.ts:365)
+- [x] Sauvegarder l'inventaire mis à jour en base de données (src/app/api/gamification/route.ts:365)
 - [ ] Sauvegarder les achievements mis à jour en base de données (src/app/api/gamification/route.ts:403)
 - [ ] Implémenter le curseur prev pour la pagination (src/app/api/v2/tasks/route.ts:524)
 - [ ] Implémenter la vérification de mot de passe correcte (src/app/api/v1/auth/route.ts:89)

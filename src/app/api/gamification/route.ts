@@ -366,7 +366,16 @@ export async function GET(request: NextRequest) {
 
       if (allocationResult.result.allocated) {
         updatedInventory = allocationResult.inventory
-        // TODO: Save updated inventory to database
+        // Save updated inventory to database
+        await query(
+          `
+          INSERT INTO user_joker_inventories (user_id, inventory_data, updated_at)
+          VALUES ($1, $2, NOW())
+          ON CONFLICT (user_id)
+          DO UPDATE SET inventory_data = $2, updated_at = NOW()
+        `,
+          [userId, JSON.stringify(updatedInventory)]
+        )
       }
 
       // Get streak status for suggestion
