@@ -52,6 +52,9 @@ export default async function DashboardLayout({
   } | null
 
   // Calculate premium status
+  // Premium is true if:
+  // 1. Status is "active" (paid subscription - may not have end date if auto-renew)
+  // 2. Status is "trial/trialing" with a valid end date in the future
   const now = new Date()
   const subscriptionEndsAt = household?.subscription_ends_at
     ? new Date(household.subscription_ends_at)
@@ -59,7 +62,9 @@ export default async function DashboardLayout({
   const subscriptionStatus = household?.subscription_status ?? null
   const isTrialing = subscriptionStatus === "trial" || subscriptionStatus === "trialing"
   const isActiveSubscription = subscriptionStatus === "active" || isTrialing
-  const isPremium = isActiveSubscription && subscriptionEndsAt !== null && subscriptionEndsAt > now
+  // Active status = premium (auto-renew subscriptions may not have end date)
+  // Trial status = premium only if end date is in the future
+  const isPremium = subscriptionStatus === "active" || (isActiveSubscription && subscriptionEndsAt !== null && subscriptionEndsAt > now)
 
   let daysRemaining: number | null = null
   if (subscriptionEndsAt) {
