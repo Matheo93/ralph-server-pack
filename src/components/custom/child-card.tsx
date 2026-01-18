@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { deleteChild } from "@/lib/actions/children"
+import { showToast } from "@/lib/toast-messages"
 import { calculateAge } from "@/lib/validations/child"
 import type { Child } from "@/types/database"
 import { Copy, Check, Gamepad2, KeyRound } from "lucide-react"
@@ -42,7 +43,12 @@ export function ChildCard({ child, kidsLoginUrl }: ChildCardProps) {
 
   const handleDelete = () => {
     startTransition(async () => {
-      await deleteChild(child.id)
+      const result = await deleteChild(child.id)
+      if (result.success) {
+        showToast.success("childDeleted", child.first_name)
+      } else {
+        showToast.error("generic", result.error ?? "Erreur inconnue")
+      }
       setShowConfirm(false)
     })
   }
@@ -54,8 +60,9 @@ export function ChildCard({ child, kidsLoginUrl }: ChildCardProps) {
       try {
         await navigator.clipboard.writeText(kidsLoginUrl)
         setCopied(true)
+        showToast.success("linkCopied")
         setTimeout(() => setCopied(false), 2000)
-      } catch (err) {
+      } catch {
         // Fallback pour les navigateurs qui ne supportent pas clipboard API
         const textArea = document.createElement("textarea")
         textArea.value = kidsLoginUrl
@@ -64,6 +71,7 @@ export function ChildCard({ child, kidsLoginUrl }: ChildCardProps) {
         document.execCommand("copy")
         document.body.removeChild(textArea)
         setCopied(true)
+        showToast.success("linkCopied")
         setTimeout(() => setCopied(false), 2000)
       }
     }

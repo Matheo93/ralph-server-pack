@@ -8,6 +8,7 @@ import { OnboardingStep2Children } from "./OnboardingStep2Children"
 import { OnboardingStep3Invite } from "./OnboardingStep3Invite"
 import { OnboardingStep4Preferences } from "./OnboardingStep4Preferences"
 import { completeOnboarding } from "@/lib/actions/onboarding"
+import { showToast } from "@/lib/toast-messages"
 import type {
   OnboardingStep1Input,
   OnboardingStep2Input,
@@ -104,6 +105,9 @@ export function OnboardingWizard() {
       const result = await completeOnboarding(wizardData)
       if (!result.success && result.error) {
         setError(result.error)
+        showToast.error("generic", result.error)
+      } else if (result.success) {
+        showToast.success("onboardingCompleted")
       }
     })
   }

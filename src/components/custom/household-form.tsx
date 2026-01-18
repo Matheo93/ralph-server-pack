@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { createHousehold } from "@/lib/actions/household"
+import { showToast } from "@/lib/toast-messages"
 import { householdSchema } from "@/lib/validations/household"
 import type { HouseholdInput } from "@/lib/validations/household"
 
@@ -44,6 +45,9 @@ export function HouseholdForm() {
       const result = await createHousehold(data)
       if (!result.success && result.error) {
         setError(result.error)
+        showToast.error("householdCreateFailed", result.error)
+      } else {
+        showToast.success("householdCreated", data.name)
       }
     })
   }

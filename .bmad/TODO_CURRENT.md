@@ -31,7 +31,7 @@
 - [x] Implémenter le drag & drop pour réorganiser les items de la liste de courses
 - [x] Ajouter des confettis/animations lors de la complétion d'une tâche par un enfant
 - [x] Créer des skeleton loaders pour les pages Calendar, Shopping et Kids
-- [ ] Améliorer le feedback visuel lors des actions (toast notifications cohérentes)
+- [x] Améliorer le feedback visuel lors des actions (toast notifications cohérentes)
 
 ## Phase 6: Accessibilité & i18n
 - [ ] Audit WCAG 2.1 AA sur les nouvelles pages (Calendar, Shopping, Kids)
