@@ -9,6 +9,7 @@ import {
   ShoppingItemCheckSchema,
   ShoppingItemsBulkCheckSchema,
   ShoppingItemQuickAddSchema,
+  ShoppingItemsReorderSchema,
   type ShoppingListCreateInput,
   type ShoppingListUpdateInput,
   type ShoppingItemCreateInput,
@@ -16,6 +17,7 @@ import {
   type ShoppingItemCheckInput,
   type ShoppingItemsBulkCheckInput,
   type ShoppingItemQuickAddInput,
+  type ShoppingItemsReorderInput,
   type ShoppingCategory,
 } from "@/lib/validations/shopping"
 import { getUserId } from "@/lib/auth/actions"
@@ -52,6 +54,7 @@ export interface ShoppingItem {
   added_by_name: string | null
   note: string | null
   priority: number
+  sort_order: number
   created_at: string
   updated_at: string
 }
@@ -591,6 +594,7 @@ export async function getShoppingItems(
       u_added.name as added_by_name,
       si.note,
       si.priority,
+      COALESCE(si.sort_order, 0) as sort_order,
       si.created_at::text,
       si.updated_at::text
     FROM shopping_items si
@@ -600,8 +604,8 @@ export async function getShoppingItems(
     WHERE si.list_id = $1 AND sl.household_id = $2
     ORDER BY
       si.is_checked ASC,
+      COALESCE(si.sort_order, 0) ASC,
       si.priority DESC,
-      si.category ASC,
       si.created_at DESC
   `, [listId, membership.household_id])
 
@@ -748,4 +752,62 @@ export async function getShoppingStats(): Promise<{
     urgentItems: parseInt(stats?.urgent_items ?? "0", 10),
     categoriesCount: parseInt(stats?.categories_count ?? "0", 10),
   }
+}
+
+// ============================================================
+// REORDER ITEMS
+// ============================================================
+
+export async function reorderShoppingItems(
+  data: ShoppingItemsReorderInput
+): Promise<ShoppingActionResult<{ updatedCount: number }>> {
+  const userId = await getUserId()
+  if (!userId) {
+    return { success: false, error: "Utilisateur non connecte" }
+  }
+
+  const membership = await getHouseholdForUser(userId)
+  if (!membership) {
+    return { success: false, error: "Vous n'avez pas de foyer" }
+  }
+
+  const validation = ShoppingItemsReorderSchema.safeParse(data)
+  if (!validation.success) {
+    return {
+      success: false,
+      error: validation.error.issues[0]?.message ?? "Donnees invalides",
+    }
+  }
+
+  const { list_id, item_ids } = validation.data
+
+  // Verify list belongs to household
+  const listCheck = await queryOne<{ id: string }>(`
+    SELECT id FROM shopping_lists
+    WHERE id = $1 AND household_id = $2
+  `, [list_id, membership.household_id])
+
+  if (!listCheck) {
+    return { success: false, error: "Liste introuvable" }
+  }
+
+  // Update sort_order for each item in the order provided
+  let updatedCount = 0
+  for (let i = 0; i < item_ids.length; i++) {
+    const result = await query(
+      `UPDATE shopping_items si
+       SET sort_order = $1, updated_at = NOW()
+       FROM shopping_lists sl
+       WHERE si.id = $2
+         AND si.list_id = sl.id
+         AND sl.household_id = $3
+       RETURNING si.id`,
+      [i + 1, item_ids[i], membership.household_id]
+    )
+    if (result.length > 0) {
+      updatedCount++
+    }
+  }
+
+  return { success: true, data: { updatedCount } }
 }

@@ -153,3 +153,11 @@ export const ShoppingItemQuickAddSchema = z.object({
 })
 
 export type ShoppingItemQuickAddInput = z.infer<typeof ShoppingItemQuickAddSchema>
+
+// Reorder items schema
+export const ShoppingItemsReorderSchema = z.object({
+  list_id: z.string().uuid("ID de liste invalide"),
+  item_ids: z.array(z.string().uuid("ID d'article invalide")).min(1),
+})
+
+export type ShoppingItemsReorderInput = z.infer<typeof ShoppingItemsReorderSchema>

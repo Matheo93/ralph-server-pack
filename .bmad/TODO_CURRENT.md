@@ -27,8 +27,8 @@
 - [x] Implémenter la pagination pour l'historique des événements calendrier
 
 ## Phase 5: UX Polish
-- [ ] Ajouter des animations de transition entre les vues du calendrier (mois/semaine)
-- [ ] Implémenter le drag & drop pour réorganiser les items de la liste de courses
+- [x] Ajouter des animations de transition entre les vues du calendrier (mois/semaine)
+- [x] Implémenter le drag & drop pour réorganiser les items de la liste de courses
 - [ ] Ajouter des confettis/animations lors de la complétion d'une tâche par un enfant
 - [ ] Créer des skeleton loaders pour les pages Calendar, Shopping et Kids
 - [ ] Améliorer le feedback visuel lors des actions (toast notifications cohérentes)

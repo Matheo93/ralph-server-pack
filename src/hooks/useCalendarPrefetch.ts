@@ -13,6 +13,9 @@ interface PrefetchCache {
   [key: string]: PrefetchedData | Promise<PrefetchedData>
 }
 
+// Délai de debounce pour le prefetch (en ms)
+const PREFETCH_DEBOUNCE_MS = 150
+
 /**
  * Hook pour prefetcher les données du calendrier des mois adjacents
  * Permet de réduire le temps de chargement lors de la navigation
@@ -20,6 +23,7 @@ interface PrefetchCache {
 export function useCalendarPrefetch(initialData?: { date: Date; data: PrefetchedData }) {
   const cacheRef = useRef<PrefetchCache>({})
   const pendingRef = useRef<Set<string>>(new Set())
+  const debounceTimerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
   const [isLoading, setIsLoading] = useState(false)
 
   // Initialize cache with initial data if provided
@@ -52,7 +56,7 @@ export function useCalendarPrefetch(initialData?: { date: Date; data: Prefetched
     return { events, eventCounts }
   }, [])
 
-  const prefetchMonth = useCallback(async (date: Date): Promise<void> => {
+  const prefetchMonthImmediate = useCallback(async (date: Date): Promise<void> => {
     const key = getCacheKey(date)
 
     // Skip if already cached or pending
@@ -77,20 +81,63 @@ export function useCalendarPrefetch(initialData?: { date: Date; data: Prefetched
     }
   }, [getCacheKey, fetchMonthData])
 
+  /**
+   * Prefetch un mois avec debouncing pour éviter les requêtes excessives
+   * lors du mouvement rapide de la souris
+   */
+  const prefetchMonth = useCallback((date: Date): void => {
+    const key = getCacheKey(date)
+
+    // Skip if already cached or pending
+    if (cacheRef.current[key] || pendingRef.current.has(key)) {
+      return
+    }
+
+    // Clear existing timer for this key
+    if (debounceTimerRef.current[key]) {
+      clearTimeout(debounceTimerRef.current[key])
+    }
+
+    // Set new debounced timer
+    debounceTimerRef.current[key] = setTimeout(() => {
+      void prefetchMonthImmediate(date)
+      delete debounceTimerRef.current[key]
+    }, PREFETCH_DEBOUNCE_MS)
+  }, [getCacheKey, prefetchMonthImmediate])
+
+  /**
+   * Prefetch immédiat du mois précédent (sans debounce)
+   * Utilisé quand l'intention est claire (hover sur bouton nav)
+   */
   const prefetchPreviousMonth = useCallback((currentDate: Date): void => {
     const previousMonth = subMonths(currentDate, 1)
-    void prefetchMonth(previousMonth)
-  }, [prefetchMonth])
+    void prefetchMonthImmediate(previousMonth)
+  }, [prefetchMonthImmediate])
 
+  /**
+   * Prefetch immédiat du mois suivant (sans debounce)
+   * Utilisé quand l'intention est claire (hover sur bouton nav)
+   */
   const prefetchNextMonth = useCallback((currentDate: Date): void => {
     const nextMonth = addMonths(currentDate, 1)
-    void prefetchMonth(nextMonth)
-  }, [prefetchMonth])
+    void prefetchMonthImmediate(nextMonth)
+  }, [prefetchMonthImmediate])
 
+  /**
+   * Prefetch les deux mois adjacents immédiatement
+   */
   const prefetchAdjacentMonths = useCallback((currentDate: Date): void => {
     prefetchPreviousMonth(currentDate)
     prefetchNextMonth(currentDate)
   }, [prefetchPreviousMonth, prefetchNextMonth])
+
+  /**
+   * Annule tous les prefetch en attente (debounced)
+   */
+  const cancelPendingPrefetches = useCallback((): void => {
+    Object.values(debounceTimerRef.current).forEach(timer => clearTimeout(timer))
+    debounceTimerRef.current = {}
+  }, [])
 
   /**
    * Get cached data for a specific month (synchronous, returns null if not cached)
@@ -151,9 +198,10 @@ export function useCalendarPrefetch(initialData?: { date: Date; data: Prefetched
   }, [getCacheKey])
 
   const clearCache = useCallback((): void => {
+    cancelPendingPrefetches()
     cacheRef.current = {}
     pendingRef.current.clear()
-  }, [])
+  }, [cancelPendingPrefetches])
 
   /**
    * Check if data is currently being fetched
@@ -164,6 +212,7 @@ export function useCalendarPrefetch(initialData?: { date: Date; data: Prefetched
   }, [getCacheKey])
 
   return {
+    prefetchMonth,
     prefetchPreviousMonth,
     prefetchNextMonth,
     prefetchAdjacentMonths,
@@ -171,6 +220,7 @@ export function useCalendarPrefetch(initialData?: { date: Date; data: Prefetched
     getMonthData,
     setCachedData,
     clearCache,
+    cancelPendingPrefetches,
     isPending,
     isLoading,
   }

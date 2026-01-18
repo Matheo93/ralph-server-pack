@@ -11,6 +11,7 @@ import {
   deleteCachedItem,
   clearCheckedCachedItems,
   uncheckAllCachedItems,
+  reorderCachedItems,
   getPendingMutations,
   removeMutation,
   incrementMutationRetry,
@@ -27,6 +28,7 @@ import {
   deleteShoppingItem,
   clearCheckedItems,
   uncheckAllItems,
+  reorderShoppingItems,
   type ShoppingItem,
   type ShoppingList,
 } from "@/lib/actions/shopping"
@@ -78,6 +80,8 @@ export interface UseOfflineShoppingResult {
   clearChecked: () => Promise<void>
   /** Uncheck all items */
   uncheckAll: () => Promise<void>
+  /** Reorder items (drag & drop) */
+  reorderItems: (itemIds: string[]) => Promise<void>
   /** Manually trigger sync */
   sync: () => Promise<void>
   /** Force refresh from server */
@@ -250,6 +254,14 @@ export function useOfflineShopping(options: UseOfflineShoppingOptions): UseOffli
         break
       case "uncheck_all":
         await uncheckAllItems(mutation.listId)
+        break
+      case "reorder":
+        if (mutation.data && Array.isArray(mutation.data['item_ids'])) {
+          await reorderShoppingItems({
+            list_id: mutation.listId,
+            item_ids: mutation.data['item_ids'] as string[],
+          })
+        }
         break
     }
   }
@@ -454,6 +466,31 @@ export function useOfflineShopping(options: UseOfflineShoppingOptions): UseOffli
     }
   }, [list.id, isOnline])
 
+  // Reorder items (drag & drop)
+  const reorderItems = useCallback(async (itemIds: string[]): Promise<void> => {
+    // Optimistic update
+    const updatedItems = reorderCachedItems(list.id, itemIds)
+    setItems(updatedItems)
+    setHasPendingChanges(true)
+
+    // Sync immediately if online
+    if (isOnline) {
+      try {
+        await reorderShoppingItems({
+          list_id: list.id,
+          item_ids: itemIds,
+        })
+        const mutation = getPendingMutations().find(m => m.type === "reorder" && m.listId === list.id)
+        if (mutation) {
+          removeMutation(mutation.id)
+          setHasPendingChanges(getShoppingCacheStats().pendingMutations > 0)
+        }
+      } catch (error) {
+        console.error("[OfflineShopping] Reorder sync failed:", error)
+      }
+    }
+  }, [list.id, isOnline])
+
   // Refresh from server
   const refresh = useCallback((serverItems: ShoppingItem[]): void => {
     const cachedServerItems = serverItems.map(toCachedItem)
@@ -475,6 +512,7 @@ export function useOfflineShopping(options: UseOfflineShoppingOptions): UseOffli
     deleteItem,
     clearChecked,
     uncheckAll,
+    reorderItems,
     sync,
     refresh,
   }

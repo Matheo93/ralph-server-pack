@@ -29,6 +29,7 @@ export const CachedShoppingItemSchema = z.object({
   added_by_name: z.string().nullable(),
   note: z.string().nullable(),
   priority: z.number(),
+  sort_order: z.number().optional(),
   created_at: z.string(),
   updated_at: z.string(),
   // Offline metadata
@@ -55,7 +56,7 @@ export type CachedShoppingList = z.infer<typeof CachedShoppingListSchema>
 
 export const ShoppingMutationSchema = z.object({
   id: z.string(),
-  type: z.enum(["add", "check", "uncheck", "delete", "update", "clear_checked", "uncheck_all"]),
+  type: z.enum(["add", "check", "uncheck", "delete", "update", "clear_checked", "uncheck_all", "reorder"]),
   itemId: z.string().optional(),
   listId: z.string(),
   data: z.record(z.string(), z.unknown()).optional(),
@@ -553,4 +554,39 @@ export function getShoppingCacheStats(): {
     lastSync: getLastSyncTime(),
     hasOfflineItems: items.some(item => item._offline_created),
   }
+}
+
+/**
+ * Reorder cached items (optimistic)
+ * Updates sort_order based on the new order of IDs
+ */
+export function reorderCachedItems(listId: string, itemIds: string[]): CachedShoppingItem[] {
+  const items = getCachedItems()
+
+  // Update sort_order for each item based on position in itemIds array
+  const updatedItems = items.map(item => {
+    if (item.list_id !== listId) return item
+
+    const newIndex = itemIds.indexOf(item.id)
+    if (newIndex === -1) return item
+
+    return {
+      ...item,
+      sort_order: newIndex + 1,
+      updated_at: new Date().toISOString(),
+      _offline_modified: true,
+      _sync_pending: true,
+    }
+  })
+
+  saveCachedItems(updatedItems)
+
+  // Queue mutation for sync
+  queueMutation({
+    type: "reorder",
+    listId,
+    data: { item_ids: itemIds },
+  })
+
+  return updatedItems.filter(item => item.list_id === listId)
 }

@@ -1,12 +1,27 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
 import { Plus, Trash2, RotateCcw, Loader2, WifiOff, Cloud, CloudOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { ShoppingItemOffline } from "./ShoppingItemOffline"
+import { DraggableShoppingItem } from "./DraggableShoppingItem"
 import { AddItemDialog } from "./AddItemDialog"
 import { useOfflineShopping } from "@/hooks/useOfflineShopping"
 import {
@@ -42,12 +57,31 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
     deleteItem,
     clearChecked,
     uncheckAll,
+    reorderItems,
   } = useOfflineShopping({
     initialList: list,
     initialItems: initialItems,
     userId,
     userName,
   })
+
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const itemsByCategory = useMemo(() => {
     const map = new Map<string, CachedShoppingItem[]>()
@@ -92,7 +126,38 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
     setIsAdding(false)
   }
 
+  // Handle drag end for reordering
+  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!over || active.id === over.id) return
+
+    // Get unchecked items only (we only reorder unchecked items)
+    const uncheckedItems = filteredItems.filter(item => !item.is_checked)
+    const oldIndex = uncheckedItems.findIndex(item => item.id === active.id)
+    const newIndex = uncheckedItems.findIndex(item => item.id === over.id)
+
+    if (oldIndex === -1 || newIndex === -1) return
+
+    // Create new order array
+    const newOrder = [...uncheckedItems]
+    const [movedItem] = newOrder.splice(oldIndex, 1)
+    if (movedItem) {
+      newOrder.splice(newIndex, 0, movedItem)
+    }
+
+    // Get all unchecked item IDs in the new order
+    const newItemIds = newOrder.map(item => item.id)
+
+    // Call reorder
+    await reorderItems(newItemIds)
+  }, [filteredItems, reorderItems])
+
   const categories = Array.from(itemsByCategory.keys()).sort()
+
+  // Separate unchecked and checked items for proper rendering
+  const uncheckedItems = filteredItems.filter(item => !item.is_checked)
+  const checkedItems = filteredItems.filter(item => item.is_checked)
 
   return (
     <div className="space-y-6" data-testid="shopping-list">
@@ -240,40 +305,49 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
         </div>
       ) : (
         <div className="space-y-2" data-testid="shopping-items-list">
-          {/* Unchecked items first */}
-          {filteredItems
-            .filter(item => !item.is_checked)
-            .map(item => (
-              <ShoppingItemOffline
-                key={item.id}
-                item={item}
-                onToggleCheck={toggleCheck}
-                onDelete={deleteItem}
-              />
-            ))}
+          {/* Unchecked items with drag & drop */}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={uncheckedItems.map(item => item.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {uncheckedItems.map(item => (
+                <DraggableShoppingItem
+                  key={item.id}
+                  item={item}
+                  onToggleCheck={toggleCheck}
+                  onDelete={deleteItem}
+                  isDragDisabled={selectedCategory !== null}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
 
           {/* Divider if there are checked items */}
-          {filteredItems.some(i => i.is_checked) && filteredItems.some(i => !i.is_checked) && (
+          {checkedItems.length > 0 && uncheckedItems.length > 0 && (
             <div className="flex items-center gap-2 py-2">
               <div className="flex-1 h-px bg-border" />
               <span className="text-xs text-muted-foreground">
-                Coches ({filteredItems.filter(i => i.is_checked).length})
+                Coches ({checkedItems.length})
               </span>
               <div className="flex-1 h-px bg-border" />
             </div>
           )}
 
-          {/* Checked items */}
-          {filteredItems
-            .filter(item => item.is_checked)
-            .map(item => (
-              <ShoppingItemOffline
-                key={item.id}
-                item={item}
-                onToggleCheck={toggleCheck}
-                onDelete={deleteItem}
-              />
-            ))}
+          {/* Checked items (no drag & drop) */}
+          {checkedItems.map(item => (
+            <DraggableShoppingItem
+              key={item.id}
+              item={item}
+              onToggleCheck={toggleCheck}
+              onDelete={deleteItem}
+              isDragDisabled
+            />
+          ))}
         </div>
       )}
 

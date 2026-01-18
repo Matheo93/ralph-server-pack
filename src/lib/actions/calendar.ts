@@ -5,9 +5,11 @@ import {
   CalendarEventCreateSchema,
   CalendarEventUpdateSchema,
   CalendarEventFilterSchema,
+  CalendarEventHistoryFilterSchema,
   type CalendarEventCreateInput,
   type CalendarEventUpdateInput,
   type CalendarEventFilter,
+  type CalendarEventHistoryFilter,
   getEventColor,
 } from "@/lib/validations/calendar"
 import { getUserId } from "@/lib/auth/actions"
@@ -485,6 +487,118 @@ export async function getEventsCountByDate(
     acc[row.date] = parseInt(row.count, 10)
     return acc
   }, {} as Record<string, number>)
+}
+
+// ============================================================
+// GET EVENTS HISTORY (with pagination)
+// ============================================================
+
+export interface CalendarEventsHistoryResult {
+  events: CalendarEvent[]
+  total: number
+  limit: number
+  offset: number
+  hasMore: boolean
+}
+
+export async function getCalendarEventsHistory(
+  filters: CalendarEventHistoryFilter
+): Promise<CalendarEventsHistoryResult> {
+  const userId = await getUserId()
+  if (!userId) {
+    return { events: [], total: 0, limit: 20, offset: 0, hasMore: false }
+  }
+
+  const membership = await getHouseholdForUser(userId)
+  if (!membership) {
+    return { events: [], total: 0, limit: 20, offset: 0, hasMore: false }
+  }
+
+  const validation = CalendarEventHistoryFilterSchema.safeParse(filters)
+  if (!validation.success) {
+    return { events: [], total: 0, limit: 20, offset: 0, hasMore: false }
+  }
+
+  const { event_type, assigned_to, child_id, search, limit, offset, sort_order } = validation.data
+
+  const conditions: string[] = ["ce.household_id = $1"]
+  const params: unknown[] = [membership.household_id]
+  let paramIndex = 2
+
+  if (event_type) {
+    conditions.push(`ce.event_type = $${paramIndex}`)
+    params.push(event_type)
+    paramIndex++
+  }
+
+  if (assigned_to) {
+    conditions.push(`ce.assigned_to = $${paramIndex}`)
+    params.push(assigned_to)
+    paramIndex++
+  }
+
+  if (child_id) {
+    conditions.push(`ce.child_id = $${paramIndex}`)
+    params.push(child_id)
+    paramIndex++
+  }
+
+  if (search) {
+    conditions.push(`(ce.title ILIKE $${paramIndex} OR ce.description ILIKE $${paramIndex} OR ce.location ILIKE $${paramIndex})`)
+    params.push(`%${search}%`)
+    paramIndex++
+  }
+
+  const whereClause = conditions.join(" AND ")
+
+  // Get total count for pagination
+  const countResult = await queryOne<{ count: string }>(`
+    SELECT COUNT(*)::text as count
+    FROM calendar_events ce
+    WHERE ${whereClause}
+  `, params)
+
+  const total = countResult ? parseInt(countResult.count, 10) : 0
+
+  // Get paginated events
+  const orderDirection = sort_order === "asc" ? "ASC" : "DESC"
+  const events = await query<CalendarEvent>(`
+    SELECT
+      ce.id,
+      ce.household_id,
+      ce.title,
+      ce.description,
+      ce.start_date::text,
+      ce.end_date::text,
+      ce.all_day,
+      ce.recurrence,
+      ce.recurrence_end_date::text,
+      ce.color,
+      ce.assigned_to,
+      u.name as assigned_to_name,
+      ce.child_id,
+      c.first_name as child_name,
+      ce.event_type,
+      ce.location,
+      ce.reminder_minutes,
+      ce.created_by,
+      ce.created_at::text,
+      ce.updated_at::text
+    FROM calendar_events ce
+    LEFT JOIN users u ON ce.assigned_to = u.id
+    LEFT JOIN children c ON ce.child_id = c.id
+    WHERE ${whereClause}
+    ORDER BY ce.start_date ${orderDirection}
+    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+  `, [...params, limit, offset])
+
+  return {
+    events,
+    total,
+    limit,
+    offset,
+    hasMore: offset + events.length < total,
+  }
 }
 
 // ============================================================
