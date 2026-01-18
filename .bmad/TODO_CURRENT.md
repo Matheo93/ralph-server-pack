@@ -3,7 +3,7 @@
 ## Phase 1: Couverture de tests
 - [x] Créer e2e/gamification.spec.ts - Tests pour le système de points, badges et niveaux
 - [x] Créer e2e/kids-profile.spec.ts - Tests pour le profil enfant (dark mode, son, déconnexion)
-- [ ] Créer e2e/stripe-checkout.spec.ts - Tests du flow de paiement complet
+- [x] Créer e2e/stripe-checkout.spec.ts - Tests du flow de paiement complet
 - [ ] Créer e2e/voice-commands.spec.ts - Tests de la création de tâches vocales
 - [ ] Ajouter tests unitaires pour les server actions (src/lib/actions/*.ts)
 
