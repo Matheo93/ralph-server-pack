@@ -311,6 +311,95 @@ export async function getChallengeProgressHistory(
 }
 
 /**
+ * Récupère les défis de cette semaine (expire dans les 7 prochains jours ou créé cette semaine)
+ */
+export async function getThisWeekChallengesForChild(): Promise<ActionResult<ChallengeForChild[]>> {
+  try {
+    const session = await getKidsSession()
+    if (!session) {
+      return { success: false, error: 'Non connecté' }
+    }
+
+    const { childId } = session
+
+    // Get challenges that either:
+    // 1. Expire within the next 7 days
+    // 2. Started this week (for challenges without expiry)
+    const challenges = await query<Challenge & {
+      current_count: number
+      is_completed: boolean
+      completed_at: string | null
+      progress_id: string
+    }>(
+      `SELECT
+         ch.*,
+         cp.id as progress_id,
+         COALESCE(cp.current_count, 0) as current_count,
+         COALESCE(cp.is_completed, false) as is_completed,
+         cp.completed_at
+       FROM challenges ch
+       LEFT JOIN challenge_progress cp ON cp.challenge_id = ch.id AND cp.child_id = $1
+       WHERE $1 = ANY(ch.child_ids)
+         AND ch.is_active = true
+         AND (cp.is_completed IS NULL OR cp.is_completed = false)
+         AND (
+           (ch.expires_at IS NOT NULL AND ch.expires_at > NOW() AND ch.expires_at <= NOW() + INTERVAL '7 days')
+           OR (ch.expires_at IS NULL AND ch.started_at >= DATE_TRUNC('week', CURRENT_DATE))
+           OR (ch.timeframe_days IS NOT NULL AND ch.timeframe_days <= 7)
+         )
+       ORDER BY
+         CASE WHEN ch.expires_at IS NOT NULL THEN ch.expires_at ELSE ch.started_at + INTERVAL '7 days' END ASC`,
+      [childId]
+    )
+
+    const result: ChallengeForChild[] = challenges.map(ch => {
+      const progressPercentage = Math.round((ch.current_count / ch.required_count) * 100)
+      const remainingCount = Math.max(0, ch.required_count - ch.current_count)
+
+      let daysRemaining: number | null = null
+      if (ch.expires_at) {
+        const now = new Date()
+        const expDate = new Date(ch.expires_at)
+        const diffMs = expDate.getTime() - now.getTime()
+        daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+      } else if (ch.timeframe_days) {
+        const startDate = new Date(ch.started_at)
+        const expDate = new Date(startDate.getTime() + ch.timeframe_days * 24 * 60 * 60 * 1000)
+        const now = new Date()
+        const diffMs = expDate.getTime() - now.getTime()
+        daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+      }
+
+      return {
+        ...ch,
+        progress: {
+          id: ch.progress_id,
+          challenge_id: ch.id,
+          child_id: childId,
+          current_count: ch.current_count,
+          is_completed: ch.is_completed,
+          completed_at: ch.completed_at,
+          xp_awarded: null,
+          badge_awarded_id: null,
+          last_task_id: null,
+          last_progress_at: null,
+          created_at: '',
+          updated_at: '',
+        },
+        progressPercentage,
+        remainingCount,
+        daysRemaining,
+      }
+    })
+
+    return { success: true, data: result }
+  } catch (error) {
+    console.error('Erreur getThisWeekChallengesForChild:', error)
+    return { success: false, error: 'Erreur lors du chargement' }
+  }
+}
+
+/**
  * Stats des défis pour le dashboard enfant
  */
 export async function getChallengeStatsForChild(): Promise<ActionResult<{
