@@ -12,9 +12,10 @@ import { createContext, useContext, useState, useCallback, ReactNode, useEffect,
  *
  * Rules:
  * - Only one popup visible at a time
- * - Minimum delay of 2 minutes between popups
+ * - Minimum delay between popups (enforced by coordinator)
  * - User dismissal respected (saved to localStorage for 7 days)
- * - Initial delay of 1 minute before showing any popup
+ * - Initial delay before showing any popup
+ * - Components should register immediately, coordinator manages timing
  */
 
 type PopupType = "push-notification" | "pwa-install" | "invite-coparent"
@@ -34,8 +35,8 @@ interface PopupCoordinatorContextValue {
 
 const PopupCoordinatorContext = createContext<PopupCoordinatorContextValue | null>(null)
 
-const POPUP_DELAY_MS = 600000 // 10 minutes between popups - prevent overwhelming users
-const INITIAL_DELAY_MS = 900000 // 15 minutes initial delay - let user settle in first
+const POPUP_DELAY_MS = 300000 // 5 minutes between popups
+const INITIAL_DELAY_MS = 60000 // 1 minute initial delay - let user settle in first
 const STORAGE_PREFIX = "familyload_popup_"
 
 // Priority order - lower index = higher priority
@@ -136,17 +137,9 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
       // Don't add if already showing or in queue
       if (prev.currentPopup === type || prev.queue.includes(type)) return prev
 
-      // If no current popup AND initialized AND no recent popup, show immediately
-      const timeSinceLastPopup = Date.now() - lastPopupTime
-      const canShowNow = prev.currentPopup === null &&
-                         isInitialized &&
-                         prev.queue.length === 0 &&
-                         (lastPopupTime === 0 || timeSinceLastPopup >= POPUP_DELAY_MS)
-
-      if (canShowNow) {
-        setLastPopupTime(Date.now())
-        return { ...prev, currentPopup: type }
-      }
+      // NEVER show immediately - always queue and let the useEffect manage timing
+      // This prevents race conditions where multiple popups try to show at once
+      // The queue processor will respect priority order and delays
 
       // Add to queue in priority order
       const newQueue = [...prev.queue, type].sort(
@@ -155,7 +148,7 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
 
       return { ...prev, queue: newQueue }
     })
-  }, [isInitialized, lastPopupTime])
+  }, [])
 
   const dismissPopup = useCallback((type: PopupType, permanent = true) => {
     setState(prev => {
