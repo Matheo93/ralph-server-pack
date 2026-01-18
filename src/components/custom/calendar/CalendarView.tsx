@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addMonths, subMonths, addWeeks, subWeeks, isToday } from "date-fns"
 import { fr } from "date-fns/locale"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { EventCard } from "./EventCard"
 import { EventFormDialog } from "./EventFormDialog"
+import { useCalendarPrefetch } from "@/hooks/useCalendarPrefetch"
 import type { CalendarEvent } from "@/lib/actions/calendar"
 
 interface CalendarViewProps {
@@ -26,6 +27,14 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
+
+  // Prefetching hook pour les mois adjacents
+  const { prefetchPreviousMonth, prefetchNextMonth, prefetchAdjacentMonths } = useCalendarPrefetch()
+
+  // Prefetch les mois adjacents au montage et quand la date change
+  useEffect(() => {
+    prefetchAdjacentMonths(currentDate)
+  }, [currentDate, prefetchAdjacentMonths])
 
   const days = useMemo(() => {
     if (viewMode === "month") {
@@ -94,10 +103,22 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={navigatePrevious}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={navigatePrevious}
+            onMouseEnter={() => prefetchPreviousMonth(currentDate)}
+            onFocus={() => prefetchPreviousMonth(currentDate)}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={navigateNext}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={navigateNext}
+            onMouseEnter={() => prefetchNextMonth(currentDate)}
+            onFocus={() => prefetchNextMonth(currentDate)}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
           <h2 className="text-xl font-semibold ml-2 capitalize">

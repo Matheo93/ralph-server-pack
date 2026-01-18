@@ -88,11 +88,11 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
   const categories = Array.from(itemsByCategory.keys()).sort()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="shopping-list">
       {/* Header with progress */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex-1">
-          <h2 className="text-xl font-semibold">{list.name}</h2>
+          <h2 className="text-xl font-semibold" data-testid="shopping-list-name">{list.name}</h2>
           <div className="flex items-center gap-2 mt-2">
             <Progress value={progress} className="flex-1 h-2" />
             <span className="text-sm text-muted-foreground whitespace-nowrap">
@@ -109,6 +109,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
                 size="sm"
                 onClick={handleUncheckAll}
                 disabled={isPending}
+                data-testid="uncheck-all-button"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Décocher
@@ -119,6 +120,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
                 onClick={handleClearChecked}
                 disabled={isPending}
                 className="text-destructive hover:text-destructive"
+                data-testid="clear-checked-button"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Vider
@@ -129,15 +131,16 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
       </div>
 
       {/* Quick add */}
-      <form onSubmit={handleQuickAdd} className="flex gap-2">
+      <form onSubmit={handleQuickAdd} className="flex gap-2" data-testid="quick-add-form">
         <Input
           value={quickAddValue}
           onChange={(e) => setQuickAddValue(e.target.value)}
           placeholder="Ajouter un article rapidement..."
           className="flex-1"
           disabled={isPending}
+          data-testid="quick-add-input"
         />
-        <Button type="submit" disabled={isPending || !quickAddValue.trim()}>
+        <Button type="submit" disabled={isPending || !quickAddValue.trim()} data-testid="quick-add-submit">
           {isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
@@ -148,6 +151,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
           type="button"
           variant="outline"
           onClick={() => setIsAddDialogOpen(true)}
+          data-testid="add-detailed-button"
         >
           Détaillé
         </Button>
@@ -172,11 +176,12 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
 
       {/* Category filter */}
       {categories.length > 1 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-testid="category-filter">
           <Button
             variant={selectedCategory === null ? "secondary" : "ghost"}
             size="sm"
             onClick={() => setSelectedCategory(null)}
+            data-testid="category-filter-all"
           >
             Tous ({totalCount})
           </Button>
@@ -186,6 +191,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
               variant={selectedCategory === cat ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+              data-testid={`category-filter-${cat.toLowerCase().replace(/\s+/g, '-')}`}
             >
               {CATEGORY_ICONS[cat as keyof typeof CATEGORY_ICONS] || "📦"} {cat} ({itemsByCategory.get(cat)?.length || 0})
             </Button>
@@ -195,12 +201,12 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
 
       {/* Items list */}
       {filteredItems.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
+        <div className="text-center py-12 text-muted-foreground" data-testid="empty-state">
           <p className="text-lg">Votre liste est vide</p>
           <p className="text-sm mt-1">Ajoutez des articles pour commencer</p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2" data-testid="shopping-items-list">
           {/* Unchecked items first */}
           {filteredItems
             .filter(item => !item.is_checked)

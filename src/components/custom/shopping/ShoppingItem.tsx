@@ -53,12 +53,16 @@ export function ShoppingItem({ item }: ShoppingItemProps) {
         item.is_checked && "opacity-60 bg-muted/30",
         item.priority === 1 && !item.is_checked && "border-orange-300 bg-orange-50/50"
       )}
+      data-testid="shopping-item"
+      data-item-id={item.id}
+      data-item-checked={item.is_checked}
     >
       <Checkbox
         checked={item.is_checked}
         onCheckedChange={handleCheck}
         disabled={isPending}
         className="h-5 w-5"
+        data-testid="shopping-item-checkbox"
       />
 
       <span className="text-lg">{categoryIcon}</span>
@@ -70,6 +74,7 @@ export function ShoppingItem({ item }: ShoppingItemProps) {
               "font-medium",
               item.is_checked && "line-through text-muted-foreground"
             )}
+            data-testid="shopping-item-name"
           >
             {item.name}
           </span>
@@ -101,7 +106,7 @@ export function ShoppingItem({ item }: ShoppingItemProps) {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPending}>
+          <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isPending} data-testid="shopping-item-menu">
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -110,7 +115,7 @@ export function ShoppingItem({ item }: ShoppingItemProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleDelete} className="text-destructive">
+          <DropdownMenuItem onClick={handleDelete} className="text-destructive" data-testid="shopping-item-delete">
             <Trash2 className="h-4 w-4 mr-2" />
             Supprimer
           </DropdownMenuItem>

@@ -79,12 +79,12 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" data-testid="add-item-dialog">
         <DialogHeader>
           <DialogTitle>Ajouter un article</DialogTitle>
         </DialogHeader>
 
-        <form action={handleSubmit} className="space-y-4">
+        <form action={handleSubmit} className="space-y-4" data-testid="add-item-form">
           {error && (
             <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
               {error}
@@ -98,6 +98,7 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
               name="name"
               placeholder="Ex: Lait, Pain, Tomates..."
               required
+              data-testid="add-item-name"
             />
           </div>
 
@@ -111,6 +112,7 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
                 min="0.1"
                 step="0.1"
                 defaultValue="1"
+                data-testid="add-item-quantity"
               />
             </div>
 
@@ -162,17 +164,17 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <Checkbox id="urgent" name="urgent" />
+            <Checkbox id="urgent" name="urgent" data-testid="add-item-urgent" />
             <Label htmlFor="urgent" className="font-normal">
               Marquer comme urgent
             </Label>
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isPending} data-testid="add-item-cancel">
               Annuler
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending} data-testid="add-item-submit">
               {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Ajouter
             </Button>

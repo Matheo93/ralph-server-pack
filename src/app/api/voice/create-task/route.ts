@@ -17,8 +17,19 @@ import {
   analyzeText,
   isAnalysisConfigured,
   parseRelativeDate,
-  urgencyToPriority,
 } from "@/lib/voice/semantic-analysis"
+
+// Map urgency to priority text
+function urgencyToPriorityText(urgency: string): string {
+  switch (urgency) {
+    case 'haute':
+      return 'high';
+    case 'basse':
+      return 'low';
+    default:
+      return 'normal';
+  }
+}
 
 const ManualCreateSchema = z.object({
   text: z.string().min(3).max(1000),
@@ -30,9 +41,9 @@ const ManualCreateSchema = z.object({
 interface CreatedTask {
   id: string
   title: string
-  category: string
-  priority: number
-  due_date: string | null
+  category_id: string
+  priority: string
+  deadline: string | null
   assigned_to: string | null
   child_id: string | null
 }
@@ -70,13 +81,13 @@ export async function POST(request: NextRequest) {
   const householdId = membership.household_id
 
   // Get children for context
-  const children = await query<{ id: string; name: string }>(`
-    SELECT id, name
+  const children = await query<{ id: string; first_name: string }>(`
+    SELECT id, first_name
     FROM children
-    WHERE household_id = $1
+    WHERE household_id = $1 AND is_active = true
   `, [householdId])
 
-  const childrenNames = children.map((c) => c.name)
+  const childrenNames = children.map((c) => c.first_name)
 
   // Determine input type
   const contentType = request.headers.get("content-type") ?? ""
@@ -173,7 +184,7 @@ export async function POST(request: NextRequest) {
   let childId: string | null = manualChildId ?? null
   if (!childId && extraction.childName) {
     const matchedChild = children.find(
-      (c) => c.name.toLowerCase() === extraction.childName?.toLowerCase()
+      (c) => c.first_name.toLowerCase() === extraction.childName?.toLowerCase()
     )
     if (matchedChild) {
       childId = matchedChild.id
@@ -186,9 +197,29 @@ export async function POST(request: NextRequest) {
     dueDate = parseRelativeDate(extraction.date, language)
   }
 
-  // Get assignment if auto-assign is enabled
+  // Get category_id from category code
+  const categoryMapping: Record<string, string> = {
+    ecole: '60ae000a-8e58-441f-92cb-4503bed6c6b3',
+    sante: 'd831e1cf-e49a-4df0-9d95-6153817030fb',
+    administratif: '6915a31f-f273-462c-8fb5-f26ef0936515',
+    quotidien: '2270840f-b227-461d-b240-bc2f9107bdf3',
+    social: 'af34fb25-ebf4-4983-a3cf-4befe79e312d',
+    activites: 'c9277092-0088-4082-bee0-fb2c211d4410',
+    logistique: '37a4de4b-6ce9-4b17-9d40-2313b9f0bdf3',
+  }
+  
+  // Map category to ID, fallback to 'quotidien' if category not in mapping
+  const categoryCode = extraction.category
+  const categoryId = categoryMapping[categoryCode] ?? categoryMapping['quotidien']
+
+  // Get assignment based on taskFor
+  // If task is FOR child, child_id is the responsible (assigned_to stays null)
+  // If task is FOR parent, assign to parent with lowest load
+  const isTaskForChild = extraction.taskFor === "child"
+
+  // Get assignment if auto-assign is enabled and task is for parent
   let assignedTo: string | null = null
-  if (autoAssign) {
+  if (autoAssign && !isTaskForChild) {
     // Get parent with lowest load this week
     const loads = await query<{ user_id: string; load: number }>(`
       SELECT
@@ -215,15 +246,14 @@ export async function POST(request: NextRequest) {
       household_id: householdId,
       title: extraction.action,
       description: transcribedText,
-      category: extraction.category,
-      priority: urgencyToPriority(extraction.urgency),
-      due_date: dueDate?.toISOString() ?? null,
+      category_id: categoryId,
+      priority: urgencyToPriorityText(extraction.urgency),
+      deadline: dueDate ? dueDate.toISOString().split('T')[0] : null,
       assigned_to: assignedTo,
       child_id: childId,
       source: "voice",
       status: "pending",
       created_by: userId,
-      created_at: new Date().toISOString(),
     })
 
     if (!task) {
@@ -238,9 +268,9 @@ export async function POST(request: NextRequest) {
       task: {
         id: task.id,
         title: task.title,
-        category: task.category,
+        category: extraction.category,
         priority: task.priority,
-        dueDate: task.due_date,
+        deadline: task.deadline,
         assignedTo: task.assigned_to,
         childId: task.child_id,
       },

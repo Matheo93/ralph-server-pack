@@ -41,6 +41,7 @@ export const TaskExtractionSchema = z.object({
     "autre",
   ]),
   urgency: z.enum(["haute", "normale", "basse"]),
+  taskFor: z.enum(["parent", "child"]).optional().default("parent"),
   confidence: z.number().min(0).max(1),
   reasoning: z.string().optional(),
 })
@@ -115,6 +116,7 @@ Règles:
 3. Estime l'urgence: haute (aujourd'hui/demain), normale (cette semaine), basse (plus tard)
 4. La confiance doit refléter la clarté du texte (0.9+ si très clair, 0.5-0.7 si ambigu)
 5. L'action doit être formulée comme une tâche actionnable
+6. taskFor: "child" si l'enfant doit faire la tâche lui-même (ranger chambre, devoirs, etc.), "parent" si c'est le parent qui agit (emmener, inscrire, acheter, rdv médecin)
 
 Réponds UNIQUEMENT avec un JSON valide, sans texte supplémentaire.`
   }
@@ -151,6 +153,7 @@ function buildExampleOutput(): string {
       date: "cette semaine",
       category: "ecole",
       urgency: "normale",
+      taskFor: "parent",
       confidence: 0.92,
       reasoning: "Texte clair, enfant identifié, délai implicite court",
     },
@@ -515,7 +518,7 @@ export function parseRelativeDate(dateStr: string | null, language: "fr" | "en" 
     if (lower === "aujourd'hui" || lower === "aujourdhui") {
       return now
     }
-    if (lower === "demain") {
+    if (lower === "demain" || lower.startsWith("demain ") || lower.includes("demain")) {
       const date = new Date(now)
       date.setDate(date.getDate() + 1)
       return date
