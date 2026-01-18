@@ -87,7 +87,8 @@ export function PushPermissionPrompt({
   className,
   onPermissionGranted,
   onPermissionDenied,
-  showAfterMs = 5000,
+  // showAfterMs is now handled by PopupCoordinator with INITIAL_DELAY_MS
+  showAfterMs: _showAfterMs = 5000,
   compact = false,
 }: PushPermissionPromptProps) {
   const [permissionState, setPermissionState] = useState<PermissionState>("default")
@@ -112,16 +113,12 @@ export function PushPermissionPrompt({
     const permission = Notification.permission
     setPermissionState(permission as PermissionState)
 
-    // Request to show popup after delay if permission not set
-    // Push notifications are highest priority - register first after initial coordinator delay
-    // Delay must be AFTER the coordinator's initial delay (15 min) to avoid queueing issues
+    // Register immediately - coordinator handles timing and queuing
+    // Push notifications are highest priority
     if (permission === "default") {
-      const timer = setTimeout(() => {
-        popupCoordinator.requestPopup("push-notification")
-      }, 900000) // 15 minutes - matches coordinator initial delay
-      return () => clearTimeout(timer)
+      popupCoordinator.requestPopup("push-notification")
     }
-  }, [showAfterMs, popupCoordinator])
+  }, [popupCoordinator])
 
   const handleRequestPermission = useCallback(async () => {
     setIsLoading(true)
