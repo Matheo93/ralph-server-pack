@@ -37,5 +37,5 @@
 - [x] Implémenter le stale-while-revalidate pour les données calendrier
 
 ## Phase 7: Documentation
-- [ ] Créer ARCHITECTURE.md avec le schéma de la base de données
+- [x] Créer ARCHITECTURE.md avec le schéma de la base de données
 - [ ] Documenter les endpoints API dans /api/docs
