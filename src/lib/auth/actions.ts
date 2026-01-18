@@ -12,6 +12,7 @@ import {
   SignUpCommand,
   InitiateAuthCommand,
   ConfirmSignUpCommand,
+  ResendConfirmationCodeCommand,
   GlobalSignOutCommand,
   GetUserCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
@@ -272,6 +273,62 @@ export async function confirmSignup(email: string, code: string): Promise<AuthAc
     return {
       success: false,
       error: err.message || "Erreur lors de la confirmation",
+    }
+  }
+}
+
+export async function resendConfirmationCode(email: string): Promise<AuthActionResult> {
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    return {
+      success: false,
+      error: "Adresse email invalide",
+    }
+  }
+
+  try {
+    const resendParams: {
+      ClientId: string
+      Username: string
+      SecretHash?: string
+    } = {
+      ClientId: CLIENT_ID,
+      Username: email,
+    }
+
+    const secretHash = computeSecretHash(email)
+    if (secretHash) {
+      resendParams.SecretHash = secretHash
+    }
+
+    const command = new ResendConfirmationCodeCommand(resendParams)
+    await cognitoClient.send(command)
+
+    return {
+      success: true,
+    }
+  } catch (error) {
+    const err = error as Error
+    if (err.name === "LimitExceededException") {
+      return {
+        success: false,
+        error: "Trop de tentatives. Veuillez patienter quelques minutes.",
+      }
+    }
+    if (err.name === "UserNotFoundException") {
+      return {
+        success: false,
+        error: "Aucun compte trouvé avec cet email",
+      }
+    }
+    if (err.name === "InvalidParameterException") {
+      return {
+        success: false,
+        error: "Cet email est déjà vérifié",
+      }
+    }
+    return {
+      success: false,
+      error: err.message || "Erreur lors de l'envoi du code",
     }
   }
 }

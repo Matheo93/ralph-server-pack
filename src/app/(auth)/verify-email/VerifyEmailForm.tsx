@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { confirmSignup } from "@/lib/auth/actions"
+import { confirmSignup, resendConfirmationCode } from "@/lib/auth/actions"
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react"
 
 interface VerifyEmailFormProps {
@@ -23,7 +23,9 @@ interface VerifyEmailFormProps {
 export function VerifyEmailForm({ email }: VerifyEmailFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [isResending, setIsResending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [resendMessage, setResendMessage] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [code, setCode] = useState(["", "", "", "", "", ""])
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -80,6 +82,7 @@ export function VerifyEmailForm({ email }: VerifyEmailFormProps) {
     }
 
     setError(null)
+    setResendMessage(null)
     startTransition(async () => {
       const result = await confirmSignup(email, finalCode)
 
@@ -96,6 +99,25 @@ export function VerifyEmailForm({ email }: VerifyEmailFormProps) {
         }, 1500)
       }
     })
+  }
+
+  const handleResend = async () => {
+    setIsResending(true)
+    setError(null)
+    setResendMessage(null)
+
+    const result = await resendConfirmationCode(email)
+
+    setIsResending(false)
+
+    if (result.success) {
+      setResendMessage("Un nouveau code a été envoyé à votre adresse email")
+      // Clear any existing code
+      setCode(["", "", "", "", "", ""])
+      inputRefs.current[0]?.focus()
+    } else {
+      setError(result.error ?? "Erreur lors de l'envoi du code")
+    }
   }
 
   if (success) {
@@ -152,6 +174,10 @@ export function VerifyEmailForm({ email }: VerifyEmailFormProps) {
             <p className="text-sm text-destructive text-center">{error}</p>
           )}
 
+          {resendMessage && (
+            <p className="text-sm text-green-600 text-center">{resendMessage}</p>
+          )}
+
           <Button
             type="button"
             className="w-full"
@@ -174,13 +200,11 @@ export function VerifyEmailForm({ email }: VerifyEmailFormProps) {
           Vous n&apos;avez pas reçu de code ?{" "}
           <button
             type="button"
-            className="text-primary hover:underline"
-            onClick={() => {
-              // TODO: Implement resend code
-              setError("Fonctionnalité à venir. Veuillez patienter quelques minutes.")
-            }}
+            className="text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleResend}
+            disabled={isResending || isPending}
           >
-            Renvoyer le code
+            {isResending ? "Envoi en cours..." : "Renvoyer le code"}
           </button>
         </p>
         <Link
