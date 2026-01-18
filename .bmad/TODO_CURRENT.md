@@ -32,7 +32,7 @@
 - [x] Vérifier les RLS policies pour les nouvelles tables
 
 ## Phase 6: Performance
-- [ ] Optimiser les images avec next/image sur toutes les pages
+- [x] Optimiser les images avec next/image sur toutes les pages
 - [ ] Ajouter le prefetching des routes fréquentes
 - [ ] Implémenter le stale-while-revalidate pour les données calendrier
 
