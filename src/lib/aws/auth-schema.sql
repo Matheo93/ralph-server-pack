@@ -268,6 +268,12 @@ ALTER TABLE children ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE task_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE task_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE task_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE load_snapshots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE streak_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies if they exist (for re-running)
 DROP POLICY IF EXISTS "users_select_own" ON users;
@@ -284,6 +290,17 @@ DROP POLICY IF EXISTS "notifications_select" ON notifications;
 DROP POLICY IF EXISTS "notifications_update" ON notifications;
 DROP POLICY IF EXISTS "invitations_select" ON invitations;
 DROP POLICY IF EXISTS "invitations_insert" ON invitations;
+DROP POLICY IF EXISTS "task_categories_select_all" ON task_categories;
+DROP POLICY IF EXISTS "task_templates_select_public" ON task_templates;
+DROP POLICY IF EXISTS "task_history_select" ON task_history;
+DROP POLICY IF EXISTS "task_history_insert" ON task_history;
+DROP POLICY IF EXISTS "load_snapshots_select" ON load_snapshots;
+DROP POLICY IF EXISTS "load_snapshots_insert" ON load_snapshots;
+DROP POLICY IF EXISTS "streak_history_select" ON streak_history;
+DROP POLICY IF EXISTS "streak_history_insert" ON streak_history;
+DROP POLICY IF EXISTS "subscriptions_select" ON subscriptions;
+DROP POLICY IF EXISTS "subscriptions_insert" ON subscriptions;
+DROP POLICY IF EXISTS "subscriptions_update" ON subscriptions;
 
 -- Users can only see themselves
 CREATE POLICY "users_select_own" ON users FOR SELECT USING (auth.uid() = id);
@@ -322,6 +339,50 @@ CREATE POLICY "invitations_select" ON invitations FOR SELECT
     USING (household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid()));
 CREATE POLICY "invitations_insert" ON invitations FOR INSERT
     WITH CHECK (household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid()));
+
+-- Task categories - public read (reference data)
+CREATE POLICY "task_categories_select_all" ON task_categories FOR SELECT USING (true);
+
+-- Task templates - public read for active templates (catalog)
+CREATE POLICY "task_templates_select_public" ON task_templates FOR SELECT USING (is_active = true);
+
+-- Task history - household member scope via task
+CREATE POLICY "task_history_select" ON task_history FOR SELECT
+    USING (task_id IN (
+        SELECT t.id FROM tasks t
+        WHERE t.household_id IN (
+            SELECT hm.household_id FROM household_members hm
+            WHERE hm.user_id = auth.uid()
+        )
+    ));
+CREATE POLICY "task_history_insert" ON task_history FOR INSERT
+    WITH CHECK (task_id IN (
+        SELECT t.id FROM tasks t
+        WHERE t.household_id IN (
+            SELECT hm.household_id FROM household_members hm
+            WHERE hm.user_id = auth.uid()
+        )
+    ));
+
+-- Load snapshots - household member scope
+CREATE POLICY "load_snapshots_select" ON load_snapshots FOR SELECT
+    USING (household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid()));
+CREATE POLICY "load_snapshots_insert" ON load_snapshots FOR INSERT
+    WITH CHECK (household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid()));
+
+-- Streak history - household member scope
+CREATE POLICY "streak_history_select" ON streak_history FOR SELECT
+    USING (household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid()));
+CREATE POLICY "streak_history_insert" ON streak_history FOR INSERT
+    WITH CHECK (household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid()));
+
+-- Subscriptions - household member scope
+CREATE POLICY "subscriptions_select" ON subscriptions FOR SELECT
+    USING (household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid()));
+CREATE POLICY "subscriptions_insert" ON subscriptions FOR INSERT
+    WITH CHECK (household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid()));
+CREATE POLICY "subscriptions_update" ON subscriptions FOR UPDATE
+    USING (household_id IN (SELECT household_id FROM household_members WHERE user_id = auth.uid()));
 
 -- ============================================================
 -- FUNCTIONS
