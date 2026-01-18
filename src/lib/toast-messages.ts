@@ -74,6 +74,18 @@ export const toastMessages = {
       title: "Liste vidée",
       description: "Tous les articles cochés ont été supprimés",
     },
+    shareCreated: {
+      title: "Lien de partage créé",
+      description: "Le lien a été copié dans le presse-papier",
+    },
+    shareRevoked: {
+      title: "Partage désactivé",
+      description: "Le lien de partage n'est plus actif",
+    },
+    shareCopied: {
+      title: "Lien copié",
+      description: "Le lien de partage a été copié dans le presse-papier",
+    },
 
     // Calendar
     eventCreated: {
@@ -234,6 +246,14 @@ export const toastMessages = {
     itemAddFailed: {
       title: "Échec de l'ajout",
       description: "Impossible d'ajouter l'article",
+    },
+    shareCreateFailed: {
+      title: "Échec de création du lien",
+      description: "Impossible de créer le lien de partage",
+    },
+    shareRevokeFailed: {
+      title: "Échec de désactivation",
+      description: "Impossible de désactiver le lien de partage",
     },
 
     // Calendar

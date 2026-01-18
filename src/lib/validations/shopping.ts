@@ -161,3 +161,18 @@ export const ShoppingItemsReorderSchema = z.object({
 })
 
 export type ShoppingItemsReorderInput = z.infer<typeof ShoppingItemsReorderSchema>
+
+// Share list schema
+export const ShoppingListShareCreateSchema = z.object({
+  list_id: z.string().uuid("ID de liste invalide"),
+  expires_in_days: z.number().int().min(1).max(365).nullable().optional(),
+})
+
+export type ShoppingListShareCreateInput = z.infer<typeof ShoppingListShareCreateSchema>
+
+// Revoke share schema
+export const ShoppingListShareRevokeSchema = z.object({
+  share_id: z.string().uuid("ID de partage invalide"),
+})
+
+export type ShoppingListShareRevokeInput = z.infer<typeof ShoppingListShareRevokeSchema>

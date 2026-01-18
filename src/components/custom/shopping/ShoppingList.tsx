@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { DraggableShoppingItem } from "./DraggableShoppingItem"
 import { AddItemDialog } from "./AddItemDialog"
+import { ShareListDialog } from "./ShareListDialog"
 import { useOfflineShopping } from "@/hooks/useOfflineShopping"
 import { showToast } from "@/lib/toast-messages"
 import {
@@ -213,16 +214,24 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
       {/* Header with progress */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex-1">
-          <h2 className="text-xl font-semibold" data-testid="shopping-list-name">{list.name}</h2>
+          <h2 className="text-xl font-semibold" data-testid="shopping-list-name" id="shopping-list-title">{list.name}</h2>
           <div className="flex items-center gap-2 mt-2">
-            <Progress value={progress} className="flex-1 h-2" />
-            <span className="text-sm text-muted-foreground whitespace-nowrap">
-              {checkedCount}/{totalCount}
+            <Progress
+              value={progress}
+              className="flex-1 h-2"
+              aria-label="Progression des courses"
+              aria-valuenow={progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            />
+            <span className="text-sm text-muted-foreground whitespace-nowrap" aria-live="polite">
+              {checkedCount}/{totalCount} <span className="sr-only">articles cochés</span>
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          <ShareListDialog listId={list.id} listName={list.name} />
           {checkedCount > 0 && (
             <>
               <Button
@@ -252,20 +261,23 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
       </div>
 
       {/* Quick add */}
-      <form onSubmit={handleQuickAdd} className="flex gap-2" data-testid="quick-add-form">
+      <form onSubmit={handleQuickAdd} className="flex gap-2" data-testid="quick-add-form" aria-labelledby="shopping-list-title">
+        <label htmlFor="quick-add-input" className="sr-only">Ajouter un article rapidement</label>
         <Input
+          id="quick-add-input"
           value={quickAddValue}
           onChange={(e) => setQuickAddValue(e.target.value)}
           placeholder="Ajouter un article rapidement..."
           className="flex-1"
           disabled={isAdding}
           data-testid="quick-add-input"
+          aria-describedby={suggestions.length > 0 && quickAddValue === "" ? "suggestions-label" : undefined}
         />
-        <Button type="submit" disabled={isAdding || !quickAddValue.trim()} data-testid="quick-add-submit">
+        <Button type="submit" disabled={isAdding || !quickAddValue.trim()} data-testid="quick-add-submit" aria-label="Ajouter l'article">
           {isAdding ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
           ) : (
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" aria-hidden="true" />
           )}
         </Button>
         <Button
@@ -273,36 +285,39 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
           variant="outline"
           onClick={() => setIsAddDialogOpen(true)}
           data-testid="add-detailed-button"
+          aria-label="Ajouter un article avec détails"
         >
-          Detaille
+          Détaillé
         </Button>
       </form>
 
       {/* Suggestions */}
       {suggestions.length > 0 && quickAddValue === "" && (
-        <div className="flex flex-wrap gap-2">
-          <span className="text-sm text-muted-foreground">Suggestions:</span>
+        <div className="flex flex-wrap gap-2" role="region" aria-label="Suggestions d'articles">
+          <span id="suggestions-label" className="text-sm text-muted-foreground">Suggestions:</span>
           {suggestions.slice(0, 8).map((s) => (
-            <Badge
+            <button
               key={s.item_name}
-              variant="secondary"
-              className="cursor-pointer hover:bg-secondary/80 transition-colors"
+              type="button"
+              className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground cursor-pointer hover:bg-secondary/80"
               onClick={() => handleSuggestionClick(s)}
+              aria-label={`Ajouter ${s.item_name}`}
             >
               {s.item_name}
-            </Badge>
+            </button>
           ))}
         </div>
       )}
 
       {/* Category filter */}
       {categories.length > 1 && (
-        <div className="flex flex-wrap gap-2" data-testid="category-filter">
+        <div className="flex flex-wrap gap-2" data-testid="category-filter" role="group" aria-label="Filtrer par catégorie">
           <Button
             variant={selectedCategory === null ? "secondary" : "ghost"}
             size="sm"
             onClick={() => setSelectedCategory(null)}
             data-testid="category-filter-all"
+            aria-pressed={selectedCategory === null}
           >
             Tous ({totalCount})
           </Button>
@@ -313,8 +328,9 @@ export function ShoppingList({ list, items: initialItems, suggestions, userId, u
               size="sm"
               onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
               data-testid={`category-filter-${cat.toLowerCase().replace(/\s+/g, '-')}`}
+              aria-pressed={selectedCategory === cat}
             >
-              {CATEGORY_ICONS[cat as keyof typeof CATEGORY_ICONS] || ""} {cat} ({itemsByCategory.get(cat)?.length || 0})
+              <span aria-hidden="true">{CATEGORY_ICONS[cat as keyof typeof CATEGORY_ICONS] || ""}</span> {cat} ({itemsByCategory.get(cat)?.length || 0})
             </Button>
           ))}
         </div>
