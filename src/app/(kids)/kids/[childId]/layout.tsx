@@ -86,11 +86,11 @@ export default async function KidsChildLayout({ children, params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-100 to-yellow-100 pb-24 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-amber-100 via-rose-100 to-sky-100 pb-24 relative overflow-hidden font-[var(--font-kids)]">
       {/* Decorative floating elements - makes UI more playful and immersive like a game */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-        {/* Animated subtle background waves */}
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/5 to-transparent animate-pulse opacity-50" style={{ animationDuration: '6s' }} />
+        {/* Animated subtle background waves with rainbow colors */}
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/10 to-transparent animate-pulse opacity-60" style={{ animationDuration: '5s' }} />
 
         {/* Floating bubbles with different animation speeds - more variety! */}
         <div className="absolute top-20 left-10 w-16 h-16 bg-gradient-to-br from-yellow-300/50 to-orange-300/50 rounded-full animate-bounce shadow-lg" style={{ animationDuration: '3s', animationDelay: '0s' }} />

@@ -30,11 +30,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { createTask } from "@/lib/actions/tasks"
+import { createTask, getTaskCategories } from "@/lib/actions/tasks"
 import { getChildren } from "@/lib/actions/children"
 import type { TaskTemplate, TemplateWithSettings } from "@/types/template"
 import type { Child } from "@/types/database"
 import { CalendarIcon, Loader2 } from "lucide-react"
+
+interface TaskCategory {
+  id: string
+  code: string
+  name_fr: string
+}
 
 const createTaskFromTemplateSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
@@ -73,6 +79,7 @@ export function TemplateTaskDialog({
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [children, setChildren] = useState<Child[]>([])
+  const [categories, setCategories] = useState<TaskCategory[]>([])
   const [loadingChildren, setLoadingChildren] = useState(true)
 
   const form = useForm<FormData>({
@@ -86,13 +93,14 @@ export function TemplateTaskDialog({
     },
   })
 
-  // Load children when dialog opens
+  // Load children and categories when dialog opens
   useEffect(() => {
     if (open) {
       setLoadingChildren(true)
-      getChildren()
-        .then((data) => {
-          setChildren(data)
+      Promise.all([getChildren(), getTaskCategories()])
+        .then(([childrenData, categoriesData]) => {
+          setChildren(childrenData)
+          setCategories(categoriesData)
           setLoadingChildren(false)
         })
         .catch(() => {
@@ -124,12 +132,19 @@ export function TemplateTaskDialog({
   const onSubmit = (data: FormData) => {
     setError(null)
     startTransition(async () => {
+      // Find category_id from template's category code
+      const templateCategory = template?.category as string | undefined
+      const categoryId = templateCategory
+        ? categories.find(c => c.code === templateCategory)?.id ?? null
+        : null
+
       const result = await createTask({
         title: data.title,
         description: data.description ?? null,
         deadline: data.deadline || null,
         priority: data.priority,
         child_id: data.child_id || null,
+        category_id: categoryId,
         source: "manual",
         load_weight: template?.weight ?? 3,
         is_critical: false,

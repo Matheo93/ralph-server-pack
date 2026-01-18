@@ -11,11 +11,14 @@ import { createContext, useContext, useState, useCallback, ReactNode, useEffect,
  * 3. Invite co-parent - nice to have
  *
  * Rules:
- * - Only one popup visible at a time
+ * - Only one popup visible at a time (STRICTLY ENFORCED)
  * - Minimum delay between popups (enforced by coordinator)
  * - User dismissal respected (saved to localStorage for 7 days)
  * - Initial delay before showing any popup
  * - Components should register immediately, coordinator manages timing
+ *
+ * IMPORTANT: Components MUST check isPopupAllowed before rendering.
+ * The coordinator guarantees only one popup type returns true at any time.
  */
 
 type PopupType = "push-notification" | "pwa-install" | "invite-coparent"
@@ -24,6 +27,8 @@ interface PopupState {
   currentPopup: PopupType | null
   queue: PopupType[]
   dismissed: Set<PopupType>
+  isInitialized: boolean
+  lastPopupTime: number
 }
 
 interface PopupCoordinatorContextValue {
@@ -36,7 +41,7 @@ interface PopupCoordinatorContextValue {
 const PopupCoordinatorContext = createContext<PopupCoordinatorContextValue | null>(null)
 
 const POPUP_DELAY_MS = 300000 // 5 minutes between popups
-const INITIAL_DELAY_MS = 60000 // 1 minute initial delay - let user settle in first
+const INITIAL_DELAY_MS = 30000 // 30 seconds initial delay - shorter for better UX
 const STORAGE_PREFIX = "familyload_popup_"
 
 // Priority order - lower index = higher priority
@@ -51,14 +56,16 @@ interface PopupCoordinatorProviderProps {
 }
 
 export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderProps) {
+  // Single unified state to prevent synchronization issues
   const [state, setState] = useState<PopupState>({
     currentPopup: null,
     queue: [],
-    dismissed: new Set()
+    dismissed: new Set(),
+    isInitialized: false,
+    lastPopupTime: 0
   })
-  const [lastPopupTime, setLastPopupTime] = useState<number>(0) // Track when a popup was shown
-  const [isInitialized, setIsInitialized] = useState(false)
   const processingRef = useRef(false) // Prevent race conditions
+  const timerRef = useRef<NodeJS.Timeout | null>(null) // Track active timer
 
   // Load dismissed state from localStorage and set initial delay
   useEffect(() => {
@@ -81,7 +88,7 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
 
     // Initial delay before allowing any popups to show
     const initTimer = setTimeout(() => {
-      setIsInitialized(true)
+      setState(prev => ({ ...prev, isInitialized: true }))
     }, INITIAL_DELAY_MS)
 
     return () => clearTimeout(initTimer)
@@ -90,20 +97,32 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
   // Process queue when current popup is null and enough time has passed
   useEffect(() => {
     // Don't process queue until initialized
-    if (!isInitialized) return
+    if (!state.isInitialized) return
     if (state.currentPopup !== null || state.queue.length === 0) return
     if (processingRef.current) return // Prevent race conditions
 
-    const timeSinceLastPopup = Date.now() - lastPopupTime
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+
+    const timeSinceLastPopup = Date.now() - state.lastPopupTime
     // Always enforce the delay, even for the first popup after initialization
-    const delay = lastPopupTime === 0
+    const delay = state.lastPopupTime === 0
       ? 0 // First popup after init shows immediately
       : Math.max(0, POPUP_DELAY_MS - timeSinceLastPopup)
 
     processingRef.current = true
 
-    const timer = setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setState(prev => {
+        // Double-check we're still in a valid state to show a popup
+        if (prev.currentPopup !== null) {
+          processingRef.current = false
+          return prev
+        }
+
         // Get next popup from queue that isn't dismissed
         const nextPopup = prev.queue.find(p => !prev.dismissed.has(p))
         if (!nextPopup) {
@@ -111,23 +130,25 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
           return { ...prev, queue: [] }
         }
 
-        // Record when this popup was shown
-        setLastPopupTime(Date.now())
         processingRef.current = false
 
         return {
           ...prev,
           currentPopup: nextPopup,
-          queue: prev.queue.filter(p => p !== nextPopup)
+          queue: prev.queue.filter(p => p !== nextPopup),
+          lastPopupTime: Date.now()
         }
       })
     }, delay)
 
     return () => {
-      clearTimeout(timer)
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+        timerRef.current = null
+      }
       processingRef.current = false
     }
-  }, [state.currentPopup, state.queue, lastPopupTime, isInitialized])
+  }, [state.currentPopup, state.queue, state.lastPopupTime, state.isInitialized])
 
   const requestPopup = useCallback((type: PopupType) => {
     setState(prev => {
@@ -168,15 +189,20 @@ export function PopupCoordinatorProvider({ children }: PopupCoordinatorProviderP
         ...prev,
         currentPopup: prev.currentPopup === type ? null : prev.currentPopup,
         queue: prev.queue.filter(p => p !== type),
-        dismissed: newDismissed
+        dismissed: newDismissed,
+        lastPopupTime: Date.now()
       }
     })
-    setLastPopupTime(Date.now())
   }, [])
 
+  // CRITICAL: This function determines if a popup can render
+  // Only one popup type will EVER return true at any given time
   const isPopupAllowed = useCallback((type: PopupType) => {
+    // Must be initialized first
+    if (!state.isInitialized) return false
+    // Only the current popup is allowed to show
     return state.currentPopup === type
-  }, [state.currentPopup])
+  }, [state.currentPopup, state.isInitialized])
 
   return (
     <PopupCoordinatorContext.Provider

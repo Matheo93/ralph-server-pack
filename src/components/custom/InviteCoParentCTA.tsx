@@ -20,13 +20,9 @@ export function InviteCoParentCTA({ className, inline = false }: InviteCoParentC
   const isVisible = popupCoordinator.isPopupAllowed("invite-coparent")
 
   useEffect(() => {
-    // Invite co-parent is lowest priority - register after other popups
-    // Delay must be AFTER the coordinator's initial delay + 2x popup delay (35 min total)
-    const timer = setTimeout(() => {
-      popupCoordinator.requestPopup("invite-coparent")
-    }, 2100000) // 35 minutes - after coordinator allows second popup
-
-    return () => clearTimeout(timer)
+    // Register immediately - coordinator handles timing and queuing
+    // Invite co-parent is lowest priority, so it will be shown last
+    popupCoordinator.requestPopup("invite-coparent")
   }, [popupCoordinator])
 
   const handleDismiss = useCallback(() => {

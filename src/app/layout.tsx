@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Geist, Geist_Mono, Fredoka } from "next/font/google"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -10,6 +10,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+})
+
+// Playful font for kids interface
+const fredoka = Fredoka({
+  variable: "--font-kids",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 })
 
 const BASE_URL = process.env["NEXT_PUBLIC_APP_URL"] ?? "https://familyload.fr"
@@ -167,7 +174,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${fredoka.variable} antialiased`}
       >
         <a
           href="#main-content"
