@@ -14,7 +14,7 @@
 
 ## Phase 3: Tests unitaires manquants
 - [x] Créer src/tests/calendar-actions.test.ts - Tests pour les server actions du calendrier
-- [ ] Créer src/tests/shopping-actions.test.ts - Tests pour les server actions de la liste de courses
+- [x] Créer src/tests/shopping-actions.test.ts - Tests pour les server actions de la liste de courses
 - [ ] Créer src/tests/kids-auth.test.ts - Tests pour l'authentification enfant par PIN
 - [ ] Créer src/tests/kids-rewards.test.ts - Tests pour le système de récompenses enfant
 - [ ] Créer src/tests/kids-challenges.test.ts - Tests pour les défis enfants
