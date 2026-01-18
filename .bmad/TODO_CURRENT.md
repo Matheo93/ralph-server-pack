@@ -1,41 +1,43 @@
-# Sprint 2 - Robustesse, TODOs & Améliorations
+# Sprint 3 - Qualité, Tests & UX Avancée
 
-## Phase 1: Résolution des TODOs critiques
-- [x] Implémenter l'upload S3 pour les photos de tâches complétées (src/app/(kids)/kids/[childId]/dashboard/TaskCompletionModal.tsx:95)
-- [x] Implémenter le resend code pour la vérification email (src/app/(auth)/verify-email/VerifyEmailForm.tsx:179)
-- [x] Connecter le statut premium à la vraie subscription Stripe (src/app/api/gamification/route.ts:355)
-- [x] Sauvegarder l'inventaire mis à jour en base de données (src/app/api/gamification/route.ts:365)
-- [x] Sauvegarder les achievements mis à jour en base de données (src/app/api/gamification/route.ts:403)
-- [x] Implémenter le curseur prev pour la pagination (src/app/api/v2/tasks/route.ts:524)
-- [x] Implémenter la vérification de mot de passe correcte (src/app/api/v1/auth/route.ts:89)
-- [x] Détecter le level up lors de la complétion de tâche (src/lib/actions/kids-tasks.ts:664)
+## Phase 1: Couverture de tests
+- [x] Créer e2e/gamification.spec.ts - Tests pour le système de points, badges et niveaux
+- [ ] Créer e2e/kids-profile.spec.ts - Tests pour le profil enfant (dark mode, son, déconnexion)
+- [ ] Créer e2e/stripe-checkout.spec.ts - Tests du flow de paiement complet
+- [ ] Créer e2e/voice-commands.spec.ts - Tests de la création de tâches vocales
+- [ ] Ajouter tests unitaires pour les server actions (src/lib/actions/*.ts)
 
-## Phase 2: PWA complète
-- [x] Créer le manifest.json complet avec toutes les tailles d'icônes
-- [x] Implémenter le service worker pour le cache offline
-- [x] Ajouter les icônes PWA (192x192, 512x512, maskable)
-- [x] Configurer le splash screen pour iOS et Android
+## Phase 2: Performance & Core Web Vitals
+- [ ] Implémenter le lazy loading des composants lourds (ChargeWeekChart, calendrier)
+- [ ] Optimiser les requêtes Supabase avec des indexes manquants
+- [ ] Ajouter React Suspense avec des boundaries pour le streaming SSR
+- [ ] Créer des skeletons spécifiques pour chaque section du dashboard
+- [ ] Auditer et réduire le bundle JavaScript (analyse avec next/bundle-analyzer)
 
-## Phase 3: Animation landing page
-- [x] Ajouter des animations scroll-triggered sur la landing page (style entraide-souverainiste)
-- [x] Implémenter le smooth scroll global (html { scroll-behavior: smooth; })
-- [x] Ajouter des micro-animations sur les CTA buttons
+## Phase 3: UX & Accessibilité
+- [ ] Ajouter des raccourcis clavier globaux (n: nouvelle tâche, /: recherche, ?: aide)
+- [ ] Implémenter le focus trap dans les modales pour l'accessibilité
+- [ ] Ajouter les attributs ARIA manquants sur les composants interactifs
+- [ ] Créer une page /dashboard/empty avec des suggestions quand aucune tâche
+- [ ] Améliorer les messages d'erreur avec des actions de récupération
 
-## Phase 4: Tests E2E manquants
-- [x] Créer e2e/settings.spec.ts - Tests pour les pages de paramètres
-- [x] Créer e2e/children-management.spec.ts - Tests CRUD enfants complet
-- [x] Créer e2e/recurring-tasks.spec.ts - Tests pour les tâches récurrentes
+## Phase 4: Fonctionnalités avancées
+- [ ] Implémenter le filtrage des tâches par enfant sur /tasks
+- [ ] Ajouter l'export CSV/Excel en plus du PDF existant
+- [ ] Créer un système de recherche globale avec Cmd+K
+- [ ] Implémenter les notifications browser avec demande de permission
+- [ ] Ajouter le mode hors-ligne avec sync au retour de connexion
 
-## Phase 5: Sécurité & Robustesse
-- [x] Audit des inputs utilisateur avec Zod sur toutes les routes API
-- [x] Ajouter rate limiting sur les routes sensibles (auth, API v1/v2)
-- [x] Vérifier les RLS policies pour les nouvelles tables
+## Phase 5: Monitoring & Observabilité
+- [ ] Ajouter le tracking des erreurs côté client (error boundary avec reporting)
+- [ ] Implémenter des métriques de performance custom (temps de chargement par page)
+- [ ] Créer un endpoint /api/health/detailed avec checks de toutes les dépendances
+- [ ] Ajouter des logs structurés pour le debugging en production
+- [ ] Implémenter le rate limiting détaillé avec alertes
 
-## Phase 6: Performance
-- [x] Optimiser les images avec next/image sur toutes les pages
-- [x] Ajouter le prefetching des routes fréquentes
-- [x] Implémenter le stale-while-revalidate pour les données calendrier
-
-## Phase 7: Documentation
-- [x] Créer ARCHITECTURE.md avec le schéma de la base de données
-- [x] Documenter les endpoints API dans /api/docs
+## Phase 6: Sécurité & Conformité
+- [ ] Audit complet des headers de sécurité (CSP, HSTS, X-Frame-Options)
+- [ ] Implémenter la rotation automatique des tokens JWT
+- [ ] Ajouter la validation côté serveur de toutes les URLs uploadées
+- [ ] Créer des tests de sécurité automatisés (injection, XSS)
+- [ ] Documenter les pratiques de sécurité dans SECURITY.md
