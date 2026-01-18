@@ -24,7 +24,7 @@
 ## Phase 4: Tests E2E manquants
 - [x] Créer e2e/settings.spec.ts - Tests pour les pages de paramètres
 - [x] Créer e2e/children-management.spec.ts - Tests CRUD enfants complet
-- [ ] Créer e2e/recurring-tasks.spec.ts - Tests pour les tâches récurrentes
+- [x] Créer e2e/recurring-tasks.spec.ts - Tests pour les tâches récurrentes
 
 ## Phase 5: Sécurité & Robustesse
 - [ ] Audit des inputs utilisateur avec Zod sur toutes les routes API
