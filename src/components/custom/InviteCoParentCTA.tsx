@@ -21,10 +21,11 @@ export function InviteCoParentCTA({ className, inline = false }: InviteCoParentC
 
   useEffect(() => {
     // Invite co-parent is lowest priority - register after other popups
-    // Request after page load, coordinator handles sequencing (15min initial + 30min between each)
+    // Request after page load, coordinator handles sequencing (30min initial + 60min between each)
+    // Use a longer stagger to prevent all popups from requesting at once
     const timer = setTimeout(() => {
       popupCoordinator.requestPopup("invite-coparent")
-    }, 15000) // 15 seconds after page load - coordinator enforces sequencing
+    }, 120000) // 2 minutes after page load - coordinator enforces sequencing
 
     return () => clearTimeout(timer)
   }, [popupCoordinator])
