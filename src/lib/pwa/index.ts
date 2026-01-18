@@ -59,3 +59,24 @@ export type {
   PushSubscriptionData,
   PushNotificationPayload,
 } from "./push-subscription"
+
+// Service Worker Client
+export {
+  isServiceWorkerSupported,
+  isServiceWorkerReady,
+  sendToServiceWorker,
+  saveOfflineTask as swSaveOfflineTask,
+  getOfflineTasks as swGetOfflineTasks,
+  clearAllCaches,
+  skipWaiting,
+  onSyncComplete,
+  registerBackgroundSync,
+  registerPeriodicSync as swRegisterPeriodicSync,
+  useOfflineSync,
+} from "./service-worker-client"
+
+export type {
+  OfflineTask as SWOfflineTask,
+  SyncMessage,
+  UseOfflineSyncReturn,
+} from "./service-worker-client"
