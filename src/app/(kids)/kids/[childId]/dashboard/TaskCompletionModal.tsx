@@ -85,6 +85,45 @@ export function TaskCompletionModal({ task, childId, onClose }: TaskCompletionMo
     startCamera()
   }
 
+  // Upload vers S3 et retourne l'URL publique
+  const uploadToS3 = async (dataUrl: string): Promise<string> => {
+    // Convertir le data URL en blob
+    const response = await fetch(dataUrl)
+    const blob = await response.blob()
+
+    // Déterminer le content type et l'extension
+    const contentType = blob.type || 'image/jpeg'
+    const extension = contentType.split('/')[1] || 'jpg'
+    const filename = `proof.${extension}`
+
+    // Obtenir l'URL présignée S3
+    const presignedResponse = await fetch(
+      `/api/upload/task-proof?filename=${encodeURIComponent(filename)}&contentType=${encodeURIComponent(contentType)}&taskId=${task.id}`
+    )
+
+    if (!presignedResponse.ok) {
+      const errorData = await presignedResponse.json()
+      throw new Error(errorData.error || 'Erreur lors de la génération de l\'URL d\'upload')
+    }
+
+    const { uploadUrl, publicUrl } = await presignedResponse.json()
+
+    // Upload vers S3
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: blob,
+      headers: {
+        'Content-Type': contentType,
+      },
+    })
+
+    if (!uploadResponse.ok) {
+      throw new Error('Erreur lors de l\'upload vers S3')
+    }
+
+    return publicUrl
+  }
+
   // Envoyer la preuve
   const sendProof = () => {
     if (!photoUrl) return
@@ -92,9 +131,11 @@ export function TaskCompletionModal({ task, childId, onClose }: TaskCompletionMo
     setStep('sending')
     startTransition(async () => {
       try {
-        // TODO: Upload vers S3 et récupérer l'URL
-        // Pour l'instant, on simule avec le data URL
-        const result = await submitTaskProof(task.id, photoUrl)
+        // Upload vers S3 et récupérer l'URL publique
+        const s3Url = await uploadToS3(photoUrl)
+
+        // Soumettre la preuve avec l'URL S3
+        const result = await submitTaskProof(task.id, s3Url)
 
         if (result.success) {
           setStep('success')
@@ -108,7 +149,8 @@ export function TaskCompletionModal({ task, childId, onClose }: TaskCompletionMo
           setStep('preview')
         }
       } catch (err) {
-        setError('Erreur lors de l\'envoi')
+        console.error('Erreur upload S3:', err)
+        setError(err instanceof Error ? err.message : 'Erreur lors de l\'envoi')
         setStep('preview')
       }
     })

@@ -1,48 +1,41 @@
-# Sprint 22 - Tests, Performance & UX Polish
+# Sprint 2 - Robustesse, TODOs & Améliorations
 
-## Phase 1: Corrections UTF-8
-- [x] Corriger les accents dans src/app/(dashboard)/calendar/page.tsx ("evenements" → "événements")
-- [x] Corriger les accents dans src/app/(dashboard)/shopping/page.tsx ("Gerez" → "Gérez", "differentes" → "différentes")
-- [x] Auditer et corriger tous les accents manquants dans les fichiers .tsx restants
+## Phase 1: Résolution des TODOs critiques
+- [x] Implémenter l'upload S3 pour les photos de tâches complétées (src/app/(kids)/kids/[childId]/dashboard/TaskCompletionModal.tsx:95)
+- [ ] Implémenter le resend code pour la vérification email (src/app/(auth)/verify-email/VerifyEmailForm.tsx:179)
+- [ ] Connecter le statut premium à la vraie subscription Stripe (src/app/api/gamification/route.ts:355)
+- [ ] Sauvegarder l'inventaire mis à jour en base de données (src/app/api/gamification/route.ts:365)
+- [ ] Sauvegarder les achievements mis à jour en base de données (src/app/api/gamification/route.ts:403)
+- [ ] Implémenter le curseur prev pour la pagination (src/app/api/v2/tasks/route.ts:524)
+- [ ] Implémenter la vérification de mot de passe correcte (src/app/api/v1/auth/route.ts:89)
+- [ ] Détecter le level up lors de la complétion de tâche (src/lib/actions/kids-tasks.ts:664)
 
-## Phase 2: Tests E2E pour les nouvelles features
-- [x] Créer e2e/calendar.spec.ts - Tests E2E pour le calendrier familial (navigation mois, création événement, modification, suppression)
-- [x] Créer e2e/shopping.spec.ts - Tests E2E pour la liste de courses (ajout item, toggle, suppression, catégories)
-- [x] Créer e2e/kids-dashboard.spec.ts - Tests E2E pour le dashboard enfant (connexion PIN, voir tâches, compléter tâche)
-- [x] Créer e2e/kids-shop.spec.ts - Tests E2E pour la boutique enfant (voir récompenses, acheter avec coins)
-- [x] Créer e2e/kids-badges.spec.ts - Tests E2E pour les badges enfant (voir badges, progression)
+## Phase 2: PWA complète
+- [ ] Créer le manifest.json complet avec toutes les tailles d'icônes
+- [ ] Implémenter le service worker pour le cache offline
+- [ ] Ajouter les icônes PWA (192x192, 512x512, maskable)
+- [ ] Configurer le splash screen pour iOS et Android
 
-## Phase 3: Tests unitaires manquants
-- [x] Créer src/tests/calendar-actions.test.ts - Tests pour les server actions du calendrier
-- [x] Créer src/tests/shopping-actions.test.ts - Tests pour les server actions de la liste de courses
-- [x] Créer src/tests/kids-auth.test.ts - Tests pour l'authentification enfant par PIN
-- [x] Créer src/tests/kids-rewards.test.ts - Tests pour le système de récompenses enfant
-- [x] Créer src/tests/kids-challenges.test.ts - Tests pour les défis enfants
+## Phase 3: Animation landing page
+- [ ] Ajouter des animations scroll-triggered sur la landing page (style entraide-souverainiste)
+- [ ] Implémenter le smooth scroll global (html { scroll-behavior: smooth; })
+- [ ] Ajouter des micro-animations sur les CTA buttons
 
-## Phase 4: Optimisation Performance
-- [x] Ajouter lazy loading pour les composants lourds (CalendarView, ShoppingList)
-- [x] Implémenter le prefetching des données calendrier lors du hover sur les mois adjacents
-- [x] Ajouter le cache local (localStorage) pour la liste de courses en mode hors-ligne
-- [x] Optimiser les requêtes SQL avec EXPLAIN ANALYZE et ajouter les index manquants
-- [x] Implémenter la pagination pour l'historique des événements calendrier
+## Phase 4: Tests E2E manquants
+- [ ] Créer e2e/settings.spec.ts - Tests pour les pages de paramètres
+- [ ] Créer e2e/children-management.spec.ts - Tests CRUD enfants complet
+- [ ] Créer e2e/recurring-tasks.spec.ts - Tests pour les tâches récurrentes
 
-## Phase 5: UX Polish
-- [x] Ajouter des animations de transition entre les vues du calendrier (mois/semaine)
-- [x] Implémenter le drag & drop pour réorganiser les items de la liste de courses
-- [x] Ajouter des confettis/animations lors de la complétion d'une tâche par un enfant
-- [x] Créer des skeleton loaders pour les pages Calendar, Shopping et Kids
-- [x] Améliorer le feedback visuel lors des actions (toast notifications cohérentes)
+## Phase 5: Sécurité & Robustesse
+- [ ] Audit des inputs utilisateur avec Zod sur toutes les routes API
+- [ ] Ajouter rate limiting sur les routes sensibles (auth, API v1/v2)
+- [ ] Vérifier les RLS policies pour les nouvelles tables
 
-## Phase 6: Accessibilité & i18n
-- [x] Audit WCAG 2.1 AA sur les nouvelles pages (Calendar, Shopping, Kids)
-- [x] Ajouter les attributs aria-* manquants sur les composants interactifs
-- [x] Vérifier le contraste des couleurs sur l'interface Kids
-- [x] Compléter les traductions françaises manquantes dans src/messages/fr.json
-- [x] Ajouter le support du mode sombre pour l'interface Kids
+## Phase 6: Performance
+- [ ] Optimiser les images avec next/image sur toutes les pages
+- [ ] Ajouter le prefetching des routes fréquentes
+- [ ] Implémenter le stale-while-revalidate pour les données calendrier
 
-## Phase 7: Fonctionnalités supplémentaires
-- [x] Ajouter l'export PDF du calendrier mensuel
-- [x] Implémenter les notifications push pour les événements calendrier (rappel 1h avant)
-- [x] Ajouter le partage de liste de courses par lien (lecture seule)
-- [x] Créer une vue "cette semaine" pour les défis enfants
-- [x] Ajouter la synchronisation en temps réel de la liste de courses (Supabase Realtime)
+## Phase 7: Documentation
+- [ ] Créer ARCHITECTURE.md avec le schéma de la base de données
+- [ ] Documenter les endpoints API dans /api/docs
