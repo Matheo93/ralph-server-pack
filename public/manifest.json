@@ -81,13 +81,13 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icons/icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/icon-192.png",
+      "src": "/icons/icon-192-maskable.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
@@ -119,6 +119,13 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "FamilyLoad sur mobile - Gérez vos tâches partout"
+    },
+    {
+      "src": "/screenshots/tablet.png",
+      "sizes": "1024x768",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "FamilyLoad sur tablette - Vue optimisée"
     }
   ],
   "shortcuts": [
