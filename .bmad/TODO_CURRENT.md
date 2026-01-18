@@ -2,8 +2,8 @@
 
 ## Phase 1: Corrections UTF-8
 - [x] Corriger les accents dans src/app/(dashboard)/calendar/page.tsx ("evenements" → "événements")
-- [ ] Corriger les accents dans src/app/(dashboard)/shopping/page.tsx ("Gerez" → "Gérez", "differentes" → "différentes")
-- [ ] Auditer et corriger tous les accents manquants dans les fichiers .tsx restants
+- [x] Corriger les accents dans src/app/(dashboard)/shopping/page.tsx ("Gerez" → "Gérez", "differentes" → "différentes")
+- [x] Auditer et corriger tous les accents manquants dans les fichiers .tsx restants
 
 ## Phase 2: Tests E2E pour les nouvelles features
 - [ ] Créer e2e/calendar.spec.ts - Tests E2E pour le calendrier familial (navigation mois, création événement, modification, suppression)
