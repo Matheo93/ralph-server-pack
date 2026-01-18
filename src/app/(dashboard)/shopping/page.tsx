@@ -52,7 +52,7 @@ export default async function ShoppingPage() {
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold">Liste de courses</h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Gerez vos courses en famille
+          Gérez vos courses en famille
         </p>
       </div>
 
@@ -71,7 +71,7 @@ export default async function ShoppingPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Coches</CardTitle>
+            <CardTitle className="text-sm font-medium">Cochés</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -93,12 +93,12 @@ export default async function ShoppingPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
+            <CardTitle className="text-sm font-medium">Catégories</CardTitle>
             <Tags className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.categoriesCount}</div>
-            <p className="text-xs text-muted-foreground">differentes</p>
+            <p className="text-xs text-muted-foreground">différentes</p>
           </CardContent>
         </Card>
       </div>
