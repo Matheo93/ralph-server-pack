@@ -77,16 +77,16 @@ export function StreakRecovery({
         <CardContent className="py-12 text-center">
           <div className="text-7xl mb-4 animate-bounce">🎉</div>
           <h2 className="text-2xl font-bold text-green-700 dark:text-green-300 mb-2">
-            Streak sauve !
+            Streak sauvé !
           </h2>
           <p className="text-green-600 dark:text-green-400">
-            Votre streak de <strong>{currentStreak} jours</strong> a ete preserve grace a votre joker.
+            Votre streak de <strong>{currentStreak} jours</strong> a été préservé grâce à votre joker.
           </p>
           <Badge
             variant="outline"
             className="mt-4 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300"
           >
-            Joker mensuel utilise
+            Joker mensuel utilisé
           </Badge>
         </CardContent>
       </Card>
@@ -265,8 +265,8 @@ export function StreakRecoveryCompact({
             </p>
             <p className="text-xs text-red-600 dark:text-red-400">
               {daysOverdue === 1
-                ? "Pas d'activite hier"
-                : `${daysOverdue} jours sans activite`}
+                ? "Pas d'activité hier"
+                : `${daysOverdue} jours sans activité`}
             </p>
           </div>
         </div>

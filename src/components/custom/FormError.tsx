@@ -96,7 +96,7 @@ export function FormError({
                   className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <RefreshCw className="h-4 w-4" />
-                  <span className="sr-only">Reessayer</span>
+                  <span className="sr-only">Réessayer</span>
                 </Button>
               )}
               {onDismiss && (
@@ -194,7 +194,7 @@ export function ErrorAlert({
                   className="border-destructive/30 text-destructive hover:bg-destructive/10"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Reessayer
+                  Réessayer
                 </Button>
               )}
               {onDismiss && (
@@ -238,14 +238,14 @@ export function NetworkError({ onRetry, className }: NetworkErrorProps) {
       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
         <AlertCircle className="h-6 w-6 text-muted-foreground" />
       </div>
-      <h3 className="font-medium text-lg mb-1">Probleme de connexion</h3>
+      <h3 className="font-medium text-lg mb-1">Problème de connexion</h3>
       <p className="text-sm text-muted-foreground mb-4">
-        Verifiez votre connexion internet et reessayez.
+        Vérifiez votre connexion internet et réessayez.
       </p>
       {onRetry && (
         <Button onClick={onRetry} variant="outline">
           <RefreshCw className="h-4 w-4 mr-2" />
-          Reessayer
+          Réessayer
         </Button>
       )}
     </motion.div>

@@ -54,7 +54,7 @@ export function KeyboardShortcutsHelp() {
           </AnimatePresence>
         </div>
         <p className="text-xs text-muted-foreground mt-4">
-          Appuyez sur <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Echap</kbd> pour fermer cette fenetre.
+          Appuyez sur <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Échap</kbd> pour fermer cette fenêtre.
         </p>
       </DialogContent>
     </Dialog>

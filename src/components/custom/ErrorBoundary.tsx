@@ -37,14 +37,14 @@ const ERROR_META: Record<ErrorType, ErrorMeta> = {
     type: "general",
     icon: Bug,
     title: "Une erreur s'est produite",
-    description: "Nous sommes desolés, quelque chose n'a pas fonctionné correctement.",
+    description: "Nous sommes désolés, quelque chose n'a pas fonctionné correctement.",
     actionLabel: "Réessayer",
   },
   network: {
     type: "network",
     icon: WifiOff,
-    title: "Probleme de connexion",
-    description: "Impossible de se connecter au serveur. Verifiez votre connexion internet.",
+    title: "Problème de connexion",
+    description: "Impossible de se connecter au serveur. Vérifiez votre connexion internet.",
     actionLabel: "Réessayer la connexion",
   },
   auth: {
@@ -58,14 +58,14 @@ const ERROR_META: Record<ErrorType, ErrorMeta> = {
     type: "server",
     icon: ServerCrash,
     title: "Erreur serveur",
-    description: "Le serveur a rencontré un probleme. Nos équipes sont informées.",
+    description: "Le serveur a rencontré un problème. Nos équipes sont informées.",
     actionLabel: "Réessayer",
   },
   validation: {
     type: "validation",
     icon: AlertTriangle,
     title: "Données invalides",
-    description: "Les données fournies sont invalides. Veuillez verifier votre saisie.",
+    description: "Les données fournies sont invalides. Veuillez vérifier votre saisie.",
     actionLabel: "Corriger",
   },
 }
@@ -438,7 +438,7 @@ export function ErrorFallback({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
               >
-                Si le probleme persiste, veuillez{" "}
+                Si le problème persiste, veuillez{" "}
                 <a
                   href="mailto:support@familyload.app"
                   className="underline hover:text-foreground transition-colors"

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages, getLocale } from "next-intl/server"
 import { getUser } from "@/lib/auth/actions"
-import { getHousehold } from "@/lib/actions/household"
+import { getHousehold, getHouseholdMembers } from "@/lib/actions/household"
 import { QueryProvider } from "@/lib/providers/QueryProvider"
 import { PopupCoordinatorProvider } from "@/lib/providers/PopupCoordinator"
 import { Sidebar } from "@/components/custom/sidebar"
@@ -50,6 +50,10 @@ export default async function DashboardLayout({
     subscription_status: string | null
     subscription_ends_at: string | null
   } | null
+
+  // Get household members to determine if user needs co-parent invite
+  const members = household ? await getHouseholdMembers(household.id) : []
+  const memberCount = members.length
 
   // Calculate premium status
   // Premium is true if:
@@ -133,7 +137,7 @@ export default async function DashboardLayout({
             <KeyboardShortcutsHelp />
             <OfflineIndicator showOnlineStatus />
             <PushPermissionPrompt compact showAfterMs={10000} />
-            <InviteCoParentCTA />
+            <InviteCoParentCTA memberCount={memberCount} />
             <OnboardingTutorial />
             <MagicChat
               isPremium={isPremium}

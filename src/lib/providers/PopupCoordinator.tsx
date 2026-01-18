@@ -40,8 +40,8 @@ interface PopupCoordinatorContextValue {
 
 const PopupCoordinatorContext = createContext<PopupCoordinatorContextValue | null>(null)
 
-const POPUP_DELAY_MS = 300000 // 5 minutes between popups
-const INITIAL_DELAY_MS = 30000 // 30 seconds initial delay - shorter for better UX
+const POPUP_DELAY_MS = 180000 // 3 minutes between popups (reduced from 5)
+const INITIAL_DELAY_MS = 15000 // 15 seconds initial delay - balanced for UX
 const STORAGE_PREFIX = "familyload_popup_"
 
 // Priority order - lower index = higher priority

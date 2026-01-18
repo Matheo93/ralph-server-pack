@@ -132,7 +132,7 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
           </div>
           <Button onClick={() => { setSelectedDate(new Date()); setSelectedEvent(null); setIsFormOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" />
-            Evenement
+            Événement
           </Button>
         </div>
       </div>

@@ -630,12 +630,12 @@ export function UnifiedFAB({ className }: UnifiedFABProps) {
                       {isPending ? (
                         <>
                           <LoadingSpinner className="w-4 h-4 mr-1.5" />
-                          <span>Creation...</span>
+                          <span>Création...</span>
                         </>
                       ) : (
                         <>
                           <CheckIcon className="w-4 h-4 mr-1.5" />
-                          <span>Creer ({selectedTasks.size})</span>
+                          <span>Créer ({selectedTasks.size})</span>
                         </>
                       )}
                     </Button>

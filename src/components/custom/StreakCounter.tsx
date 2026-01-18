@@ -14,13 +14,13 @@ interface StreakMilestone {
 }
 
 const MILESTONES: StreakMilestone[] = [
-  { days: 3, label: "Debut prometteur", badge: "\ud83c\udf31", description: "3 jours consecutifs" },
-  { days: 7, label: "Une semaine", badge: "\u2b50", description: "7 jours consecutifs" },
-  { days: 14, label: "Deux semaines", badge: "\ud83c\udf1f", description: "14 jours consecutifs" },
-  { days: 30, label: "Un mois", badge: "\ud83d\udd25", description: "30 jours consecutifs" },
-  { days: 60, label: "Deux mois", badge: "\ud83d\udcaa", description: "60 jours consecutifs" },
-  { days: 100, label: "Centenaire", badge: "\ud83c\udfc6", description: "100 jours consecutifs" },
-  { days: 365, label: "Legendaire", badge: "\ud83d\udc51", description: "Une annee complete" },
+  { days: 3, label: "Début prometteur", badge: "🌱", description: "3 jours consécutifs" },
+  { days: 7, label: "Une semaine", badge: "⭐", description: "7 jours consécutifs" },
+  { days: 14, label: "Deux semaines", badge: "🌟", description: "14 jours consécutifs" },
+  { days: 30, label: "Un mois", badge: "🔥", description: "30 jours consécutifs" },
+  { days: 60, label: "Deux mois", badge: "💪", description: "60 jours consécutifs" },
+  { days: 100, label: "Centenaire", badge: "🏆", description: "100 jours consécutifs" },
+  { days: 365, label: "Légendaire", badge: "👑", description: "Une année complète" },
 ]
 
 interface StreakCounterProps {
@@ -146,7 +146,7 @@ export function StreakCounter({
               isAnimating && "animate-bounce"
             )}
           >
-            {currentMilestone?.badge || (isAmazing ? "\ud83d\udd25" : isGreat ? "\u2b50" : isGood ? "\u2728" : "\ud83d\udcc5")}
+            {currentMilestone?.badge || (isAmazing ? "🔥" : isGreat ? "⭐" : isGood ? "✨" : "📅")}
           </div>
         </div>
 
@@ -225,7 +225,7 @@ export function StreakCounter({
         {unlockedMilestones.length > 0 && (
           <div className="mt-4 pt-4 border-t">
             <p className="text-xs text-muted-foreground mb-2">
-              Badges debloques ({unlockedMilestones.length})
+              Badges débloqués ({unlockedMilestones.length})
             </p>
             <div className="flex gap-1 flex-wrap">
               {unlockedMilestones.map((m) => (

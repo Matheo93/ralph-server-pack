@@ -112,7 +112,7 @@ export function EventFormDialog({
         if (result.success) {
           onClose()
         } else {
-          setError(result.error || "Erreur lors de la mise a jour")
+          setError(result.error || "Erreur lors de la mise à jour")
         }
       } else {
         const result = await createCalendarEvent({
@@ -133,14 +133,14 @@ export function EventFormDialog({
         if (result.success) {
           onClose()
         } else {
-          setError(result.error || "Erreur lors de la creation")
+          setError(result.error || "Erreur lors de la création")
         }
       }
     })
   }
 
   const handleDelete = () => {
-    if (!event || !confirm("Supprimer cet evenement ?")) return
+    if (!event || !confirm("Supprimer cet événement ?")) return
 
     startTransition(async () => {
       const result = await deleteCalendarEvent(event.id)
@@ -157,7 +157,7 @@ export function EventFormDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Modifier l'evenement" : "Nouvel evenement"}
+            {isEditing ? "Modifier l'événement" : "Nouvel événement"}
           </DialogTitle>
         </DialogHeader>
 
@@ -174,7 +174,7 @@ export function EventFormDialog({
               id="title"
               name="title"
               defaultValue={event?.title || ""}
-              placeholder="Ex: RDV pediatre"
+              placeholder="Ex: RDV pédiatre"
               required
             />
           </div>
@@ -223,13 +223,13 @@ export function EventFormDialog({
               defaultChecked={event?.all_day || false}
             />
             <Label htmlFor="all_day" className="font-normal">
-              Toute la journee
+              Toute la journée
             </Label>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start_date">Debut *</Label>
+              <Label htmlFor="start_date">Début *</Label>
               <Input
                 id="start_date"
                 name="start_date"
@@ -251,7 +251,7 @@ export function EventFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="recurrence">Recurrence</Label>
+            <Label htmlFor="recurrence">Récurrence</Label>
             <Select name="recurrence" defaultValue={event?.recurrence || "none"}>
               <SelectTrigger>
                 <SelectValue />
@@ -268,10 +268,10 @@ export function EventFormDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="assigned_to">Assigne a</Label>
+              <Label htmlFor="assigned_to">Assigné à</Label>
               <Select name="assigned_to" defaultValue={event?.assigned_to || "none"}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selectionner..." />
+                  <SelectValue placeholder="Sélectionner..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Personne</SelectItem>
@@ -285,10 +285,10 @@ export function EventFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="child_id">Enfant concerne</Label>
+              <Label htmlFor="child_id">Enfant concerné</Label>
               <Select name="child_id" defaultValue={event?.child_id || "none"}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selectionner..." />
+                  <SelectValue placeholder="Sélectionner..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Aucun</SelectItem>
@@ -318,7 +318,7 @@ export function EventFormDialog({
               id="description"
               name="description"
               defaultValue={event?.description || ""}
-              placeholder="Notes supplementaires..."
+              placeholder="Notes supplémentaires..."
               rows={3}
             />
           </div>
@@ -341,7 +341,7 @@ export function EventFormDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {isEditing ? "Modifier" : "Creer"}
+              {isEditing ? "Modifier" : "Créer"}
             </Button>
           </DialogFooter>
         </form>

@@ -86,7 +86,7 @@ export function OfflineIndicator({
             <div className="flex items-center gap-2">
               <WifiOff className="h-5 w-5 shrink-0" aria-hidden="true" />
               <span className="text-sm font-medium">
-                Vous etes hors ligne. Certaines fonctionnalites peuvent etre limitees.
+                Vous êtes hors ligne. Certaines fonctionnalités peuvent être limitées.
               </span>
             </div>
             <Button
@@ -101,7 +101,7 @@ export function OfflineIndicator({
               ) : (
                 <RefreshCw className="h-4 w-4" aria-hidden="true" />
               )}
-              <span className="ml-2 hidden sm:inline">Reessayer</span>
+              <span className="ml-2 hidden sm:inline">Réessayer</span>
             </Button>
           </div>
         </motion.div>
@@ -124,7 +124,7 @@ export function OfflineIndicator({
           <div className="container mx-auto flex items-center gap-2">
             <Wifi className="h-5 w-5" aria-hidden="true" />
             <span className="text-sm font-medium">
-              Connexion retablie
+              Connexion rétablie
             </span>
           </div>
         </motion.div>

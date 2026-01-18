@@ -196,10 +196,10 @@ export function UpdatePrompt({
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-sm">
-                  Mise a jour disponible
+                  Mise à jour disponible
                 </h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Une nouvelle version de FamilyLoad est prete. Rechargez pour profiter des ameliorations.
+                  Une nouvelle version de FamilyLoad est prête. Rechargez pour profiter des améliorations.
                 </p>
                 <div className="flex gap-2 mt-3">
                   <Button
@@ -216,7 +216,7 @@ export function UpdatePrompt({
                     ) : (
                       <>
                         <RefreshCw className="w-4 h-4" />
-                        Mettre a jour
+                        Mettre à jour
                       </>
                     )}
                   </Button>
@@ -331,7 +331,7 @@ export function InstallPrompt({ className }: InstallPromptProps) {
               Installer FamilyLoad
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Ajoutez l&apos;application a votre ecran d&apos;accueil pour un acces rapide.
+              Ajoutez l&apos;application à votre écran d&apos;accueil pour un accès rapide.
             </p>
             <div className="flex gap-2 mt-3">
               <Button size="sm" onClick={handleInstall}>

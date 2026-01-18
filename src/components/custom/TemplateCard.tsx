@@ -25,7 +25,7 @@ function getAgeLabel(ageMin: number, ageMax: number): string {
     return `${ageMin} ans`
   }
   if (ageMin === 0 && ageMax === 18) {
-    return "Tous ages"
+    return "Tous âges"
   }
   return `${ageMin}-${ageMax} ans`
 }
@@ -37,12 +37,12 @@ function getPeriodLabel(period: string | null): string {
   if (!period || period === "year_round") return ""
 
   const labels: Record<string, string> = {
-    rentree: "Rentree",
+    rentree: "Rentrée",
     toussaint: "Toussaint",
-    noel: "Noel",
+    noel: "Noël",
     hiver: "Hiver",
     printemps: "Printemps",
-    ete: "Ete",
+    ete: "Été",
   }
 
   return labels[period] ?? period
@@ -52,7 +52,7 @@ function getPeriodLabel(period: string | null): string {
  * Get weight label
  */
 function getWeightLabel(weight: number): string {
-  if (weight <= 2) return "Leger"
+  if (weight <= 2) return "Léger"
   if (weight <= 4) return "Moyen"
   if (weight <= 6) return "Important"
   return "Lourd"

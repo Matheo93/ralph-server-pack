@@ -103,7 +103,7 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantite</Label>
+              <Label htmlFor="quantity">Quantité</Label>
               <Input
                 id="quantity"
                 name="quantity"
@@ -115,10 +115,10 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="unit">Unite</Label>
+              <Label htmlFor="unit">Unité</Label>
               <Select name="unit" defaultValue="">
                 <SelectTrigger>
-                  <SelectValue placeholder="Unite..." />
+                  <SelectValue placeholder="Unité..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Aucune</SelectItem>
@@ -133,7 +133,7 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Categorie</Label>
+            <Label htmlFor="category">Catégorie</Label>
             <Select name="category" defaultValue="Autres">
               <SelectTrigger>
                 <SelectValue />
@@ -156,7 +156,7 @@ export function AddItemDialog({ open, onClose, listId }: AddItemDialogProps) {
             <Textarea
               id="note"
               name="note"
-              placeholder="Ex: Marque preferee, quantite specifique..."
+              placeholder="Ex: Marque préférée, quantité spécifique..."
               rows={2}
             />
           </div>

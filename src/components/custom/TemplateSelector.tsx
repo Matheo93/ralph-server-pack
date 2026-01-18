@@ -206,7 +206,7 @@ export function TemplateSelector({ children, className }: TemplateSelectorProps)
               <div className="space-y-2 pr-4">
                 {filteredTemplates.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    Aucun template ne correspond a votre recherche
+                    Aucun template ne correspond à votre recherche
                   </div>
                 ) : (
                   filteredTemplates.map((template) => (

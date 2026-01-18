@@ -5,31 +5,41 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { UserPlus, Heart, Users, ArrowRight, X } from "lucide-react"
-import { useEffect, useCallback } from "react"
+import { useEffect, useCallback, useState } from "react"
 import { usePopupCoordinator } from "@/lib/providers/PopupCoordinator"
 
 interface InviteCoParentCTAProps {
   className?: string
   /** If true, renders as inline card. If false (default), renders as fixed popup */
   inline?: boolean
+  /** Number of household members - if >= 2, don't show the CTA */
+  memberCount?: number
 }
 
-export function InviteCoParentCTA({ className, inline = false }: InviteCoParentCTAProps) {
+export function InviteCoParentCTA({ className, inline = false, memberCount }: InviteCoParentCTAProps) {
   // Use popup coordinator for visibility - ALWAYS use coordinator, no fallback
   const popupCoordinator = usePopupCoordinator()
   const isVisible = popupCoordinator.isPopupAllowed("invite-coparent")
+  const [hasRegistered, setHasRegistered] = useState(false)
+
+  // Don't show if user already has a co-parent (2+ members)
+  const hasCoParent = memberCount !== undefined && memberCount >= 2
 
   useEffect(() => {
-    // Register immediately - coordinator handles timing and queuing
+    // Only register if user doesn't have a co-parent and hasn't registered yet
     // Invite co-parent is lowest priority, so it will be shown last
-    popupCoordinator.requestPopup("invite-coparent")
-  }, [popupCoordinator])
+    if (!hasCoParent && !hasRegistered) {
+      popupCoordinator.requestPopup("invite-coparent")
+      setHasRegistered(true)
+    }
+  }, [popupCoordinator, hasCoParent, hasRegistered])
 
   const handleDismiss = useCallback(() => {
     popupCoordinator.dismissPopup("invite-coparent")
   }, [popupCoordinator])
 
-  if (!isVisible) return null
+  // Don't render if user has co-parent or coordinator doesn't allow
+  if (hasCoParent || !isVisible) return null
 
   const content = (
     <Card className={`relative overflow-hidden bg-gradient-to-br from-sky-50 via-teal-50 to-emerald-50 border-teal-200/50 shadow-lg ${inline ? className : ""}`}>

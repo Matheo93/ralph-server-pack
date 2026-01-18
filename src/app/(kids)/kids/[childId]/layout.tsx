@@ -50,7 +50,7 @@ export default async function KidsChildLayout({ children, params }: Props) {
     redirect(`/kids/login/${childId}`)
   }
 
-  // Recuperer les compteurs pour la navigation
+  // Récupérer les compteurs pour la navigation
   let pendingTasksCount = 0
   let unreadBadgesCount = 0
   let activeChallengesCount = 0

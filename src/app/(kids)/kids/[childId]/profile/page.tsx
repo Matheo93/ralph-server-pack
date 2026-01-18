@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation'
 import { getChildProfile, getXpHistory } from '@/lib/actions/kids-gamification'
-import { getKidsSession, logoutChild } from '@/lib/actions/kids-auth'
+import { getKidsSession } from '@/lib/actions/kids-auth'
 import { ProfileCard } from './ProfileCard'
 import { XpHistory } from './XpHistory'
 import { LogoutButton } from './LogoutButton'
+import { SoundToggle } from './SoundToggle'
 
 export default async function KidsProfilePage() {
   const session = await getKidsSession()
@@ -81,6 +82,14 @@ export default async function KidsProfilePage() {
           <XpHistory history={xpHistory} />
         </div>
       )}
+
+      {/* Paramètres son */}
+      <div className="mb-6">
+        <h2 className="text-xl font-black bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent mb-3 flex items-center gap-2">
+          <span className="text-2xl">⚙️</span> Paramètres
+        </h2>
+        <SoundToggle />
+      </div>
 
       {/* Actions - Style boutons fun */}
       <div className="mt-8 space-y-3">

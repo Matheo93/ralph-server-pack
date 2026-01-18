@@ -35,7 +35,7 @@ export function ChargeBalance({ balance, className }: ChargeBalanceProps) {
             <CardTitle className="text-lg">Charge mentale</CardTitle>
             <CardDescription className="flex items-center gap-1 mt-1">
               <TrendingDown className="w-3 h-3 text-green-600" />
-              <span className="text-xs">Compléter une tâche réduit le score</span>
+              <span className="text-xs">Moins de tâches = moins de stress</span>
             </CardDescription>
           </div>
           {isLowLoad && isBalanced ? (
@@ -92,19 +92,20 @@ export function ChargeBalance({ balance, className }: ChargeBalanceProps) {
           </div>
         )}
 
-        {/* Tip for reducing load */}
+        {/* Tip for reducing load - Clearly explain the scoring mechanism */}
         {totalLoad > 0 && (
-          <div className="pt-2 border-t bg-gradient-to-r from-blue-50/80 to-green-50/80 dark:from-blue-950/30 dark:to-green-950/30 rounded-lg p-3 -mx-1">
+          <div className="pt-2 border-t bg-gradient-to-r from-green-50/80 to-emerald-50/80 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg p-3 -mx-1">
             <div className="flex items-start gap-2">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center">
-                <ArrowDown className="w-4 h-4 text-white" />
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                <CheckCircle2 className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                  Comment réduire votre charge ?
+                <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                  Complétez vos tâches pour réduire ce score !
                 </p>
-                <p className="text-xs text-blue-600/80 dark:text-blue-300/80 mt-0.5">
-                  Chaque tâche complétée diminue automatiquement le score. Seules les tâches en attente comptent !
+                <p className="text-xs text-green-600/80 dark:text-green-300/80 mt-0.5">
+                  <strong className="text-green-700 dark:text-green-200">Astuce :</strong> Seules les tâches <em>en attente</em> sont comptées.
+                  Chaque tâche terminée fait automatiquement baisser votre charge mentale.
                 </p>
               </div>
             </div>

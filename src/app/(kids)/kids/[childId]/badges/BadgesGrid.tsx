@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Share2, Download } from 'lucide-react'
 import type { BadgeWithStatus } from '@/lib/actions/kids-gamification'
 import { markBadgeSeen } from '@/lib/actions/kids-tasks'
+import { useGameSound } from '@/hooks/useGameSound'
 
 interface BadgesGridProps {
   badges: BadgeWithStatus[]
@@ -15,13 +17,54 @@ interface BadgesGridProps {
 export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGridProps) {
   const [activeTab, setActiveTab] = useState<'badges' | 'leaderboard'>(initialTab)
   const [selectedBadge, setSelectedBadge] = useState<BadgeWithStatus | null>(null)
+  const [isSharing, setIsSharing] = useState(false)
+  const { play } = useGameSound()
 
   const handleBadgeClick = async (badge: BadgeWithStatus) => {
+    play('click')
     setSelectedBadge(badge)
 
     // Marquer comme vu si débloqué et pas encore vu
     if (badge.unlocked && !badge.seen) {
       await markBadgeSeen(badge.id)
+    }
+  }
+
+  const handleTabChange = (tab: 'badges' | 'leaderboard') => {
+    play('click')
+    setActiveTab(tab)
+  }
+
+  const handleShare = async () => {
+    if (!selectedBadge) return
+
+    setIsSharing(true)
+    play('success')
+
+    const imageUrl = `/api/badges/${selectedBadge.id}/image?childId=${childId}`
+
+    try {
+      if (navigator.share && typeof navigator.canShare === "function" && navigator.canShare({ url: window.location.href })) {
+        // Mobile native share
+        await navigator.share({
+          title: `J'ai débloqué: ${selectedBadge.name}!`,
+          text: `J'ai obtenu le badge "${selectedBadge.name}" sur FamilyLoad! 🏆`,
+          url: window.location.origin + imageUrl,
+        })
+      } else {
+        // Desktop: download image
+        const link = document.createElement('a')
+        link.href = imageUrl
+        link.download = `badge-${selectedBadge.slug || selectedBadge.id}.png`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    } catch (error) {
+      // User cancelled or error
+      console.log('Share cancelled or failed', error)
+    } finally {
+      setIsSharing(false)
     }
   }
 
@@ -33,7 +76,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
       {/* Tabs */}
       <div className="flex bg-white/50 rounded-2xl p-1 mb-6">
         <button
-          onClick={() => setActiveTab('badges')}
+          onClick={() => handleTabChange('badges')}
           className={`flex-1 py-3 px-4 rounded-xl font-medium transition-colors ${
             activeTab === 'badges'
               ? 'bg-white text-gray-800 shadow'
@@ -43,7 +86,7 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
           🏆 Mes badges
         </button>
         <button
-          onClick={() => setActiveTab('leaderboard')}
+          onClick={() => handleTabChange('leaderboard')}
           className={`flex-1 py-3 px-4 rounded-xl font-medium transition-colors ${
             activeTab === 'leaderboard'
               ? 'bg-white text-gray-800 shadow'
@@ -182,12 +225,37 @@ export function BadgesGrid({ badges, initialTab, childId, children }: BadgesGrid
                 </p>
               )}
 
-              <button
-                onClick={() => setSelectedBadge(null)}
-                className="mt-4 w-full py-3 bg-gray-200 text-gray-700 rounded-full font-medium hover:bg-gray-300 transition-colors"
-              >
-                Fermer
-              </button>
+              {/* Boutons d'action */}
+              <div className="mt-4 space-y-2">
+                {/* Bouton partager - seulement pour badges débloqués */}
+                {selectedBadge.unlocked && (
+                  <motion.button
+                    onClick={handleShare}
+                    disabled={isSharing}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full py-3 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-full font-bold shadow-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSharing ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Partage...
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="w-5 h-5" />
+                        Partager mon badge! 🎉
+                      </>
+                    )}
+                  </motion.button>
+                )}
+
+                <button
+                  onClick={() => setSelectedBadge(null)}
+                  className="w-full py-3 bg-gray-200 text-gray-700 rounded-full font-medium hover:bg-gray-300 transition-colors"
+                >
+                  Fermer
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

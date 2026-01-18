@@ -94,7 +94,7 @@ export function ShoppingItem({ item }: ShoppingItemProps) {
 
         {item.is_checked && item.checked_by_name && (
           <div className="text-xs text-muted-foreground mt-0.5">
-            Coche par {item.checked_by_name}
+            Coché par {item.checked_by_name}
           </div>
         )}
       </div>

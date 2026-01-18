@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import type { RewardWithRedemptions } from '@/lib/actions/kids-rewards'
 import { redeemReward } from '@/lib/actions/kids-rewards'
+import { useGameSound } from '@/hooks/useGameSound'
 
 interface ShopGridProps {
   rewards: RewardWithRedemptions[]
@@ -27,6 +28,7 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
   const [purchaseSuccess, setPurchaseSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [xp, setXp] = useState(currentXp)
+  const { play } = useGameSound()
 
   const handlePurchase = () => {
     if (!selectedReward || isPending) return
@@ -38,6 +40,9 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
       if (result.success && result.data) {
         setXp(result.data.remainingXp)
         setPurchaseSuccess(true)
+
+        // Son d'achat
+        play('purchase')
 
         // Confettis !
         confetti({
@@ -54,9 +59,16 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
           router.refresh()
         }, 2500)
       } else {
+        // Son d'erreur
+        play('error')
         setError(result.error ?? 'Erreur lors de l\'échange')
       }
     })
+  }
+
+  const handleSelectReward = (reward: RewardWithRedemptions) => {
+    play('click')
+    setSelectedReward(reward)
   }
 
   const canAfford = (reward: RewardWithRedemptions): boolean => {
@@ -83,7 +95,7 @@ export function ShopGrid({ rewards, currentXp, childId }: ShopGridProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
               whileTap={{ scale: available ? 0.95 : 1 }}
-              onClick={() => available && setSelectedReward(reward)}
+              onClick={() => available && handleSelectReward(reward)}
               disabled={!available}
               className={`relative bg-white rounded-2xl p-4 shadow-md text-left transition-all ${
                 available

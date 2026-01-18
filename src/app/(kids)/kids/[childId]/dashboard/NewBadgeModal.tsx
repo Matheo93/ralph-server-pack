@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { markBadgeSeen } from '@/lib/actions/kids-tasks'
+import { useGameSound } from '@/hooks/useGameSound'
 import type { Badge } from '@/types/database'
 
 interface NewBadgeModalProps {
@@ -13,12 +14,14 @@ interface NewBadgeModalProps {
 export function NewBadgeModal({ badges }: NewBadgeModalProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
+  const { play } = useGameSound()
 
   const currentBadge = badges[currentIndex]
 
   useEffect(() => {
-    // Lancer les confettis au montage
+    // Lancer les confettis et jouer le son au montage
     if (currentBadge) {
+      play('badge-unlock')
       confetti({
         particleCount: 100,
         spread: 70,
@@ -26,9 +29,11 @@ export function NewBadgeModal({ badges }: NewBadgeModalProps) {
         colors: ['#EC4899', '#F97316', '#FBBF24', '#10B981'],
       })
     }
-  }, [currentIndex, currentBadge])
+  }, [currentIndex, currentBadge, play])
 
   const handleNext = async () => {
+    play('click')
+    
     if (currentBadge) {
       // Marquer le badge comme vu
       await markBadgeSeen(currentBadge.id)

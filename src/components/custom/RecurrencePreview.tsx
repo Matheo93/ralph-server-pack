@@ -23,8 +23,8 @@ interface RecurrencePreviewProps {
 
 const DAY_NAMES = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
 const MONTH_NAMES = [
-  "Jan", "Fev", "Mar", "Avr", "Mai", "Juin",
-  "Juil", "Aout", "Sep", "Oct", "Nov", "Dec"
+  "Jan", "Fév", "Mar", "Avr", "Mai", "Juin",
+  "Juil", "Août", "Sep", "Oct", "Nov", "Déc"
 ]
 
 function getFrequencyLabel(rule: RecurrenceRule): string {
@@ -167,7 +167,7 @@ export function RecurrencePreview({
     <Card className={cn("bg-muted/30", className)}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium">Recurrence</CardTitle>
+          <CardTitle className="text-sm font-medium">Récurrence</CardTitle>
           <Badge variant="secondary" className="text-xs">
             {label}
           </Badge>

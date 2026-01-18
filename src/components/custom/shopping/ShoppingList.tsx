@@ -63,7 +63,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
   }
 
   const handleClearChecked = () => {
-    if (!confirm("Supprimer tous les articles coches ?")) return
+    if (!confirm("Supprimer tous les articles cochés ?")) return
 
     startTransition(async () => {
       await clearCheckedItems(list.id)
@@ -111,7 +111,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
                 disabled={isPending}
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Decocher
+                Décocher
               </Button>
               <Button
                 variant="outline"
@@ -149,7 +149,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
           variant="outline"
           onClick={() => setIsAddDialogOpen(true)}
         >
-          Detaille
+          Détaillé
         </Button>
       </form>
 
@@ -213,7 +213,7 @@ export function ShoppingList({ list, items, suggestions }: ShoppingListProps) {
             <div className="flex items-center gap-2 py-2">
               <div className="flex-1 h-px bg-border" />
               <span className="text-xs text-muted-foreground">
-                Coches ({filteredItems.filter(i => i.is_checked).length})
+                Cochés ({filteredItems.filter(i => i.is_checked).length})
               </span>
               <div className="flex-1 h-px bg-border" />
             </div>

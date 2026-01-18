@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { X, Sparkles, Coins, Trophy, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Confetti from "react-confetti"
+import { useGameSound } from "@/hooks/useGameSound"
 
 interface RewardRevealModalProps {
   isOpen: boolean
@@ -33,6 +34,7 @@ export function RewardRevealModal({
   const [showReward, setShowReward] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [xpCounter, setXpCounter] = useState(0)
+  const { play } = useGameSound()
 
   useEffect(() => {
     if (isOpen) {
@@ -45,10 +47,18 @@ export function RewardRevealModal({
       const timer1 = setTimeout(() => {
         setChestOpen(true)
         setShowConfetti(true)
+        // Jouer le son du coffre qui s'ouvre
+        play('treasure-open')
       }, 500)
 
       const timer2 = setTimeout(() => {
         setShowReward(true)
+        // Jouer le son XP si c'est une récompense XP
+        if (rewardType === 'xp') {
+          play('xp-gain')
+        } else {
+          play('success')
+        }
       }, 1500)
 
       // Animation compteur XP
@@ -72,7 +82,17 @@ export function RewardRevealModal({
           return () => clearInterval(interval)
         }, 2000)
 
-        return () => clearTimeout(timer3)
+        // Timer pour level up sound
+        const timer4 = setTimeout(() => {
+          if (levelUp) {
+            play('level-up')
+          }
+        }, 3000)
+
+        return () => {
+          clearTimeout(timer3)
+          clearTimeout(timer4)
+        }
       }
 
       return () => {
@@ -80,7 +100,7 @@ export function RewardRevealModal({
         clearTimeout(timer2)
       }
     }
-  }, [isOpen, xpAmount, rewardType])
+  }, [isOpen, xpAmount, rewardType, levelUp, play])
 
   return (
     <AnimatePresence>
@@ -94,8 +114,8 @@ export function RewardRevealModal({
           {/* Confetti */}
           {showConfetti && (
             <Confetti
-              width={window.innerWidth}
-              height={window.innerHeight}
+              width={typeof window !== 'undefined' ? window.innerWidth : 800}
+              height={typeof window !== 'undefined' ? window.innerHeight : 600}
               recycle={false}
               numberOfPieces={300}
               gravity={0.3}

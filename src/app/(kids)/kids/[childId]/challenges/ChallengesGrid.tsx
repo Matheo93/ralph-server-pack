@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { CelebrationOverlay } from '@/components/kids/CelebrationOverlay'
+import { useGameSound } from '@/hooks/useGameSound'
 import type { ChallengeForChild, CompletedChallenge } from '@/types/database'
 
 interface ChallengesGridProps {
@@ -9,7 +10,6 @@ interface ChallengesGridProps {
   completedChallenges: CompletedChallenge[]
 }
 
-// Détecte les défis complétés récemment (dans les 5 dernières minutes)
 function getRecentlyCompletedChallenge(challenges: CompletedChallenge[]): CompletedChallenge | null {
   const fiveMinutesAgo = Date.now() - 5 * 60 * 1000
 
@@ -17,7 +17,6 @@ function getRecentlyCompletedChallenge(challenges: CompletedChallenge[]): Comple
     if (challenge.progress.completed_at) {
       const completedTime = new Date(challenge.progress.completed_at).getTime()
       if (completedTime > fiveMinutesAgo) {
-        // Vérifier si on n'a pas déjà célébré ce défi (localStorage)
         const celebratedKey = `challenge_celebrated_${challenge.id}`
         if (typeof window !== 'undefined' && !localStorage.getItem(celebratedKey)) {
           return challenge
@@ -34,24 +33,28 @@ export function ChallengesGrid({
 }: ChallengesGridProps) {
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active')
   const [celebrationChallenge, setCelebrationChallenge] = useState<CompletedChallenge | null>(null)
+  const { play } = useGameSound()
 
-  // Détecter un défi récemment complété pour afficher la célébration
   useEffect(() => {
     const recentChallenge = getRecentlyCompletedChallenge(completedChallenges)
     if (recentChallenge) {
       setCelebrationChallenge(recentChallenge)
-      // Marquer comme célébré pour ne pas ré-afficher
+      play('challenge-complete')
       localStorage.setItem(`challenge_celebrated_${recentChallenge.id}`, 'true')
     }
-  }, [completedChallenges])
+  }, [completedChallenges, play])
 
   const handleCelebrationComplete = () => {
     setCelebrationChallenge(null)
   }
 
+  const handleTabChange = (tab: 'active' | 'completed') => {
+    play('click')
+    setActiveTab(tab)
+  }
+
   return (
     <div>
-      {/* Celebration overlay pour défi complété */}
       <CelebrationOverlay
         isVisible={celebrationChallenge !== null}
         type="badge"
@@ -62,10 +65,9 @@ export function ChallengesGrid({
         duration={3500}
       />
 
-      {/* Tabs - Style gaming */}
       <div className="flex gap-2 mb-4">
         <button
-          onClick={() => setActiveTab('active')}
+          onClick={() => handleTabChange('active')}
           className={`flex-1 py-3 px-4 rounded-2xl font-bold transition-all transform hover:scale-105 ${
             activeTab === 'active'
               ? 'bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white shadow-xl scale-105'
@@ -75,7 +77,7 @@ export function ChallengesGrid({
           <span className="mr-1">🔥</span> En cours ({activeChallenges.length})
         </button>
         <button
-          onClick={() => setActiveTab('completed')}
+          onClick={() => handleTabChange('completed')}
           className={`flex-1 py-3 px-4 rounded-2xl font-bold transition-all transform hover:scale-105 ${
             activeTab === 'completed'
               ? 'bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white shadow-xl scale-105'
@@ -86,12 +88,10 @@ export function ChallengesGrid({
         </button>
       </div>
 
-      {/* Content */}
       {activeTab === 'active' ? (
         <div className="space-y-4">
           {activeChallenges.length === 0 ? (
             <div className="text-center py-10 bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 rounded-3xl shadow-lg border-2 border-purple-200/50 relative overflow-hidden">
-              {/* Decorative elements */}
               <div className="absolute top-4 left-8 text-2xl opacity-40 animate-bounce">🌟</div>
               <div className="absolute bottom-6 right-10 text-xl opacity-40 animate-bounce" style={{ animationDelay: '0.5s' }}>✨</div>
               <div className="text-6xl mb-4 animate-pulse">🎯</div>
@@ -112,7 +112,6 @@ export function ChallengesGrid({
         <div className="space-y-4">
           {completedChallenges.length === 0 ? (
             <div className="text-center py-10 bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 rounded-3xl shadow-lg border-2 border-green-200/50 relative overflow-hidden">
-              {/* Decorative elements */}
               <div className="absolute top-4 right-8 text-2xl opacity-40 animate-bounce">💪</div>
               <div className="absolute bottom-6 left-10 text-xl opacity-40 animate-bounce" style={{ animationDelay: '0.5s' }}>🌈</div>
               <div className="text-6xl mb-4 animate-bounce" style={{ animationDuration: '2s' }}>🏆</div>
@@ -139,8 +138,7 @@ function ActiveChallengeCard({ challenge }: { challenge: ChallengeForChild }) {
   const isHalfway = challenge.progressPercentage >= 50
 
   return (
-    <div className="bg-gradient-to-br from-white/90 via-orange-50/80 to-pink-50/80 backdrop-blur-sm rounded-3xl p-5 shadow-xl border-2 border-orange-200/50 transform hover:scale-[1.02] transition-all">
-      {/* Header */}
+    <div className="bg-gradient-to-br from-white/90 via-orange-50/80 to-pink-50/80 backdrop-blur-sm rounded-3xl p-5 shadow-xl border-2 border-orange-200/50 transform hover:scale-102 transition-all">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-14 h-14 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-500 rounded-2xl flex items-center justify-center text-3xl shadow-lg animate-pulse" style={{ animationDuration: '2s' }}>
           {challenge.icon}
@@ -162,7 +160,6 @@ function ActiveChallengeCard({ challenge }: { challenge: ChallengeForChild }) {
         )}
       </div>
 
-      {/* Progress bar - Style gaming */}
       <div className="mb-4 bg-white/60 rounded-2xl p-3">
         <div className="flex justify-between text-sm mb-2">
           <span className="text-gray-600 font-medium flex items-center gap-1">
@@ -189,7 +186,6 @@ function ActiveChallengeCard({ challenge }: { challenge: ChallengeForChild }) {
         )}
       </div>
 
-      {/* Reward preview - Style trésor */}
       <div className="flex items-center justify-between bg-gradient-to-r from-amber-100 to-yellow-100 rounded-2xl px-4 py-2">
         <span className="text-amber-700 font-bold flex items-center gap-1">
           <span className="text-lg">🎁</span> Récompense
@@ -208,7 +204,6 @@ function ActiveChallengeCard({ challenge }: { challenge: ChallengeForChild }) {
 function CompletedChallengeCard({ challenge }: { challenge: CompletedChallenge }) {
   return (
     <div className="bg-gradient-to-br from-green-100/90 via-emerald-50/80 to-teal-50/80 backdrop-blur-sm rounded-3xl p-4 shadow-lg border-2 border-green-200/50">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-3">
         <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center text-2xl shadow-md">
           {challenge.icon}
@@ -224,7 +219,6 @@ function CompletedChallengeCard({ challenge }: { challenge: CompletedChallenge }
         </div>
       </div>
 
-      {/* Rewards earned */}
       <div className="flex items-center gap-2 bg-white/60 rounded-2xl px-3 py-2">
         <span className="font-black text-amber-600 flex items-center gap-1">
           <span className="text-lg">💎</span> +{challenge.progress.xp_awarded} XP

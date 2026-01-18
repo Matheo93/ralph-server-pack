@@ -31,8 +31,8 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           </div>
           <CardTitle className="text-2xl">Oups ! Une erreur s&apos;est produite</CardTitle>
           <CardDescription className="text-base">
-            Nous sommes desoles, quelque chose n&apos;a pas fonctionne comme prevu.
-            Ne vous inquietez pas, vos donnees sont en securite.
+            Nous sommes désolés, quelque chose n&apos;a pas fonctionné comme prévu.
+            Ne vous inquiétez pas, vos données sont en sécurité.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -73,7 +73,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
           {/* Help text */}
           <div className="text-center text-sm text-muted-foreground space-y-2">
             <p>
-              Si le probleme persiste, essayez de rafraichir la page
+              Si le problème persiste, essayez de rafraîchir la page
               ou de vous reconnecter.
             </p>
             <p>

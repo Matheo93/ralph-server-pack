@@ -127,13 +127,13 @@ export function InstallPrompt() {
               </Button>
             </div>
             <CardDescription>
-              Installez l&apos;app pour un acces rapide
+              Installez l&apos;app pour un accès rapide
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>1. Appuyez sur le bouton <strong>Partager</strong> <span className="inline-block w-4 h-4 align-middle">&#x2934;</span></p>
-              <p>2. Faites defiler et appuyez sur <strong>&quot;Sur l&apos;ecran d&apos;accueil&quot;</strong></p>
+              <p>2. Faites défiler et appuyez sur <strong>&quot;Sur l&apos;écran d&apos;accueil&quot;</strong></p>
               <p>3. Appuyez sur <strong>Ajouter</strong></p>
             </div>
           </CardContent>
@@ -165,7 +165,7 @@ export function InstallPrompt() {
             </Button>
           </div>
           <CardDescription>
-            Installez l&apos;app pour un acces rapide depuis votre ecran d&apos;accueil
+            Installez l&apos;app pour un accès rapide depuis votre ecran d&apos;accueil
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
