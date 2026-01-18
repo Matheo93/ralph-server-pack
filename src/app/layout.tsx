@@ -69,9 +69,80 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "FamilyLoad",
     startupImage: [
+      // iPhone SE, iPod touch (640x1136)
       {
-        url: "/icons/apple-touch-icon.png",
-        media: "(device-width: 320px) and (device-height: 568px)",
+        url: "/splash/apple-splash-640-1136.png",
+        media: "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      // iPhone 6/7/8 (750x1334)
+      {
+        url: "/splash/apple-splash-750-1334.png",
+        media: "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      // iPhone 6+/7+/8+ (1242x2208)
+      {
+        url: "/splash/apple-splash-1242-2208.png",
+        media: "(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      // iPhone X/XS/11 Pro (1125x2436)
+      {
+        url: "/splash/apple-splash-1125-2436.png",
+        media: "(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      // iPhone XR/11 (828x1792)
+      {
+        url: "/splash/apple-splash-828-1792.png",
+        media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      // iPhone XS Max/11 Pro Max (1242x2688)
+      {
+        url: "/splash/apple-splash-1242-2688.png",
+        media: "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      // iPhone 12 mini/13 mini (1080x2340)
+      {
+        url: "/splash/apple-splash-1080-2340.png",
+        media: "(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      // iPhone 12/12 Pro/13/13 Pro/14 (1170x2532)
+      {
+        url: "/splash/apple-splash-1170-2532.png",
+        media: "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      // iPhone 12 Pro Max/13 Pro Max/14 Plus (1284x2778)
+      {
+        url: "/splash/apple-splash-1284-2778.png",
+        media: "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      // iPhone 14 Pro (1179x2556)
+      {
+        url: "/splash/apple-splash-1179-2556.png",
+        media: "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      // iPhone 14 Pro Max/15 Pro Max/15 Plus (1290x2796)
+      {
+        url: "/splash/apple-splash-1290-2796.png",
+        media: "(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      // iPad Mini (1536x2048)
+      {
+        url: "/splash/apple-splash-1536-2048.png",
+        media: "(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      // iPad Air (1668x2224)
+      {
+        url: "/splash/apple-splash-1668-2224.png",
+        media: "(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      // iPad Pro 10.5"/11" (1668x2388)
+      {
+        url: "/splash/apple-splash-1668-2388.png",
+        media: "(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      // iPad Pro 12.9" (2048x2732)
+      {
+        url: "/splash/apple-splash-2048-2732.png",
+        media: "(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)",
       },
     ],
   },
