@@ -51,13 +51,13 @@ export function AnimatedXpBar({
           >
             {levelIcon}
           </motion.span>
-          <span className="font-semibold text-gray-700">{levelName}</span>
+          <span className="font-semibold text-gray-700 dark:text-gray-200">{levelName}</span>
         </div>
-        <span className="text-sm text-gray-500">Niv. {level}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">Niv. {level}</span>
       </div>
 
       {/* Progress bar container */}
-      <div className="relative h-5 bg-gray-200 rounded-full overflow-hidden">
+      <div className="relative h-5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
         {/* Animated progress fill */}
         <motion.div
           style={{ width: useTransform(springProgress, (v) => `${v}%`) }}
@@ -89,7 +89,7 @@ export function AnimatedXpBar({
       </div>
 
       {/* XP counter */}
-      <div className="flex justify-between mt-1 text-xs text-gray-500">
+      <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
         <motion.span
           key={currentXp}
           initial={{ scale: 1.2, color: '#EC4899' }}

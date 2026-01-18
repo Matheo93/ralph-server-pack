@@ -37,8 +37,8 @@
 - [x] Audit WCAG 2.1 AA sur les nouvelles pages (Calendar, Shopping, Kids)
 - [x] Ajouter les attributs aria-* manquants sur les composants interactifs
 - [x] Vérifier le contraste des couleurs sur l'interface Kids
-- [ ] Compléter les traductions françaises manquantes dans src/messages/fr.json
-- [ ] Ajouter le support du mode sombre pour l'interface Kids
+- [x] Compléter les traductions françaises manquantes dans src/messages/fr.json
+- [x] Ajouter le support du mode sombre pour l'interface Kids
 
 ## Phase 7: Fonctionnalités supplémentaires
 - [ ] Ajouter l'export PDF du calendrier mensuel

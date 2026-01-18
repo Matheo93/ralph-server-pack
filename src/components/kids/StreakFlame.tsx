@@ -81,7 +81,7 @@ export function StreakFlame({ streak, size = 'md', animated = true }: StreakFlam
           repeat: Infinity,
           repeatDelay: 1,
         }}
-        className="font-bold text-orange-600"
+        className="font-bold text-orange-600 dark:text-orange-400"
       >
         {streak}
       </motion.span>
