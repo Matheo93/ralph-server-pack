@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useCallback, useRef, useLayoutEffect } fr
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addMonths, subMonths, addWeeks, subWeeks, isToday } from "date-fns"
 import { fr } from "date-fns/locale"
 import { ChevronLeft, ChevronRight, Plus, Loader2, History } from "lucide-react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,20 @@ import { EventCard } from "./EventCard"
 import { EventFormDialog } from "./EventFormDialog"
 import { useCalendarPrefetch } from "@/hooks/useCalendarPrefetch"
 import type { CalendarEvent } from "@/lib/actions/calendar"
+
+// Import dynamique pour éviter les problèmes SSR avec @react-pdf/renderer
+const CalendarPdfExportButton = dynamic(
+  () => import("./CalendarPdfExportButton").then(mod => ({ default: mod.CalendarPdfExportButton })),
+  {
+    ssr: false,
+    loading: () => (
+      <Button variant="outline" disabled>
+        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+        PDF
+      </Button>
+    )
+  }
+)
 
 interface CalendarViewProps {
   events: CalendarEvent[]
@@ -243,9 +258,12 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
               : `Semaine du ${format(startOfWeek(currentDate, { locale: fr }), "d MMMM", { locale: fr })}`
             }
             {(isNavigating || isLoading) && (
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
             )}
           </h2>
+          {(isNavigating || isLoading) && (
+            <span className="sr-only" role="status" aria-live="polite">Chargement en cours</span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -270,6 +288,7 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
               Semaine
             </Button>
           </div>
+          <CalendarPdfExportButton currentDate={currentDate} events={displayEvents} />
           <Button variant="outline" asChild>
             <Link href="/calendar/history">
               <History className="h-4 w-4 mr-2" />
@@ -286,10 +305,11 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
       {/* Calendar Grid */}
       <div className="flex-1 border rounded-lg overflow-hidden bg-card">
         {/* Week days header */}
-        <div className="grid grid-cols-7 border-b bg-muted/50">
+        <div className="grid grid-cols-7 border-b bg-muted/50" role="row">
           {weekDays.map(day => (
             <div
               key={day}
+              role="columnheader"
               className="py-3 text-center text-sm font-medium text-muted-foreground"
             >
               {day}
@@ -320,15 +340,20 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
             const eventCount = displayEventCounts[dateKey] || 0
             const isCurrentMonth = isSameMonth(day, currentDate)
             const isSelected = selectedDate && isSameDay(day, selectedDate)
+            const dayLabel = format(day, "EEEE d MMMM yyyy", { locale: fr })
 
             return (
-              <div
+              <button
+                type="button"
                 key={idx}
                 onClick={() => handleDayClick(day)}
                 onMouseEnter={() => handleDayHover(day)}
                 onTouchStart={() => handleDayHover(day)}
+                aria-label={`${dayLabel}${dayEvents.length > 0 ? `, ${dayEvents.length} événement${dayEvents.length > 1 ? 's' : ''}` : ''}`}
+                aria-selected={isSelected || undefined}
+                aria-current={isToday(day) ? "date" : undefined}
                 className={cn(
-                  "min-h-[100px] sm:min-h-[120px] border-r border-b p-1 sm:p-2 cursor-pointer transition-colors hover:bg-muted/50",
+                  "min-h-[100px] sm:min-h-[120px] border-r border-b p-1 sm:p-2 cursor-pointer transition-colors hover:bg-muted/50 text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
                   !isCurrentMonth && "bg-muted/30 text-muted-foreground",
                   isToday(day) && "bg-primary/5",
                   isSelected && "ring-2 ring-primary ring-inset"
@@ -368,7 +393,7 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
                     </div>
                   )}
                 </div>
-              </div>
+              </button>
             )
           })}
         </div>

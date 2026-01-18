@@ -41,7 +41,7 @@
 - [x] Ajouter le support du mode sombre pour l'interface Kids
 
 ## Phase 7: Fonctionnalités supplémentaires
-- [ ] Ajouter l'export PDF du calendrier mensuel
+- [x] Ajouter l'export PDF du calendrier mensuel
 - [ ] Implémenter les notifications push pour les événements calendrier (rappel 1h avant)
 - [ ] Ajouter le partage de liste de courses par lien (lecture seule)
 - [ ] Créer une vue "cette semaine" pour les défis enfants
