@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback, useRef, useLayoutEffect } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addMonths, subMonths, addWeeks, subWeeks, isToday } from "date-fns"
 import { fr } from "date-fns/locale"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, Loader2, History } from "lucide-react"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,20 +22,104 @@ interface CalendarViewProps {
 
 type ViewMode = "month" | "week"
 
-export function CalendarView({ events, eventCounts, children, householdMembers }: CalendarViewProps) {
+export function CalendarView({ events: initialEvents, eventCounts: initialEventCounts, children, householdMembers }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<ViewMode>("month")
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
 
-  // Prefetching hook pour les mois adjacents
-  const { prefetchPreviousMonth, prefetchNextMonth, prefetchAdjacentMonths } = useCalendarPrefetch()
+  // Animation state
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [slideDirection, setSlideDirection] = useState<"left" | "right" | "none">("none")
+  const [viewTransition, setViewTransition] = useState<"expand" | "collapse" | "none">("none")
+  const gridRef = useRef<HTMLDivElement>(null)
+  const previousViewMode = useRef<ViewMode>(viewMode)
 
-  // Prefetch les mois adjacents au montage et quand la date change
+  // State local pour les événements et compteurs (permet d'utiliser le cache)
+  const [displayEvents, setDisplayEvents] = useState<CalendarEvent[]>(initialEvents)
+  const [displayEventCounts, setDisplayEventCounts] = useState<Record<string, number>>(initialEventCounts)
+  const [isNavigating, setIsNavigating] = useState(false)
+
+  // Prefetching hook pour les mois adjacents
+  const {
+    prefetchMonth,
+    prefetchPreviousMonth,
+    prefetchNextMonth,
+    prefetchAdjacentMonths,
+    getMonthData,
+    setCachedData,
+    getCachedData,
+    cancelPendingPrefetches,
+    isLoading
+  } = useCalendarPrefetch()
+
+  // Cleanup des prefetch en attente au démontage
   useEffect(() => {
+    return () => {
+      cancelPendingPrefetches()
+    }
+  }, [cancelPendingPrefetches])
+
+  // Handle view mode transitions (month <-> week)
+  useEffect(() => {
+    if (previousViewMode.current !== viewMode) {
+      const transitionType = viewMode === "week" ? "collapse" : "expand"
+      setViewTransition(transitionType)
+      setIsTransitioning(true)
+
+      const timer = setTimeout(() => {
+        setIsTransitioning(false)
+        setViewTransition("none")
+      }, 300)
+
+      previousViewMode.current = viewMode
+      return () => clearTimeout(timer)
+    }
+  }, [viewMode])
+
+  // Initialize cache avec les données initiales au montage
+  useEffect(() => {
+    setCachedData(new Date(), { events: initialEvents, eventCounts: initialEventCounts })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Charger les données du mois courant (depuis cache ou fetch)
+  const loadMonthData = useCallback(async (date: Date) => {
+    setIsNavigating(true)
+    try {
+      // Vérifier d'abord le cache synchrone
+      const cachedData = getCachedData(date)
+      if (cachedData) {
+        setDisplayEvents(cachedData.events)
+        setDisplayEventCounts(cachedData.eventCounts)
+        setIsNavigating(false)
+        return
+      }
+
+      // Sinon, charger depuis le serveur (ou attendre le prefetch en cours)
+      const data = await getMonthData(date)
+      setDisplayEvents(data.events)
+      setDisplayEventCounts(data.eventCounts)
+    } catch (error) {
+      console.error("Erreur lors du chargement des données du calendrier:", error)
+    } finally {
+      setIsNavigating(false)
+    }
+  }, [getCachedData, getMonthData])
+
+  // Charger les données quand le mois change
+  useEffect(() => {
+    // Ne pas recharger pour le mois initial (on a déjà les données via props)
+    const initialMonth = format(new Date(), "yyyy-MM")
+    const currentMonth = format(currentDate, "yyyy-MM")
+
+    if (currentMonth !== initialMonth) {
+      void loadMonthData(currentDate)
+    }
+
+    // Toujours prefetch les mois adjacents
     prefetchAdjacentMonths(currentDate)
-  }, [currentDate, prefetchAdjacentMonths])
+  }, [currentDate, loadMonthData, prefetchAdjacentMonths])
 
   const days = useMemo(() => {
     if (viewMode === "month") {
@@ -50,15 +135,27 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
 
   const eventsByDate = useMemo(() => {
     const map = new Map<string, CalendarEvent[]>()
-    events.forEach(event => {
+    displayEvents.forEach(event => {
       const dateKey = format(new Date(event.start_date), "yyyy-MM-dd")
       const existing = map.get(dateKey) || []
       map.set(dateKey, [...existing, event])
     })
     return map
-  }, [events])
+  }, [displayEvents])
+
+  const triggerSlideAnimation = (direction: "left" | "right") => {
+    setSlideDirection(direction)
+    setIsTransitioning(true)
+
+    // Reset après l'animation
+    setTimeout(() => {
+      setIsTransitioning(false)
+      setSlideDirection("none")
+    }, 300)
+  }
 
   const navigatePrevious = () => {
+    triggerSlideAnimation("right")
     if (viewMode === "month") {
       setCurrentDate(subMonths(currentDate, 1))
     } else {
@@ -67,6 +164,7 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
   }
 
   const navigateNext = () => {
+    triggerSlideAnimation("left")
     if (viewMode === "month") {
       setCurrentDate(addMonths(currentDate, 1))
     } else {
@@ -75,7 +173,13 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
   }
 
   const goToToday = () => {
-    setCurrentDate(new Date())
+    const today = new Date()
+    const isSameMonthAsToday = format(currentDate, "yyyy-MM") === format(today, "yyyy-MM")
+    if (!isSameMonthAsToday) {
+      const direction = today < currentDate ? "right" : "left"
+      triggerSlideAnimation(direction)
+    }
+    setCurrentDate(today)
   }
 
   const handleDayClick = (date: Date) => {
@@ -96,6 +200,14 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
     setSelectedEvent(null)
   }
 
+  // Prefetch les données du mois d'un jour spécifique lors du hover
+  const handleDayHover = (day: Date) => {
+    if (!isSameMonth(day, currentDate)) {
+      // Le jour appartient à un mois adjacent, prefetch ce mois
+      prefetchMonth(day)
+    }
+  }
+
   const weekDays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
 
   return (
@@ -108,7 +220,9 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
             size="icon"
             onClick={navigatePrevious}
             onMouseEnter={() => prefetchPreviousMonth(currentDate)}
+            onTouchStart={() => prefetchPreviousMonth(currentDate)}
             onFocus={() => prefetchPreviousMonth(currentDate)}
+            aria-label="Mois précédent"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -117,15 +231,20 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
             size="icon"
             onClick={navigateNext}
             onMouseEnter={() => prefetchNextMonth(currentDate)}
+            onTouchStart={() => prefetchNextMonth(currentDate)}
             onFocus={() => prefetchNextMonth(currentDate)}
+            aria-label="Mois suivant"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <h2 className="text-xl font-semibold ml-2 capitalize">
+          <h2 className="text-xl font-semibold ml-2 capitalize flex items-center gap-2">
             {viewMode === "month"
               ? format(currentDate, "MMMM yyyy", { locale: fr })
               : `Semaine du ${format(startOfWeek(currentDate, { locale: fr }), "d MMMM", { locale: fr })}`
             }
+            {(isNavigating || isLoading) && (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            )}
           </h2>
         </div>
 
@@ -151,6 +270,12 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
               Semaine
             </Button>
           </div>
+          <Button variant="outline" asChild>
+            <Link href="/calendar/history">
+              <History className="h-4 w-4 mr-2" />
+              Historique
+            </Link>
+          </Button>
           <Button onClick={() => { setSelectedDate(new Date()); setSelectedEvent(null); setIsFormOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" />
             Événement
@@ -172,15 +297,27 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
           ))}
         </div>
 
-        {/* Days grid */}
-        <div className={cn(
-          "grid grid-cols-7",
-          viewMode === "month" ? "grid-rows-6" : "grid-rows-1"
-        )}>
+        {/* Days grid with animations */}
+        <div
+          ref={gridRef}
+          className={cn(
+            "grid grid-cols-7 transition-all duration-300 ease-out",
+            viewMode === "month" ? "grid-rows-6" : "grid-rows-1",
+            // Slide animations for navigation
+            slideDirection === "left" && isTransitioning && "animate-slide-in-left",
+            slideDirection === "right" && isTransitioning && "animate-slide-in-right",
+            // View transition animations (month <-> week)
+            viewTransition === "collapse" && isTransitioning && "animate-collapse-grid",
+            viewTransition === "expand" && isTransitioning && "animate-expand-grid"
+          )}
+          style={{
+            // Smooth height transition for view changes
+            minHeight: viewMode === "week" ? "120px" : undefined
+          }}>
           {days.map((day, idx) => {
             const dateKey = format(day, "yyyy-MM-dd")
             const dayEvents = eventsByDate.get(dateKey) || []
-            const eventCount = eventCounts[dateKey] || 0
+            const eventCount = displayEventCounts[dateKey] || 0
             const isCurrentMonth = isSameMonth(day, currentDate)
             const isSelected = selectedDate && isSameDay(day, selectedDate)
 
@@ -188,6 +325,8 @@ export function CalendarView({ events, eventCounts, children, householdMembers }
               <div
                 key={idx}
                 onClick={() => handleDayClick(day)}
+                onMouseEnter={() => handleDayHover(day)}
+                onTouchStart={() => handleDayHover(day)}
                 className={cn(
                   "min-h-[100px] sm:min-h-[120px] border-r border-b p-1 sm:p-2 cursor-pointer transition-colors hover:bg-muted/50",
                   !isCurrentMonth && "bg-muted/30 text-muted-foreground",

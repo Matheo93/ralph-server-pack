@@ -1105,3 +1105,111 @@
 .animate-mission-complete {
   animation: mission-complete 0.8s ease-in-out;
 }
+
+/* ============================================
+ * CALENDAR VIEW TRANSITIONS
+ * Smooth animations between month/week views
+ * ============================================ */
+
+/* Slide in from left (navigating forward) */
+@keyframes slide-in-left {
+  0% {
+    opacity: 0.5;
+    transform: translateX(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 300ms ease-out forwards;
+}
+
+/* Slide in from right (navigating backward) */
+@keyframes slide-in-right {
+  0% {
+    opacity: 0.5;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 300ms ease-out forwards;
+}
+
+/* Collapse animation (month to week view) */
+@keyframes collapse-grid {
+  0% {
+    opacity: 1;
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+.animate-collapse-grid {
+  animation: collapse-grid 300ms ease-out forwards;
+}
+
+/* Expand animation (week to month view) */
+@keyframes expand-grid {
+  0% {
+    opacity: 0.7;
+    transform: scaleY(0.2);
+    transform-origin: top;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+.animate-expand-grid {
+  animation: expand-grid 300ms ease-out forwards;
+}
+
+/* Calendar day cell fade-in for smooth appearance */
+@keyframes calendar-day-fade {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-calendar-day-fade {
+  animation: calendar-day-fade 200ms ease-out forwards;
+}
+
+/* Calendar event slide in */
+@keyframes event-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-event-slide-in {
+  animation: event-slide-in 200ms ease-out forwards;
+}
