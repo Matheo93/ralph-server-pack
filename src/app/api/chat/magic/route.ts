@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { getUserId } from "@/lib/auth/actions"
 import { canUseMagicChat } from "@/lib/services/subscription"
-import { query, queryOne, setCurrentUser } from "@/lib/aws/database"
+import { query, queryOne, insert, setCurrentUser } from "@/lib/aws/database"
 
 const requestSchema = z.object({
   message: z.string().min(1).max(500),
@@ -29,6 +29,14 @@ interface HouseholdStats {
   completedTasks: number
   pendingTasks: number
   overdueTasks: number
+}
+
+interface ChatContext {
+  children: Child[]
+  tasks: Task[]
+  stats: HouseholdStats
+  householdId: string
+  userId: string
 }
 
 export async function POST(request: NextRequest) {
@@ -73,6 +81,8 @@ export async function POST(request: NextRequest) {
       children,
       tasks,
       stats,
+      householdId,
+      userId,
     })
 
     return NextResponse.json({ response })
@@ -86,16 +96,16 @@ export async function POST(request: NextRequest) {
 }
 
 async function getChildren(householdId: string): Promise<Child[]> {
-  const result = await query<{ id: string; name: string; birth_date: string }>(`
-    SELECT id, name, birth_date
+  const result = await query<{ id: string; first_name: string; birthdate: string }>(`
+    SELECT id, first_name, birthdate
     FROM children
     WHERE household_id = $1 AND is_active = true
   `, [householdId])
 
   return result.map((c) => ({
     id: c.id,
-    name: c.name,
-    age: Math.floor((Date.now() - new Date(c.birth_date).getTime()) / (365.25 * 24 * 60 * 60 * 1000)),
+    name: c.first_name,
+    age: Math.floor((Date.now() - new Date(c.birthdate).getTime()) / (365.25 * 24 * 60 * 60 * 1000)),
   }))
 }
 
@@ -105,8 +115,8 @@ async function getRecentTasks(householdId: string): Promise<Task[]> {
       t.id,
       t.title,
       t.status,
-      c.name as child_name,
-      t.due_date,
+      c.first_name as child_name,
+      t.deadline as due_date,
       COALESCE(u.email, 'Non assigné') as assigned_to
     FROM tasks t
     LEFT JOIN children c ON c.id = t.child_id
@@ -130,7 +140,7 @@ async function getHouseholdStats(householdId: string): Promise<HouseholdStats> {
       COUNT(*) as total,
       COUNT(*) FILTER (WHERE status = 'completed') as completed,
       COUNT(*) FILTER (WHERE status = 'pending') as pending,
-      COUNT(*) FILTER (WHERE status = 'pending' AND due_date < CURRENT_DATE) as overdue
+      COUNT(*) FILTER (WHERE status = 'pending' AND deadline < CURRENT_DATE) as overdue
     FROM tasks
     WHERE household_id = $1
       AND created_at >= CURRENT_DATE - INTERVAL '30 days'
@@ -144,15 +154,201 @@ async function getHouseholdStats(householdId: string): Promise<HouseholdStats> {
   }
 }
 
+/**
+ * Parse natural language to extract task creation details
+ */
+function parseTaskCreationRequest(message: string, children: Child[]): {
+  isTaskCreation: boolean
+  childName?: string
+  childId?: string
+  taskTitle?: string
+  dueDate?: Date
+  dueTime?: string
+} {
+  const lowerMessage = message.toLowerCase()
+
+  // Check if this is a task creation request
+  const taskKeywords = [
+    "doit faire", "doit", "faire", "ajoute", "créer", "crée", "nouvelle tâche",
+    "rappelle", "rappeler", "n'oublie pas", "noublie pas", "pense à"
+  ]
+
+  const isTaskCreation = taskKeywords.some(kw => lowerMessage.includes(kw))
+  if (!isTaskCreation) {
+    return { isTaskCreation: false }
+  }
+
+  // Find matching child
+  let childName: string | undefined
+  let childId: string | undefined
+  for (const child of children) {
+    if (lowerMessage.includes(child.name.toLowerCase())) {
+      childName = child.name
+      childId = child.id
+      break
+    }
+  }
+
+  // Extract task title by removing child name and date/time info
+  let taskTitle = message
+
+  // Remove child name
+  if (childName) {
+    const childRegex = new RegExp(childName, "gi")
+    taskTitle = taskTitle.replace(childRegex, "").trim()
+  }
+
+  // Remove common prefixes
+  taskTitle = taskTitle
+    .replace(/^(doit faire|doit|faire|ajoute|créer|crée|nouvelle tâche|rappelle|rappeler|n'oublie pas|noublie pas|pense à)\s*/i, "")
+    .replace(/\s+(ses|son|sa|leur|leurs)\s+/gi, " ")
+    .trim()
+
+  // Parse date/time
+  let dueDate: Date | undefined
+  let dueTime: string | undefined
+
+  // Handle "demain"
+  if (lowerMessage.includes("demain")) {
+    dueDate = new Date()
+    dueDate.setDate(dueDate.getDate() + 1)
+    taskTitle = taskTitle.replace(/\s*demain\s*/gi, " ").trim()
+  }
+
+  // Handle "aujourd'hui"
+  if (lowerMessage.includes("aujourd'hui") || lowerMessage.includes("aujourdhui")) {
+    dueDate = new Date()
+    taskTitle = taskTitle.replace(/\s*(aujourd'hui|aujourdhui)\s*/gi, " ").trim()
+  }
+
+  // Handle "après-demain"
+  if (lowerMessage.includes("après-demain") || lowerMessage.includes("apres-demain") || lowerMessage.includes("après demain")) {
+    dueDate = new Date()
+    dueDate.setDate(dueDate.getDate() + 2)
+    taskTitle = taskTitle.replace(/\s*(après-demain|apres-demain|après demain)\s*/gi, " ").trim()
+  }
+
+  // Handle "dans X jours"
+  const daysMatch = lowerMessage.match(/dans\s+(\d+)\s+jours?/i)
+  if (daysMatch && daysMatch[1]) {
+    dueDate = new Date()
+    dueDate.setDate(dueDate.getDate() + parseInt(daysMatch[1], 10))
+    taskTitle = taskTitle.replace(/\s*dans\s+\d+\s+jours?\s*/gi, " ").trim()
+  }
+
+  // Handle time extraction (e.g., "à 19h", "à 14:00", "à 9h30")
+  const timeMatch = lowerMessage.match(/à\s*(\d{1,2})[h:]?(\d{0,2})/i)
+  if (timeMatch && timeMatch[1]) {
+    const hours = parseInt(timeMatch[1], 10)
+    const minutes = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0
+    dueTime = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
+
+    if (dueDate) {
+      dueDate.setHours(hours, minutes, 0, 0)
+    }
+
+    taskTitle = taskTitle.replace(/\s*à\s*\d{1,2}[h:]?\d{0,2}\s*/gi, " ").trim()
+  }
+
+  // Handle "pour" prefix for date context
+  taskTitle = taskTitle.replace(/\s*pour\s*/gi, " ").trim()
+
+  // Clean up extra whitespace and punctuation
+  taskTitle = taskTitle
+    .replace(/\s+/g, " ")
+    .replace(/^[\s,]+|[\s,]+$/g, "")
+    .trim()
+
+  // Capitalize first letter
+  if (taskTitle) {
+    taskTitle = taskTitle.charAt(0).toUpperCase() + taskTitle.slice(1)
+  }
+
+  return {
+    isTaskCreation: true,
+    childName,
+    childId,
+    taskTitle: taskTitle || undefined,
+    dueDate,
+    dueTime,
+  }
+}
+
+/**
+ * Create a task in the database
+ */
+async function createTask(params: {
+  householdId: string
+  userId: string
+  childId?: string
+  title: string
+  dueDate?: Date
+}): Promise<{ id: string; title: string } | null> {
+  try {
+    const result = await insert<{ id: string; title: string }>("tasks", {
+      household_id: params.householdId,
+      title: params.title,
+      child_id: params.childId || null,
+      assigned_to: params.userId,
+      created_by: params.userId,
+      status: "pending",
+      source: "chat",
+      priority: "normal",
+      deadline: params.dueDate ? params.dueDate.toISOString().split("T")[0] : null,
+    })
+
+    return result
+  } catch (error) {
+    console.error("Error creating task:", error)
+    return null
+  }
+}
+
 async function generateResponse(
   message: string,
-  context: {
-    children: Child[]
-    tasks: Task[]
-    stats: HouseholdStats
-  }
+  context: ChatContext
 ): Promise<string> {
   const lowerMessage = message.toLowerCase()
+
+  // Check for task creation request FIRST
+  const taskParsed = parseTaskCreationRequest(message, context.children)
+
+  if (taskParsed.isTaskCreation && taskParsed.taskTitle) {
+    // Create the task
+    const task = await createTask({
+      householdId: context.householdId,
+      userId: context.userId,
+      childId: taskParsed.childId,
+      title: taskParsed.taskTitle,
+      dueDate: taskParsed.dueDate,
+    })
+
+    if (task) {
+      let response = `✅ Tâche créée : "${task.title}"`
+
+      if (taskParsed.childName) {
+        response += `\n👤 Pour : ${taskParsed.childName}`
+      }
+
+      if (taskParsed.dueDate) {
+        const dateStr = taskParsed.dueDate.toLocaleDateString("fr-FR", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+        })
+        response += `\n📅 Échéance : ${dateStr}`
+
+        if (taskParsed.dueTime) {
+          response += ` à ${taskParsed.dueTime}`
+        }
+      }
+
+      response += "\n\nLa tâche a été ajoutée à votre liste !"
+      return response
+    } else {
+      return "❌ Désolé, je n'ai pas pu créer la tâche. Veuillez réessayer ou utiliser le bouton '+' pour l'ajouter manuellement."
+    }
+  }
 
   // Pattern matching for common queries
   if (lowerMessage.includes("retard") || lowerMessage.includes("overdue")) {
@@ -160,79 +356,70 @@ async function generateResponse(
       (t) => t.status === "pending" && t.due_date && new Date(t.due_date) < new Date()
     )
     if (overdueTasks.length === 0) {
-      return "Bonne nouvelle ! Aucune tâche n'est en retard. Continuez comme ça !"
+      return "✅ Bonne nouvelle ! Aucune tâche n'est en retard. Continuez comme ça !"
     }
-    return `Il y a ${overdueTasks.length} tâche(s) en retard:\n${overdueTasks
-      .map((t) => `- ${t.title} (${t.child_name || "Famille"})`)
+    return `⚠️ Il y a ${overdueTasks.length} tâche(s) en retard:\n${overdueTasks
+      .map((t) => `• ${t.title} (${t.child_name || "Famille"})`)
       .join("\n")}`
   }
 
   if (lowerMessage.includes("résume") || lowerMessage.includes("semaine") || lowerMessage.includes("stats")) {
-    return `Résumé de votre foyer (30 derniers jours):
-- Total des tâches: ${context.stats.totalTasks}
-- Complétées: ${context.stats.completedTasks}
-- En attente: ${context.stats.pendingTasks}
-- En retard: ${context.stats.overdueTasks}
+    const completionRate = context.stats.totalTasks > 0
+      ? Math.round((context.stats.completedTasks / context.stats.totalTasks) * 100)
+      : 0
 
-Taux de complétion: ${context.stats.totalTasks > 0 ? Math.round((context.stats.completedTasks / context.stats.totalTasks) * 100) : 0}%`
+    return `📊 Résumé de votre foyer (30 derniers jours):
+
+• Total des tâches: ${context.stats.totalTasks}
+• Complétées: ${context.stats.completedTasks} ✅
+• En attente: ${context.stats.pendingTasks} ⏳
+• En retard: ${context.stats.overdueTasks} ⚠️
+
+Taux de complétion: ${completionRate}%${completionRate >= 80 ? " 🎉" : completionRate >= 50 ? " 👍" : " 💪"}`
   }
 
   if (lowerMessage.includes("charge mentale") || lowerMessage.includes("répartition")) {
-    return `Pour voir la répartition détaillée de la charge mentale, rendez-vous dans l'onglet "Charge mentale" du menu.
+    return `📈 Pour voir la répartition détaillée de la charge mentale, rendez-vous dans l'onglet "Charge mentale" du menu.
 
 Vous y trouverez:
-- La répartition des tâches entre les parents
-- L'évolution sur le temps
-- Des recommandations pour un meilleur équilibre`
+• La répartition des tâches entre les parents
+• L'évolution sur le temps
+• Des recommandations pour un meilleur équilibre`
   }
 
-  if (lowerMessage.includes("ajoute") || lowerMessage.includes("créer") || lowerMessage.includes("nouvelle tâche")) {
-    // Extract child name if mentioned
-    const childMatch = context.children.find((c) =>
-      lowerMessage.includes(c.name.toLowerCase())
-    )
-
-    if (childMatch) {
-      return `Pour ajouter une tâche pour ${childMatch.name}, utilisez le bouton "+" en bas à droite ou la commande vocale.
-
-Vous pouvez aussi aller directement sur la page Tâches et cliquer sur "Nouvelle tâche".`
-    }
-
-    return `Pour créer une nouvelle tâche:
-1. Cliquez sur le bouton "+" en bas à droite
-2. Ou utilisez la commande vocale
-3. Ou allez dans Tâches > Nouvelle tâche
-
-Vos enfants: ${context.children.map((c) => c.name).join(", ") || "Aucun enfant ajouté"}`
-  }
-
-  if (lowerMessage.includes("enfant") || lowerMessage.includes("children")) {
+  if (lowerMessage.includes("enfant") || lowerMessage.includes("children") || lowerMessage.includes("mes enfants")) {
     if (context.children.length === 0) {
-      return "Vous n'avez pas encore ajouté d'enfants. Allez dans 'Enfants' pour en ajouter un !"
+      return "👶 Vous n'avez pas encore ajouté d'enfants. Allez dans 'Enfants' pour en ajouter un !"
     }
-    return `Vos enfants:\n${context.children
-      .map((c) => `- ${c.name} (${c.age} ans)`)
+    return `👨‍👩‍👧‍👦 Vos enfants:\n${context.children
+      .map((c) => `• ${c.name} (${c.age} ans)`)
       .join("\n")}`
   }
 
-  if (lowerMessage.includes("aide") || lowerMessage.includes("help") || lowerMessage.includes("quoi faire")) {
-    return `Je peux vous aider avec:
-- "Quelles tâches sont en retard ?" - Voir les tâches urgentes
-- "Résume ma semaine" - Statistiques de votre foyer
-- "Qui a le plus de charge mentale ?" - Répartition des tâches
-- "Ajoute une tâche pour [enfant]" - Créer une nouvelle tâche
+  if (lowerMessage.includes("aide") || lowerMessage.includes("help") || lowerMessage.includes("quoi faire") || lowerMessage.includes("comment")) {
+    return `🤖 Je peux vous aider avec:
+
+📝 **Créer des tâches:**
+"Johan doit faire ses devoirs demain à 19h"
+"Ajoute une tâche ranger la chambre pour Emma"
+
+📊 **Voir les infos:**
+"Quelles tâches sont en retard ?"
+"Résume ma semaine"
+"Qui a le plus de charge mentale ?"
+"Liste mes enfants"
 
 Comment puis-je vous aider ?`
   }
 
   // Default response
-  return `Je comprends votre demande "${message}".
+  return `🤖 Je suis votre assistant FamilyLoad !
 
-Je suis votre assistant FamilyLoad ! Je peux vous aider à:
-- Voir les tâches en retard
-- Résumer l'activité de votre foyer
-- Analyser la charge mentale
-- Guider pour créer des tâches
+Voici ce que je peux faire:
+• **Créer des tâches**: "Johan doit faire ses devoirs demain"
+• **Voir les tâches en retard**: "Quelles tâches sont en retard ?"
+• **Résumer l'activité**: "Résume ma semaine"
+• **Voir la charge mentale**: "Répartition de la charge mentale"
 
-Que souhaitez-vous faire ?`
+Essayez une de ces commandes ! 💡`
 }
