@@ -156,6 +156,7 @@ async function getHouseholdStats(householdId: string): Promise<HouseholdStats> {
 
 /**
  * Parse natural language to extract task creation details
+ * Supports many natural French expressions for task creation
  */
 function parseTaskCreationRequest(message: string, children: Child[]): {
   isTaskCreation: boolean
@@ -167,14 +168,56 @@ function parseTaskCreationRequest(message: string, children: Child[]): {
 } {
   const lowerMessage = message.toLowerCase()
 
-  // Check if this is a task creation request
-  const taskKeywords = [
-    "doit faire", "doit", "faire", "ajoute", "créer", "crée", "nouvelle tâche",
-    "rappelle", "rappeler", "n'oublie pas", "noublie pas", "pense à"
+  // Patterns that clearly indicate NON-task queries (questions, stats)
+  const nonTaskPatterns = [
+    /^(quelles?|combien|qui|où|comment|pourquoi)\s/i,
+    /en retard/i,
+    /résumé?e?/i,
+    /statistiques?/i,
+    /charge mentale/i,
+    /répartition/i,
+    /mes enfants/i,
+    /aide/i,
+    /help/i,
   ]
 
-  const isTaskCreation = taskKeywords.some(kw => lowerMessage.includes(kw))
-  if (!isTaskCreation) {
+  if (nonTaskPatterns.some(pattern => pattern.test(lowerMessage))) {
+    return { isTaskCreation: false }
+  }
+
+  // Extended keywords for task creation - much more comprehensive
+  const taskKeywords = [
+    // Direct task creation
+    "ajoute", "ajouter", "créer", "crée", "créé", "nouvelle tâche", "note", "noter",
+    // Obligations
+    "doit", "doivent", "dois", "devons", "devez", "faut", "il faut", "faudrait", "faudra",
+    // Reminders
+    "rappelle", "rappeler", "rappel", "n'oublie", "noublie", "oublie pas", "pense à", "penser à",
+    // Actions (verbs that imply tasks)
+    "acheter", "prendre", "passer", "aller", "faire", "appeler", "téléphoner", "envoyer",
+    "récupérer", "chercher", "déposer", "ramener", "emmener", "amener", "apporter",
+    "ranger", "nettoyer", "laver", "préparer", "cuisiner", "réparer", "payer", "réserver",
+    "inscrire", "planifier", "organiser", "vérifier", "contrôler", "commander",
+    // Shopping specific
+    "courses", "achats", "liste",
+    // Medical/Admin
+    "rdv", "rendez-vous", "rendezvous", "médecin", "docteur", "vaccin",
+  ]
+
+  // Check if message contains task-related keywords
+  const hasTaskKeyword = taskKeywords.some(kw => lowerMessage.includes(kw))
+
+  // Also check for action verb patterns (infinitive or conjugated)
+  const actionVerbPatterns = [
+    /\b(je|tu|il|elle|on|nous|vous|ils|elles)\s+(dois|doit|devons|devez|doivent|vais|vas|va|allons|allez|vont|peux|peut|pouvons|pouvez|peuvent)\s/i,
+    /\bfaut\s+(que\s+)?(je|tu|il|on|nous|vous|ils)?\s*/i,
+    /\b(passer|aller|faire)\s+(prendre|chercher|acheter|récupérer)/i,
+    /\bpense[rz]?\s+à\s/i,
+  ]
+
+  const hasActionPattern = actionVerbPatterns.some(pattern => pattern.test(lowerMessage))
+
+  if (!hasTaskKeyword && !hasActionPattern) {
     return { isTaskCreation: false }
   }
 
@@ -189,7 +232,7 @@ function parseTaskCreationRequest(message: string, children: Child[]): {
     }
   }
 
-  // Extract task title by removing child name and date/time info
+  // Extract task title - start with original message
   let taskTitle = message
 
   // Remove child name
@@ -198,9 +241,22 @@ function parseTaskCreationRequest(message: string, children: Child[]): {
     taskTitle = taskTitle.replace(childRegex, "").trim()
   }
 
-  // Remove common prefixes
+  // Remove common prefixes and filler words
+  const prefixPatterns = [
+    /^(il\s+)?faut\s+(que\s+)?(je|tu|il|on|nous|vous)?\s*/i,
+    /^(je|tu|il|elle|on|nous|vous)\s+(dois|doit|devons|devez|vais|vas|va|peux|peut)\s*/i,
+    /^(ajoute|ajouter|créer|crée|note|noter|rappelle|rappeler)\s*(une\s+tâche\s*:?\s*)?/i,
+    /^(n'oublie\s+pas|noublie\s+pas|pense\s+à|penser\s+à)\s*(de\s+)?/i,
+    /^(passer|aller)\s+(prendre|chercher|acheter)\s*/i,
+  ]
+
+  for (const pattern of prefixPatterns) {
+    taskTitle = taskTitle.replace(pattern, "").trim()
+  }
+
+  // Remove possessive pronouns that are now orphaned
   taskTitle = taskTitle
-    .replace(/^(doit faire|doit|faire|ajoute|créer|crée|nouvelle tâche|rappelle|rappeler|n'oublie pas|noublie pas|pense à)\s*/i, "")
+    .replace(/^\s*(ses|son|sa|leur|leurs|mes|mon|ma|nos|notre|des|du|de la|les|le|la|un|une)\s+/gi, "")
     .replace(/\s+(ses|son|sa|leur|leurs)\s+/gi, " ")
     .trim()
 
