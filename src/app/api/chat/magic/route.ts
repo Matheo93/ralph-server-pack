@@ -190,18 +190,25 @@ function parseTaskCreationRequest(message: string, children: Child[]): {
     // Direct task creation
     "ajoute", "ajouter", "créer", "crée", "créé", "nouvelle tâche", "note", "noter",
     // Obligations
-    "doit", "doivent", "dois", "devons", "devez", "faut", "il faut", "faudrait", "faudra",
-    // Reminders
-    "rappelle", "rappeler", "rappel", "n'oublie", "noublie", "oublie pas", "pense à", "penser à",
-    // Actions (verbs that imply tasks)
-    "acheter", "prendre", "passer", "aller", "faire", "appeler", "téléphoner", "envoyer",
-    "récupérer", "chercher", "déposer", "ramener", "emmener", "amener", "apporter",
-    "ranger", "nettoyer", "laver", "préparer", "cuisiner", "réparer", "payer", "réserver",
-    "inscrire", "planifier", "organiser", "vérifier", "contrôler", "commander",
+    "doit", "doivent", "dois", "devons", "devez", "faut", "il faut", "faudrait", "faudra", "falloir",
+    // Reminders (with and without accents/apostrophes)
+    "rappelle", "rappeler", "rappel", "n'oublie", "noublie", "oublie pas", "oublie-pas",
+    "pense à", "penser à", "pense a", "penser a", "penses à", "penses a",
+    // Actions (verbs that imply tasks) - with common typos/no accents
+    "acheter", "prendre", "passer", "aller", "faire", "appeler", "téléphoner", "telephoner", "envoyer",
+    "récupérer", "recuperer", "chercher", "déposer", "deposer", "ramener", "ramene", "ramène",
+    "emmener", "emmene", "emmène", "amener", "amene", "amène", "apporter",
+    "ranger", "nettoyer", "laver", "préparer", "preparer", "cuisiner", "réparer", "reparer",
+    "payer", "réserver", "reserver", "inscrire", "planifier", "organiser", "vérifier", "verifier",
+    "contrôler", "controler", "commander", "sortir", "rentrer", "poster", "déposer",
     // Shopping specific
-    "courses", "achats", "liste",
+    "courses", "achats", "liste", "commissions",
     // Medical/Admin
-    "rdv", "rendez-vous", "rendezvous", "médecin", "docteur", "vaccin",
+    "rdv", "rendez-vous", "rendezvous", "médecin", "medecin", "docteur", "vaccin", "kiné", "kine",
+    // School/Kids
+    "contrôle", "controle", "devoir", "devoirs", "leçon", "lecon", "réviser", "reviser",
+    // Household
+    "poubelle", "poubelles", "linge", "repassage", "vaisselle", "ménage", "menage",
   ]
 
   // Check if message contains task-related keywords
@@ -212,7 +219,11 @@ function parseTaskCreationRequest(message: string, children: Child[]): {
     /\b(je|tu|il|elle|on|nous|vous|ils|elles)\s+(dois|doit|devons|devez|doivent|vais|vas|va|allons|allez|vont|peux|peut|pouvons|pouvez|peuvent)\s/i,
     /\bfaut\s+(que\s+)?(je|tu|il|on|nous|vous|ils)?\s*/i,
     /\b(passer|aller|faire)\s+(prendre|chercher|acheter|récupérer)/i,
-    /\bpense[rz]?\s+à\s/i,
+    /\bpense[rz]?\s+(à|a)\s/i,
+    /\b(a|ont)\s+un\s+(contrôle|controle|rdv|rendez-vous|examen)/i, // "Emma a un contrôle"
+    /\boublie[sz]?\s+(pas|plus)/i, // "oublie pas", "oublies pas"
+    /\b(a|ai|ont|avons)\s+oublié/i, // "j'ai oublié", "a oublié"
+    /\b(a|ai|ont|avons)\s+besoin/i, // "j'ai besoin", "a besoin"
   ]
 
   const hasActionPattern = actionVerbPatterns.some(pattern => pattern.test(lowerMessage))
@@ -235,19 +246,39 @@ function parseTaskCreationRequest(message: string, children: Child[]): {
   // Extract task title - start with original message
   let taskTitle = message
 
-  // Remove child name
+  // FIRST: Remove patterns that include child names (before removing child name standalone)
+  // "[Enfant] doit faire..." / "[Enfant] a un contrôle"
   if (childName) {
-    const childRegex = new RegExp(childName, "gi")
-    taskTitle = taskTitle.replace(childRegex, "").trim()
+    // "Johan doit faire X" → "X" or "Johan doit X" → "X"
+    taskTitle = taskTitle.replace(new RegExp(`${childName}\\s+doit\\s+(faire\\s+)?`, "gi"), "").trim()
+    // "Emma a un contrôle de X" → "contrôle de X"
+    taskTitle = taskTitle.replace(new RegExp(`${childName}\\s+a\\s+un\\s+`, "gi"), "").trim()
+    // "vaccin de Johan" / "rdv de Johan" → "vaccin" / "rdv"
+    taskTitle = taskTitle.replace(new RegExp(`\\s+(de|pour|avec)\\s+${childName}\\b`, "gi"), "").trim()
+    // "pour Johan" / "de Johan" at the start
+    taskTitle = taskTitle.replace(new RegExp(`^(de|pour|avec)\\s+${childName}\\s*`, "gi"), "").trim()
+    // Remove standalone child name
+    taskTitle = taskTitle.replace(new RegExp(`\\b${childName}\\b`, "gi"), "").trim()
   }
 
-  // Remove common prefixes and filler words
+  // Remove common prefixes and filler words - order matters!
   const prefixPatterns = [
-    /^(il\s+)?faut\s+(que\s+)?(je|tu|il|on|nous|vous)?\s*/i,
-    /^(je|tu|il|elle|on|nous|vous)\s+(dois|doit|devons|devez|vais|vas|va|peux|peut)\s*/i,
-    /^(ajoute|ajouter|créer|crée|note|noter|rappelle|rappeler)\s*(une\s+tâche\s*:?\s*)?/i,
-    /^(n'oublie\s+pas|noublie\s+pas|pense\s+à|penser\s+à)\s*(de\s+)?/i,
-    /^(passer|aller)\s+(prendre|chercher|acheter)\s*/i,
+    // Variations with "rappelle-moi", "dis-moi", etc.
+    /^(rappelle|rappeler|dis|dit)[\s-]*(moi|nous|lui|leur)?\s*(de\s+)?/i,
+    // "il faut que je..." / "faut que..." / "faudrait..."
+    /^(il\s+)?(va\s+)?(faut|faudra|faudrait)\s*(que\s+)?(je|tu|il|on|nous|vous|j')?\s*/i,
+    // "je dois..." / "on doit..." / "tu dois..." / "j'ai oublié de..."
+    /^(je|tu|il|elle|on|nous|vous|j')\s*(ai\s+oublié\s+(de\s+)?|a\s+oublié\s+(de\s+)?|ai\s+besoin\s+(de\s+)?|a\s+besoin\s+(de\s+)?|dois|doit|devons|devez|vais|vas|va|peux|peut)\s*/i,
+    // "ajoute une tâche" / "crée" / "note"
+    /^(ajoute|ajouter|créer|crée|créé|note|noter)\s*(une\s+tâche\s*:?\s*)?/i,
+    // "n'oublie pas de..." / "oublie pas" / "pense à"
+    /^(n'oublie\s*pas|noublie\s*pas|oublie\s*pas|oublies?\s*pas)\s*(de\s+)?/i,
+    /^(pense|penser|penses)\s*(à|a)\s*/i,
+    // "passer prendre" / "aller chercher"
+    /^(passer|aller)\s+(prendre|chercher|acheter|récupérer|recuperer)\s*/i,
+    // Generic "doit" / "a un contrôle" still in message
+    /^\s*doit\s+(faire\s+)?/i,
+    /^\s*a\s+un\s+(contrôle|controle)\s*(de\s+)?/i,
   ]
 
   for (const pattern of prefixPatterns) {
@@ -256,32 +287,76 @@ function parseTaskCreationRequest(message: string, children: Child[]): {
 
   // Remove possessive pronouns that are now orphaned
   taskTitle = taskTitle
-    .replace(/^\s*(ses|son|sa|leur|leurs|mes|mon|ma|nos|notre|des|du|de la|les|le|la|un|une)\s+/gi, "")
+    .replace(/^\s*(ses|son|sa|leur|leurs|mes|mon|ma|nos|notre)\s+/gi, "")
     .replace(/\s+(ses|son|sa|leur|leurs)\s+/gi, " ")
+    .trim()
+
+  // Remove orphan articles at the start
+  taskTitle = taskTitle
+    .replace(/^\s*(des|du|de\s+la|de\s+l'|les|le|la|l'|un|une|d')\s*/gi, "")
     .trim()
 
   // Parse date/time
   let dueDate: Date | undefined
   let dueTime: string | undefined
 
+  // Handle "après-demain" FIRST (before "demain" to avoid partial match)
+  if (/apr[eè]s[\s-]?demain/i.test(lowerMessage)) {
+    dueDate = new Date()
+    dueDate.setDate(dueDate.getDate() + 2)
+    taskTitle = taskTitle.replace(/\s*apr[eè]s[\s-]?demain\s*/gi, " ").trim()
+  }
   // Handle "demain"
-  if (lowerMessage.includes("demain")) {
+  else if (lowerMessage.includes("demain")) {
     dueDate = new Date()
     dueDate.setDate(dueDate.getDate() + 1)
     taskTitle = taskTitle.replace(/\s*demain\s*/gi, " ").trim()
   }
 
   // Handle "aujourd'hui"
-  if (lowerMessage.includes("aujourd'hui") || lowerMessage.includes("aujourdhui")) {
+  if (/aujourd'?hui/i.test(lowerMessage)) {
     dueDate = new Date()
-    taskTitle = taskTitle.replace(/\s*(aujourd'hui|aujourdhui)\s*/gi, " ").trim()
+    taskTitle = taskTitle.replace(/\s*aujourd'?hui\s*/gi, " ").trim()
   }
 
-  // Handle "après-demain"
-  if (lowerMessage.includes("après-demain") || lowerMessage.includes("apres-demain") || lowerMessage.includes("après demain")) {
-    dueDate = new Date()
-    dueDate.setDate(dueDate.getDate() + 2)
-    taskTitle = taskTitle.replace(/\s*(après-demain|apres-demain|après demain)\s*/gi, " ").trim()
+  // Handle "ce soir" / "ce matin" / "cet après-midi"
+  if (/ce\s+soir/i.test(lowerMessage)) {
+    dueDate = dueDate || new Date()
+    dueTime = dueTime || "19:00"
+    taskTitle = taskTitle.replace(/\s*ce\s+soir\s*/gi, " ").trim()
+  }
+  if (/ce\s+matin/i.test(lowerMessage)) {
+    dueDate = dueDate || new Date()
+    dueTime = dueTime || "09:00"
+    taskTitle = taskTitle.replace(/\s*ce\s+matin\s*/gi, " ").trim()
+  }
+  if (/cet\s+apr[eè]s[\s-]?midi/i.test(lowerMessage)) {
+    dueDate = dueDate || new Date()
+    dueTime = dueTime || "14:00"
+    taskTitle = taskTitle.replace(/\s*cet\s+apr[eè]s[\s-]?midi\s*/gi, " ").trim()
+  }
+
+  // Handle weekday names (lundi, mardi, etc.)
+  const weekdays = [
+    { name: "dimanche", day: 0 },
+    { name: "lundi", day: 1 },
+    { name: "mardi", day: 2 },
+    { name: "mercredi", day: 3 },
+    { name: "jeudi", day: 4 },
+    { name: "vendredi", day: 5 },
+    { name: "samedi", day: 6 },
+  ]
+  for (const weekday of weekdays) {
+    if (lowerMessage.includes(weekday.name)) {
+      const today = new Date()
+      const currentDay = today.getDay()
+      let daysToAdd = weekday.day - currentDay
+      if (daysToAdd <= 0) daysToAdd += 7 // Next week if day has passed
+      dueDate = new Date()
+      dueDate.setDate(dueDate.getDate() + daysToAdd)
+      taskTitle = taskTitle.replace(new RegExp(`\\s*${weekday.name}\\s*`, "gi"), " ").trim()
+      break
+    }
   }
 
   // Handle "dans X jours"
@@ -290,6 +365,13 @@ function parseTaskCreationRequest(message: string, children: Child[]): {
     dueDate = new Date()
     dueDate.setDate(dueDate.getDate() + parseInt(daysMatch[1], 10))
     taskTitle = taskTitle.replace(/\s*dans\s+\d+\s+jours?\s*/gi, " ").trim()
+  }
+
+  // Handle "la semaine prochaine"
+  if (/semaine\s+prochaine/i.test(lowerMessage)) {
+    dueDate = new Date()
+    dueDate.setDate(dueDate.getDate() + 7)
+    taskTitle = taskTitle.replace(/\s*(la\s+)?semaine\s+prochaine\s*/gi, " ").trim()
   }
 
   // Handle time extraction (e.g., "à 19h", "à 14:00", "à 9h30")
