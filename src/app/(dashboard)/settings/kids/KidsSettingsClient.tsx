@@ -287,7 +287,7 @@ export function KidsSettingsClient({
                   <div className="flex items-start gap-4">
                     {/* Photo preview */}
                     <button
-                      onClick={() => setShowPhotoModal(proof.photo_url)}
+                      onClick={() => proof.photo_url && setShowPhotoModal(proof.photo_url)}
                       className="relative w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 hover:opacity-80 transition-opacity"
                     >
                       {proof.photo_url ? (

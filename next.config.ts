@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import withPWAInit from "next-pwa";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env["ANALYZE"] === "true",
+});
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -173,6 +178,18 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
+  // Experimental features for performance
+  experimental: {
+    // Enable React compiler for automatic memoization
+    optimizePackageImports: [
+      "lucide-react",
+      "framer-motion",
+      "@radix-ui/react-icons",
+      "date-fns",
+    ],
+    // Partial Prerendering for instant navigation
+    ppr: false, // Enable when stable
+  },
   images: {
     remotePatterns: [
       {
@@ -185,6 +202,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Bundle optimization: modularize imports for tree-shaking
+  // Note: lucide-react modularizeImports removed - incompatible with Turbopack
+  // lucide-react v0.400+ already supports tree-shaking natively
+  modularizeImports: {
+    "date-fns": {
+      transform: "date-fns/{{ member }}",
+    },
+  },
+  // Mark heavy libraries as external for server bundles
+  serverExternalPackages: ["puppeteer"],
   async headers() {
     return [
       {
@@ -196,4 +223,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPWA(withNextIntl(nextConfig));
+export default withBundleAnalyzer(withPWA(withNextIntl(nextConfig)));

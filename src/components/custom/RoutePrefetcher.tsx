@@ -62,7 +62,7 @@ function getKidsRoutes(childId: string): string[] {
 }
 
 interface RoutePrefetcherProps {
-  /** Délai initial avant de commencer le prefetching (ms) */
+  /** Délai initial avant de commencer le prefetching (ms) - default reduced for faster loading */
   initialDelay?: number
   /** Délai entre les niveaux de priorité (ms) */
   priorityDelay?: number
@@ -82,8 +82,8 @@ interface RoutePrefetcherProps {
  * 3. Prefetch contextuel: Routes liées à la page actuelle
  */
 export function RoutePrefetcher({
-  initialDelay = 1000,
-  priorityDelay = 2000,
+  initialDelay = 100, // Reduced for instant feel
+  priorityDelay = 500, // Faster priority progression
   contextual = true,
 }: RoutePrefetcherProps) {
   const router = useRouter()

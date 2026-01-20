@@ -30,13 +30,15 @@ interface DashboardLayoutProps {
 export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
-  const user = await getUser()
+  // Parallel data fetching for faster initial load
+  const [user, membership] = await Promise.all([
+    getUser(),
+    getHousehold(),
+  ])
 
   if (!user) {
     redirect("/login")
   }
-
-  const membership = await getHousehold()
 
   if (!membership) {
     redirect("/onboarding")
@@ -53,13 +55,17 @@ export default async function DashboardLayout({
     subscription_ends_at: string | null
   } | null
 
-  // Get household members to determine if user needs co-parent invite
-  const members = household ? await getHouseholdMembers(household.id) : []
+  // Parallel fetch for members and i18n (these don't depend on each other)
+  const [members, locale, messages] = await Promise.all([
+    household ? getHouseholdMembers(household.id) : Promise.resolve([]),
+    getLocale(),
+    getMessages(),
+  ])
   const memberCount = members.length
 
   // Calculate premium status
   // Premium is true if:
-  // 1. Status is "active" (paid subscription - may not have end date if auto-renew)
+  // 1. Status is "active" or "premium" (paid subscription - may not have end date if auto-renew)
   // 2. Status is "trial/trialing" with a valid end date in the future
   const now = new Date()
   const subscriptionEndsAt = household?.subscription_ends_at
@@ -67,10 +73,10 @@ export default async function DashboardLayout({
     : null
   const subscriptionStatus = household?.subscription_status ?? null
   const isTrialing = subscriptionStatus === "trial" || subscriptionStatus === "trialing"
-  const isActiveSubscription = subscriptionStatus === "active" || isTrialing
-  // Active status = premium (auto-renew subscriptions may not have end date)
+  const isActiveSubscription = subscriptionStatus === "active" || subscriptionStatus === "premium" || isTrialing
+  // Active/premium status = premium (auto-renew subscriptions may not have end date)
   // Trial status = premium only if end date is in the future
-  const isPremium = subscriptionStatus === "active" || (isActiveSubscription && subscriptionEndsAt !== null && subscriptionEndsAt > now)
+  const isPremium = subscriptionStatus === "active" || subscriptionStatus === "premium" || (isActiveSubscription && subscriptionEndsAt !== null && subscriptionEndsAt > now)
 
   let daysRemaining: number | null = null
   if (subscriptionEndsAt) {
@@ -79,9 +85,6 @@ export default async function DashboardLayout({
     )
     if (daysRemaining < 0) daysRemaining = 0
   }
-
-  const locale = await getLocale()
-  const messages = await getMessages()
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>

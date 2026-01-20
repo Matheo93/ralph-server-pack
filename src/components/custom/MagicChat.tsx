@@ -289,6 +289,12 @@ export function MagicChat({ isPremium, householdId }: MagicChatProps) {
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey && input.trim() && !isLoading) {
+                      e.preventDefault()
+                      handleSend()
+                    }
+                  }}
                   placeholder="Tapez votre message..."
                   className="flex-1"
                   disabled={isLoading}

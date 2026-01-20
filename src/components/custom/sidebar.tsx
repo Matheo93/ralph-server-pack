@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Home, Users, CheckSquare, Calendar, ShoppingCart, Scale, Settings, Sparkles, Trophy } from "lucide-react"
 import { PremiumBadge } from "./PremiumBadge"
+import { Logo } from "@/components/ui/logo"
 
 const navigation = [
   {
@@ -93,14 +94,8 @@ export function Sidebar({
         <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
           {/* Logo */}
           <div className="flex flex-shrink-0 items-center px-4 mb-2">
-            <Link href="/dashboard" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/30 transition-shadow">
-                <span className="text-xl">👨‍👩‍👧</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">FamilyLoad</h1>
-                <p className="text-[10px] text-muted-foreground -mt-0.5">Charge mentale simplifiée</p>
-              </div>
+            <Link href="/dashboard" className="group">
+              <Logo size="md" animated />
             </Link>
           </div>
 

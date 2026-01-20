@@ -398,6 +398,7 @@ export async function grantTrialExtension(
 function mapStatusString(status: string | null): SubscriptionStatusType {
   switch (status) {
     case "active":
+    case "premium": // Support "premium" status from DB
       return "active"
     case "trial":
     case "trialing":

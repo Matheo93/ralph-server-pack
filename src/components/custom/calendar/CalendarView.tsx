@@ -4,7 +4,6 @@ import { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addMonths, subMonths, addWeeks, subWeeks, isToday } from "date-fns"
 import { fr } from "date-fns/locale"
 import { ChevronLeft, ChevronRight, Plus, Loader2, History, RefreshCw } from "lucide-react"
-import dynamic from "next/dynamic"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -14,20 +13,8 @@ import { EventCard } from "./EventCard"
 import { EventFormDialog } from "./EventFormDialog"
 import { useCalendarSWR, type CalendarSWRData } from "@/hooks/useCalendarSWR"
 import type { CalendarEvent } from "@/lib/actions/calendar"
-
-// Import dynamique pour éviter les problèmes SSR avec @react-pdf/renderer
-const CalendarPdfExportButton = dynamic(
-  () => import("./CalendarPdfExportButton").then(mod => ({ default: mod.CalendarPdfExportButton })),
-  {
-    ssr: false,
-    loading: () => (
-      <Button variant="outline" disabled>
-        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-        PDF
-      </Button>
-    )
-  }
-)
+// Import du composant lazy qui charge @react-pdf (~660KB) seulement au clic utilisateur
+import { CalendarPdfExportButtonLazy } from "./CalendarPdfExportButtonLazy"
 
 interface CalendarViewProps {
   events: CalendarEvent[]
@@ -348,7 +335,7 @@ export function CalendarView({ events: initialEvents, eventCounts: initialEventC
               Semaine
             </Button>
           </div>
-          <CalendarPdfExportButton currentDate={currentDate} events={displayEvents} />
+          <CalendarPdfExportButtonLazy currentDate={currentDate} events={displayEvents} />
           <Button variant="outline" asChild>
             <Link href="/calendar/history">
               <History className="h-4 w-4 mr-2" />

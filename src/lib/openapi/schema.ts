@@ -1846,6 +1846,1365 @@ export const apiPaths: Record<string, OpenAPIPath> = {
       },
     },
   },
+
+  // ==========================================================================
+  // V1 API - AUTHENTICATION
+  // ==========================================================================
+  "/api/v1/auth": {
+    post: {
+      tags: ["Authentication"],
+      summary: "Login",
+      description: "Authenticate with email and password. Returns access and refresh tokens.",
+      operationId: "login",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                email: { type: "string", format: "email", description: "User email" },
+                password: { type: "string", description: "User password" },
+                deviceInfo: {
+                  type: "object",
+                  properties: {
+                    platform: { type: "string", enum: ["ios", "android", "web"] },
+                    deviceName: { type: "string" },
+                    appVersion: { type: "string" },
+                  },
+                },
+              },
+              required: ["email", "password"],
+            },
+            example: {
+              email: "user@example.com",
+              password: "securePassword123",
+              deviceInfo: { platform: "web", deviceName: "Chrome Browser" },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Authentication successful",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  accessToken: { type: "string", description: "JWT access token (24h)" },
+                  refreshToken: { type: "string", description: "Refresh token (30d)" },
+                  expiresIn: { type: "integer", description: "Token expiry in seconds" },
+                  user: { $ref: "#/components/schemas/User" },
+                },
+              },
+              example: {
+                accessToken: "eyJhbGciOiJIUzI1NiIs...",
+                refreshToken: "dGhpcyBpcyBhIHJlZnJlc2g...",
+                expiresIn: 86400,
+                user: { id: "550e8400-...", email: "user@example.com", name: "Jean Dupont" },
+              },
+            },
+          },
+        },
+        "401": {
+          description: "Invalid credentials",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
+        },
+        "429": {
+          description: "Too many login attempts",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
+        },
+      },
+    },
+    put: {
+      tags: ["Authentication"],
+      summary: "Refresh token",
+      description: "Exchange a refresh token for a new access token",
+      operationId: "refreshToken",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                refreshToken: { type: "string", description: "Refresh token" },
+              },
+              required: ["refreshToken"],
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Token refreshed",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  accessToken: { type: "string" },
+                  expiresIn: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+        "401": {
+          description: "Invalid refresh token",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
+        },
+      },
+    },
+    delete: {
+      tags: ["Authentication"],
+      summary: "Logout",
+      description: "Invalidate current session and refresh token",
+      operationId: "logout",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": {
+          description: "Logged out successfully",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // V2 API - TASKS (Cursor-based pagination, advanced features)
+  // ==========================================================================
+  "/api/v2/tasks": {
+    get: {
+      tags: ["Tasks v2"],
+      summary: "List tasks (v2)",
+      description: "Get tasks with cursor-based pagination, advanced filtering, and multi-field sorting. Supports operators: eq, neq, gt, gte, lt, lte, in, contains.",
+      operationId: "listTasksV2",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "cursor",
+          in: "query",
+          description: "Cursor for pagination (from previous response)",
+          schema: { type: "string" },
+        },
+        {
+          name: "limit",
+          in: "query",
+          description: "Max results (default: 50, max: 100)",
+          schema: { type: "integer", minimum: 1, maximum: 100, default: 50 },
+        },
+        {
+          name: "status",
+          in: "query",
+          description: "Filter by status (supports comma-separated for multiple)",
+          schema: { type: "string" },
+        },
+        {
+          name: "priority",
+          in: "query",
+          description: "Filter by priority",
+          schema: { type: "string", enum: ["low", "normal", "high", "urgent"] },
+        },
+        {
+          name: "category",
+          in: "query",
+          description: "Filter by category",
+          schema: { type: "string" },
+        },
+        {
+          name: "childId",
+          in: "query",
+          description: "Filter by child ID",
+          schema: { type: "string", format: "uuid" },
+        },
+        {
+          name: "assignedTo",
+          in: "query",
+          description: "Filter by assignee",
+          schema: { type: "string", format: "uuid" },
+        },
+        {
+          name: "dueDateFrom",
+          in: "query",
+          description: "Filter tasks due after this date",
+          schema: { type: "string", format: "date-time" },
+        },
+        {
+          name: "dueDateTo",
+          in: "query",
+          description: "Filter tasks due before this date",
+          schema: { type: "string", format: "date-time" },
+        },
+        {
+          name: "search",
+          in: "query",
+          description: "Full-text search on title and description",
+          schema: { type: "string" },
+        },
+        {
+          name: "sort",
+          in: "query",
+          description: "Sort field (prefix with - for desc). Examples: dueDate, -createdAt, priority,-dueDate",
+          schema: { type: "string", default: "-createdAt" },
+        },
+        {
+          name: "include",
+          in: "query",
+          description: "Related data to include (comma-separated): child, assignee, category",
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        "200": {
+          description: "Paginated task list",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: { type: "array", items: { $ref: "#/components/schemas/Task" } },
+                  meta: {
+                    type: "object",
+                    properties: {
+                      total: { type: "integer" },
+                      hasMore: { type: "boolean" },
+                      nextCursor: { type: "string", nullable: true },
+                      prevCursor: { type: "string", nullable: true },
+                    },
+                  },
+                },
+              },
+              example: {
+                data: [{ id: "...", title: "Préparer le petit-déjeuner", status: "pending" }],
+                meta: { total: 42, hasMore: true, nextCursor: "eyJpZCI6IjEyMzQ1In0=" },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: ["Tasks v2"],
+      summary: "Create task (v2)",
+      description: "Create a new task with validation",
+      operationId: "createTaskV2",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/TaskCreate" },
+          },
+        },
+      },
+      responses: {
+        "201": {
+          description: "Task created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: { $ref: "#/components/schemas/Task" },
+                },
+              },
+            },
+          },
+        },
+        "400": {
+          description: "Validation error",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
+        },
+      },
+    },
+    patch: {
+      tags: ["Tasks v2"],
+      summary: "Bulk update tasks",
+      description: "Update multiple tasks at once",
+      operationId: "bulkUpdateTasksV2",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                ids: { type: "array", items: { type: "string", format: "uuid" } },
+                updates: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string" },
+                    priority: { type: "string" },
+                    assignedTo: { type: "string", format: "uuid" },
+                  },
+                },
+              },
+              required: ["ids", "updates"],
+            },
+            example: {
+              ids: ["id1", "id2", "id3"],
+              updates: { status: "completed" },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Tasks updated",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  updated: { type: "integer" },
+                  failed: { type: "array", items: { type: "string" } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: ["Tasks v2"],
+      summary: "Bulk delete tasks",
+      description: "Delete multiple tasks at once",
+      operationId: "bulkDeleteTasksV2",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                ids: { type: "array", items: { type: "string", format: "uuid" } },
+              },
+              required: ["ids"],
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Tasks deleted",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  deleted: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // V2 API - CHILDREN
+  // ==========================================================================
+  "/api/v2/children": {
+    get: {
+      tags: ["Children v2"],
+      summary: "List children (v2)",
+      description: "Get all children in the household with task stats",
+      operationId: "listChildrenV2",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": {
+          description: "List of children",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string", format: "uuid" },
+                        name: { type: "string" },
+                        birthDate: { type: "string", format: "date" },
+                        avatar: { type: "string" },
+                        color: { type: "string" },
+                        pendingTasksCount: { type: "integer" },
+                        completedTasksCount: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: ["Children v2"],
+      summary: "Create child (v2)",
+      description: "Add a child to the household",
+      operationId: "createChildV2",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                birthDate: { type: "string", format: "date" },
+                color: { type: "string" },
+              },
+              required: ["name"],
+            },
+          },
+        },
+      },
+      responses: {
+        "201": {
+          description: "Child created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: { $ref: "#/components/schemas/Child" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // V2 API - HOUSEHOLD
+  // ==========================================================================
+  "/api/v2/household": {
+    get: {
+      tags: ["Household v2"],
+      summary: "Get household (v2)",
+      description: "Get household information with member stats",
+      operationId: "getHouseholdV2",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": {
+          description: "Household details",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: { $ref: "#/components/schemas/Household" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    put: {
+      tags: ["Household v2"],
+      summary: "Update household (v2)",
+      description: "Update household settings (admin only)",
+      operationId: "updateHouseholdV2",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                timezone: { type: "string" },
+                weekStartsOn: { type: "integer", minimum: 0, maximum: 6 },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Household updated",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: { $ref: "#/components/schemas/Household" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/api/v2/household/members": {
+    get: {
+      tags: ["Household v2"],
+      summary: "List household members",
+      description: "Get all members of the household",
+      operationId: "listHouseholdMembers",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": {
+          description: "List of members",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/User" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // V2 API - NOTIFICATIONS
+  // ==========================================================================
+  "/api/v2/notifications": {
+    get: {
+      tags: ["Notifications v2"],
+      summary: "List notifications (v2)",
+      description: "Get user notifications with pagination",
+      operationId: "listNotificationsV2",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "unreadOnly",
+          in: "query",
+          description: "Only return unread notifications",
+          schema: { type: "boolean", default: false },
+        },
+        {
+          name: "limit",
+          in: "query",
+          description: "Max results",
+          schema: { type: "integer", default: 20 },
+        },
+      ],
+      responses: {
+        "200": {
+          description: "List of notifications",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        type: { type: "string" },
+                        title: { type: "string" },
+                        body: { type: "string" },
+                        read: { type: "boolean" },
+                        createdAt: { type: "string", format: "date-time" },
+                      },
+                    },
+                  },
+                  meta: {
+                    type: "object",
+                    properties: {
+                      unreadCount: { type: "integer" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: ["Notifications v2"],
+      summary: "Mark notifications as read",
+      description: "Mark one or more notifications as read",
+      operationId: "markNotificationsRead",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                ids: { type: "array", items: { type: "string" } },
+                all: { type: "boolean", description: "Mark all as read" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Notifications marked as read",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } },
+        },
+      },
+    },
+  },
+  "/api/v2/notifications/preferences": {
+    get: {
+      tags: ["Notifications v2"],
+      summary: "Get notification preferences (v2)",
+      description: "Get notification preferences",
+      operationId: "getNotificationPreferencesV2",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": {
+          description: "Preferences",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  data: {
+                    type: "object",
+                    properties: {
+                      taskReminders: { type: "boolean" },
+                      dailyDigest: { type: "boolean" },
+                      weeklyReport: { type: "boolean" },
+                      balanceAlerts: { type: "boolean" },
+                      pushEnabled: { type: "boolean" },
+                      emailEnabled: { type: "boolean" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    put: {
+      tags: ["Notifications v2"],
+      summary: "Update notification preferences (v2)",
+      description: "Update notification preferences",
+      operationId: "updateNotificationPreferencesV2",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                taskReminders: { type: "boolean" },
+                dailyDigest: { type: "boolean" },
+                weeklyReport: { type: "boolean" },
+                balanceAlerts: { type: "boolean" },
+                pushEnabled: { type: "boolean" },
+                emailEnabled: { type: "boolean" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Preferences updated",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // VOICE PIPELINE (Complete)
+  // ==========================================================================
+  "/api/voice": {
+    post: {
+      tags: ["Voice"],
+      summary: "Voice pipeline actions",
+      description: `Execute voice-to-task pipeline actions. Supported actions:
+- **init_upload**: Start audio upload session
+- **upload_chunk**: Upload audio chunk (streaming)
+- **assemble_upload**: Assemble uploaded chunks
+- **transcribe**: Transcribe audio to text
+- **extract**: Extract task data from text
+- **generate_preview**: Generate task preview
+- **confirm_task**: Confirm and create task
+- **cancel_preview**: Cancel preview
+- **update_preview**: Update preview details
+- **get_status**: Get pipeline status
+- **get_pending_previews**: Get pending previews
+- **get_confirmed_tasks**: Get confirmed tasks
+- **full_pipeline**: Complete pipeline in one request`,
+      operationId: "voicePipelineAction",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                action: {
+                  type: "string",
+                  enum: [
+                    "init_upload",
+                    "upload_chunk",
+                    "assemble_upload",
+                    "transcribe",
+                    "extract",
+                    "generate_preview",
+                    "confirm_task",
+                    "cancel_preview",
+                    "update_preview",
+                    "get_status",
+                    "get_pending_previews",
+                    "get_confirmed_tasks",
+                    "full_pipeline",
+                  ],
+                },
+                sessionId: { type: "string", description: "Session ID for multi-step operations" },
+                audioData: { type: "string", description: "Base64 encoded audio data" },
+                text: { type: "string", description: "Text for extraction" },
+                previewId: { type: "string", description: "Preview ID for confirm/update" },
+                language: {
+                  type: "string",
+                  enum: ["fr", "en", "es", "de", "it", "pt", "nl", "auto"],
+                  default: "fr",
+                },
+                updates: { type: "object", description: "Updates for preview" },
+              },
+              required: ["action"],
+            },
+            example: {
+              action: "full_pipeline",
+              audioData: "SGVsbG8gd29ybGQ=",
+              language: "fr",
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Action result",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean" },
+                  sessionId: { type: "string" },
+                  transcript: { type: "string" },
+                  preview: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      title: { type: "string" },
+                      category: { type: "string" },
+                      priority: { type: "string" },
+                      suggestedDueDate: { type: "string" },
+                      confidence: { type: "number" },
+                    },
+                  },
+                  task: { $ref: "#/components/schemas/Task" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    get: {
+      tags: ["Voice"],
+      summary: "Get voice pipeline info",
+      description: "Get voice pipeline stats, pending previews, or household context",
+      operationId: "getVoicePipelineInfo",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "type",
+          in: "query",
+          description: "Type of info to retrieve",
+          schema: { type: "string", enum: ["stats", "pending", "household"] },
+        },
+      ],
+      responses: {
+        "200": {
+          description: "Pipeline info",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  stats: {
+                    type: "object",
+                    properties: {
+                      totalTranscriptions: { type: "integer" },
+                      totalTasksCreated: { type: "integer" },
+                      averageConfidence: { type: "number" },
+                    },
+                  },
+                  pending: { type: "array", items: { type: "object" } },
+                  household: { type: "object" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // REMINDERS
+  // ==========================================================================
+  "/api/reminders": {
+    get: {
+      tags: ["Reminders"],
+      summary: "List reminders",
+      description: "Get all reminders for the user",
+      operationId: "listReminders",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": {
+          description: "List of reminders",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  reminders: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string", format: "uuid" },
+                        taskId: { type: "string", format: "uuid" },
+                        reminderTime: { type: "string", format: "date-time" },
+                        type: { type: "string", enum: ["push", "email", "sms"] },
+                        sent: { type: "boolean" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: ["Reminders"],
+      summary: "Create reminder",
+      description: "Create a reminder for a task",
+      operationId: "createReminder",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                taskId: { type: "string", format: "uuid" },
+                reminderTime: { type: "string", format: "date-time" },
+                type: { type: "string", enum: ["push", "email", "sms"], default: "push" },
+              },
+              required: ["taskId", "reminderTime"],
+            },
+          },
+        },
+      },
+      responses: {
+        "201": {
+          description: "Reminder created",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } },
+        },
+      },
+    },
+    put: {
+      tags: ["Reminders"],
+      summary: "Update reminder",
+      description: "Update an existing reminder",
+      operationId: "updateReminder",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                reminderTime: { type: "string", format: "date-time" },
+                type: { type: "string", enum: ["push", "email", "sms"] },
+              },
+              required: ["id"],
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Reminder updated",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } },
+        },
+      },
+    },
+    delete: {
+      tags: ["Reminders"],
+      summary: "Delete reminder",
+      description: "Delete a reminder",
+      operationId: "deleteReminder",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "id",
+          in: "query",
+          required: true,
+          description: "Reminder ID",
+          schema: { type: "string", format: "uuid" },
+        },
+      ],
+      responses: {
+        "200": {
+          description: "Reminder deleted",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // INSIGHTS
+  // ==========================================================================
+  "/api/insights": {
+    get: {
+      tags: ["Insights"],
+      summary: "Get household insights",
+      description: "Get AI-powered insights and recommendations for the household",
+      operationId: "getInsights",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "type",
+          in: "query",
+          description: "Type of insights",
+          schema: { type: "string", enum: ["distribution", "trends", "recommendations", "all"], default: "all" },
+        },
+      ],
+      responses: {
+        "200": {
+          description: "Insights data",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  distribution: {
+                    type: "object",
+                    properties: {
+                      balance: { type: "number", description: "Balance score 0-100" },
+                      analysis: { type: "string" },
+                      suggestions: { type: "array", items: { type: "string" } },
+                    },
+                  },
+                  trends: {
+                    type: "object",
+                    properties: {
+                      completionRate: { type: "number" },
+                      trend: { type: "string", enum: ["improving", "stable", "declining"] },
+                      busyDays: { type: "array", items: { type: "string" } },
+                    },
+                  },
+                  recommendations: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        type: { type: "string" },
+                        message: { type: "string" },
+                        priority: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // GAMIFICATION
+  // ==========================================================================
+  "/api/gamification": {
+    get: {
+      tags: ["Gamification"],
+      summary: "Get gamification data",
+      description: "Get user's gamification stats, badges, and achievements",
+      operationId: "getGamificationData",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": {
+          description: "Gamification data",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  level: { type: "integer" },
+                  xp: { type: "integer" },
+                  xpToNextLevel: { type: "integer" },
+                  streak: { $ref: "#/components/schemas/StreakStatus" },
+                  badges: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        description: { type: "string" },
+                        icon: { type: "string" },
+                        earnedAt: { type: "string", format: "date-time" },
+                      },
+                    },
+                  },
+                  achievements: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        progress: { type: "integer" },
+                        target: { type: "integer" },
+                        completed: { type: "boolean" },
+                      },
+                    },
+                  },
+                  inventory: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        quantity: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // ONBOARDING
+  // ==========================================================================
+  "/api/onboarding": {
+    get: {
+      tags: ["Onboarding"],
+      summary: "Get onboarding status",
+      description: "Get current onboarding progress",
+      operationId: "getOnboardingStatus",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": {
+          description: "Onboarding status",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  completed: { type: "boolean" },
+                  currentStep: { type: "integer" },
+                  steps: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        completed: { type: "boolean" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: ["Onboarding"],
+      summary: "Update onboarding",
+      description: "Update onboarding progress",
+      operationId: "updateOnboarding",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                stepId: { type: "string" },
+                data: { type: "object" },
+                skip: { type: "boolean" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Onboarding updated",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // REALTIME
+  // ==========================================================================
+  "/api/realtime/subscribe": {
+    get: {
+      tags: ["Realtime"],
+      summary: "Subscribe to realtime updates",
+      description: "Establish SSE connection for realtime updates. Returns text/event-stream.",
+      operationId: "subscribeRealtime",
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": {
+          description: "SSE stream established (text/event-stream)",
+          content: {
+            "text/plain": {
+              schema: { type: "string" },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: ["Realtime"],
+      summary: "Send realtime event",
+      description: "Broadcast event to household members",
+      operationId: "sendRealtimeEvent",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                type: { type: "string", enum: ["task_created", "task_updated", "task_completed", "chat_message"] },
+                data: { type: "object" },
+              },
+              required: ["type", "data"],
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Event sent",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // CHAT
+  // ==========================================================================
+  "/api/chat/magic": {
+    post: {
+      tags: ["Chat"],
+      summary: "AI chat for task suggestions",
+      description: "Chat with AI to get task suggestions and help",
+      operationId: "chatMagic",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                message: { type: "string", description: "User message" },
+                context: { type: "object", description: "Additional context" },
+              },
+              required: ["message"],
+            },
+            example: { message: "Quelles tâches dois-je faire cette semaine pour Emma ?" },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "AI response",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  response: { type: "string" },
+                  suggestedTasks: { type: "array", items: { $ref: "#/components/schemas/TaskCreate" } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // UPLOAD
+  // ==========================================================================
+  "/api/upload/task-proof": {
+    post: {
+      tags: ["Upload"],
+      summary: "Upload task proof",
+      description: "Upload proof/evidence file for a completed task",
+      operationId: "uploadTaskProof",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "multipart/form-data": {
+            schema: {
+              type: "object",
+              properties: {
+                file: { type: "string", format: "binary", description: "Image or document file" },
+                taskId: { type: "string", format: "uuid" },
+              },
+              required: ["file", "taskId"],
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: "File uploaded",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  url: { type: "string", format: "uri" },
+                  key: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ==========================================================================
+  // CRON (Internal)
+  // ==========================================================================
+  "/api/cron/daily": {
+    post: {
+      tags: ["Cron"],
+      summary: "Daily cron job",
+      description: "Execute daily maintenance tasks (streaks, cleanup, notifications). Requires cron secret.",
+      operationId: "dailyCron",
+      parameters: [
+        {
+          name: "authorization",
+          in: "header",
+          required: true,
+          description: "Cron secret",
+          schema: { type: "string" },
+        },
+      ],
+      responses: {
+        "200": {
+          description: "Cron executed",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Success" } } },
+        },
+        "401": {
+          description: "Invalid cron secret",
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } },
+        },
+      },
+    },
+  },
+  "/api/cron/generate-tasks": {
+    post: {
+      tags: ["Cron"],
+      summary: "Generate recurring tasks",
+      description: "Generate tasks from recurring rules. Requires cron secret.",
+      operationId: "generateRecurringTasks",
+      responses: {
+        "200": {
+          description: "Tasks generated",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  generated: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  "/api/cron/notifications": {
+    post: {
+      tags: ["Cron"],
+      summary: "Send scheduled notifications",
+      description: "Send pending scheduled notifications. Requires cron secret.",
+      operationId: "sendScheduledNotifications",
+      responses: {
+        "200": {
+          description: "Notifications sent",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  sent: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 }
 
 // =============================================================================
@@ -1933,20 +3292,32 @@ Real-time updates are available via WebSocket at \`/api/realtime/subscribe\`.
       },
     ],
     tags: [
-      { name: "Tasks", description: "Task management - create, update, delete, and list tasks" },
-      { name: "Children", description: "Child management - add and manage children in household" },
-      { name: "Household", description: "Household settings and member management" },
-      { name: "Voice", description: "Voice-to-task functionality using speech recognition and AI" },
-      { name: "Gamification", description: "Streak tracking and achievements" },
+      { name: "Authentication", description: "Login, logout, and token management" },
+      { name: "Tasks", description: "Task management v1 - create, update, delete, and list tasks" },
+      { name: "Tasks v2", description: "Task management v2 - cursor pagination, bulk operations, advanced filtering" },
+      { name: "Children", description: "Child management v1 - add and manage children" },
+      { name: "Children v2", description: "Child management v2 - with task stats" },
+      { name: "Household", description: "Household settings and member management v1" },
+      { name: "Household v2", description: "Household management v2 - with member stats" },
+      { name: "Voice", description: "Voice-to-task pipeline - transcription, analysis, and task creation" },
+      { name: "Gamification", description: "Streak tracking, badges, achievements, and XP" },
       { name: "Distribution", description: "Task distribution and balance analysis" },
       { name: "Catalog", description: "Task templates and AI suggestions" },
       { name: "Billing", description: "Subscription and billing management via Stripe" },
-      { name: "Notifications", description: "Push notification management" },
+      { name: "Notifications", description: "Push notification management v1" },
+      { name: "Notifications v2", description: "Notifications v2 - with read status" },
+      { name: "Reminders", description: "Task reminders management" },
+      { name: "Insights", description: "AI-powered household insights and recommendations" },
+      { name: "Chat", description: "AI chat for task suggestions" },
+      { name: "Realtime", description: "Real-time updates via SSE" },
+      { name: "Onboarding", description: "User onboarding flow" },
+      { name: "Upload", description: "File upload for task proofs" },
       { name: "GDPR", description: "Data privacy and GDPR compliance endpoints" },
       { name: "Export", description: "Data export functionality" },
       { name: "Analytics", description: "Statistics and analytics" },
       { name: "Mobile", description: "Mobile app specific endpoints" },
       { name: "Sync", description: "Offline sync functionality" },
+      { name: "Cron", description: "Scheduled jobs (internal)" },
       { name: "System", description: "Health checks and system status" },
     ],
     paths: apiPaths,

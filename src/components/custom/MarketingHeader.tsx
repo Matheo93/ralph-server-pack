@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/ui/logo"
 
 export function MarketingHeader() {
   const router = useRouter()
@@ -42,11 +43,8 @@ export function MarketingHeader() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">F</span>
-            </div>
-            <span className="font-semibold text-xl">FamilyLoad</span>
+          <Link href="/">
+            <Logo size="sm" animated />
           </Link>
 
           {/* Navigation */}

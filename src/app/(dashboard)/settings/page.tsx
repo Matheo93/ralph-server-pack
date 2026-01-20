@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { User, Home, Dumbbell, Bell, FileText, Shield, ChevronRight, Trash2, Sparkles } from "lucide-react"
+import { User, Home, Dumbbell, Bell, FileText, Shield, ChevronRight, Trash2, Sparkles, CreditCard, CalendarOff } from "lucide-react"
 
 const SETTINGS_SECTIONS = [
   {
@@ -57,6 +57,24 @@ const SETTINGS_SECTIONS = [
     color: "text-amber-500",
     bgColor: "bg-amber-50 dark:bg-amber-950/30",
     borderColor: "border-amber-200 dark:border-amber-800",
+  },
+  {
+    title: "Abonnement",
+    description: "Facturation et paiements",
+    href: "/settings/billing",
+    icon: CreditCard,
+    color: "text-emerald-500",
+    bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
+    borderColor: "border-emerald-200 dark:border-emerald-800",
+  },
+  {
+    title: "Exclusions",
+    description: "Indisponibilités temporaires",
+    href: "/settings/exclusions",
+    icon: CalendarOff,
+    color: "text-purple-500",
+    bgColor: "bg-purple-50 dark:bg-purple-950/30",
+    borderColor: "border-purple-200 dark:border-purple-800",
   },
   {
     title: "Confidentialité",

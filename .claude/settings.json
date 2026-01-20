@@ -1,0 +1,125 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "name": "block-dev-outside-pm2",
+        "matcher": "Bash",
+        "condition": "command.match(/bun run dev|npm run dev|next dev/)",
+        "action": {
+          "type": "block",
+          "message": "Utilise PM2 pour le dev server: pm2 restart familyload-dev"
+        }
+      },
+      {
+        "name": "warn-git-push",
+        "matcher": "Bash",
+        "condition": "command.match(/git push/)",
+        "action": {
+          "type": "confirm",
+          "message": "⚠️ Tu vas push. As-tu:\n1. Vérifié le build: bun run build\n2. Testé manuellement les pages modifiées\n3. Vérifié qu'il n'y a pas de console.log"
+        }
+      },
+      {
+        "name": "prevent-force-push",
+        "matcher": "Bash",
+        "condition": "command.match(/git push.*(-f|--force)/)",
+        "action": {
+          "type": "block",
+          "message": "🛑 Force push interdit sur ce projet!"
+        }
+      },
+      {
+        "name": "require-build-before-commit",
+        "matcher": "Bash",
+        "condition": "command.match(/git commit/) && !context.buildPassed",
+        "action": {
+          "type": "block",
+          "message": "Lance d'abord: bunx tsc --noEmit && bun run build"
+        }
+      }
+    ],
+    "PostToolUse": [
+      {
+        "name": "auto-format-on-edit",
+        "matcher": "Edit|Write",
+        "condition": "filePath.match(/\\.(ts|tsx|js|jsx)$/)",
+        "action": {
+          "type": "run",
+          "command": "bunx prettier --write \"${filePath}\""
+        }
+      },
+      {
+        "name": "typecheck-on-ts-edit",
+        "matcher": "Edit|Write",
+        "condition": "filePath.match(/\\.(ts|tsx)$/)",
+        "action": {
+          "type": "run",
+          "command": "bunx tsc --noEmit --skipLibCheck 2>&1 | head -20"
+        }
+      },
+      {
+        "name": "warn-console-log",
+        "matcher": "Edit|Write",
+        "condition": "newContent && newContent.includes('console.log')",
+        "action": {
+          "type": "warn",
+          "message": "⚠️ console.log détecté! Pense à le retirer avant commit."
+        }
+      },
+      {
+        "name": "check-any-type",
+        "matcher": "Edit|Write",
+        "condition": "filePath.match(/\\.tsx?$/) && newContent && newContent.match(/:\\s*any[^a-zA-Z]/)",
+        "action": {
+          "type": "warn",
+          "message": "⚠️ Type 'any' détecté! Utilise un type spécifique."
+        }
+      },
+      {
+        "name": "rls-reminder-on-db",
+        "matcher": "Edit|Write",
+        "condition": "filePath.includes('/migrations/') && newContent && newContent.match(/CREATE TABLE/i)",
+        "action": {
+          "type": "warn",
+          "message": "🔒 N'oublie pas les RLS policies pour cette nouvelle table!"
+        }
+      }
+    ],
+    "Stop": [
+      {
+        "name": "final-audit",
+        "action": {
+          "type": "run",
+          "command": "cd /home/ubuntu/familyload && git diff --name-only HEAD~1 2>/dev/null | xargs -I {} grep -l 'console.log' {} 2>/dev/null && echo '⚠️ console.log trouvés dans les fichiers modifiés!' || echo '✅ Pas de console.log'"
+        }
+      }
+    ]
+  },
+  "agents": {
+    "e2e-runner": {
+      "description": "Lance et vérifie les tests E2E complets",
+      "triggerOn": ["test", "e2e", "playwright"],
+      "configFile": ".claude/agents/e2e-runner.md"
+    },
+    "security-reviewer": {
+      "description": "Audit sécurité OWASP + RGPD",
+      "triggerOn": ["security", "audit", "owasp"],
+      "configFile": ".claude/agents/security-reviewer.md"
+    },
+    "build-fixer": {
+      "description": "Corrige les erreurs de build avec changements minimaux",
+      "triggerOn": ["build error", "tsc error", "type error"],
+      "configFile": ".claude/agents/build-fixer.md"
+    }
+  },
+  "project": {
+    "name": "FamilyLoad",
+    "stack": ["next15", "react19", "typescript", "tailwind4", "supabase", "stripe"],
+    "strictMode": true,
+    "noAny": true,
+    "testFramework": "playwright",
+    "buildCommand": "bun run build",
+    "testCommand": "bunx playwright test",
+    "devCommand": "pm2 restart familyload-dev"
+  }
+}

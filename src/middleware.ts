@@ -1,4 +1,125 @@
 import { type NextRequest, NextResponse } from "next/server"
+import {
+  createRateLimiter,
+  RATE_LIMIT_PRESETS,
+  ipKeyGenerator,
+  extractIp,
+  type AdvancedRateLimiter,
+} from "@/lib/security/rate-limiter-advanced"
+
+// ============================================================
+// RATE LIMITING CONFIGURATION
+// ============================================================
+
+/**
+ * Route-based rate limiting configuration
+ * Applied in middleware before reaching route handlers
+ */
+
+// Auth routes - 5 requests per minute (strict, with adaptive backoff)
+const authRateLimiter = createRateLimiter({
+  ...RATE_LIMIT_PRESETS.auth,
+  keyGenerator: ipKeyGenerator,
+})
+
+// API v1/v2 standard routes - 60 requests per minute
+const apiRateLimiter = createRateLimiter({
+  ...RATE_LIMIT_PRESETS.standard,
+  keyGenerator: (request) => {
+    const ip = extractIp(request)
+    const path = request.nextUrl.pathname.split("/").slice(0, 4).join("/") // /api/v1/resource
+    return `api:${ip}:${path}`
+  },
+})
+
+// Sensitive data routes (GDPR, export, delete) - 5 requests per minute
+const sensitiveRateLimiter = createRateLimiter({
+  limit: 5,
+  windowMs: 60000,
+  message: "Trop de requêtes sur des opérations sensibles. Réessayez dans une minute.",
+  keyGenerator: ipKeyGenerator,
+})
+
+// Payment routes - 10 requests per minute
+const paymentRateLimiter = createRateLimiter({
+  ...RATE_LIMIT_PRESETS.payment,
+  keyGenerator: ipKeyGenerator,
+})
+
+// Upload/Voice routes - 10 requests per minute
+const uploadRateLimiter = createRateLimiter({
+  ...RATE_LIMIT_PRESETS.upload,
+  keyGenerator: ipKeyGenerator,
+})
+
+/**
+ * Determines which rate limiter to use based on the path
+ */
+function getRateLimiterForPath(pathname: string): AdvancedRateLimiter | null {
+  // Skip rate limiting for static assets and health checks
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/static") ||
+    pathname === "/api/health" ||
+    pathname.startsWith("/api/cron") // Cron jobs are server-only
+  ) {
+    return null
+  }
+
+  // Auth routes - strictest limiting
+  if (
+    pathname === "/api/v1/auth" ||
+    pathname.startsWith("/api/auth") ||
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname.startsWith("/kids/login")
+  ) {
+    return authRateLimiter
+  }
+
+  // Sensitive data operations
+  if (
+    pathname.startsWith("/api/gdpr") ||
+    pathname.startsWith("/api/account/delete") ||
+    pathname.startsWith("/api/export")
+  ) {
+    return sensitiveRateLimiter
+  }
+
+  // Payment routes
+  if (
+    pathname.startsWith("/api/stripe") ||
+    pathname.startsWith("/api/billing")
+  ) {
+    // Skip webhook endpoints (they have signature verification)
+    if (pathname.includes("webhook")) {
+      return null
+    }
+    return paymentRateLimiter
+  }
+
+  // Upload/Voice routes
+  if (
+    pathname.startsWith("/api/upload") ||
+    pathname.startsWith("/api/voice") ||
+    pathname.startsWith("/api/vocal")
+  ) {
+    return uploadRateLimiter
+  }
+
+  // API v1/v2 routes - standard limiting
+  if (pathname.startsWith("/api/v1") || pathname.startsWith("/api/v2")) {
+    return apiRateLimiter
+  }
+
+  // Other API routes - standard limiting
+  if (pathname.startsWith("/api/")) {
+    return apiRateLimiter
+  }
+
+  // No rate limiting for non-API routes
+  return null
+}
 
 // Security: Generate CSP nonce for inline scripts
 function generateNonce(): string {
@@ -16,9 +137,9 @@ function generateCSP(nonce: string): string {
     // Default: deny everything not explicitly allowed
     "default-src 'self'",
 
-    // Scripts: self + nonce for inline scripts (Next.js requires this)
+    // Scripts: self + unsafe-inline (Next.js generates inline scripts without nonce)
     // unsafe-eval needed for Next.js development mode only
-    `script-src 'self' 'nonce-${nonce}'${isProd ? "" : " 'unsafe-eval'"}`,
+    `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
 
     // Styles: self + unsafe-inline (Tailwind requires inline styles)
     "style-src 'self' 'unsafe-inline'",
@@ -167,6 +288,18 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // ============================================================
+  // RATE LIMITING (applied first, before any routing)
+  // ============================================================
+  const rateLimiter = getRateLimiterForPath(pathname)
+  if (rateLimiter) {
+    const result = await rateLimiter.check(request)
+    if (result.response) {
+      // Rate limited - return 429 response immediately
+      return result.response
+    }
+  }
+
+  // ============================================================
   // KIDS INTERFACE ROUTING
   // ============================================================
   if (isKidsRoute(pathname)) {
@@ -205,13 +338,8 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Continue avec les headers de sécurité
-    const response = NextResponse.next()
-    const nonce = generateNonce()
-    const csp = generateCSP(nonce)
-    response.headers.set("Content-Security-Policy", csp)
-    response.headers.set("X-Nonce", nonce)
-    return response
+    // Continue sans CSP (désactivé pour Cloudflare tunnel)
+    return NextResponse.next()
   }
 
   // ============================================================
@@ -248,11 +376,10 @@ export async function middleware(request: NextRequest) {
   const nonce = generateNonce()
   const csp = generateCSP(nonce)
 
-  // Set CSP header
-  response.headers.set("Content-Security-Policy", csp)
-
-  // Store nonce in header for potential use by React components
-  response.headers.set("X-Nonce", nonce)
+  // CSP disabled for Cloudflare tunnel compatibility
+  // TODO: Re-enable with proper nonce support
+  // response.headers.set("Content-Security-Policy", csp)
+  // response.headers.set("X-Nonce", nonce)
 
   // If tokens are expired, clear them
   if (idToken && isTokenExpired(idToken)) {

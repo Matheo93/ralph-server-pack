@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { LogoAnimated } from "@/components/ui/logo"
 
 interface IntroAnimationProps {
   children: ReactNode
@@ -102,13 +103,11 @@ export function IntroAnimation({ children }: IntroAnimationProps) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: [0.5, 0.8, 0.5] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute inset-0 rounded-2xl bg-primary/30 blur-xl scale-150"
+                    className="absolute inset-0 rounded-full bg-[#0070F3]/30 blur-xl scale-150"
                   />
 
-                  {/* Logo container */}
-                  <div className="relative h-24 w-24 md:h-32 md:w-32 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-2xl shadow-primary/30">
-                    <span className="text-primary-foreground font-bold text-5xl md:text-6xl">F</span>
-                  </div>
+                  {/* Logo animé */}
+                  <LogoAnimated size="2xl" />
                 </div>
               </motion.div>
 
@@ -120,7 +119,7 @@ export function IntroAnimation({ children }: IntroAnimationProps) {
                   y: animationPhase !== "logo" ? 0 : 30
                 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary via-rose-500 to-orange-500 bg-clip-text text-transparent mb-4"
+                className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-[#0070F3] via-[#00DFD8] to-[#FF6B9D] bg-clip-text text-transparent mb-4"
               >
                 FamilyLoad
               </motion.h1>
@@ -135,7 +134,7 @@ export function IntroAnimation({ children }: IntroAnimationProps) {
                 transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                 className="text-xl md:text-2xl text-gray-600 font-medium"
               >
-                Liberez votre charge mentale
+                Libérez votre charge mentale
               </motion.p>
 
               {/* Animated dots */}
